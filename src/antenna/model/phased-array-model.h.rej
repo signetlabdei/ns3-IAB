@@ -1,0 +1,14 @@
+diff a/src/antenna/model/phased-array-model.h b/src/antenna/model/phased-array-model.h	(rejected hunks)
+@@ -56,6 +56,12 @@ public:
+ 
+   typedef std::vector<std::complex<double> > ComplexVector; //!< type definition for complex vectors
+ 
++  /**
++   * Initializes the beamforming vector to the normalized steering vector
++   * pointing towards boresight.
++   */
++  void InitializeToBoresight ();
++
+   /**
+    * Returns the horizontal and vertical components of the antenna element field
+    * pattern at the specified direction. Single polarization is considered.
