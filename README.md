@@ -1,96 +1,93 @@
-# mmWave ns-3 module #
+# ns-3 IAB Simulator: a brief User Guide**
 
-This is an [ns-3](https://www.nsnam.org "ns-3 Website") module for the simulation
-of 5G cellular networks operating at mmWaves. A description of this module can be found in [this paper](https://ieeexplore.ieee.org/document/8344116/ "mmwave paper").
+## Prerequisites
 
-Main features:
+First of all, the simulator requires all the prerequisites which are needed for the baseline ns-3 simulator to be installed.
+This can be achieved by running (assuming an Ubuntu-based Linux distribution):
 
-* Support of a wide range of channel models, including the model based on 3GPP TR 38.901 for frequencies between 0.5 and 100 GHz. Ray tracing and measured traces can also be used.
-
-* Custom PHY and MAC classes supporting the 3GPP NR frame structure and numerologies.
-
-* Custom schedulers for supporting dynamic TDD formats
-
-* Carrier Aggregation at the MAC layer
-
-* Enhancements to the RLC layer with re-segmentation of packets for retransmissions
-
-* Dual Connectivity with LTE base stations, with fast secondary cell handover and channel tracking
-
-* Simulation of core network elements (with also the MME as a real node)
-
-## Installation
-This repository contains a complete ns-3 installation with the addition of the mmwave module.
-
-Use these commands to download and build `ns3-mmwave`:
-```
-git clone https://github.com/nyuwireless-unipd/ns3-mmwave.git
-cd ns3-mmwave
-./ns3 configure --disable-python --enable-examples && ./ns3 build
+```bash
+sudo apt install g++ python3 python3-dev pkg-config sqlite3 cmake
 ```
 
-## Usage example
-You can use the following command to run the `mmwave-simple-epc` example.
+If you wish to run a batch of simulations with multiple parameters (which is usually the case), the [SEM execution manager](https://github.com/signetlabdei/sem), Numpy and Matplotlib are required as well:
+
+```bash
+python3 -m pip install sem numpy matplotlib
 ```
-./ns3 --run mmwave-simple-epc
+
+## How to reproduce the Deliverable's simulations
+
+The simulator folder contains two simulation scripts with the corresponding parsing and plotting utilities. The former implement the single-relay scenario with varying overall scale and the multi-relay heterogeneous scenario of Deliverable 3, and they allow to reproduce the corresponding set of results.
+
+### Re-running the simulations
+
+To run any of the available scripts, first open a terminal window from the root of the simulator folder and configure ns-3 with:
+
+```bash
+./ns3 configure --build-profile=optimized --enable-modules=mmwave
 ```
-Other examples are included in `src/mmwave/examples/`
 
-## Documentation
-The documentation of this module is available at [this link](./src/mmwave/doc/mmwave-doc.md).
+and build via:
 
-## Related modules
-- MilliCar is an ns-3 module for the simulation of mmWave NR V2X networks. Check [this repo](https://github.com/signetlabdei/millicar) for further details.
-- A seperate module is being developed for [mmWave UE Energy Consumption](https://github.com/arghasen10/mmwave-energy "mmwave-energy"). You can use this module for analyzing
-Energy Consumption behaviour of mmwave UE. Check this repository for further details.
-- `ns3-mmwave-iab` is an extended version of `ns3-mmWave` adding wireless relaying capabilities to an ns-3 NetDevice, and the possibility of simulating in-band relaying at mmWave frequencies. Check [this repo](https://github.com/signetlabdei/ns3-mmwave-iab) for further details.
+```bash
+./ns3
+```
 
-## References
-The following papers describe in detail the features implemented in the mmWave
-module:
-- [End-to-End Simulation of 5G mmWave Networks](https://ieeexplore.ieee.org/document/8344116/ "comst paper") is a comprehensive tutorial with a detailed description of the whole module. We advise the researchers interested in this module to start reading from this paper;
-- [Integration of Carrier Aggregation and Dual Connectivity for the ns-3 mmWave Module](https://arxiv.org/abs/1802.06706 "wns3 2018") describes the Carrier Aggregation implementation;
-- [Implementation of A Spatial Channel Model for ns-3](https://arxiv.org/abs/2002.09341 "wns3 2020") describes the integration of the spatial channel model based on the 3GPP specifications TR 38.901 V15.0.0;
-- [Performance Comparison of Dual Connectivity and Hard Handover for LTE-5G Tight Integration](https://arxiv.org/abs/1607.05425 "simutools paper") describes the Dual Connectivity feature.
+Then, run 
 
-These other papers describe features that were implemented in older releases:
-- [ns-3 Implementation of the 3GPP MIMO Channel Model for Frequency Spectrum above 6 GHz](https://dl.acm.org/citation.cfm?id=3067678 "wns3 2017") describes the implementation of the 3GPP channel model based on TR 38.900;
-- [Multi-Sector and Multi-Panel Performance in 5G mmWave Cellular Networks](https://arxiv.org/abs/1808.04905 "globecom2018") describes the multi-sector addition to the 3GPP channel model;
+```bash
+python3 sem-run-simulations.py
+``` 
 
-If you use this module in your research, please cite:
+A progress-bar showing how many simulations are left and an ETA should pop-up. 
+Please note that it is possible to stop a simulation campaign (CTRL + C) and resume it by launching again the simulation script. However, the simulation runs which were not terminated already will be re-started from scratch.
 
-M. Mezzavilla, M. Zhang, M. Polese, R. Ford, S. Dutta, S. Rangan, M. Zorzi, _"End-to-End Simulation of 5G mmWave Networks,"_ in IEEE Communications Surveys & Tutorials, vol. 20, no. 3, pp. 2237-2263, thirdquarter 2018. [bibtex available here](https://ieeexplore.ieee.org/document/8344116/)
+### Parsing the results
 
-## Future work
-We are actively developing new features for the mmWave module, including:
-- 3GPP NR beam tracking
-- 3GPP NR Integrated Access and Backhaul feature (see [this repo](https://github.com/signetlabdei/ns3-mmwave-iab) for more details)
+Once the simulations are finished, the results can be parsed by running:
 
-## About
-This module is being developed by [NYU Wireless](http://wireless.engineering.nyu.edu/) and the [University of Padova](http://mmwave.dei.unipd.it/).
-This  work  was  supported  in  part by  the  U.S.  Department  of  Commerce  National  Institute  of  Standards  and Technology through the Project “An End-to-End Research Platform for Public Safety  Communications  above  6  GHz”  under  Award  70NANB17H16.
+```bash
+python3 sem-parse-results.py
+``` 
 
+This will parse the simulation results and will generate a predetermined set of plots (along the lines of the ones shown during our periodic meetings) in the folder `Scenario1Plots/`.
 
+## How to run and parse simulations with different parameters
 
-<!-- The new-handover branch offers integration between LTE and mmWave and dual connectivity features.
- -->
+This last section will show how to run the pre-configured simulation scripts with different parameters. The above scripts will be considered as a reference.
 
-## Authors ##
+### Setting different parameters
 
-The ns-3 mmWave module is the result of the development effort carried out by different people. The main contributors are:
-- Tommaso Zugno, University of Padova
-- Michele Polese, University of Padova
-- Matteo Pagin, University of Padova
-- Mattia Lecci, University of Padova
-- Matteo Drago, University of Padova
-- Mattia Rebato, University of Padova
-- Menglei Zhang, NYU Wireless
-- Marco Giordani, University of Padova
-- Marco Mezzavilla, NYU Wireless
-- Sourjya Dutta, NYU Wireless
-- Russell Ford, NYU Wireless
-- Gabriel Arrobo, Intel
+Simulations should be run using the execution manager [SEM](https://github.com/signetlabdei/sem). This library manages the parallel execution of the simulations and associates each simulation run to its input parameters. Accordingly, the simulation parameters shall be set in the `sem-run-simulations` script, where the SEM simulation campaign is created. Here, we exposed a set of parameters which can be easily configured.
+Parameters which are common to all the simulation runs are set in a Python `Dict` (see R, line 26) which associates parameters name  ([here](#param_list) you can find a list of parameters of both simulation scripts) to their value. By default, SEM will run `RUNS` simulations for *every combination* of the provided parameters. For instance, with the following list of parameters:
+```python
+runs = 10
+params = {
+  'bw' : [200e6, 400e6],
+  'fc'  : [26e9; 60e9],   
+}
+```
+SEM will run *40 simulations in total*, 10 for each combination of the system bandwidth `bw` and carrier frequency `fc`.
+Therefore, if you wish to run simulations comparing multiple values of a parameter, set them here only if you wish to run also *all the combinations* of this parameter for *all the combinations* of the other ones.
 
-## License ##
+On the other hand, the number and position of the nodes need to be manually changed in the `iab-inmarsat-scenario-1.cc` simulation script file. Changing these parameters will also require to modify the script which parses the results, as we currently do not support doing this automatically.
 
-This software is licensed under the terms of the GNU GPLv2, as like as ns-3. See the LICENSE file for more details.
+### Parsing the results obtained with different parameters
+
+The script `sem-parse-results.py` illustrates how to parse and analyze the simulation results. If you wish to generate the same plots as per-configured, i.e., same x-axis parameter and y-axis metric, just with different parameters (for instance, additional source rates), it is enough to modify the corresponding parameters in the above scripts.
+
+On the other hand, if you wish to change the x- and/or y-axis parameter/metric, first iterate through the values of the chosen input parameter. Then, compute a metric for each such value. Finally, generate the plot you are interested in using the collection of metric and parameter values. 
+For instance, you can iterate through the `bw` values and load the corresponding throughput via:
+```python
+thr = [] 
+  for bw in aListOfBandwidths:
+  key = {
+    'bw' : bw
+  }
+  results = campaign.db.get_results(key)
+  y = np.array(get_e2e_avg_throughput(campaign, results, \
+      APP_TRACENAME, APP_RUN_TIME))
+  thr.append(y)
+```
+Then plot the results according to your needs. You can use the functions defined in `metrics_common.py` to compute other metrics.
+Please note that with the above code *all the results* referring to any simulation run with `bw` = `200e6` are loaded. If you wish to fix any other parameters, specify its value in `key` as a parameter name and value pair.
