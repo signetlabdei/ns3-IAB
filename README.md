@@ -1,4 +1,4 @@
-# ns-3 IAB Simulator: a brief User Guide**
+# ns-3 IAB Simulator: a brief User Guide
 
 ## Prerequisites
 
@@ -9,7 +9,8 @@ This can be achieved by running (assuming an Ubuntu-based Linux distribution):
 sudo apt install g++ python3 python3-dev pkg-config sqlite3 cmake
 ```
 
-If you wish to run a batch of simulations with multiple parameters (which is usually the case), the [SEM execution manager](https://github.com/signetlabdei/sem), Numpy and Matplotlib are required as well:
+If you wish to run a batch of simulations with multiple parameters (which is usually the case), the [SEM execution manager](https://github.com/signetlabdei/sem), `Numpy` and `Matplotlib` are required as well.
+They can be installed via:
 
 ```bash
 python3 -m pip install sem numpy matplotlib
@@ -17,7 +18,7 @@ python3 -m pip install sem numpy matplotlib
 
 ## How to reproduce the Deliverable's simulations
 
-The simulator folder contains two simulation scripts with the corresponding parsing and plotting utilities. The former implement the single-relay scenario with varying overall scale and the multi-relay heterogeneous scenario of Deliverable 3, and they allow to reproduce the corresponding set of results.
+The simulator folder contains the simulation script which was used to obtain the results presented in the deliverable, with the corresponding parsing and plotting utilities.
 
 ### Re-running the simulations
 
@@ -59,7 +60,7 @@ This last section will show how to run the pre-configured simulation scripts wit
 ### Setting different parameters
 
 Simulations should be run using the execution manager [SEM](https://github.com/signetlabdei/sem). This library manages the parallel execution of the simulations and associates each simulation run to its input parameters. Accordingly, the simulation parameters shall be set in the `sem-run-simulations` script, where the SEM simulation campaign is created. Here, we exposed a set of parameters which can be easily configured.
-Parameters which are common to all the simulation runs are set in a Python `Dict` (see R, line 26) which associates parameters name  ([here](#param_list) you can find a list of parameters of both simulation scripts) to their value. By default, SEM will run `RUNS` simulations for *every combination* of the provided parameters. For instance, with the following list of parameters:
+Parameters which are common to all the simulation runs are set in a Python `Dict` which associates parameters name to their value. By default, SEM will run `runs` simulations for *every combination* of the provided parameters. For instance, with the following list of parameters:
 ```python
 runs = 10
 params = {
