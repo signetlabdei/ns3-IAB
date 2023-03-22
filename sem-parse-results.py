@@ -61,7 +61,6 @@ for rate in SRC_RATES:
         campaign, results, UDP_APP_TRACEFILE, APP_RUNTIME_SEC))
     thr_e2e_sys = [point / NUM_IABS for point in thr_e2e_sys]
     src_rate_sys = [point / NUM_IABS for point in src_rate_sys]
-    # thrMean = np.mean(thr_e2e_sys/NUM_IABS)  # [ms]
     thr_data.append(thr_e2e_sys)
     src_data.append(np.mean(src_rate_sys))
 
@@ -75,8 +74,6 @@ plt.grid()
 plt.legend()
 plt.ylabel('Throughput [Mbit/s]')
 plt.savefig(f'{OUT_FOLDER}/E2E_per_IAB_throughput_boxplot.png')
-# tkz.clean_figure(target_resolution=300)
-# tkz.save(f'{OUT_FOLDER}/E2E_system_throughput.tex')
 
 print('Plotting E2E APP layer vs IAB depth throughput stats')
 fig = plt.figure(figsize=[5, 3], dpi=300)
@@ -95,8 +92,6 @@ plt.grid()
 plt.legend()
 plt.ylabel('Throughput [Mbit/s]')
 plt.savefig(f'{OUT_FOLDER}/E2E_per_IAB_throughput_vs_depth.png')
-# tkz.clean_figure(target_resolution=300)
-# tkz.save(f'{OUT_FOLDER}/E2E_system_throughput.tex')
 
 print('Plotting E2E APP layer vs IAB depth latency stats')
 fig = plt.figure(figsize=[5, 3], dpi=300)
@@ -115,8 +110,6 @@ plt.grid()
 plt.legend()
 plt.ylabel('Latency [ms]')
 plt.savefig(f'{OUT_FOLDER}/E2E_per_IAB_latency_vs_depth.png')
-# tkz.clean_figure(target_resolution=300)
-# tkz.save(f'{OUT_FOLDER}/E2E_system_throughput.tex')
 
 print('Plotting E2E APP layer latency stats')
 fig = plt.figure(figsize=[5, 3], dpi=300)
@@ -126,10 +119,8 @@ for rate in SRC_RATES:
     results = campaign.db.get_results(params_grid)
     lat_samples = np.array(get_e2e_latency_samples(
         campaign, results, UDP_APP_TRACEFILE))
-    # thrMean = np.mean(thr_e2e_sys/NUM_IABS)  # [ms]
     lat_data.append(lat_samples)
 plt.boxplot(lat_data)
-#plt.plot([1, 2, 3], src_data, label='Source rate')
 plt.title('Median per packet end-to-end latency [ms]')
 plt.xlabel('Per IAB source rate [Mbit/s]')
 fig.axes[0].set_xticklabels(SRC_RATES)
@@ -137,8 +128,6 @@ plt.grid()
 plt.legend()
 plt.ylabel('Latency [ms]')
 plt.savefig(f'{OUT_FOLDER}/E2E_latency_boxplot.png')
-# tkz.clean_figure(target_resolution=300)
-# tkz.save(f'{OUT_FOLDER}/E2E_system_throughput.tex')
 
 print('Plotting PDR')
 fig = plt.figure(figsize=[5, 3], dpi=300)
@@ -157,8 +146,6 @@ plt.grid()
 plt.legend()
 plt.ylabel(r"Packet Drop Ratio (PDR) $[\%]$")
 plt.savefig(f'{OUT_FOLDER}/E2E_per_IAB_PDR_vs_depth.png')
-# tkz.clean_figure(target_resolution=300)
-# tkz.save(f'{OUT_FOLDER}/E2E_system_throughput.tex')
 
 print('Plotting Latency ECDF')
 # Should be basically the same for all rates
@@ -182,8 +169,6 @@ plt.grid()
 plt.legend()
 plt.ylabel('ECDF')
 plt.savefig(f'{OUT_FOLDER}/latency_ECDF2.png')
-# tkz.clean_figure(target_resolution=300)
-# tkz.save(f'{OUT_FOLDER}/E2E_system_throughput.tex')
 
 print('Plotting PHY occupancy vs depth stats')
 # Should be basically the same for all rates
@@ -205,8 +190,6 @@ plt.xticks([0,1,2],[0,1,2])
 plt.grid()
 plt.legend()
 plt.savefig(f'{OUT_FOLDER}/phy_occupancy.png')
-# tkz.clean_figure(target_resolution=300)
-# tkz.save(f'{OUT_FOLDER}/E2E_system_throughput.tex')
 
 print('Plotting SINR stats')
 # Should be basically the same for all rates
@@ -218,12 +201,9 @@ sinr_samples = np.array(getTxSinrSamples(campaign, results, PHY_TRACEFILE,
 sinr_sorted = np.sort(sinr_samples)
 plt.plot(sinr_sorted, np.linspace(
     0.0, 1.0, num=len(sinr_sorted)), label='SINR [dB]')
-# plt.plot([1, 2, 3], src_data, label='Source rate')
 plt.title('ECDF of the SINR experienced by each packet')
 plt.xlabel('SINR [dB]')
 plt.grid()
 plt.legend()
 plt.ylabel('ECDF')
 plt.savefig(f'{OUT_FOLDER}/SINR.png')
-# tkz.clean_figure(target_resolution=300)
-# tkz.save(f'{OUT_FOLDER}/E2E_system_throughput.tex')

@@ -51,6 +51,13 @@ unsigned int numSymResvForOddIabs = 6;
 std::string dataSensorRate = "200Mbps";
 double bw = 400e6;
 double fc = 26e9;
+unsigned int rlcTxBufferSize = 25 * 1024 * 1024;
+double duTxPower = 30.0; 
+double mtTxPower = 30.0;
+double duNoiseFigure = 5.0;
+double mtNoiseFigure = 5.0;
+bool enableShadowing = false;
+bool harqEnabled = true;
 
 NS_LOG_COMPONENT_DEFINE ("IabInmarsatScenario1");
 
@@ -199,12 +206,20 @@ main (int argc, char *argv[])
   cmd.AddValue ("ipi", "The inter-packet interval time [ms]", ipi);
   cmd.AddValue ("appStartMs", "The application start time [ms]", appStartMs);
   cmd.AddValue ("dataSensorRate", "The data rate of the applications", dataSensorRate);
+  cmd.AddValue ("rlcTxBufferSize", "The size of the RLC buffer at the TX side [B]", rlcTxBufferSize);
+  cmd.AddValue ("harqEnabled", "Whether to enable HARQ", harqEnabled);
+  cmd.AddValue ("duTxPower", "The TX power of the DUs [dBm]", duTxPower);
+  cmd.AddValue ("mtTxPower", "The TX power of the MTs [dBm]", mtTxPower);
+  cmd.AddValue ("enableShadowing", "Whether to enable the optional shadowing term", enableShadowing);
+  cmd.AddValue ("duNoiseFigure", "The NF of the DUs [dB]", duNoiseFigure);
+  cmd.AddValue ("mtNoiseFigure", "The NF of the MTs [dB]", mtNoiseFigure);
+
   cmd.Parse (argc, argv);
 
   Config::SetDefault ("ns3::MmWaveHelper::UseIdealRrc", BooleanValue (useIdealRrc));
   Config::SetDefault ("ns3::PhasedArrayModel::AntennaElement",
                       PointerValue (CreateObject<ThreeGppAntennaModel> ()));
-  Config::SetDefault ("ns3::ThreeGppPropagationLossModel::ShadowingEnabled", BooleanValue (false));
+  Config::SetDefault ("ns3::ThreeGppPropagationLossModel::ShadowingEnabled", BooleanValue (enableShadowing));
   Config::SetDefault ("ns3::MmWaveFlexTtiMacScheduler::NumSymResvForChildrenDu",
                       UintegerValue (numSymResvForOddIabs));
 
@@ -216,15 +231,21 @@ main (int argc, char *argv[])
   Config::SetDefault("ns3::MmWavePhyMacCommon::Bandwidth", DoubleValue (bw));
 
   // Increase RLC buffers size
-  Config::SetDefault ("ns3::LteRlcAm::MaxTxBufferSize", UintegerValue (25 * 1024 * 1024));
-  Config::SetDefault ("ns3::LteRlcUm::MaxTxBufferSize", UintegerValue (25 * 1024 * 1024));
+  Config::SetDefault ("ns3::LteRlcAm::MaxTxBufferSize", UintegerValue (rlcTxBufferSize));
+  Config::SetDefault ("ns3::LteRlcUm::MaxTxBufferSize", UintegerValue (rlcTxBufferSize));
+
+  // PHY layer parameters
+  Config::SetDefault("ns3::MmWaveEnbPhy::TxPower", DoubleValue (duTxPower));
+  Config::SetDefault("ns3::MmWaveUePhy::TxPower", DoubleValue (mtTxPower));
+  Config::SetDefault("ns3::MmWaveEnbPhy::NoiseFigure", DoubleValue (duNoiseFigure));
+  Config::SetDefault("ns3::MmWaveUePhy::NoiseFigure", DoubleValue (mtNoiseFigure));
 
   Ptr<MmWaveHelper> mmwaveHelper = CreateObject<MmWaveHelper> ();
   mmwaveHelper->SetChannelConditionModelType ("ns3::AlwaysLosChannelConditionModel");
 
   Ptr<MmWavePointToPointEpcHelper> epcHelper = CreateObject<MmWavePointToPointEpcHelper> ();
   mmwaveHelper->SetEpcHelper (epcHelper);
-  mmwaveHelper->SetHarqEnabled (true);
+  mmwaveHelper->SetHarqEnabled (harqEnabled);
   mmwaveHelper->SetBeamformingModelType ("ns3::MmWaveCodebookBeamforming");
 
   mmwaveHelper->SetIabBeamformingCodebookAttribute ("CodebookFilename", StringValue (iabCbPath));
@@ -262,7 +283,7 @@ main (int argc, char *argv[])
       ipv4RoutingHelper.GetStaticRouting (remoteHost->GetObject<Ipv4> ());
   remoteHostStaticRouting->AddNetworkRouteTo (Ipv4Address ("7.0.0.0"), Ipv4Mask ("255.0.0.0"), 1);
 
-  // Install Mobility Model
+  // Install Mobility Models
   MobilityHelper iabmobility;
   Ptr<ListPositionAllocator> iabPositionAlloc = CreateObject<ListPositionAllocator> ();
   // Layer 1
@@ -284,6 +305,7 @@ main (int argc, char *argv[])
 
   Ptr<ListPositionAllocator> enbPositionAlloc = CreateObject<ListPositionAllocator> ();
   enbPositionAlloc->Add (Vector (0.0, 0.0, 5.0));
+
   MobilityHelper enbMobility;
   enbMobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
   enbMobility.SetPositionAllocator (enbPositionAlloc);

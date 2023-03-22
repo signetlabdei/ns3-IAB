@@ -15,7 +15,7 @@ links_df = pd.read_csv(
 fig = plt.figure(figsize=[5, 3], dpi=300)
 plt.grid()
 
-# Draw links
+# Draw parent <--> child links
 for idx, row in links_df.iterrows():
     parent_cid = row['parent_cell_id']
     child_cid = row['cell_id']
