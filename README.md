@@ -40,7 +40,7 @@ Then, run
 python3 sem-run-simulations.py
 ``` 
 
-A progress-bar showing how many simulations are left and an ETA should pop-up. 
+A progress-bar showing how many simulations are left and an ETA should pop up. 
 Please note that it is possible to stop a simulation campaign (CTRL + C) and resume it by launching again the simulation script. However, the simulation runs which were not terminated already will be re-started from scratch.
 
 ### Parsing the results
@@ -60,7 +60,7 @@ This last section will show how to run the pre-configured simulation scripts wit
 ### Setting different parameters
 
 Simulations should be run using the execution manager [SEM](https://github.com/signetlabdei/sem). This library manages the parallel execution of the simulations and associates each simulation run to its input parameters. Accordingly, the simulation parameters shall be set in the `sem-run-simulations` script, where the SEM simulation campaign is created. Here, we exposed a set of parameters which can be easily configured.
-Parameters which are common to all the simulation runs are set in a Python `Dict` which associates parameters name to their value. By default, SEM will run `runs` simulations for *every combination* of the provided parameters. For instance, with the following list of parameters:
+Parameters common to all simulation runs are set in a Python `Dict` that maps the parameter names to their value. By default, SEM will run `runs` simulations for *every combination* of the provided parameters. For instance, with the following list of parameters:
 ```python
 runs = 10
 params = {
@@ -71,11 +71,11 @@ params = {
 SEM will run *40 simulations in total*, 10 for each combination of the system bandwidth `bw` and carrier frequency `fc`.
 Therefore, if you wish to run simulations comparing multiple values of a parameter, set them here only if you wish to run also *all the combinations* of this parameter for *all the combinations* of the other ones.
 
-On the other hand, the number and position of the nodes need to be manually changed in the `iab-inmarsat-scenario-1.cc` simulation script file. Changing these parameters will also require to modify the script which parses the results, as we currently do not support doing this automatically.
+On the other hand, the number and position of the nodes need to be manually changed in the `iab-inmarsat-scenario-1.cc` simulation script file. Changing these parameters will also require modifying the script which parses the results, as we currently do not support doing this automatically.
 
 ### Parsing the results obtained with different parameters
 
-The script `sem-parse-results.py` illustrates how to parse and analyze the simulation results. If you wish to generate the same plots as per-configured, i.e., same x-axis parameter and y-axis metric, just with different parameters (for instance, additional source rates), it is enough to modify the corresponding parameters in the above scripts.
+The script `sem-parse-results.py` illustrates how to parse and analyze the simulation results. If you wish to generate the same plots as per-configured, i.e., the same x-axis parameter and y-axis metric, just with different parameters (for instance, additional source rates), it is enough to modify the corresponding parameters in the above scripts.
 
 On the other hand, if you wish to change the x- and/or y-axis parameter/metric, first iterate through the values of the chosen input parameter. Then, compute a metric for each such value. Finally, generate the plot you are interested in using the collection of metric and parameter values. 
 For instance, you can iterate through the `bw` values and load the corresponding throughput via:
@@ -91,4 +91,4 @@ thr = []
   thr.append(y)
 ```
 Then plot the results according to your needs. You can use the functions defined in `metrics_common.py` to compute other metrics.
-Please note that with the above code *all the results* referring to any simulation run with `bw` = `200e6` are loaded. If you wish to fix any other parameters, specify its value in `key` as a parameter name and value pair.
+Please note that with the above code, *all the results* referring to any simulation run with `bw` = `200e6` are loaded. If you wish to fix any other parameter, specify its value in `key` as a parameter name and value pair.
