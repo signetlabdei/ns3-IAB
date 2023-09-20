@@ -731,6 +731,13 @@ LteUeRrc::DoReceivePdcpSdu (LtePdcpSapUser::ReceivePdcpSduParameters params)
 }
 
 void
+LteUeRrc::DoReceiveBapSdu (Ptr<Packet> packet)
+{
+  NS_LOG_FUNCTION (this);
+  m_asSapUser->RecvData (packet);
+}
+
+void
 LteUeRrc::DoSetTemporaryCellRnti (uint16_t rnti)
 {
   NS_LOG_FUNCTION (this << rnti);

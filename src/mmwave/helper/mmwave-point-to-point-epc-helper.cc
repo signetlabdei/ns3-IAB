@@ -287,6 +287,8 @@ MmWavePointToPointEpcHelper::AddDu (Ptr<Node> enb, Ptr<NetDevice> lteEnbNetDevic
     {
       auto ipInterface = AssignUeIpv4Address (lteEnbNetDevice);
       enbAddress = ipInterface.GetAddress (0);
+      auto iabNetDevice = DynamicCast<MmWaveIabNetDevice> (lteEnbNetDevice);
+      iabNetDevice->SetIpInterface(ipInterface);
     }
 
   // create a point to point link between the new eNB and the MME with

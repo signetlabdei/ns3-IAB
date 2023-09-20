@@ -67,7 +67,8 @@
 
 #include <list>
 
-namespace ns3 {
+namespace ns3
+{
 
 class Packet;
 
@@ -114,54 +115,54 @@ class Packet;
  */
 class ErrorModel : public Object
 {
-public:
-  /**
+  public:
+    /**
      * \brief Get the type ID.
      * \return the object TypeId
      */
-  static TypeId GetTypeId ();
+    static TypeId GetTypeId();
 
-  ErrorModel ();
-  ~ErrorModel () override;
+    ErrorModel();
+    ~ErrorModel() override;
 
-  /**
+    /**
      * Note:  Depending on the error model, this function may or may not
      * alter the contents of the packet upon returning true.
      *
      * \returns true if the Packet is to be considered as errored/corrupted
      * \param pkt Packet to apply error model to
      */
-  bool IsCorrupt (Ptr<Packet> pkt);
-  /**
+    bool IsCorrupt(Ptr<Packet> pkt);
+    /**
      * Reset any state associated with the error model
      */
-  void Reset ();
-  /**
+    void Reset();
+    /**
      * Enable the error model
      */
-  void Enable ();
-  /**
+    void Enable();
+    /**
      * Disable the error model
      */
-  void Disable ();
-  /**
+    void Disable();
+    /**
      * \return true if error model is enabled; false otherwise
      */
-  bool IsEnabled () const;
+    bool IsEnabled() const;
 
-private:
-  /**
+  private:
+    /**
      * Corrupt a packet according to the specified model.
      * \param p the packet to corrupt
      * \returns true if the packet is corrupted
      */
-  virtual bool DoCorrupt (Ptr<Packet> p) = 0;
-  /**
+    virtual bool DoCorrupt(Ptr<Packet> p) = 0;
+    /**
      * Re-initialize any state
      */
-  virtual void DoReset () = 0;
+    virtual void DoReset() = 0;
 
-  bool m_enable; //!< True if the error model is enabled
+    bool m_enable; //!< True if the error model is enabled
 };
 
 /**
@@ -181,45 +182,50 @@ private:
  */
 class RateErrorModel : public ErrorModel
 {
-public:
-  /**
+  public:
+    /**
      * \brief Get the type ID.
      * \return the object TypeId
      */
-  static TypeId GetTypeId ();
+    static TypeId GetTypeId();
 
-  RateErrorModel ();
-  ~RateErrorModel () override;
+    RateErrorModel();
+    ~RateErrorModel() override;
 
-  /**
+    /**
      * Error unit. The error model can be packet, Byte or bit based.
      */
-  enum ErrorUnit { ERROR_UNIT_BIT, ERROR_UNIT_BYTE, ERROR_UNIT_PACKET };
+    enum ErrorUnit
+    {
+        ERROR_UNIT_BIT,
+        ERROR_UNIT_BYTE,
+        ERROR_UNIT_PACKET
+    };
 
-  /**
+    /**
      * \returns the ErrorUnit being used by the underlying model
      */
-  RateErrorModel::ErrorUnit GetUnit () const;
-  /**
+    RateErrorModel::ErrorUnit GetUnit() const;
+    /**
      * \param error_unit the ErrorUnit to be used by the underlying model
      */
-  void SetUnit (ErrorUnit error_unit);
+    void SetUnit(ErrorUnit error_unit);
 
-  /**
+    /**
      * \returns the error rate being applied by the model
      */
-  double GetRate () const;
-  /**
+    double GetRate() const;
+    /**
      * \param rate the error rate to be used by the model
      */
-  void SetRate (double rate);
+    void SetRate(double rate);
 
-  /**
+    /**
      * \param ranvar A random variable distribution to generate random variates
      */
-  void SetRandomVariable (Ptr<RandomVariableStream>);
+    void SetRandomVariable(Ptr<RandomVariableStream>);
 
-  /**
+    /**
      * Assign a fixed random variable stream number to the random variables
      * used by this model.  Return the number of streams (possibly zero) that
      * have been assigned.
@@ -227,34 +233,34 @@ public:
      * \param stream first stream index to use
      * \return the number of stream indices assigned by this model
      */
-  int64_t AssignStreams (int64_t stream);
+    int64_t AssignStreams(int64_t stream);
 
-private:
-  bool DoCorrupt (Ptr<Packet> p) override;
-  /**
+  private:
+    bool DoCorrupt(Ptr<Packet> p) override;
+    /**
      * Corrupt a packet (packet unit).
      * \param p the packet to corrupt
      * \returns true if the packet is corrupted
      */
-  virtual bool DoCorruptPkt (Ptr<Packet> p);
-  /**
+    virtual bool DoCorruptPkt(Ptr<Packet> p);
+    /**
      * Corrupt a packet (Byte unit).
      * \param p the packet to corrupt
      * \returns true if the packet is corrupted
      */
-  virtual bool DoCorruptByte (Ptr<Packet> p);
-  /**
+    virtual bool DoCorruptByte(Ptr<Packet> p);
+    /**
      * Corrupt a packet (bit unit).
      * \param p the packet to corrupt
      * \returns true if the packet is corrupted
      */
-  virtual bool DoCorruptBit (Ptr<Packet> p);
-  void DoReset () override;
+    virtual bool DoCorruptBit(Ptr<Packet> p);
+    void DoReset() override;
 
-  ErrorUnit m_unit; //!< Error rate unit
-  double m_rate; //!< Error rate
+    ErrorUnit m_unit; //!< Error rate unit
+    double m_rate;    //!< Error rate
 
-  Ptr<RandomVariableStream> m_ranvar; //!< rng stream
+    Ptr<RandomVariableStream> m_ranvar; //!< rng stream
 };
 
 /**
@@ -291,36 +297,36 @@ private:
  */
 class BurstErrorModel : public ErrorModel
 {
-public:
-  /**
+  public:
+    /**
      * \brief Get the type ID.
      * \return the object TypeId
      */
-  static TypeId GetTypeId ();
+    static TypeId GetTypeId();
 
-  BurstErrorModel ();
-  ~BurstErrorModel () override;
+    BurstErrorModel();
+    ~BurstErrorModel() override;
 
-  /**
+    /**
      * \returns the error rate being applied by the model
      */
-  double GetBurstRate () const;
-  /**
+    double GetBurstRate() const;
+    /**
      * \param rate the error rate to be used by the model
      */
-  void SetBurstRate (double rate);
+    void SetBurstRate(double rate);
 
-  /**
+    /**
      * \param ranVar A random variable distribution to generate random variates
      */
-  void SetRandomVariable (Ptr<RandomVariableStream> ranVar);
+    void SetRandomVariable(Ptr<RandomVariableStream> ranVar);
 
-  /**
+    /**
      * \param burstSz A random variable distribution to generate random burst size
      */
-  void SetRandomBurstSize (Ptr<RandomVariableStream> burstSz);
+    void SetRandomBurstSize(Ptr<RandomVariableStream> burstSz);
 
-  /**
+    /**
      * Assign a fixed random variable stream number to the random variables
      * used by this model.  Return the number of streams (possibly zero) that
      * have been assigned.
@@ -328,22 +334,22 @@ public:
      * \param stream first stream index to use
      * \return the number of stream indices assigned by this model
      */
-  int64_t AssignStreams (int64_t stream);
+    int64_t AssignStreams(int64_t stream);
 
-private:
-  bool DoCorrupt (Ptr<Packet> p) override;
-  void DoReset () override;
+  private:
+    bool DoCorrupt(Ptr<Packet> p) override;
+    void DoReset() override;
 
-  double m_burstRate; //!< the burst error event
-  Ptr<RandomVariableStream> m_burstStart; //!< the error decision variable
-  Ptr<RandomVariableStream> m_burstSize; //!< the number of packets being flagged as errored
+    double m_burstRate;                     //!< the burst error event
+    Ptr<RandomVariableStream> m_burstStart; //!< the error decision variable
+    Ptr<RandomVariableStream> m_burstSize;  //!< the number of packets being flagged as errored
 
-  /**
+    /**
      * keep track of the number of packets being errored
      * until it reaches m_burstSize
      */
-  uint32_t m_counter;
-  uint32_t m_currentBurstSz; //!< the current burst size
+    uint32_t m_counter;
+    uint32_t m_currentBurstSz; //!< the current burst size
 };
 
 /**
@@ -370,36 +376,36 @@ private:
  */
 class ListErrorModel : public ErrorModel
 {
-public:
-  /**
+  public:
+    /**
      * \brief Get the type ID.
      * \return the object TypeId
      */
-  static TypeId GetTypeId ();
-  ListErrorModel ();
-  ~ListErrorModel () override;
+    static TypeId GetTypeId();
+    ListErrorModel();
+    ~ListErrorModel() override;
 
-  /**
+    /**
      * \return a copy of the underlying list
      */
-  std::list<uint64_t> GetList () const;
-  /**
+    std::list<uint64_t> GetList() const;
+    /**
      * \param packetlist The list of packet uids to error.
      *
      * This method overwrites any previously provided list.
      */
-  void SetList (const std::list<uint64_t> &packetlist);
+    void SetList(const std::list<uint64_t>& packetlist);
 
-private:
-  bool DoCorrupt (Ptr<Packet> p) override;
-  void DoReset () override;
+  private:
+    bool DoCorrupt(Ptr<Packet> p) override;
+    void DoReset() override;
 
-  /// Typedef: packet Uid list
-  typedef std::list<uint64_t> PacketList;
-  /// Typedef: packet Uid list const iterator
-  typedef std::list<uint64_t>::const_iterator PacketListCI;
+    /// Typedef: packet Uid list
+    typedef std::list<uint64_t> PacketList;
+    /// Typedef: packet Uid list const iterator
+    typedef std::list<uint64_t>::const_iterator PacketListCI;
 
-  PacketList m_packetList; //!< container of Uid of packets to corrupt
+    PacketList m_packetList; //!< container of Uid of packets to corrupt
 };
 
 /**
@@ -416,37 +422,37 @@ private:
  */
 class ReceiveListErrorModel : public ErrorModel
 {
-public:
-  /**
+  public:
+    /**
      * \brief Get the type ID.
      * \return the object TypeId
      */
-  static TypeId GetTypeId ();
-  ReceiveListErrorModel ();
-  ~ReceiveListErrorModel () override;
+    static TypeId GetTypeId();
+    ReceiveListErrorModel();
+    ~ReceiveListErrorModel() override;
 
-  /**
+    /**
      * \return a copy of the underlying list
      */
-  std::list<uint32_t> GetList () const;
-  /**
+    std::list<uint32_t> GetList() const;
+    /**
      * \param packetlist The list of packets to error.
      *
      * This method overwrites any previously provided list.
      */
-  void SetList (const std::list<uint32_t> &packetlist);
+    void SetList(const std::list<uint32_t>& packetlist);
 
-private:
-  bool DoCorrupt (Ptr<Packet> p) override;
-  void DoReset () override;
+  private:
+    bool DoCorrupt(Ptr<Packet> p) override;
+    void DoReset() override;
 
-  /// Typedef: packet sequence number list
-  typedef std::list<uint32_t> PacketList;
-  /// Typedef: packet sequence number list const iterator
-  typedef std::list<uint32_t>::const_iterator PacketListCI;
+    /// Typedef: packet sequence number list
+    typedef std::list<uint32_t> PacketList;
+    /// Typedef: packet sequence number list const iterator
+    typedef std::list<uint32_t>::const_iterator PacketListCI;
 
-  PacketList m_packetList; //!< container of sequence number of packets to corrupt
-  uint32_t m_timesInvoked; //!< number of times the error model has been invoked
+    PacketList m_packetList; //!< container of sequence number of packets to corrupt
+    uint32_t m_timesInvoked; //!< number of times the error model has been invoked
 };
 
 /**
@@ -454,21 +460,21 @@ private:
  */
 class BinaryErrorModel : public ErrorModel
 {
-public:
-  /**
+  public:
+    /**
      * \brief Get the type ID.
      * \return the object TypeId
      */
-  static TypeId GetTypeId ();
+    static TypeId GetTypeId();
 
-  BinaryErrorModel ();
-  ~BinaryErrorModel () override;
+    BinaryErrorModel();
+    ~BinaryErrorModel() override;
 
-private:
-  bool DoCorrupt (Ptr<Packet> p) override;
-  void DoReset () override;
+  private:
+    bool DoCorrupt(Ptr<Packet> p) override;
+    void DoReset() override;
 
-  uint8_t m_counter; //!< internal state counter.
+    uint8_t m_counter; //!< internal state counter.
 };
 
 } // namespace ns3

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 Yufei Cheng
  *
@@ -29,1301 +28,1320 @@
  * US Department of Defense (DoD), and ITTC at The University of Kansas.
  */
 
-#include "ns3/assert.h"
-#include "ns3/log.h"
-#include "ns3/header.h"
 #include "dsr-option-header.h"
-#include "ns3/ipv4-address.h"
+
 #include "ns3/address-utils.h"
-#include "ns3/packet.h"
+#include "ns3/assert.h"
 #include "ns3/enum.h"
+#include "ns3/header.h"
+#include "ns3/ipv4-address.h"
+#include "ns3/log.h"
+#include "ns3/packet.h"
 
-namespace ns3 {
+namespace ns3
+{
 
-NS_LOG_COMPONENT_DEFINE ("DsrOptionHeader");
+NS_LOG_COMPONENT_DEFINE("DsrOptionHeader");
 
-namespace dsr {
+namespace dsr
+{
 
-NS_OBJECT_ENSURE_REGISTERED (DsrOptionHeader);
+NS_OBJECT_ENSURE_REGISTERED(DsrOptionHeader);
 
 TypeId
-DsrOptionHeader::GetTypeId ()
+DsrOptionHeader::GetTypeId()
 {
-  static TypeId tid = TypeId ("ns3::dsr::DsrOptionHeader")
-                          .AddConstructor<DsrOptionHeader> ()
-                          .SetParent<Header> ()
-                          .SetGroupName ("Dsr");
-  return tid;
+    static TypeId tid = TypeId("ns3::dsr::DsrOptionHeader")
+                            .AddConstructor<DsrOptionHeader>()
+                            .SetParent<Header>()
+                            .SetGroupName("Dsr");
+    return tid;
 }
 
 TypeId
-DsrOptionHeader::GetInstanceTypeId () const
+DsrOptionHeader::GetInstanceTypeId() const
 {
-  return GetTypeId ();
+    return GetTypeId();
 }
 
-DsrOptionHeader::DsrOptionHeader () : m_type (0), m_length (0)
+DsrOptionHeader::DsrOptionHeader()
+    : m_type(0),
+      m_length(0)
 {
 }
 
-DsrOptionHeader::~DsrOptionHeader ()
+DsrOptionHeader::~DsrOptionHeader()
 {
 }
 
 void
-DsrOptionHeader::SetType (uint8_t type)
+DsrOptionHeader::SetType(uint8_t type)
 {
-  m_type = type;
+    m_type = type;
 }
 
 uint8_t
-DsrOptionHeader::GetType () const
+DsrOptionHeader::GetType() const
 {
-  return m_type;
+    return m_type;
 }
 
 void
-DsrOptionHeader::SetLength (uint8_t length)
+DsrOptionHeader::SetLength(uint8_t length)
 {
-  m_length = length;
+    m_length = length;
 }
 
 uint8_t
-DsrOptionHeader::GetLength () const
+DsrOptionHeader::GetLength() const
 {
-  return m_length;
+    return m_length;
 }
 
 void
-DsrOptionHeader::Print (std::ostream &os) const
+DsrOptionHeader::Print(std::ostream& os) const
 {
-  os << "( type = " << (uint32_t) m_type << " length = " << (uint32_t) m_length << " )";
+    os << "( type = " << (uint32_t)m_type << " length = " << (uint32_t)m_length << " )";
 }
 
 uint32_t
-DsrOptionHeader::GetSerializedSize () const
+DsrOptionHeader::GetSerializedSize() const
 {
-  return m_length + 2;
+    return m_length + 2;
 }
 
 void
-DsrOptionHeader::Serialize (Buffer::Iterator start) const
+DsrOptionHeader::Serialize(Buffer::Iterator start) const
 {
-  Buffer::Iterator i = start;
+    Buffer::Iterator i = start;
 
-  i.WriteU8 (m_type);
-  i.WriteU8 (m_length);
-  i.Write (m_data.Begin (), m_data.End ());
+    i.WriteU8(m_type);
+    i.WriteU8(m_length);
+    i.Write(m_data.Begin(), m_data.End());
 }
 
 uint32_t
-DsrOptionHeader::Deserialize (Buffer::Iterator start)
+DsrOptionHeader::Deserialize(Buffer::Iterator start)
 {
-  Buffer::Iterator i = start;
+    Buffer::Iterator i = start;
 
-  m_type = i.ReadU8 ();
-  m_length = i.ReadU8 ();
+    m_type = i.ReadU8();
+    m_length = i.ReadU8();
 
-  m_data = Buffer ();
-  m_data.AddAtEnd (m_length);
-  Buffer::Iterator dataStart = i;
-  i.Next (m_length);
-  Buffer::Iterator dataEnd = i;
-  m_data.Begin ().Write (dataStart, dataEnd);
+    m_data = Buffer();
+    m_data.AddAtEnd(m_length);
+    Buffer::Iterator dataStart = i;
+    i.Next(m_length);
+    Buffer::Iterator dataEnd = i;
+    m_data.Begin().Write(dataStart, dataEnd);
 
-  return GetSerializedSize ();
+    return GetSerializedSize();
 }
 
 DsrOptionHeader::Alignment
-DsrOptionHeader::GetAlignment () const
+DsrOptionHeader::GetAlignment() const
 {
-  Alignment retVal = {1, 0};
-  return retVal;
+    Alignment retVal = {1, 0};
+    return retVal;
 }
 
-NS_OBJECT_ENSURE_REGISTERED (DsrOptionPad1Header);
+NS_OBJECT_ENSURE_REGISTERED(DsrOptionPad1Header);
 
 TypeId
-DsrOptionPad1Header::GetTypeId ()
+DsrOptionPad1Header::GetTypeId()
 {
-  static TypeId tid = TypeId ("ns3::dsr::DsrOptionPad1Header")
-                          .AddConstructor<DsrOptionPad1Header> ()
-                          .SetParent<DsrOptionHeader> ()
-                          .SetGroupName ("Dsr");
-  return tid;
+    static TypeId tid = TypeId("ns3::dsr::DsrOptionPad1Header")
+                            .AddConstructor<DsrOptionPad1Header>()
+                            .SetParent<DsrOptionHeader>()
+                            .SetGroupName("Dsr");
+    return tid;
 }
 
 TypeId
-DsrOptionPad1Header::GetInstanceTypeId () const
+DsrOptionPad1Header::GetInstanceTypeId() const
 {
-  return GetTypeId ();
+    return GetTypeId();
 }
 
-DsrOptionPad1Header::DsrOptionPad1Header ()
+DsrOptionPad1Header::DsrOptionPad1Header()
 {
-  SetType (224);
+    SetType(224);
 }
 
-DsrOptionPad1Header::~DsrOptionPad1Header ()
+DsrOptionPad1Header::~DsrOptionPad1Header()
 {
 }
 
 void
-DsrOptionPad1Header::Print (std::ostream &os) const
+DsrOptionPad1Header::Print(std::ostream& os) const
 {
-  os << "( type = " << (uint32_t) GetType () << " )";
+    os << "( type = " << (uint32_t)GetType() << " )";
 }
 
 uint32_t
-DsrOptionPad1Header::GetSerializedSize () const
+DsrOptionPad1Header::GetSerializedSize() const
 {
-  return 1;
+    return 1;
 }
 
 void
-DsrOptionPad1Header::Serialize (Buffer::Iterator start) const
+DsrOptionPad1Header::Serialize(Buffer::Iterator start) const
 {
-  Buffer::Iterator i = start;
+    Buffer::Iterator i = start;
 
-  i.WriteU8 (GetType ());
+    i.WriteU8(GetType());
 }
 
 uint32_t
-DsrOptionPad1Header::Deserialize (Buffer::Iterator start)
+DsrOptionPad1Header::Deserialize(Buffer::Iterator start)
 {
-  Buffer::Iterator i = start;
+    Buffer::Iterator i = start;
 
-  SetType (i.ReadU8 ());
+    SetType(i.ReadU8());
 
-  return GetSerializedSize ();
+    return GetSerializedSize();
 }
 
-NS_OBJECT_ENSURE_REGISTERED (DsrOptionPadnHeader);
+NS_OBJECT_ENSURE_REGISTERED(DsrOptionPadnHeader);
 
 TypeId
-DsrOptionPadnHeader::GetTypeId ()
+DsrOptionPadnHeader::GetTypeId()
 {
-  static TypeId tid = TypeId ("ns3::dsr::DsrOptionPadnHeader")
-                          .AddConstructor<DsrOptionPadnHeader> ()
-                          .SetParent<DsrOptionHeader> ()
-                          .SetGroupName ("Dsr");
-  return tid;
+    static TypeId tid = TypeId("ns3::dsr::DsrOptionPadnHeader")
+                            .AddConstructor<DsrOptionPadnHeader>()
+                            .SetParent<DsrOptionHeader>()
+                            .SetGroupName("Dsr");
+    return tid;
 }
 
 TypeId
-DsrOptionPadnHeader::GetInstanceTypeId () const
+DsrOptionPadnHeader::GetInstanceTypeId() const
 {
-  return GetTypeId ();
+    return GetTypeId();
 }
 
-DsrOptionPadnHeader::DsrOptionPadnHeader (uint32_t pad)
+DsrOptionPadnHeader::DsrOptionPadnHeader(uint32_t pad)
 {
-  SetType (0);
-  NS_ASSERT_MSG (pad >= 2, "PadN must be at least 2 bytes long");
-  SetLength (pad - 2);
+    SetType(0);
+    NS_ASSERT_MSG(pad >= 2, "PadN must be at least 2 bytes long");
+    SetLength(pad - 2);
 }
 
-DsrOptionPadnHeader::~DsrOptionPadnHeader ()
+DsrOptionPadnHeader::~DsrOptionPadnHeader()
 {
 }
 
 void
-DsrOptionPadnHeader::Print (std::ostream &os) const
+DsrOptionPadnHeader::Print(std::ostream& os) const
 {
-  os << "( type = " << (uint32_t) GetType () << " length = " << (uint32_t) GetLength () << " )";
+    os << "( type = " << (uint32_t)GetType() << " length = " << (uint32_t)GetLength() << " )";
 }
 
 uint32_t
-DsrOptionPadnHeader::GetSerializedSize () const
+DsrOptionPadnHeader::GetSerializedSize() const
 {
-  return GetLength () + 2;
+    return GetLength() + 2;
 }
 
 void
-DsrOptionPadnHeader::Serialize (Buffer::Iterator start) const
+DsrOptionPadnHeader::Serialize(Buffer::Iterator start) const
 {
-  Buffer::Iterator i = start;
+    Buffer::Iterator i = start;
 
-  i.WriteU8 (GetType ());
-  i.WriteU8 (GetLength ());
+    i.WriteU8(GetType());
+    i.WriteU8(GetLength());
 
-  for (int padding = 0; padding < GetLength (); padding++)
+    for (int padding = 0; padding < GetLength(); padding++)
     {
-      i.WriteU8 (0);
+        i.WriteU8(0);
     }
 }
 
 uint32_t
-DsrOptionPadnHeader::Deserialize (Buffer::Iterator start)
+DsrOptionPadnHeader::Deserialize(Buffer::Iterator start)
 {
-  Buffer::Iterator i = start;
+    Buffer::Iterator i = start;
 
-  SetType (i.ReadU8 ());
-  SetLength (i.ReadU8 ());
+    SetType(i.ReadU8());
+    SetLength(i.ReadU8());
 
-  return GetSerializedSize ();
+    return GetSerializedSize();
 }
 
-NS_OBJECT_ENSURE_REGISTERED (DsrOptionRreqHeader);
+NS_OBJECT_ENSURE_REGISTERED(DsrOptionRreqHeader);
 
 TypeId
-DsrOptionRreqHeader::GetTypeId ()
+DsrOptionRreqHeader::GetTypeId()
 {
-  static TypeId tid = TypeId ("ns3::dsr::DsrOptionRreqHeader")
-                          .AddConstructor<DsrOptionRreqHeader> ()
-                          .SetParent<DsrOptionHeader> ()
-                          .SetGroupName ("Dsr");
-  return tid;
+    static TypeId tid = TypeId("ns3::dsr::DsrOptionRreqHeader")
+                            .AddConstructor<DsrOptionRreqHeader>()
+                            .SetParent<DsrOptionHeader>()
+                            .SetGroupName("Dsr");
+    return tid;
 }
 
 TypeId
-DsrOptionRreqHeader::GetInstanceTypeId () const
+DsrOptionRreqHeader::GetInstanceTypeId() const
 {
-  return GetTypeId ();
+    return GetTypeId();
 }
 
-DsrOptionRreqHeader::DsrOptionRreqHeader () : m_ipv4Address (0)
+DsrOptionRreqHeader::DsrOptionRreqHeader()
+    : m_ipv4Address(0)
 {
-  SetType (1);
-  SetLength (6 + m_ipv4Address.size () * 4);
+    SetType(1);
+    SetLength(6 + m_ipv4Address.size() * 4);
 }
 
-DsrOptionRreqHeader::~DsrOptionRreqHeader ()
+DsrOptionRreqHeader::~DsrOptionRreqHeader()
 {
 }
 
 void
-DsrOptionRreqHeader::SetNumberAddress (uint8_t n)
+DsrOptionRreqHeader::SetNumberAddress(uint8_t n)
 {
-  m_ipv4Address.clear ();
-  m_ipv4Address.assign (n, Ipv4Address ());
+    m_ipv4Address.clear();
+    m_ipv4Address.assign(n, Ipv4Address());
 }
 
 Ipv4Address
-DsrOptionRreqHeader::GetTarget ()
+DsrOptionRreqHeader::GetTarget()
 {
-  return m_target;
+    return m_target;
 }
 
 void
-DsrOptionRreqHeader::SetTarget (Ipv4Address target)
+DsrOptionRreqHeader::SetTarget(Ipv4Address target)
 {
-  m_target = target;
+    m_target = target;
 }
 
 void
-DsrOptionRreqHeader::AddNodeAddress (Ipv4Address ipv4)
+DsrOptionRreqHeader::AddNodeAddress(Ipv4Address ipv4)
 {
-  m_ipv4Address.push_back (ipv4);
-  SetLength (6 + m_ipv4Address.size () * 4);
+    m_ipv4Address.push_back(ipv4);
+    SetLength(6 + m_ipv4Address.size() * 4);
 }
 
 void
-DsrOptionRreqHeader::SetNodesAddress (std::vector<Ipv4Address> ipv4Address)
+DsrOptionRreqHeader::SetNodesAddress(std::vector<Ipv4Address> ipv4Address)
 {
-  m_ipv4Address = ipv4Address;
-  SetLength (6 + m_ipv4Address.size () * 4);
+    m_ipv4Address = ipv4Address;
+    SetLength(6 + m_ipv4Address.size() * 4);
 }
 
 std::vector<Ipv4Address>
-DsrOptionRreqHeader::GetNodesAddresses () const
+DsrOptionRreqHeader::GetNodesAddresses() const
 {
-  return m_ipv4Address;
+    return m_ipv4Address;
 }
 
 uint32_t
-DsrOptionRreqHeader::GetNodesNumber () const
+DsrOptionRreqHeader::GetNodesNumber() const
 {
-  return m_ipv4Address.size ();
+    return m_ipv4Address.size();
 }
 
 void
-DsrOptionRreqHeader::SetNodeAddress (uint8_t index, Ipv4Address addr)
+DsrOptionRreqHeader::SetNodeAddress(uint8_t index, Ipv4Address addr)
 {
-  m_ipv4Address.at (index) = addr;
+    m_ipv4Address.at(index) = addr;
 }
 
 Ipv4Address
-DsrOptionRreqHeader::GetNodeAddress (uint8_t index) const
+DsrOptionRreqHeader::GetNodeAddress(uint8_t index) const
 {
-  return m_ipv4Address.at (index);
+    return m_ipv4Address.at(index);
 }
 
 void
-DsrOptionRreqHeader::SetId (uint16_t identification)
+DsrOptionRreqHeader::SetId(uint16_t identification)
 {
-  m_identification = identification;
+    m_identification = identification;
 }
 
 uint16_t
-DsrOptionRreqHeader::GetId () const
+DsrOptionRreqHeader::GetId() const
 {
-  return m_identification;
+    return m_identification;
 }
 
 void
-DsrOptionRreqHeader::Print (std::ostream &os) const
+DsrOptionRreqHeader::Print(std::ostream& os) const
 {
-  os << "( type = " << (uint32_t) GetType () << " length = " << (uint32_t) GetLength () << "";
+    os << "( type = " << (uint32_t)GetType() << " length = " << (uint32_t)GetLength() << "";
 
-  for (std::vector<Ipv4Address>::const_iterator it = m_ipv4Address.begin ();
-       it != m_ipv4Address.end (); it++)
+    for (std::vector<Ipv4Address>::const_iterator it = m_ipv4Address.begin();
+         it != m_ipv4Address.end();
+         it++)
     {
-      os << *it << " ";
+        os << *it << " ";
     }
 
-  os << ")";
+    os << ")";
 }
 
 uint32_t
-DsrOptionRreqHeader::GetSerializedSize () const
+DsrOptionRreqHeader::GetSerializedSize() const
 {
-  return 8 + m_ipv4Address.size () * 4;
+    return 8 + m_ipv4Address.size() * 4;
 }
 
 void
-DsrOptionRreqHeader::Serialize (Buffer::Iterator start) const
+DsrOptionRreqHeader::Serialize(Buffer::Iterator start) const
 {
-  Buffer::Iterator i = start;
-  uint8_t buff[4];
+    Buffer::Iterator i = start;
+    uint8_t buff[4];
 
-  i.WriteU8 (GetType ());
-  i.WriteU8 (GetLength ());
-  i.WriteHtonU16 (m_identification);
-  WriteTo (i, m_target);
+    i.WriteU8(GetType());
+    i.WriteU8(GetLength());
+    i.WriteHtonU16(m_identification);
+    WriteTo(i, m_target);
 
-  for (VectorIpv4Address_t::const_iterator it = m_ipv4Address.begin (); it != m_ipv4Address.end ();
-       it++)
+    for (VectorIpv4Address_t::const_iterator it = m_ipv4Address.begin(); it != m_ipv4Address.end();
+         it++)
     {
-      it->Serialize (buff);
-      i.Write (buff, 4);
+        it->Serialize(buff);
+        i.Write(buff, 4);
     }
 }
 
 uint32_t
-DsrOptionRreqHeader::Deserialize (Buffer::Iterator start)
+DsrOptionRreqHeader::Deserialize(Buffer::Iterator start)
 {
-  Buffer::Iterator i = start;
-  uint8_t buff[4];
+    Buffer::Iterator i = start;
+    uint8_t buff[4];
 
-  SetType (i.ReadU8 ());
-  SetLength (i.ReadU8 ());
-  m_identification = i.ReadNtohU16 ();
-  ReadFrom (i, m_target);
+    SetType(i.ReadU8());
+    SetLength(i.ReadU8());
+    m_identification = i.ReadNtohU16();
+    ReadFrom(i, m_target);
 
-  uint8_t index = 0;
-  for (std::vector<Ipv4Address>::iterator it = m_ipv4Address.begin (); it != m_ipv4Address.end ();
-       it++)
+    uint8_t index = 0;
+    for (std::vector<Ipv4Address>::iterator it = m_ipv4Address.begin(); it != m_ipv4Address.end();
+         it++)
     {
-      i.Read (buff, 4);
-      m_address = it->Deserialize (buff);
-      SetNodeAddress (index, m_address);
-      ++index;
+        i.Read(buff, 4);
+        m_address = it->Deserialize(buff);
+        SetNodeAddress(index, m_address);
+        ++index;
     }
 
-  return GetSerializedSize ();
+    return GetSerializedSize();
 }
 
 DsrOptionHeader::Alignment
-DsrOptionRreqHeader::GetAlignment () const
+DsrOptionRreqHeader::GetAlignment() const
 {
-  Alignment retVal = {4, 0};
-  return retVal;
+    Alignment retVal = {4, 0};
+    return retVal;
 }
 
-NS_OBJECT_ENSURE_REGISTERED (DsrOptionRrepHeader);
+NS_OBJECT_ENSURE_REGISTERED(DsrOptionRrepHeader);
 
 TypeId
-DsrOptionRrepHeader::GetTypeId ()
+DsrOptionRrepHeader::GetTypeId()
 {
-  static TypeId tid = TypeId ("ns3::dsr::DsrOptionRrepHeader")
-                          .AddConstructor<DsrOptionRrepHeader> ()
-                          .SetParent<DsrOptionHeader> ()
-                          .SetGroupName ("Dsr");
-  return tid;
+    static TypeId tid = TypeId("ns3::dsr::DsrOptionRrepHeader")
+                            .AddConstructor<DsrOptionRrepHeader>()
+                            .SetParent<DsrOptionHeader>()
+                            .SetGroupName("Dsr");
+    return tid;
 }
 
 TypeId
-DsrOptionRrepHeader::GetInstanceTypeId () const
+DsrOptionRrepHeader::GetInstanceTypeId() const
 {
-  return GetTypeId ();
+    return GetTypeId();
 }
 
-DsrOptionRrepHeader::DsrOptionRrepHeader () : m_ipv4Address (0)
+DsrOptionRrepHeader::DsrOptionRrepHeader()
+    : m_ipv4Address(0)
 {
-  SetType (2);
-  SetLength (2 + m_ipv4Address.size () * 4);
+    SetType(2);
+    SetLength(2 + m_ipv4Address.size() * 4);
 }
 
-DsrOptionRrepHeader::~DsrOptionRrepHeader ()
+DsrOptionRrepHeader::~DsrOptionRrepHeader()
 {
 }
 
 void
-DsrOptionRrepHeader::SetNumberAddress (uint8_t n)
+DsrOptionRrepHeader::SetNumberAddress(uint8_t n)
 {
-  m_ipv4Address.clear ();
-  m_ipv4Address.assign (n, Ipv4Address ());
+    m_ipv4Address.clear();
+    m_ipv4Address.assign(n, Ipv4Address());
 }
 
 void
-DsrOptionRrepHeader::SetNodesAddress (std::vector<Ipv4Address> ipv4Address)
+DsrOptionRrepHeader::SetNodesAddress(std::vector<Ipv4Address> ipv4Address)
 {
-  m_ipv4Address = ipv4Address;
-  SetLength (2 + m_ipv4Address.size () * 4);
+    m_ipv4Address = ipv4Address;
+    SetLength(2 + m_ipv4Address.size() * 4);
 }
 
 std::vector<Ipv4Address>
-DsrOptionRrepHeader::GetNodesAddress () const
+DsrOptionRrepHeader::GetNodesAddress() const
 {
-  return m_ipv4Address;
+    return m_ipv4Address;
 }
 
 void
-DsrOptionRrepHeader::SetNodeAddress (uint8_t index, Ipv4Address addr)
+DsrOptionRrepHeader::SetNodeAddress(uint8_t index, Ipv4Address addr)
 {
-  m_ipv4Address.at (index) = addr;
+    m_ipv4Address.at(index) = addr;
 }
 
 Ipv4Address
-DsrOptionRrepHeader::GetNodeAddress (uint8_t index) const
+DsrOptionRrepHeader::GetNodeAddress(uint8_t index) const
 {
-  return m_ipv4Address.at (index);
+    return m_ipv4Address.at(index);
 }
 
 Ipv4Address
-DsrOptionRrepHeader::GetTargetAddress (std::vector<Ipv4Address> ipv4Address) const
+DsrOptionRrepHeader::GetTargetAddress(std::vector<Ipv4Address> ipv4Address) const
 {
-  return m_ipv4Address.at (ipv4Address.size () - 1);
+    return m_ipv4Address.at(ipv4Address.size() - 1);
 }
 
 void
-DsrOptionRrepHeader::Print (std::ostream &os) const
+DsrOptionRrepHeader::Print(std::ostream& os) const
 {
-  os << "( type = " << (uint32_t) GetType () << " length = " << (uint32_t) GetLength () << "";
+    os << "( type = " << (uint32_t)GetType() << " length = " << (uint32_t)GetLength() << "";
 
-  for (std::vector<Ipv4Address>::const_iterator it = m_ipv4Address.begin ();
-       it != m_ipv4Address.end (); it++)
+    for (std::vector<Ipv4Address>::const_iterator it = m_ipv4Address.begin();
+         it != m_ipv4Address.end();
+         it++)
     {
-      os << *it << " ";
+        os << *it << " ";
     }
 
-  os << ")";
+    os << ")";
 }
 
 uint32_t
-DsrOptionRrepHeader::GetSerializedSize () const
+DsrOptionRrepHeader::GetSerializedSize() const
 {
-  return 4 + m_ipv4Address.size () * 4;
+    return 4 + m_ipv4Address.size() * 4;
 }
 
 void
-DsrOptionRrepHeader::Serialize (Buffer::Iterator start) const
+DsrOptionRrepHeader::Serialize(Buffer::Iterator start) const
 {
-  Buffer::Iterator i = start;
-  uint8_t buff[4];
+    Buffer::Iterator i = start;
+    uint8_t buff[4];
 
-  i.WriteU8 (GetType ());
-  i.WriteU8 (GetLength ());
-  i.WriteU8 (0);
-  i.WriteU8 (0);
+    i.WriteU8(GetType());
+    i.WriteU8(GetLength());
+    i.WriteU8(0);
+    i.WriteU8(0);
 
-  for (VectorIpv4Address_t::const_iterator it = m_ipv4Address.begin (); it != m_ipv4Address.end ();
-       it++)
+    for (VectorIpv4Address_t::const_iterator it = m_ipv4Address.begin(); it != m_ipv4Address.end();
+         it++)
     {
-      it->Serialize (buff);
-      i.Write (buff, 4);
+        it->Serialize(buff);
+        i.Write(buff, 4);
     }
 }
 
 uint32_t
-DsrOptionRrepHeader::Deserialize (Buffer::Iterator start)
+DsrOptionRrepHeader::Deserialize(Buffer::Iterator start)
 {
-  Buffer::Iterator i = start;
-  uint8_t buff[4];
+    Buffer::Iterator i = start;
+    uint8_t buff[4];
 
-  SetType (i.ReadU8 ());
-  SetLength (i.ReadU8 ());
-  i.ReadU8 ();
-  i.ReadU8 ();
+    SetType(i.ReadU8());
+    SetLength(i.ReadU8());
+    i.ReadU8();
+    i.ReadU8();
 
-  uint8_t index = 0;
-  for (std::vector<Ipv4Address>::iterator it = m_ipv4Address.begin (); it != m_ipv4Address.end ();
-       it++)
+    uint8_t index = 0;
+    for (std::vector<Ipv4Address>::iterator it = m_ipv4Address.begin(); it != m_ipv4Address.end();
+         it++)
     {
-      i.Read (buff, 4);
-      m_address = it->Deserialize (buff);
-      SetNodeAddress (index, m_address);
-      ++index;
+        i.Read(buff, 4);
+        m_address = it->Deserialize(buff);
+        SetNodeAddress(index, m_address);
+        ++index;
     }
 
-  return GetSerializedSize ();
+    return GetSerializedSize();
 }
 
 DsrOptionHeader::Alignment
-DsrOptionRrepHeader::GetAlignment () const
+DsrOptionRrepHeader::GetAlignment() const
 {
-  Alignment retVal = {4, 0};
-  return retVal;
+    Alignment retVal = {4, 0};
+    return retVal;
 }
 
-NS_OBJECT_ENSURE_REGISTERED (DsrOptionSRHeader);
+NS_OBJECT_ENSURE_REGISTERED(DsrOptionSRHeader);
 
 TypeId
-DsrOptionSRHeader::GetTypeId ()
+DsrOptionSRHeader::GetTypeId()
 {
-  static TypeId tid = TypeId ("ns3::dsr::DsrOptionSRHeader")
-                          .AddConstructor<DsrOptionSRHeader> ()
-                          .SetParent<DsrOptionHeader> ()
-                          .SetGroupName ("Dsr");
-  return tid;
+    static TypeId tid = TypeId("ns3::dsr::DsrOptionSRHeader")
+                            .AddConstructor<DsrOptionSRHeader>()
+                            .SetParent<DsrOptionHeader>()
+                            .SetGroupName("Dsr");
+    return tid;
 }
 
 TypeId
-DsrOptionSRHeader::GetInstanceTypeId () const
+DsrOptionSRHeader::GetInstanceTypeId() const
 {
-  return GetTypeId ();
+    return GetTypeId();
 }
 
-DsrOptionSRHeader::DsrOptionSRHeader () : m_segmentsLeft (0), m_ipv4Address (0)
+DsrOptionSRHeader::DsrOptionSRHeader()
+    : m_segmentsLeft(0),
+      m_ipv4Address(0)
 {
-  SetType (96);
-  SetLength (2 + m_ipv4Address.size () * 4);
+    SetType(96);
+    SetLength(2 + m_ipv4Address.size() * 4);
 }
 
-DsrOptionSRHeader::~DsrOptionSRHeader ()
+DsrOptionSRHeader::~DsrOptionSRHeader()
 {
 }
 
 void
-DsrOptionSRHeader::SetSegmentsLeft (uint8_t segmentsLeft)
+DsrOptionSRHeader::SetSegmentsLeft(uint8_t segmentsLeft)
 {
-  m_segmentsLeft = segmentsLeft;
+    m_segmentsLeft = segmentsLeft;
 }
 
 uint8_t
-DsrOptionSRHeader::GetSegmentsLeft () const
+DsrOptionSRHeader::GetSegmentsLeft() const
 {
-  return m_segmentsLeft;
+    return m_segmentsLeft;
 }
 
 void
-DsrOptionSRHeader::SetSalvage (uint8_t salvage)
+DsrOptionSRHeader::SetSalvage(uint8_t salvage)
 {
-  m_salvage = salvage;
+    m_salvage = salvage;
 }
 
 uint8_t
-DsrOptionSRHeader::GetSalvage () const
+DsrOptionSRHeader::GetSalvage() const
 {
-  return m_salvage;
+    return m_salvage;
 }
 
 void
-DsrOptionSRHeader::SetNumberAddress (uint8_t n)
+DsrOptionSRHeader::SetNumberAddress(uint8_t n)
 {
-  m_ipv4Address.clear ();
-  m_ipv4Address.assign (n, Ipv4Address ());
+    m_ipv4Address.clear();
+    m_ipv4Address.assign(n, Ipv4Address());
 }
 
 void
-DsrOptionSRHeader::SetNodesAddress (std::vector<Ipv4Address> ipv4Address)
+DsrOptionSRHeader::SetNodesAddress(std::vector<Ipv4Address> ipv4Address)
 {
-  m_ipv4Address = ipv4Address;
-  SetLength (2 + m_ipv4Address.size () * 4);
+    m_ipv4Address = ipv4Address;
+    SetLength(2 + m_ipv4Address.size() * 4);
 }
 
 std::vector<Ipv4Address>
-DsrOptionSRHeader::GetNodesAddress () const
+DsrOptionSRHeader::GetNodesAddress() const
 {
-  return m_ipv4Address;
+    return m_ipv4Address;
 }
 
 void
-DsrOptionSRHeader::SetNodeAddress (uint8_t index, Ipv4Address addr)
+DsrOptionSRHeader::SetNodeAddress(uint8_t index, Ipv4Address addr)
 {
-  m_ipv4Address.at (index) = addr;
+    m_ipv4Address.at(index) = addr;
 }
 
 Ipv4Address
-DsrOptionSRHeader::GetNodeAddress (uint8_t index) const
+DsrOptionSRHeader::GetNodeAddress(uint8_t index) const
 {
-  return m_ipv4Address.at (index);
+    return m_ipv4Address.at(index);
 }
 
 uint8_t
-DsrOptionSRHeader::GetNodeListSize () const
+DsrOptionSRHeader::GetNodeListSize() const
 {
-  return m_ipv4Address.size ();
+    return m_ipv4Address.size();
 }
 
 void
-DsrOptionSRHeader::Print (std::ostream &os) const
+DsrOptionSRHeader::Print(std::ostream& os) const
 {
-  os << "( type = " << (uint32_t) GetType () << " length = " << (uint32_t) GetLength () << "";
+    os << "( type = " << (uint32_t)GetType() << " length = " << (uint32_t)GetLength() << "";
 
-  for (std::vector<Ipv4Address>::const_iterator it = m_ipv4Address.begin ();
-       it != m_ipv4Address.end (); it++)
+    for (std::vector<Ipv4Address>::const_iterator it = m_ipv4Address.begin();
+         it != m_ipv4Address.end();
+         it++)
     {
-      os << *it << " ";
+        os << *it << " ";
     }
 
-  os << ")";
+    os << ")";
 }
 
 uint32_t
-DsrOptionSRHeader::GetSerializedSize () const
+DsrOptionSRHeader::GetSerializedSize() const
 {
-  return 4 + m_ipv4Address.size () * 4;
+    return 4 + m_ipv4Address.size() * 4;
 }
 
 void
-DsrOptionSRHeader::Serialize (Buffer::Iterator start) const
+DsrOptionSRHeader::Serialize(Buffer::Iterator start) const
 {
-  Buffer::Iterator i = start;
-  uint8_t buff[4];
+    Buffer::Iterator i = start;
+    uint8_t buff[4];
 
-  i.WriteU8 (GetType ());
-  i.WriteU8 (GetLength ());
-  i.WriteU8 (m_salvage);
-  i.WriteU8 (m_segmentsLeft);
+    i.WriteU8(GetType());
+    i.WriteU8(GetLength());
+    i.WriteU8(m_salvage);
+    i.WriteU8(m_segmentsLeft);
 
-  for (VectorIpv4Address_t::const_iterator it = m_ipv4Address.begin (); it != m_ipv4Address.end ();
-       it++)
+    for (VectorIpv4Address_t::const_iterator it = m_ipv4Address.begin(); it != m_ipv4Address.end();
+         it++)
     {
-      it->Serialize (buff);
-      i.Write (buff, 4);
+        it->Serialize(buff);
+        i.Write(buff, 4);
     }
 }
 
 uint32_t
-DsrOptionSRHeader::Deserialize (Buffer::Iterator start)
+DsrOptionSRHeader::Deserialize(Buffer::Iterator start)
 {
-  Buffer::Iterator i = start;
-  uint8_t buff[4];
+    Buffer::Iterator i = start;
+    uint8_t buff[4];
 
-  SetType (i.ReadU8 ());
-  SetLength (i.ReadU8 ());
-  m_salvage = i.ReadU8 ();
-  m_segmentsLeft = i.ReadU8 ();
+    SetType(i.ReadU8());
+    SetLength(i.ReadU8());
+    m_salvage = i.ReadU8();
+    m_segmentsLeft = i.ReadU8();
 
-  uint8_t index = 0;
-  for (std::vector<Ipv4Address>::iterator it = m_ipv4Address.begin (); it != m_ipv4Address.end ();
-       it++)
+    uint8_t index = 0;
+    for (std::vector<Ipv4Address>::iterator it = m_ipv4Address.begin(); it != m_ipv4Address.end();
+         it++)
     {
-      i.Read (buff, 4);
-      m_address = it->Deserialize (buff);
-      SetNodeAddress (index, m_address);
-      ++index;
+        i.Read(buff, 4);
+        m_address = it->Deserialize(buff);
+        SetNodeAddress(index, m_address);
+        ++index;
     }
 
-  return GetSerializedSize ();
+    return GetSerializedSize();
 }
 
 DsrOptionHeader::Alignment
-DsrOptionSRHeader::GetAlignment () const
+DsrOptionSRHeader::GetAlignment() const
 {
-  Alignment retVal = {4, 0};
-  return retVal;
+    Alignment retVal = {4, 0};
+    return retVal;
 }
 
-NS_OBJECT_ENSURE_REGISTERED (DsrOptionRerrHeader);
+NS_OBJECT_ENSURE_REGISTERED(DsrOptionRerrHeader);
 
 TypeId
-DsrOptionRerrHeader::GetTypeId ()
+DsrOptionRerrHeader::GetTypeId()
 {
-  static TypeId tid = TypeId ("ns3::dsr::DsrOptionRerrHeader")
-                          .AddConstructor<DsrOptionRerrHeader> ()
-                          .SetParent<DsrOptionHeader> ()
-                          .SetGroupName ("Dsr");
-  return tid;
+    static TypeId tid = TypeId("ns3::dsr::DsrOptionRerrHeader")
+                            .AddConstructor<DsrOptionRerrHeader>()
+                            .SetParent<DsrOptionHeader>()
+                            .SetGroupName("Dsr");
+    return tid;
 }
 
 TypeId
-DsrOptionRerrHeader::GetInstanceTypeId () const
+DsrOptionRerrHeader::GetInstanceTypeId() const
 {
-  return GetTypeId ();
+    return GetTypeId();
 }
 
-DsrOptionRerrHeader::DsrOptionRerrHeader () : m_errorType (0), m_salvage (0), m_errorLength (4)
+DsrOptionRerrHeader::DsrOptionRerrHeader()
+    : m_errorType(0),
+      m_salvage(0),
+      m_errorLength(4)
 {
-  SetType (3);
-  SetLength (18);
+    SetType(3);
+    SetLength(18);
 }
 
-DsrOptionRerrHeader::~DsrOptionRerrHeader ()
+DsrOptionRerrHeader::~DsrOptionRerrHeader()
 {
 }
 
 void
-DsrOptionRerrHeader::SetErrorType (uint8_t errorType)
+DsrOptionRerrHeader::SetErrorType(uint8_t errorType)
 {
-  m_errorType = errorType;
+    m_errorType = errorType;
 }
 
 uint8_t
-DsrOptionRerrHeader::GetErrorType () const
+DsrOptionRerrHeader::GetErrorType() const
 {
-  return m_errorType;
+    return m_errorType;
 }
 
 void
-DsrOptionRerrHeader::SetSalvage (uint8_t salvage)
+DsrOptionRerrHeader::SetSalvage(uint8_t salvage)
 {
-  m_salvage = salvage;
+    m_salvage = salvage;
 }
 
 uint8_t
-DsrOptionRerrHeader::GetSalvage () const
+DsrOptionRerrHeader::GetSalvage() const
 {
-  return m_salvage;
+    return m_salvage;
 }
 
 void
-DsrOptionRerrHeader::SetErrorSrc (Ipv4Address errorSrcAddress)
+DsrOptionRerrHeader::SetErrorSrc(Ipv4Address errorSrcAddress)
 {
-  m_errorSrcAddress = errorSrcAddress;
+    m_errorSrcAddress = errorSrcAddress;
 }
 
 Ipv4Address
-DsrOptionRerrHeader::GetErrorSrc () const
+DsrOptionRerrHeader::GetErrorSrc() const
 {
-  return m_errorSrcAddress;
+    return m_errorSrcAddress;
 }
 
 void
-DsrOptionRerrHeader::SetErrorDst (Ipv4Address errorDstAddress)
+DsrOptionRerrHeader::SetErrorDst(Ipv4Address errorDstAddress)
 {
-  m_errorDstAddress = errorDstAddress;
+    m_errorDstAddress = errorDstAddress;
 }
 
 Ipv4Address
-DsrOptionRerrHeader::GetErrorDst () const
+DsrOptionRerrHeader::GetErrorDst() const
 {
-  return m_errorDstAddress;
+    return m_errorDstAddress;
 }
 
 void
-DsrOptionRerrHeader::Print (std::ostream &os) const
+DsrOptionRerrHeader::Print(std::ostream& os) const
 {
-  os << "( type = " << (uint32_t) GetType () << " length = " << (uint32_t) GetLength ()
-     << " errorType = " << (uint32_t) m_errorType << " salvage = " << (uint32_t) m_salvage
-     << " error source = " << m_errorSrcAddress << " error dst = " << m_errorDstAddress << " )";
+    os << "( type = " << (uint32_t)GetType() << " length = " << (uint32_t)GetLength()
+       << " errorType = " << (uint32_t)m_errorType << " salvage = " << (uint32_t)m_salvage
+       << " error source = " << m_errorSrcAddress << " error dst = " << m_errorDstAddress << " )";
 }
 
 uint32_t
-DsrOptionRerrHeader::GetSerializedSize () const
+DsrOptionRerrHeader::GetSerializedSize() const
 {
-  return 20;
+    return 20;
 }
 
 void
-DsrOptionRerrHeader::Serialize (Buffer::Iterator start) const
+DsrOptionRerrHeader::Serialize(Buffer::Iterator start) const
 {
-  Buffer::Iterator i = start;
+    Buffer::Iterator i = start;
 
-  i.WriteU8 (GetType ());
-  i.WriteU8 (GetLength ());
-  i.WriteU8 (m_errorType);
-  i.WriteU8 (m_salvage);
-  WriteTo (i, m_errorSrcAddress);
-  WriteTo (i, m_errorDstAddress);
-  i.Write (m_errorData.Begin (), m_errorData.End ());
+    i.WriteU8(GetType());
+    i.WriteU8(GetLength());
+    i.WriteU8(m_errorType);
+    i.WriteU8(m_salvage);
+    WriteTo(i, m_errorSrcAddress);
+    WriteTo(i, m_errorDstAddress);
+    i.Write(m_errorData.Begin(), m_errorData.End());
 }
 
 uint32_t
-DsrOptionRerrHeader::Deserialize (Buffer::Iterator start)
+DsrOptionRerrHeader::Deserialize(Buffer::Iterator start)
 {
-  Buffer::Iterator i = start;
+    Buffer::Iterator i = start;
 
-  SetType (i.ReadU8 ());
-  SetLength (i.ReadU8 ());
-  m_errorType = i.ReadU8 ();
-  m_salvage = i.ReadU8 ();
-  ReadFrom (i, m_errorSrcAddress);
-  ReadFrom (i, m_errorDstAddress);
+    SetType(i.ReadU8());
+    SetLength(i.ReadU8());
+    m_errorType = i.ReadU8();
+    m_salvage = i.ReadU8();
+    ReadFrom(i, m_errorSrcAddress);
+    ReadFrom(i, m_errorDstAddress);
 
-  m_errorData = Buffer ();
-  m_errorData.AddAtEnd (m_errorLength);
-  Buffer::Iterator dataStart = i;
-  i.Next (m_errorLength);
-  Buffer::Iterator dataEnd = i;
-  m_errorData.Begin ().Write (dataStart, dataEnd);
+    m_errorData = Buffer();
+    m_errorData.AddAtEnd(m_errorLength);
+    Buffer::Iterator dataStart = i;
+    i.Next(m_errorLength);
+    Buffer::Iterator dataEnd = i;
+    m_errorData.Begin().Write(dataStart, dataEnd);
 
-  return GetSerializedSize ();
+    return GetSerializedSize();
 }
 
 DsrOptionHeader::Alignment
-DsrOptionRerrHeader::GetAlignment () const
+DsrOptionRerrHeader::GetAlignment() const
 {
-  Alignment retVal = {4, 0};
-  return retVal;
+    Alignment retVal = {4, 0};
+    return retVal;
 }
 
-NS_OBJECT_ENSURE_REGISTERED (DsrOptionRerrUnreachHeader);
+NS_OBJECT_ENSURE_REGISTERED(DsrOptionRerrUnreachHeader);
 
 TypeId
-DsrOptionRerrUnreachHeader::GetTypeId ()
+DsrOptionRerrUnreachHeader::GetTypeId()
 {
-  static TypeId tid = TypeId ("ns3::dsr::DsrOptionRerrUnreachHeader")
-                          .AddConstructor<DsrOptionRerrUnreachHeader> ()
-                          .SetParent<DsrOptionRerrHeader> ()
-                          .SetGroupName ("Dsr");
-  return tid;
+    static TypeId tid = TypeId("ns3::dsr::DsrOptionRerrUnreachHeader")
+                            .AddConstructor<DsrOptionRerrUnreachHeader>()
+                            .SetParent<DsrOptionRerrHeader>()
+                            .SetGroupName("Dsr");
+    return tid;
 }
 
 TypeId
-DsrOptionRerrUnreachHeader::GetInstanceTypeId () const
+DsrOptionRerrUnreachHeader::GetInstanceTypeId() const
 {
-  return GetTypeId ();
+    return GetTypeId();
 }
 
-DsrOptionRerrUnreachHeader::DsrOptionRerrUnreachHeader () : m_salvage (0)
+DsrOptionRerrUnreachHeader::DsrOptionRerrUnreachHeader()
+    : m_salvage(0)
 {
-  SetType (3);
-  SetLength (18);
-  SetErrorType (1);
+    SetType(3);
+    SetLength(18);
+    SetErrorType(1);
 }
 
-DsrOptionRerrUnreachHeader::~DsrOptionRerrUnreachHeader ()
+DsrOptionRerrUnreachHeader::~DsrOptionRerrUnreachHeader()
 {
 }
 
 void
-DsrOptionRerrUnreachHeader::SetSalvage (uint8_t salvage)
+DsrOptionRerrUnreachHeader::SetSalvage(uint8_t salvage)
 {
-  m_salvage = salvage;
+    m_salvage = salvage;
 }
 
 uint8_t
-DsrOptionRerrUnreachHeader::GetSalvage () const
+DsrOptionRerrUnreachHeader::GetSalvage() const
 {
-  return m_salvage;
+    return m_salvage;
 }
 
 void
-DsrOptionRerrUnreachHeader::SetErrorSrc (Ipv4Address errorSrcAddress)
+DsrOptionRerrUnreachHeader::SetErrorSrc(Ipv4Address errorSrcAddress)
 {
-  m_errorSrcAddress = errorSrcAddress;
+    m_errorSrcAddress = errorSrcAddress;
 }
 
 Ipv4Address
-DsrOptionRerrUnreachHeader::GetErrorSrc () const
+DsrOptionRerrUnreachHeader::GetErrorSrc() const
 {
-  return m_errorSrcAddress;
+    return m_errorSrcAddress;
 }
 
 void
-DsrOptionRerrUnreachHeader::SetErrorDst (Ipv4Address errorDstAddress)
+DsrOptionRerrUnreachHeader::SetErrorDst(Ipv4Address errorDstAddress)
 {
-  m_errorDstAddress = errorDstAddress;
+    m_errorDstAddress = errorDstAddress;
 }
 
 Ipv4Address
-DsrOptionRerrUnreachHeader::GetErrorDst () const
+DsrOptionRerrUnreachHeader::GetErrorDst() const
 {
-  return m_errorDstAddress;
+    return m_errorDstAddress;
 }
 
 void
-DsrOptionRerrUnreachHeader::SetUnreachNode (Ipv4Address unreachNode)
+DsrOptionRerrUnreachHeader::SetUnreachNode(Ipv4Address unreachNode)
 {
-  m_unreachNode = unreachNode;
+    m_unreachNode = unreachNode;
 }
 
 Ipv4Address
-DsrOptionRerrUnreachHeader::GetUnreachNode () const
+DsrOptionRerrUnreachHeader::GetUnreachNode() const
 {
-  return m_unreachNode;
+    return m_unreachNode;
 }
 
 void
-DsrOptionRerrUnreachHeader::SetOriginalDst (Ipv4Address originalDst)
+DsrOptionRerrUnreachHeader::SetOriginalDst(Ipv4Address originalDst)
 {
-  m_originalDst = originalDst;
+    m_originalDst = originalDst;
 }
 
 Ipv4Address
-DsrOptionRerrUnreachHeader::GetOriginalDst () const
+DsrOptionRerrUnreachHeader::GetOriginalDst() const
 {
-  return m_originalDst;
+    return m_originalDst;
 }
 
 void
-DsrOptionRerrUnreachHeader::Print (std::ostream &os) const
+DsrOptionRerrUnreachHeader::Print(std::ostream& os) const
 {
-  os << "( type = " << (uint32_t) GetType () << " length = " << (uint32_t) GetLength ()
-     << " errorType = " << (uint32_t) m_errorType << " salvage = " << (uint32_t) m_salvage
-     << " error source = " << m_errorSrcAddress << " error dst = " << m_errorDstAddress
-     << " unreach node = " << m_unreachNode << " )";
+    os << "( type = " << (uint32_t)GetType() << " length = " << (uint32_t)GetLength()
+       << " errorType = " << (uint32_t)m_errorType << " salvage = " << (uint32_t)m_salvage
+       << " error source = " << m_errorSrcAddress << " error dst = " << m_errorDstAddress
+       << " unreach node = " << m_unreachNode << " )";
 }
 
 uint32_t
-DsrOptionRerrUnreachHeader::GetSerializedSize () const
+DsrOptionRerrUnreachHeader::GetSerializedSize() const
 {
-  return 20;
+    return 20;
 }
 
 void
-DsrOptionRerrUnreachHeader::Serialize (Buffer::Iterator start) const
+DsrOptionRerrUnreachHeader::Serialize(Buffer::Iterator start) const
 {
-  Buffer::Iterator i = start;
+    Buffer::Iterator i = start;
 
-  i.WriteU8 (GetType ());
-  i.WriteU8 (GetLength ());
-  i.WriteU8 (GetErrorType ());
-  i.WriteU8 (m_salvage);
-  WriteTo (i, m_errorSrcAddress);
-  WriteTo (i, m_errorDstAddress);
-  WriteTo (i, m_unreachNode);
-  WriteTo (i, m_originalDst);
+    i.WriteU8(GetType());
+    i.WriteU8(GetLength());
+    i.WriteU8(GetErrorType());
+    i.WriteU8(m_salvage);
+    WriteTo(i, m_errorSrcAddress);
+    WriteTo(i, m_errorDstAddress);
+    WriteTo(i, m_unreachNode);
+    WriteTo(i, m_originalDst);
 }
 
 uint32_t
-DsrOptionRerrUnreachHeader::Deserialize (Buffer::Iterator start)
+DsrOptionRerrUnreachHeader::Deserialize(Buffer::Iterator start)
 {
-  Buffer::Iterator i = start;
+    Buffer::Iterator i = start;
 
-  SetType (i.ReadU8 ());
-  SetLength (i.ReadU8 ());
-  SetErrorType (i.ReadU8 ());
-  m_salvage = i.ReadU8 ();
-  ReadFrom (i, m_errorSrcAddress);
-  ReadFrom (i, m_errorDstAddress);
-  ReadFrom (i, m_unreachNode);
-  ReadFrom (i, m_originalDst);
+    SetType(i.ReadU8());
+    SetLength(i.ReadU8());
+    SetErrorType(i.ReadU8());
+    m_salvage = i.ReadU8();
+    ReadFrom(i, m_errorSrcAddress);
+    ReadFrom(i, m_errorDstAddress);
+    ReadFrom(i, m_unreachNode);
+    ReadFrom(i, m_originalDst);
 
-  return GetSerializedSize ();
+    return GetSerializedSize();
 }
 
 DsrOptionHeader::Alignment
-DsrOptionRerrUnreachHeader::GetAlignment () const
+DsrOptionRerrUnreachHeader::GetAlignment() const
 {
-  Alignment retVal = {4, 0};
-  return retVal;
+    Alignment retVal = {4, 0};
+    return retVal;
 }
 
-NS_OBJECT_ENSURE_REGISTERED (DsrOptionRerrUnsupportHeader);
+NS_OBJECT_ENSURE_REGISTERED(DsrOptionRerrUnsupportHeader);
 
 TypeId
-DsrOptionRerrUnsupportHeader::GetTypeId ()
+DsrOptionRerrUnsupportHeader::GetTypeId()
 {
-  static TypeId tid = TypeId ("ns3::dsr::DsrOptionRerrUnsupportHeader")
-                          .AddConstructor<DsrOptionRerrUnsupportHeader> ()
-                          .SetParent<DsrOptionRerrHeader> ()
-                          .SetGroupName ("Dsr");
-  return tid;
+    static TypeId tid = TypeId("ns3::dsr::DsrOptionRerrUnsupportHeader")
+                            .AddConstructor<DsrOptionRerrUnsupportHeader>()
+                            .SetParent<DsrOptionRerrHeader>()
+                            .SetGroupName("Dsr");
+    return tid;
 }
 
 TypeId
-DsrOptionRerrUnsupportHeader::GetInstanceTypeId () const
+DsrOptionRerrUnsupportHeader::GetInstanceTypeId() const
 {
-  return GetTypeId ();
+    return GetTypeId();
 }
 
-DsrOptionRerrUnsupportHeader::DsrOptionRerrUnsupportHeader () : m_salvage (0)
+DsrOptionRerrUnsupportHeader::DsrOptionRerrUnsupportHeader()
+    : m_salvage(0)
 {
-  SetType (3);
-  SetLength (14);
-  SetErrorType (3);
+    SetType(3);
+    SetLength(14);
+    SetErrorType(3);
 }
 
-DsrOptionRerrUnsupportHeader::~DsrOptionRerrUnsupportHeader ()
+DsrOptionRerrUnsupportHeader::~DsrOptionRerrUnsupportHeader()
 {
 }
 
 void
-DsrOptionRerrUnsupportHeader::SetSalvage (uint8_t salvage)
+DsrOptionRerrUnsupportHeader::SetSalvage(uint8_t salvage)
 {
-  m_salvage = salvage;
+    m_salvage = salvage;
 }
 
 uint8_t
-DsrOptionRerrUnsupportHeader::GetSalvage () const
+DsrOptionRerrUnsupportHeader::GetSalvage() const
 {
-  return m_salvage;
+    return m_salvage;
 }
 
 void
-DsrOptionRerrUnsupportHeader::SetErrorSrc (Ipv4Address errorSrcAddress)
+DsrOptionRerrUnsupportHeader::SetErrorSrc(Ipv4Address errorSrcAddress)
 {
-  m_errorSrcAddress = errorSrcAddress;
+    m_errorSrcAddress = errorSrcAddress;
 }
 
 Ipv4Address
-DsrOptionRerrUnsupportHeader::GetErrorSrc () const
+DsrOptionRerrUnsupportHeader::GetErrorSrc() const
 {
-  return m_errorSrcAddress;
+    return m_errorSrcAddress;
 }
 
 void
-DsrOptionRerrUnsupportHeader::SetErrorDst (Ipv4Address errorDstAddress)
+DsrOptionRerrUnsupportHeader::SetErrorDst(Ipv4Address errorDstAddress)
 {
-  m_errorDstAddress = errorDstAddress;
+    m_errorDstAddress = errorDstAddress;
 }
 
 Ipv4Address
-DsrOptionRerrUnsupportHeader::GetErrorDst () const
+DsrOptionRerrUnsupportHeader::GetErrorDst() const
 {
-  return m_errorDstAddress;
+    return m_errorDstAddress;
 }
 
 void
-DsrOptionRerrUnsupportHeader::SetUnsupported (uint16_t unsupport)
+DsrOptionRerrUnsupportHeader::SetUnsupported(uint16_t unsupported)
 {
-  m_unsupport = unsupport;
+    m_unsupported = unsupported;
 }
 
 uint16_t
-DsrOptionRerrUnsupportHeader::GetUnsupported () const
+DsrOptionRerrUnsupportHeader::GetUnsupported() const
 {
-  return m_unsupport;
+    return m_unsupported;
 }
 
 void
-DsrOptionRerrUnsupportHeader::Print (std::ostream &os) const
+DsrOptionRerrUnsupportHeader::Print(std::ostream& os) const
 {
-  os << "( type = " << (uint32_t) GetType () << " length = " << (uint32_t) GetLength ()
-     << " errorType = " << (uint32_t) m_errorType << " salvage = " << (uint32_t) m_salvage
-     << " error source = " << m_errorSrcAddress << " error dst = " << m_errorDstAddress
-     << " unsupported option = " << m_unsupport << " )";
+    os << "( type = " << (uint32_t)GetType() << " length = " << (uint32_t)GetLength()
+       << " errorType = " << (uint32_t)m_errorType << " salvage = " << (uint32_t)m_salvage
+       << " error source = " << m_errorSrcAddress << " error dst = " << m_errorDstAddress
+       << " unsupported option = " << m_unsupported << " )";
 }
 
 uint32_t
-DsrOptionRerrUnsupportHeader::GetSerializedSize () const
+DsrOptionRerrUnsupportHeader::GetSerializedSize() const
 {
-  return 16;
+    return 16;
 }
 
 void
-DsrOptionRerrUnsupportHeader::Serialize (Buffer::Iterator start) const
+DsrOptionRerrUnsupportHeader::Serialize(Buffer::Iterator start) const
 {
-  Buffer::Iterator i = start;
+    Buffer::Iterator i = start;
 
-  i.WriteU8 (GetType ());
-  i.WriteU8 (GetLength ());
-  i.WriteU8 (GetErrorType ());
-  i.WriteU8 (m_salvage);
-  WriteTo (i, m_errorSrcAddress);
-  WriteTo (i, m_errorDstAddress);
-  i.WriteU16 (m_unsupport);
+    i.WriteU8(GetType());
+    i.WriteU8(GetLength());
+    i.WriteU8(GetErrorType());
+    i.WriteU8(m_salvage);
+    WriteTo(i, m_errorSrcAddress);
+    WriteTo(i, m_errorDstAddress);
+    i.WriteU16(m_unsupported);
 }
 
 uint32_t
-DsrOptionRerrUnsupportHeader::Deserialize (Buffer::Iterator start)
+DsrOptionRerrUnsupportHeader::Deserialize(Buffer::Iterator start)
 {
-  Buffer::Iterator i = start;
+    Buffer::Iterator i = start;
 
-  SetType (i.ReadU8 ());
-  SetLength (i.ReadU8 ());
-  SetErrorType (i.ReadU8 ());
-  m_salvage = i.ReadU8 ();
-  ReadFrom (i, m_errorSrcAddress);
-  ReadFrom (i, m_errorDstAddress);
-  m_unsupport = i.ReadU16 ();
+    SetType(i.ReadU8());
+    SetLength(i.ReadU8());
+    SetErrorType(i.ReadU8());
+    m_salvage = i.ReadU8();
+    ReadFrom(i, m_errorSrcAddress);
+    ReadFrom(i, m_errorDstAddress);
+    m_unsupported = i.ReadU16();
 
-  return GetSerializedSize ();
+    return GetSerializedSize();
 }
 
 DsrOptionHeader::Alignment
-DsrOptionRerrUnsupportHeader::GetAlignment () const
+DsrOptionRerrUnsupportHeader::GetAlignment() const
 {
-  Alignment retVal = {4, 0};
-  return retVal;
+    Alignment retVal = {4, 0};
+    return retVal;
 }
 
-NS_OBJECT_ENSURE_REGISTERED (DsrOptionAckReqHeader);
+NS_OBJECT_ENSURE_REGISTERED(DsrOptionAckReqHeader);
 
 TypeId
-DsrOptionAckReqHeader::GetTypeId ()
+DsrOptionAckReqHeader::GetTypeId()
 {
-  static TypeId tid = TypeId ("ns3::dsr::DsrOptionAckReqHeader")
-                          .AddConstructor<DsrOptionAckReqHeader> ()
-                          .SetParent<DsrOptionHeader> ()
-                          .SetGroupName ("Dsr");
-  return tid;
+    static TypeId tid = TypeId("ns3::dsr::DsrOptionAckReqHeader")
+                            .AddConstructor<DsrOptionAckReqHeader>()
+                            .SetParent<DsrOptionHeader>()
+                            .SetGroupName("Dsr");
+    return tid;
 }
 
 TypeId
-DsrOptionAckReqHeader::GetInstanceTypeId () const
+DsrOptionAckReqHeader::GetInstanceTypeId() const
 {
-  return GetTypeId ();
+    return GetTypeId();
 }
 
-DsrOptionAckReqHeader::DsrOptionAckReqHeader () : m_identification (0)
+DsrOptionAckReqHeader::DsrOptionAckReqHeader()
+    : m_identification(0)
 
 {
-  SetType (160);
-  SetLength (2);
+    SetType(160);
+    SetLength(2);
 }
 
-DsrOptionAckReqHeader::~DsrOptionAckReqHeader ()
+DsrOptionAckReqHeader::~DsrOptionAckReqHeader()
 {
 }
 
 void
-DsrOptionAckReqHeader::SetAckId (uint16_t identification)
+DsrOptionAckReqHeader::SetAckId(uint16_t identification)
 {
-  m_identification = identification;
+    m_identification = identification;
 }
 
 uint16_t
-DsrOptionAckReqHeader::GetAckId () const
+DsrOptionAckReqHeader::GetAckId() const
 {
-  return m_identification;
+    return m_identification;
 }
 
 void
-DsrOptionAckReqHeader::Print (std::ostream &os) const
+DsrOptionAckReqHeader::Print(std::ostream& os) const
 {
-  os << "( type = " << (uint32_t) GetType () << " length = " << (uint32_t) GetLength ()
-     << " id = " << m_identification << " )";
+    os << "( type = " << (uint32_t)GetType() << " length = " << (uint32_t)GetLength()
+       << " id = " << m_identification << " )";
 }
 
 uint32_t
-DsrOptionAckReqHeader::GetSerializedSize () const
+DsrOptionAckReqHeader::GetSerializedSize() const
 {
-  return 4;
+    return 4;
 }
 
 void
-DsrOptionAckReqHeader::Serialize (Buffer::Iterator start) const
+DsrOptionAckReqHeader::Serialize(Buffer::Iterator start) const
 {
-  Buffer::Iterator i = start;
+    Buffer::Iterator i = start;
 
-  i.WriteU8 (GetType ());
-  i.WriteU8 (GetLength ());
-  i.WriteU16 (m_identification);
+    i.WriteU8(GetType());
+    i.WriteU8(GetLength());
+    i.WriteU16(m_identification);
 }
 
 uint32_t
-DsrOptionAckReqHeader::Deserialize (Buffer::Iterator start)
+DsrOptionAckReqHeader::Deserialize(Buffer::Iterator start)
 {
-  Buffer::Iterator i = start;
+    Buffer::Iterator i = start;
 
-  SetType (i.ReadU8 ());
-  SetLength (i.ReadU8 ());
-  m_identification = i.ReadU16 ();
+    SetType(i.ReadU8());
+    SetLength(i.ReadU8());
+    m_identification = i.ReadU16();
 
-  return GetSerializedSize ();
+    return GetSerializedSize();
 }
 
 DsrOptionHeader::Alignment
-DsrOptionAckReqHeader::GetAlignment () const
+DsrOptionAckReqHeader::GetAlignment() const
 {
-  Alignment retVal = {4, 0};
-  return retVal;
+    Alignment retVal = {4, 0};
+    return retVal;
 }
 
-NS_OBJECT_ENSURE_REGISTERED (DsrOptionAckHeader);
+NS_OBJECT_ENSURE_REGISTERED(DsrOptionAckHeader);
 
 TypeId
-DsrOptionAckHeader::GetTypeId ()
+DsrOptionAckHeader::GetTypeId()
 {
-  static TypeId tid = TypeId ("ns3::dsr::DsrOptionAckHeader")
-                          .AddConstructor<DsrOptionAckHeader> ()
-                          .SetParent<DsrOptionHeader> ()
-                          .SetGroupName ("Dsr");
-  return tid;
+    static TypeId tid = TypeId("ns3::dsr::DsrOptionAckHeader")
+                            .AddConstructor<DsrOptionAckHeader>()
+                            .SetParent<DsrOptionHeader>()
+                            .SetGroupName("Dsr");
+    return tid;
 }
 
 TypeId
-DsrOptionAckHeader::GetInstanceTypeId () const
+DsrOptionAckHeader::GetInstanceTypeId() const
 {
-  return GetTypeId ();
+    return GetTypeId();
 }
 
-DsrOptionAckHeader::DsrOptionAckHeader () : m_identification (0)
+DsrOptionAckHeader::DsrOptionAckHeader()
+    : m_identification(0)
 {
-  SetType (32);
-  SetLength (10);
+    SetType(32);
+    SetLength(10);
 }
 
-DsrOptionAckHeader::~DsrOptionAckHeader ()
+DsrOptionAckHeader::~DsrOptionAckHeader()
 {
 }
 
 void
-DsrOptionAckHeader::SetAckId (uint16_t identification)
+DsrOptionAckHeader::SetAckId(uint16_t identification)
 {
-  m_identification = identification;
+    m_identification = identification;
 }
 
 uint16_t
-DsrOptionAckHeader::GetAckId () const
+DsrOptionAckHeader::GetAckId() const
 {
-  return m_identification;
+    return m_identification;
 }
 
 void
-DsrOptionAckHeader::SetRealSrc (Ipv4Address realSrcAddress)
+DsrOptionAckHeader::SetRealSrc(Ipv4Address realSrcAddress)
 {
-  m_realSrcAddress = realSrcAddress;
+    m_realSrcAddress = realSrcAddress;
 }
 
 Ipv4Address
-DsrOptionAckHeader::GetRealSrc () const
+DsrOptionAckHeader::GetRealSrc() const
 {
-  return m_realSrcAddress;
+    return m_realSrcAddress;
 }
 
 void
-DsrOptionAckHeader::SetRealDst (Ipv4Address realDstAddress)
+DsrOptionAckHeader::SetRealDst(Ipv4Address realDstAddress)
 {
-  m_realDstAddress = realDstAddress;
+    m_realDstAddress = realDstAddress;
 }
 
 Ipv4Address
-DsrOptionAckHeader::GetRealDst () const
+DsrOptionAckHeader::GetRealDst() const
 {
-  return m_realDstAddress;
+    return m_realDstAddress;
 }
 
 void
-DsrOptionAckHeader::Print (std::ostream &os) const
+DsrOptionAckHeader::Print(std::ostream& os) const
 {
-  os << "( type = " << (uint32_t) GetType () << " length = " << (uint32_t) GetLength ()
-     << " id = " << m_identification << " real src = " << m_realSrcAddress
-     << " real dst = " << m_realDstAddress << " )";
+    os << "( type = " << (uint32_t)GetType() << " length = " << (uint32_t)GetLength()
+       << " id = " << m_identification << " real src = " << m_realSrcAddress
+       << " real dst = " << m_realDstAddress << " )";
 }
 
 uint32_t
-DsrOptionAckHeader::GetSerializedSize () const
+DsrOptionAckHeader::GetSerializedSize() const
 {
-  return 12;
+    return 12;
 }
 
 void
-DsrOptionAckHeader::Serialize (Buffer::Iterator start) const
+DsrOptionAckHeader::Serialize(Buffer::Iterator start) const
 {
-  Buffer::Iterator i = start;
+    Buffer::Iterator i = start;
 
-  i.WriteU8 (GetType ());
-  i.WriteU8 (GetLength ());
-  i.WriteU16 (m_identification);
-  WriteTo (i, m_realSrcAddress);
-  WriteTo (i, m_realDstAddress);
+    i.WriteU8(GetType());
+    i.WriteU8(GetLength());
+    i.WriteU16(m_identification);
+    WriteTo(i, m_realSrcAddress);
+    WriteTo(i, m_realDstAddress);
 }
 
 uint32_t
-DsrOptionAckHeader::Deserialize (Buffer::Iterator start)
+DsrOptionAckHeader::Deserialize(Buffer::Iterator start)
 {
-  Buffer::Iterator i = start;
+    Buffer::Iterator i = start;
 
-  SetType (i.ReadU8 ());
-  SetLength (i.ReadU8 ());
-  m_identification = i.ReadU16 ();
-  ReadFrom (i, m_realSrcAddress);
-  ReadFrom (i, m_realDstAddress);
+    SetType(i.ReadU8());
+    SetLength(i.ReadU8());
+    m_identification = i.ReadU16();
+    ReadFrom(i, m_realSrcAddress);
+    ReadFrom(i, m_realDstAddress);
 
-  return GetSerializedSize ();
+    return GetSerializedSize();
 }
 
 DsrOptionHeader::Alignment
-DsrOptionAckHeader::GetAlignment () const
+DsrOptionAckHeader::GetAlignment() const
 {
-  Alignment retVal = {4, 0};
-  return retVal;
+    Alignment retVal = {4, 0};
+    return retVal;
 }
 } /* namespace dsr */
 } /* namespace ns3 */

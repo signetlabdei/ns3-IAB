@@ -185,8 +185,11 @@ main (int argc, char *argv[])
   cmd.Parse (argc, argv);
 
   Config::SetDefault ("ns3::MmWaveHelper::UseIdealRrc", BooleanValue (useIdealRrc));
+  Config::SetDefault ("ns3::ThreeGppPropagationLossModel::ShadowingEnabled", BooleanValue (false));
 
   Ptr<MmWaveHelper> mmwaveHelper = CreateObject<MmWaveHelper> ();
+  mmwaveHelper->SetChannelConditionModelType ("ns3::AlwaysLosChannelConditionModel");
+
   Ptr<MmWavePointToPointEpcHelper> epcHelper = CreateObject<MmWavePointToPointEpcHelper> ();
   mmwaveHelper->SetEpcHelper (epcHelper);
   mmwaveHelper->SetHarqEnabled (true);
@@ -229,13 +232,11 @@ main (int argc, char *argv[])
 
   MobilityHelper iabmobility;
   Ptr<ListPositionAllocator> iabPositionAlloc = CreateObject<ListPositionAllocator> ();
-  Ptr<UniformRandomVariable> distRv = CreateObject<UniformRandomVariable> ();
 
-  for (unsigned i = 0; i < nIab; i++)
-    {
-      double dist = distRv->GetValue (0, 50);
-      iabPositionAlloc->Add (Vector (dist, 0.0, 0.0));
-    }
+  iabPositionAlloc->Add (Vector (30.0, 10.0, 0.0));
+  iabPositionAlloc->Add (Vector (20.0, -10.0, 0.0));
+  iabPositionAlloc->Add (Vector (10.0, 10.0, 0.0));
+
   iabmobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
   iabmobility.SetPositionAllocator (iabPositionAlloc);
   iabmobility.Install (iabNodes);

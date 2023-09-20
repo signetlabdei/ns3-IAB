@@ -23,59 +23,60 @@
 #include "ns3/string.h"
 #include "ns3/timestamp-tag.h"
 
-namespace ns3 {
+namespace ns3
+{
 
-DelayJitterEstimation::DelayJitterEstimation ()
+DelayJitterEstimation::DelayJitterEstimation()
 {
 }
 
 void
-DelayJitterEstimation::PrepareTx (Ptr<const Packet> packet)
+DelayJitterEstimation::PrepareTx(Ptr<const Packet> packet)
 {
-  TimestampTag tag (Simulator::Now ());
-  packet->AddByteTag (tag);
+    TimestampTag tag(Simulator::Now());
+    packet->AddByteTag(tag);
 }
 
 void
-DelayJitterEstimation::RecordRx (Ptr<const Packet> packet)
+DelayJitterEstimation::RecordRx(Ptr<const Packet> packet)
 {
-  TimestampTag tag;
+    TimestampTag tag;
 
-  if (!packet->FindFirstMatchingByteTag (tag))
+    if (!packet->FindFirstMatchingByteTag(tag))
     {
-      return;
+        return;
     }
 
-  // Variable names from
-  // RFC 1889 Appendix A.8 ,p. 71,
-  // RFC 3550 Appendix A.8, p. 94
-  Time r_ts = tag.GetTimestamp ();
-  Time arrival = Simulator::Now ();
-  Time transit = arrival - r_ts;
-  Time delta = transit - m_transit;
-  m_transit = transit;
+    // Variable names from
+    // RFC 1889 Appendix A.8 ,p. 71,
+    // RFC 3550 Appendix A.8, p. 94
+    Time r_ts = tag.GetTimestamp();
+    Time arrival = Simulator::Now();
+    Time transit = arrival - r_ts;
+    Time delta = transit - m_transit;
+    m_transit = transit;
 
-  // floating jitter version
-  // m_jitter += (Abs (delta) - m_jitter) / 16;
+    // floating jitter version
+    // m_jitter += (Abs (delta) - m_jitter) / 16;
 
-  // int variant
-  m_jitter += Abs (delta) - ((m_jitter + TimeStep (8)) / 16);
+    // int variant
+    m_jitter += Abs(delta) - ((m_jitter + TimeStep(8)) / 16);
 }
 
 Time
-DelayJitterEstimation::GetLastDelay () const
+DelayJitterEstimation::GetLastDelay() const
 {
-  return m_transit;
+    return m_transit;
 }
 
 uint64_t
-DelayJitterEstimation::GetLastJitter () const
+DelayJitterEstimation::GetLastJitter() const
 {
-  // floating jitter version
-  // return m_jitter.GetTimeStep();
+    // floating jitter version
+    // return m_jitter.GetTimeStep();
 
-  // int variant
-  return (m_jitter / 16).GetTimeStep ();
+    // int variant
+    return (m_jitter / 16).GetTimeStep();
 }
 
 } // namespace ns3

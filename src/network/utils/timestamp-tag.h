@@ -25,7 +25,8 @@
 
 #include <iostream>
 
-namespace ns3 {
+namespace ns3
+{
 
 /**
  * Timestamp tag for associating a timestamp with a packet.
@@ -36,44 +37,44 @@ namespace ns3 {
  */
 class TimestampTag : public Tag
 {
-public:
-  /**
+  public:
+    /**
      * \brief Get the type ID.
      * \return the object TypeId
      */
-  static TypeId GetTypeId ();
-  TypeId GetInstanceTypeId () const override;
+    static TypeId GetTypeId();
+    TypeId GetInstanceTypeId() const override;
 
-  /**
+    /**
      * \brief Construct a new TimestampTag object
      */
-  TimestampTag ();
+    TimestampTag();
 
-  /**
+    /**
      * \brief Construct a new TimestampTag object with the given timestamp
      * \param timestamp The timestamp
      */
-  TimestampTag (Time timestamp);
+    TimestampTag(Time timestamp);
 
-  void Serialize (TagBuffer i) const override;
-  void Deserialize (TagBuffer i) override;
-  uint32_t GetSerializedSize () const override;
-  void Print (std::ostream &os) const override;
+    void Serialize(TagBuffer i) const override;
+    void Deserialize(TagBuffer i) override;
+    uint32_t GetSerializedSize() const override;
+    void Print(std::ostream& os) const override;
 
-  /**
+    /**
      * \brief Get the Timestamp object
      * \return Time for this tag
      */
-  Time GetTimestamp () const;
+    Time GetTimestamp() const;
 
-  /**
+    /**
      * \brief Set the Timestamp object
      * \param timestamp Timestamp to assign to tag
      */
-  void SetTimestamp (Time timestamp);
+    void SetTimestamp(Time timestamp);
 
-private:
-  Time m_timestamp{0}; //!< Timestamp
+  private:
+    Time m_timestamp{0}; //!< Timestamp
 };
 
 } // namespace ns3

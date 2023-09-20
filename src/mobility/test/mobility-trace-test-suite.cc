@@ -35,84 +35,102 @@ using namespace ns3;
 
 /**
  * \ingroup mobility-test
- * \ingroup tests
  *
  * \brief Mobility Trace Test Case
  */
 
 class MobilityTraceTestCase : public TestCase
 {
-public:
-  MobilityTraceTestCase ();
-  ~MobilityTraceTestCase () override;
+  public:
+    MobilityTraceTestCase();
+    ~MobilityTraceTestCase() override;
 
-private:
-  void DoRun () override;
+  private:
+    void DoRun() override;
 };
 
-MobilityTraceTestCase::MobilityTraceTestCase () : TestCase ("Mobility Trace Test Case")
+MobilityTraceTestCase::MobilityTraceTestCase()
+    : TestCase("Mobility Trace Test Case")
 {
 }
 
-MobilityTraceTestCase::~MobilityTraceTestCase ()
+MobilityTraceTestCase::~MobilityTraceTestCase()
 {
 }
 
 void
-MobilityTraceTestCase::DoRun ()
+MobilityTraceTestCase::DoRun()
 {
-  //***************************************************************************
-  // Create the new mobility trace.
-  //***************************************************************************
+    //***************************************************************************
+    // Create the new mobility trace.
+    //***************************************************************************
 
-  NodeContainer sta;
-  sta.Create (4);
-  MobilityHelper mobility;
-  mobility.SetPositionAllocator ("ns3::GridPositionAllocator", "MinX", DoubleValue (1.0), "MinY",
-                                 DoubleValue (1.0), "DeltaX", DoubleValue (5.0), "DeltaY",
-                                 DoubleValue (5.0), "GridWidth", UintegerValue (3), "LayoutType",
-                                 StringValue ("RowFirst"));
-  mobility.SetMobilityModel ("ns3::RandomWalk2dMobilityModel", "Mode", StringValue ("Time"), "Time",
-                             StringValue ("2s"), "Speed",
-                             StringValue ("ns3::ConstantRandomVariable[Constant=1.0]"), "Bounds",
-                             RectangleValue (Rectangle (0.0, 20.0, 0.0, 20.0)));
-  mobility.Install (sta);
-  // Set mobility random number streams to fixed values
-  mobility.AssignStreams (sta, 0);
+    NodeContainer sta;
+    sta.Create(4);
+    MobilityHelper mobility;
+    mobility.SetPositionAllocator("ns3::GridPositionAllocator",
+                                  "MinX",
+                                  DoubleValue(1.0),
+                                  "MinY",
+                                  DoubleValue(1.0),
+                                  "DeltaX",
+                                  DoubleValue(5.0),
+                                  "DeltaY",
+                                  DoubleValue(5.0),
+                                  "GridWidth",
+                                  UintegerValue(3),
+                                  "LayoutType",
+                                  StringValue("RowFirst"));
+    mobility.SetMobilityModel("ns3::RandomWalk2dMobilityModel",
+                              "Mode",
+                              StringValue("Time"),
+                              "Time",
+                              StringValue("2s"),
+                              "Speed",
+                              StringValue("ns3::ConstantRandomVariable[Constant=1.0]"),
+                              "Bounds",
+                              RectangleValue(Rectangle(0.0, 20.0, 0.0, 20.0)));
+    mobility.Install(sta);
+    // Set mobility random number streams to fixed values
+    mobility.AssignStreams(sta, 0);
 
-  SetDataDir (NS_TEST_SOURCEDIR);
-  std::string referenceMobilityFilePath = CreateDataDirFilename ("mobility-trace-example.mob");
-  std::string testMobilityFilePath = CreateTempDirFilename ("mobility-trace-test.mob");
+    SetDataDir(NS_TEST_SOURCEDIR);
+    std::string referenceMobilityFilePath = CreateDataDirFilename("mobility-trace-example.mob");
+    std::string testMobilityFilePath = CreateTempDirFilename("mobility-trace-test.mob");
 
-  AsciiTraceHelper ascii;
-  MobilityHelper::EnableAsciiAll (ascii.CreateFileStream (testMobilityFilePath));
-  Simulator::Stop (Seconds (5.0));
-  Simulator::Run ();
-  Simulator::Destroy ();
+    AsciiTraceHelper ascii;
+    MobilityHelper::EnableAsciiAll(ascii.CreateFileStream(testMobilityFilePath));
+    Simulator::Stop(Seconds(5.0));
+    Simulator::Run();
+    Simulator::Destroy();
 
-  //***************************************************************************
-  // Test the new mobility trace against the reference mobility trace.
-  //***************************************************************************
+    //***************************************************************************
+    // Test the new mobility trace against the reference mobility trace.
+    //***************************************************************************
 
-  NS_ASCII_TEST_EXPECT_EQ (testMobilityFilePath, referenceMobilityFilePath);
+    NS_ASCII_TEST_EXPECT_EQ(testMobilityFilePath, referenceMobilityFilePath);
 }
 
 /**
  * \ingroup mobility-test
- * \ingroup tests
  *
  * \brief Mobility Trace Test Suite
  */
 
 class MobilityTraceTestSuite : public TestSuite
 {
-public:
-  MobilityTraceTestSuite ();
+  public:
+    MobilityTraceTestSuite();
 };
 
-MobilityTraceTestSuite::MobilityTraceTestSuite () : TestSuite ("mobility-trace", UNIT)
+MobilityTraceTestSuite::MobilityTraceTestSuite()
+    : TestSuite("mobility-trace", UNIT)
 {
-  AddTestCase (new MobilityTraceTestCase, TestCase::QUICK);
+    AddTestCase(new MobilityTraceTestCase, TestCase::QUICK);
 }
 
-static MobilityTraceTestSuite mobilityTraceTestSuite; ///< the test suite
+/**
+ * \ingroup mobility-test
+ * Static variable for test initialization
+ */
+static MobilityTraceTestSuite mobilityTraceTestSuite;

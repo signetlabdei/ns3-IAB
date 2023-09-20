@@ -28,9 +28,10 @@
 #include "ns3/object-vector.h"
 #include "ns3/simulator.h"
 
-namespace ns3 {
+namespace ns3
+{
 
-NS_LOG_COMPONENT_DEFINE ("NodeList");
+NS_LOG_COMPONENT_DEFINE("NodeList");
 
 /**
  * \ingroup network
@@ -38,179 +39,181 @@ NS_LOG_COMPONENT_DEFINE ("NodeList");
  */
 class NodeListPriv : public Object
 {
-public:
-  /**
+  public:
+    /**
      * \brief Get the type ID.
      * \return the object TypeId
      */
-  static TypeId GetTypeId ();
-  NodeListPriv ();
-  ~NodeListPriv () override;
+    static TypeId GetTypeId();
+    NodeListPriv();
+    ~NodeListPriv() override;
 
-  /**
+    /**
      * \param node node to add
      * \returns index of node in list.
      *
      * This method is called automatically from Node::Node so
      * the user has little reason to call it himself.
      */
-  uint32_t Add (Ptr<Node> node);
+    uint32_t Add(Ptr<Node> node);
 
-  /**
+    /**
      * \returns a C++ iterator located at the beginning of this
      *          list.
      */
-  NodeList::Iterator Begin () const;
+    NodeList::Iterator Begin() const;
 
-  /**
+    /**
      * \returns a C++ iterator located at the end of this
      *          list.
      */
-  NodeList::Iterator End () const;
+    NodeList::Iterator End() const;
 
-  /**
+    /**
      * \param n index of requested node.
      * \returns the Node associated to index n.
      */
-  Ptr<Node> GetNode (uint32_t n);
+    Ptr<Node> GetNode(uint32_t n);
 
-  /**
+    /**
      * \returns the number of nodes currently in the list.
      */
-  uint32_t GetNNodes ();
+    uint32_t GetNNodes();
 
-  /**
+    /**
      * \brief Get the node list object
      * \returns the node list
      */
-  static Ptr<NodeListPriv> Get ();
+    static Ptr<NodeListPriv> Get();
 
-private:
-  /**
+  private:
+    /**
      * \brief Get the node list object
      * \returns the node list
      */
-  static Ptr<NodeListPriv> *DoGet ();
+    static Ptr<NodeListPriv>* DoGet();
 
-  /**
+    /**
      * \brief Delete the nodes list object
      */
-  static void Delete ();
+    static void Delete();
 
-  /**
+    /**
      * \brief Dispose the nodes in the list
      */
-  void DoDispose () override;
+    void DoDispose() override;
 
-  std::vector<Ptr<Node>> m_nodes; //!< node objects container
+    std::vector<Ptr<Node>> m_nodes; //!< node objects container
 };
 
-NS_OBJECT_ENSURE_REGISTERED (NodeListPriv);
+NS_OBJECT_ENSURE_REGISTERED(NodeListPriv);
 
 TypeId
-NodeListPriv::GetTypeId ()
+NodeListPriv::GetTypeId()
 {
-  static TypeId tid =
-      TypeId ("ns3::NodeListPriv")
-          .SetParent<Object> ()
-          .SetGroupName ("Network")
-          .AddAttribute ("NodeList", "The list of all nodes created during the simulation.",
-                         ObjectVectorValue (), MakeObjectVectorAccessor (&NodeListPriv::m_nodes),
-                         MakeObjectVectorChecker<Node> ());
-  return tid;
+    static TypeId tid = TypeId("ns3::NodeListPriv")
+                            .SetParent<Object>()
+                            .SetGroupName("Network")
+                            .AddAttribute("NodeList",
+                                          "The list of all nodes created during the simulation.",
+                                          ObjectVectorValue(),
+                                          MakeObjectVectorAccessor(&NodeListPriv::m_nodes),
+                                          MakeObjectVectorChecker<Node>());
+    return tid;
 }
 
 Ptr<NodeListPriv>
-NodeListPriv::Get ()
+NodeListPriv::Get()
 {
-  NS_LOG_FUNCTION_NOARGS ();
-  return *DoGet ();
+    NS_LOG_FUNCTION_NOARGS();
+    return *DoGet();
 }
 
-Ptr<NodeListPriv> *
-NodeListPriv::DoGet ()
+Ptr<NodeListPriv>*
+NodeListPriv::DoGet()
 {
-  NS_LOG_FUNCTION_NOARGS ();
-  static Ptr<NodeListPriv> ptr = nullptr;
-  if (!ptr)
+    NS_LOG_FUNCTION_NOARGS();
+    static Ptr<NodeListPriv> ptr = nullptr;
+    if (!ptr)
     {
-      ptr = CreateObject<NodeListPriv> ();
-      Config::RegisterRootNamespaceObject (ptr);
-      Simulator::ScheduleDestroy (&NodeListPriv::Delete);
+        ptr = CreateObject<NodeListPriv>();
+        Config::RegisterRootNamespaceObject(ptr);
+        Simulator::ScheduleDestroy(&NodeListPriv::Delete);
     }
-  return &ptr;
+    return &ptr;
 }
 
 void
-NodeListPriv::Delete ()
+NodeListPriv::Delete()
 {
-  NS_LOG_FUNCTION_NOARGS ();
-  Config::UnregisterRootNamespaceObject (Get ());
-  (*DoGet ()) = nullptr;
+    NS_LOG_FUNCTION_NOARGS();
+    Config::UnregisterRootNamespaceObject(Get());
+    (*DoGet()) = nullptr;
 }
 
-NodeListPriv::NodeListPriv ()
+NodeListPriv::NodeListPriv()
 {
-  NS_LOG_FUNCTION (this);
+    NS_LOG_FUNCTION(this);
 }
 
-NodeListPriv::~NodeListPriv ()
+NodeListPriv::~NodeListPriv()
 {
-  NS_LOG_FUNCTION (this);
+    NS_LOG_FUNCTION(this);
 }
 
 void
-NodeListPriv::DoDispose ()
+NodeListPriv::DoDispose()
 {
-  NS_LOG_FUNCTION (this);
-  for (std::vector<Ptr<Node>>::iterator i = m_nodes.begin (); i != m_nodes.end (); i++)
+    NS_LOG_FUNCTION(this);
+    for (std::vector<Ptr<Node>>::iterator i = m_nodes.begin(); i != m_nodes.end(); i++)
     {
-      Ptr<Node> node = *i;
-      node->Dispose ();
-      *i = nullptr;
+        Ptr<Node> node = *i;
+        node->Dispose();
+        *i = nullptr;
     }
-  m_nodes.erase (m_nodes.begin (), m_nodes.end ());
-  Object::DoDispose ();
+    m_nodes.erase(m_nodes.begin(), m_nodes.end());
+    Object::DoDispose();
 }
 
 uint32_t
-NodeListPriv::Add (Ptr<Node> node)
+NodeListPriv::Add(Ptr<Node> node)
 {
-  NS_LOG_FUNCTION (this << node);
-  uint32_t index = m_nodes.size ();
-  m_nodes.push_back (node);
-  Simulator::ScheduleWithContext (index, TimeStep (0), &Node::Initialize, node);
-  return index;
+    NS_LOG_FUNCTION(this << node);
+    uint32_t index = m_nodes.size();
+    m_nodes.push_back(node);
+    Simulator::ScheduleWithContext(index, TimeStep(0), &Node::Initialize, node);
+    return index;
 }
 
 NodeList::Iterator
-NodeListPriv::Begin () const
+NodeListPriv::Begin() const
 {
-  NS_LOG_FUNCTION (this);
-  return m_nodes.begin ();
+    NS_LOG_FUNCTION(this);
+    return m_nodes.begin();
 }
 
 NodeList::Iterator
-NodeListPriv::End () const
+NodeListPriv::End() const
 {
-  NS_LOG_FUNCTION (this);
-  return m_nodes.end ();
+    NS_LOG_FUNCTION(this);
+    return m_nodes.end();
 }
 
 uint32_t
-NodeListPriv::GetNNodes ()
+NodeListPriv::GetNNodes()
 {
-  NS_LOG_FUNCTION (this);
-  return m_nodes.size ();
+    NS_LOG_FUNCTION(this);
+    return m_nodes.size();
 }
 
 Ptr<Node>
-NodeListPriv::GetNode (uint32_t n)
+NodeListPriv::GetNode(uint32_t n)
 {
-  NS_LOG_FUNCTION (this << n);
-  NS_ASSERT_MSG (n < m_nodes.size (), "Node index " << n << " is out of range (only have "
-                                                    << m_nodes.size () << " nodes).");
-  return m_nodes[n];
+    NS_LOG_FUNCTION(this << n);
+    NS_ASSERT_MSG(n < m_nodes.size(),
+                  "Node index " << n << " is out of range (only have " << m_nodes.size()
+                                << " nodes).");
+    return m_nodes[n];
 }
 
 } // namespace ns3
@@ -220,41 +223,42 @@ NodeListPriv::GetNode (uint32_t n)
  * which calls into the private implementation through
  * the simulation singleton.
  */
-namespace ns3 {
+namespace ns3
+{
 
 uint32_t
-NodeList::Add (Ptr<Node> node)
+NodeList::Add(Ptr<Node> node)
 {
-  NS_LOG_FUNCTION (node);
-  return NodeListPriv::Get ()->Add (node);
+    NS_LOG_FUNCTION(node);
+    return NodeListPriv::Get()->Add(node);
 }
 
 NodeList::Iterator
-NodeList::Begin ()
+NodeList::Begin()
 {
-  NS_LOG_FUNCTION_NOARGS ();
-  return NodeListPriv::Get ()->Begin ();
+    NS_LOG_FUNCTION_NOARGS();
+    return NodeListPriv::Get()->Begin();
 }
 
 NodeList::Iterator
-NodeList::End ()
+NodeList::End()
 {
-  NS_LOG_FUNCTION_NOARGS ();
-  return NodeListPriv::Get ()->End ();
+    NS_LOG_FUNCTION_NOARGS();
+    return NodeListPriv::Get()->End();
 }
 
 Ptr<Node>
-NodeList::GetNode (uint32_t n)
+NodeList::GetNode(uint32_t n)
 {
-  NS_LOG_FUNCTION (n);
-  return NodeListPriv::Get ()->GetNode (n);
+    NS_LOG_FUNCTION(n);
+    return NodeListPriv::Get()->GetNode(n);
 }
 
 uint32_t
-NodeList::GetNNodes ()
+NodeList::GetNNodes()
 {
-  NS_LOG_FUNCTION_NOARGS ();
-  return NodeListPriv::Get ()->GetNNodes ();
+    NS_LOG_FUNCTION_NOARGS();
+    return NodeListPriv::Get()->GetNNodes();
 }
 
 } // namespace ns3

@@ -23,7 +23,8 @@
 #include "ns3/ipv4-address.h"
 #include "ns3/net-device-container.h"
 
-namespace ns3 {
+namespace ns3
+{
 
 /**
  * \ingroup ipv4Helpers
@@ -46,14 +47,14 @@ namespace ns3 {
  */
 class Ipv4AddressHelper
 {
-public:
-  /**
+  public:
+    /**
      * @brief Construct a helper class to make life easier while doing simple IPv4
      * address assignment in scripts.
      */
-  Ipv4AddressHelper ();
+    Ipv4AddressHelper();
 
-  /**
+    /**
      * @brief Construct a helper class to make life easier while doing simple IPv4
      * address assignment in scripts.  This version sets the base and mask
      * in the constructor
@@ -61,9 +62,9 @@ public:
      * @param mask the address mask
      * @param base the host part to start from
      */
-  Ipv4AddressHelper (Ipv4Address network, Ipv4Mask mask, Ipv4Address base = "0.0.0.1");
+    Ipv4AddressHelper(Ipv4Address network, Ipv4Mask mask, Ipv4Address base = "0.0.0.1");
 
-  /**
+    /**
      * @brief Set the base network number, network mask and base address.
      *
      * The address helper allocates IP addresses based on a given network number
@@ -91,9 +92,9 @@ public:
      * IP address allocation.  Will be combined (ORed) with the network number to
      * generate the first IP address.  Defaults to 0.0.0.1.
      */
-  void SetBase (Ipv4Address network, Ipv4Mask mask, Ipv4Address base = "0.0.0.1");
+    void SetBase(Ipv4Address network, Ipv4Mask mask, Ipv4Address base = "0.0.0.1");
 
-  /**
+    /**
      * @brief Increment the network number and reset the IP address counter to
      * the base value provided in the SetBase method.
      *
@@ -119,9 +120,9 @@ public:
      * @see SetBase
      * @see NewAddress
      */
-  Ipv4Address NewNetwork ();
+    Ipv4Address NewNetwork();
 
-  /**
+    /**
      * @brief Increment the IP address counter used to allocate IP addresses
      *
      * The address helper allocates IP addresses based on a given network number
@@ -145,9 +146,9 @@ public:
      * @see SetBase
      * @see NewNetwork
      */
-  Ipv4Address NewAddress ();
+    Ipv4Address NewAddress();
 
-  /**
+    /**
      * @brief Assign IP addresses to the net devices specified in the container
      * based on the current network prefix and address base.
      *
@@ -175,22 +176,22 @@ public:
      * @see SetBase
      * @see NewNetwork
      */
-  Ipv4InterfaceContainer Assign (const NetDeviceContainer &c);
+    Ipv4InterfaceContainer Assign(const NetDeviceContainer& c);
 
-private:
-  /**
+  private:
+    /**
      * \brief Returns the number of address bits (hostpart) for a given netmask
      * \param maskbits the netmask
      * \returns the number of bits in the hostpart
      */
-  uint32_t NumAddressBits (uint32_t maskbits) const;
+    uint32_t NumAddressBits(uint32_t maskbits) const;
 
-  uint32_t m_network; //!< network address
-  uint32_t m_mask; //!< network mask
-  uint32_t m_address; //!< address
-  uint32_t m_base; //!< base address
-  uint32_t m_shift; //!< shift, equivalent to the number of bits in the hostpart
-  uint32_t m_max; //!< maximum allowed address
+    uint32_t m_network; //!< network address
+    uint32_t m_mask;    //!< network mask
+    uint32_t m_address; //!< address
+    uint32_t m_base;    //!< base address
+    uint32_t m_shift;   //!< shift, equivalent to the number of bits in the hostpart
+    uint32_t m_max;     //!< maximum allowed address
 };
 
 } // namespace ns3

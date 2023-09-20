@@ -23,7 +23,8 @@
 #include "ns3/packet.h"
 #include "ns3/queue-item.h"
 
-namespace ns3 {
+namespace ns3
+{
 
 /**
  * \ingroup arp
@@ -35,62 +36,65 @@ namespace ns3 {
  */
 class ArpQueueDiscItem : public QueueDiscItem
 {
-public:
-  /**
+  public:
+    /**
      * \brief Create an ARP queue disc item containing an ARP packet.
      * \param p the packet included in the created item.
      * \param addr the destination MAC address
      * \param protocol the protocol number
      * \param header the ARP header
      */
-  ArpQueueDiscItem (Ptr<Packet> p, const Address &addr, uint16_t protocol, const ArpHeader &header);
+    ArpQueueDiscItem(Ptr<Packet> p,
+                     const Address& addr,
+                     uint16_t protocol,
+                     const ArpHeader& header);
 
-  /** Destructor. */
-  ~ArpQueueDiscItem () override;
+    /** Destructor. */
+    ~ArpQueueDiscItem() override;
 
-  // Delete default constructor, copy constructor and assignment operator to avoid misuse
-  ArpQueueDiscItem () = delete;
-  ArpQueueDiscItem (const ArpQueueDiscItem &) = delete;
-  ArpQueueDiscItem &operator= (const ArpQueueDiscItem &) = delete;
+    // Delete default constructor, copy constructor and assignment operator to avoid misuse
+    ArpQueueDiscItem() = delete;
+    ArpQueueDiscItem(const ArpQueueDiscItem&) = delete;
+    ArpQueueDiscItem& operator=(const ArpQueueDiscItem&) = delete;
 
-  /**
+    /**
      * \return the correct packet size (header plus payload).
      */
-  uint32_t GetSize () const override;
+    uint32_t GetSize() const override;
 
-  /**
+    /**
      * \return the header stored in this item..
      */
-  const ArpHeader &GetHeader () const;
+    const ArpHeader& GetHeader() const;
 
-  /**
+    /**
      * \brief Add the header to the packet
      */
-  void AddHeader () override;
+    void AddHeader() override;
 
-  /**
+    /**
      * \brief Print the item contents.
      * \param os output stream in which the data should be printed.
      */
-  void Print (std::ostream &os) const override;
+    void Print(std::ostream& os) const override;
 
-  /**
+    /**
      * \brief Inherited from the base class, but we cannot mark ARP packets
      * \return false
      */
-  bool Mark () override;
+    bool Mark() override;
 
-  /**
+    /**
      * \brief Computes the hash of the packet's 5-tuple
      *
      * \param perturbation hash perturbation value
      * \return the hash of the packet's 5-tuple
      */
-  uint32_t Hash (uint32_t perturbation) const override;
+    uint32_t Hash(uint32_t perturbation) const override;
 
-private:
-  ArpHeader m_header; //!< The ARP header.
-  bool m_headerAdded; //!< True if the header has already been added to the packet.
+  private:
+    ArpHeader m_header; //!< The ARP header.
+    bool m_headerAdded; //!< True if the header has already been added to the packet.
 };
 
 } // namespace ns3

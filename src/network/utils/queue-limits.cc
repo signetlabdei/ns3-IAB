@@ -22,22 +22,23 @@
 
 #include "ns3/log.h"
 
-namespace ns3 {
+namespace ns3
+{
 
-NS_LOG_COMPONENT_DEFINE ("QueueLimits");
+NS_LOG_COMPONENT_DEFINE("QueueLimits");
 
-NS_OBJECT_ENSURE_REGISTERED (QueueLimits);
+NS_OBJECT_ENSURE_REGISTERED(QueueLimits);
 
 TypeId
-QueueLimits::GetTypeId ()
+QueueLimits::GetTypeId()
 {
-  static TypeId tid = TypeId ("ns3::QueueLimits").SetParent<Object> ().SetGroupName ("Network");
-  return tid;
+    static TypeId tid = TypeId("ns3::QueueLimits").SetParent<Object>().SetGroupName("Network");
+    return tid;
 }
 
-QueueLimits::~QueueLimits ()
+QueueLimits::~QueueLimits()
 {
-  NS_LOG_FUNCTION (this);
+    NS_LOG_FUNCTION(this);
 }
 
 } // namespace ns3

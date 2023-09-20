@@ -43,6 +43,7 @@ double ipiMs = 100.0;
 double appStartMs = 100.0;
 unsigned int expectedPackets = std::ceil ((simTimeSeconds * 1e3 - appStartMs) / ipiMs) * 9;
 unsigned int numSymResvForOddIabs = 6;
+unsigned int numSymResvForDl = 3;
 
 NS_LOG_COMPONENT_DEFINE ("IabInmarsatScenario");
 
@@ -128,6 +129,8 @@ main (int argc, char *argv[])
   Config::SetDefault ("ns3::ThreeGppPropagationLossModel::ShadowingEnabled", BooleanValue (false));
   Config::SetDefault ("ns3::MmWaveFlexTtiMacScheduler::NumSymResvForChildrenDu",
                       UintegerValue (numSymResvForOddIabs));
+  Config::SetDefault("ns3::MmWaveFlexTtiMacScheduler::NumSymResvForDl",
+                    UintegerValue(numSymResvForDl));
 
   Ptr<MmWaveHelper> mmwaveHelper = CreateObject<MmWaveHelper> ();
   mmwaveHelper->SetChannelConditionModelType ("ns3::AlwaysLosChannelConditionModel");

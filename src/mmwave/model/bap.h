@@ -30,9 +30,11 @@
 #include <ns3/inner-pdcp.h>
 #include "bap-header.h"
 #include <ns3/mmwave-net-device.h>
+#include <ns3/lte-ue-rrc.h>
 
 namespace ns3 {
 class InnerPdcp;
+class LteUeRrc;
 
 /**
  * IAB BAP entity, see 3GPP TS 38.340
@@ -111,13 +113,15 @@ public:
 
   void SetDonorBapAddressCallback (Callback<uint16_t, uint64_t> cb);
 
-  void TransmitBapSduViaNonPduInterface (Ptr<Packet> p);
+  void TransmitBapSduViaNonPduInterface (Ptr<Packet> p, uint16_t destBapAddress = 0);
 
   void SetInnerPdcp (Ptr<InnerPdcp> innerPdcp);
 
   void AddPairRlcMap (uint16_t, LteRlcSapProvider *);
 
   void SetEpcEnbApplication (Ptr<EpcEnbApplication> app);
+
+  void SetMtRrc (Ptr<LteUeRrc> mtRrc);
 
 protected:
   //TODO: Check and possibly update interface towards upper inner PDCP. Are more parameters needed ?
@@ -201,6 +205,8 @@ private:
   Ptr<EpcEnbApplication> m_epcEnbApplication{
       nullptr}; //<! A ptr to the EPC eNB application, if installed on the donor
   Ptr<InnerPdcp> m_innerPdcp;
+
+  Ptr<LteUeRrc> m_iabMtRrc{nullptr};
 
   //<! Callback for retrieving the BAP address of the next hop
   NextHopAddressCallback m_nextHopAddressCallback{

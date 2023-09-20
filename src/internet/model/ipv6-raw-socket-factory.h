@@ -22,7 +22,8 @@
 
 #include "ns3/socket-factory.h"
 
-namespace ns3 {
+namespace ns3
+{
 
 class Socket;
 
@@ -60,12 +61,12 @@ class Socket;
  */
 class Ipv6RawSocketFactory : public SocketFactory
 {
-public:
-  /**
+  public:
+    /**
      * \brief Get the type ID of this class.
      * \return type ID
      */
-  static TypeId GetTypeId ();
+    static TypeId GetTypeId();
 };
 
 } // namespace ns3

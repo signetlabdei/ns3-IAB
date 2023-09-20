@@ -28,7 +28,8 @@
  * Forward declaration of template class Queue.
  */
 
-namespace ns3 {
+namespace ns3
+{
 
 // Forward declaration of template class Queue specifying
 // the default value for the template template parameter Container

@@ -224,51 +224,89 @@ TypeId
 MmWaveFlexTtiMacScheduler::GetTypeId (void)
 {
   static TypeId tid =
-      TypeId ("ns3::MmWaveFlexTtiMacScheduler")
-          .SetParent<MmWaveMacScheduler> ()
-          .AddConstructor<MmWaveFlexTtiMacScheduler> ()
-          .AddAttribute ("CqiTimerThreshold",
-                         "The number of TTIs a CQI is valid (default 1000 - 1 sec.)",
-                         UintegerValue (100),
-                         MakeUintegerAccessor (&MmWaveFlexTtiMacScheduler::m_cqiTimersThreshold),
-                         MakeUintegerChecker<uint32_t> ())
-          .AddAttribute ("HarqEnabled", "Activate/Deactivate the HARQ [by default is active].",
-                         BooleanValue (true),
-                         MakeBooleanAccessor (&MmWaveFlexTtiMacScheduler::m_harqOn),
-                         MakeBooleanChecker ())
-          .AddAttribute ("FixedMcsDl", "Fix MCS to value set in McsDlDefault (for testing)",
-                         BooleanValue (false),
-                         MakeBooleanAccessor (&MmWaveFlexTtiMacScheduler::m_fixedMcsDl),
-                         MakeBooleanChecker ())
-          .AddAttribute ("McsDefaultDl", "Fixed DL MCS (for testing)", UintegerValue (1),
-                         MakeUintegerAccessor (&MmWaveFlexTtiMacScheduler::m_mcsDefaultDl),
-                         MakeUintegerChecker<uint8_t> ())
-          .AddAttribute ("FixedMcsUl", "Fix MCS to value set in McsUlDefault (for testing)",
-                         BooleanValue (false),
-                         MakeBooleanAccessor (&MmWaveFlexTtiMacScheduler::m_fixedMcsUl),
-                         MakeBooleanChecker ())
-          .AddAttribute ("McsDefaultUl", "Fixed UL MCS (for testing)", UintegerValue (1),
-                         MakeUintegerAccessor (&MmWaveFlexTtiMacScheduler::m_mcsDefaultUl),
-                         MakeUintegerChecker<uint8_t> ())
-          .AddAttribute (
-              "DlSchedOnly", "Only schedule downlink traffic (for testing)", BooleanValue (false),
-              MakeBooleanAccessor (&MmWaveFlexTtiMacScheduler::m_dlOnly), MakeBooleanChecker ())
-          .AddAttribute (
-              "UlSchedOnly", "Only schedule uplink traffic (for testing)", BooleanValue (false),
-              MakeBooleanAccessor (&MmWaveFlexTtiMacScheduler::m_ulOnly), MakeBooleanChecker ())
-          .AddAttribute ("FixedTti", "Fix slot size", BooleanValue (false),
-                         MakeBooleanAccessor (&MmWaveFlexTtiMacScheduler::m_fixedTti),
-                         MakeBooleanChecker ())
-          .AddAttribute ("SymPerSlot", "Number of symbols per slot in Fixed TTI mode",
-                         UintegerValue (6),
-                         MakeUintegerAccessor (&MmWaveFlexTtiMacScheduler::m_symPerSlot),
-                         MakeUintegerChecker<uint8_t> ())
-          .AddAttribute ("NumSymResvForChildrenDu",
-                         "The number of OFDM symbols reserved for the DU of odd depth IAB layers",
-                         UintegerValue (0),
-                         MakeUintegerAccessor (&MmWaveFlexTtiMacScheduler::m_resvChildrenDu),
-                         MakeUintegerChecker<uint8_t> ());
-
+      TypeId("ns3::MmWaveFlexTtiMacScheduler")
+          .SetParent<MmWaveMacScheduler>()
+          .AddConstructor<MmWaveFlexTtiMacScheduler>()
+          .AddAttribute("CqiTimerThreshold",
+                        "The number of TTIs a CQI is valid (default 1000 - 1 sec.)",
+                        UintegerValue(100),
+                        MakeUintegerAccessor(&MmWaveFlexTtiMacScheduler::m_cqiTimersThreshold),
+                        MakeUintegerChecker<uint32_t>())
+          .AddAttribute("HarqEnabled",
+                        "Activate/Deactivate the HARQ [by default is active].",
+                        BooleanValue(true),
+                        MakeBooleanAccessor(&MmWaveFlexTtiMacScheduler::m_harqOn),
+                        MakeBooleanChecker())
+          .AddAttribute("FixedMcsDl",
+                        "Fix MCS to value set in McsDlDefault (for testing)",
+                        BooleanValue(false),
+                        MakeBooleanAccessor(&MmWaveFlexTtiMacScheduler::m_fixedMcsDl),
+                        MakeBooleanChecker())
+          .AddAttribute("McsDefaultDl",
+                        "Fixed DL MCS (for testing)",
+                        UintegerValue(1),
+                        MakeUintegerAccessor(&MmWaveFlexTtiMacScheduler::m_mcsDefaultDl),
+                        MakeUintegerChecker<uint8_t>())
+          .AddAttribute("FixedMcsUl",
+                        "Fix MCS to value set in McsUlDefault (for testing)",
+                        BooleanValue(false),
+                        MakeBooleanAccessor(&MmWaveFlexTtiMacScheduler::m_fixedMcsUl),
+                        MakeBooleanChecker())
+          .AddAttribute("McsDefaultUl",
+                        "Fixed UL MCS (for testing)",
+                        UintegerValue(1),
+                        MakeUintegerAccessor(&MmWaveFlexTtiMacScheduler::m_mcsDefaultUl),
+                        MakeUintegerChecker<uint8_t>())
+          .AddAttribute("DlSchedOnly",
+                        "Only schedule downlink traffic (for testing)",
+                        BooleanValue(false),
+                        MakeBooleanAccessor(&MmWaveFlexTtiMacScheduler::m_dlOnly),
+                        MakeBooleanChecker())
+          .AddAttribute("UlSchedOnly",
+                        "Only schedule uplink traffic (for testing)",
+                        BooleanValue(false),
+                        MakeBooleanAccessor(&MmWaveFlexTtiMacScheduler::m_ulOnly),
+                        MakeBooleanChecker())
+          .AddAttribute("FixedTti",
+                        "Fix slot size",
+                        BooleanValue(false),
+                        MakeBooleanAccessor(&MmWaveFlexTtiMacScheduler::m_fixedTti),
+                        MakeBooleanChecker())
+          .AddAttribute("SymPerSlot",
+                        "Number of symbols per slot in Fixed TTI mode",
+                        UintegerValue(6),
+                        MakeUintegerAccessor(&MmWaveFlexTtiMacScheduler::m_symPerSlot),
+                        MakeUintegerChecker<uint8_t>())
+          .AddAttribute("NumSymResvForChildrenDu",
+                        "The number of OFDM symbols reserved for the DU of odd depth IAB layers",
+                        UintegerValue(0),
+                        MakeUintegerAccessor(&MmWaveFlexTtiMacScheduler::m_resvChildrenDu),
+                        MakeUintegerChecker<uint8_t>())
+          .AddAttribute("NumSymResvForDl",
+                        "The number of OFDM symbols reserved for the DL",
+                        UintegerValue(6),
+                        MakeUintegerAccessor(&MmWaveFlexTtiMacScheduler::m_resvDl),
+                        MakeUintegerChecker<uint8_t>())
+          .AddAttribute("NumSymReservedSw",
+                        "The number of OFDM symbols reserved for the switching between DL and UL",
+                        UintegerValue(0),
+                        MakeUintegerAccessor(&MmWaveFlexTtiMacScheduler::m_resvSwitch),
+                        MakeUintegerChecker<uint8_t>())
+          .AddAttribute("SlotsFormat",
+                        "The pattern of the slots format (d/u/s)",
+                        StringValue(""),
+                        MakeStringAccessor(&MmWaveFlexTtiMacScheduler::m_slotsFormat),
+                        MakeStringChecker())
+          .AddAttribute("NumSymReservedCtrl",
+                        "The number of OFDM symbols reserved for the control",
+                        UintegerValue(0),
+                        MakeUintegerAccessor(&MmWaveFlexTtiMacScheduler::m_resvCtrlSymbols),
+                        MakeUintegerChecker<uint16_t>())
+          .AddAttribute("FramePeriodCtrlSymbols",
+                        "The period of the frames with given OFDM symbols reserved for the control",
+                        UintegerValue(8),
+                        MakeUintegerAccessor(&MmWaveFlexTtiMacScheduler::m_numFramesControlSymPeriod),
+                        MakeUintegerChecker<uint16_t>());
   return tid;
 }
 
@@ -692,17 +730,39 @@ MmWaveFlexTtiMacScheduler::DoSchedTriggerReq (
   uint8_t sfNum = params.m_snfSf.m_sfNum;
   uint8_t slotNum = params.m_snfSf.m_slotNum;
 
-  MmWaveMacSchedSapUser::SchedConfigIndParameters ret;
-  ret.m_sfnSf = params.m_snfSf;
-  ret.m_slotAllocInfo.m_sfnSf = ret.m_sfnSf;
+  uint32_t numTotalSlotsInAControlPeriod = m_phyMacConfig->GetSubframesPerFrame() *
+                            m_phyMacConfig->GetSlotsPerSubframe() * m_numFramesControlSymPeriod;
+
+  uint8_t slotIndex =
+      (frameNum % m_numFramesControlSymPeriod) * m_phyMacConfig->GetSubframesPerFrame() * m_phyMacConfig->GetSlotsPerSubframe() +
+      sfNum * m_phyMacConfig->GetSlotsPerSubframe() + slotNum;
+
+  int additionalResvCtrlSymbols = m_resvCtrlSymbols - numTotalSlotsInAControlPeriod * 2; // the first and last symbol of each slot are reserved for control
+
+  if (additionalResvCtrlSymbols < 0)
+  {
+    additionalResvCtrlSymbols = 0;
+  }
+
+  int resvCtrl = additionalResvCtrlSymbols / numTotalSlotsInAControlPeriod;
+  int ctrlSlotIndex = additionalResvCtrlSymbols - resvCtrl * numTotalSlotsInAControlPeriod;
+
+  if (slotIndex < ctrlSlotIndex)
+    {
+      resvCtrl++;
+    }
 
   NS_LOG_DEBUG ("Creating scheduling allocation info for: frame "
                 << frameNum << " subframe " << +sfNum << " slot " << +slotNum);
 
-  int resvCtrl = m_phyMacConfig->GetDlCtrlSymbols () + m_phyMacConfig->GetUlCtrlSymbols ();
+  MmWaveMacSchedSapUser::SchedConfigIndParameters ret;
+  ret.m_sfnSf = params.m_snfSf;
+  ret.m_slotAllocInfo.m_sfnSf = ret.m_sfnSf;
+
+  resvCtrl += m_phyMacConfig->GetDlCtrlSymbols () + m_phyMacConfig->GetUlCtrlSymbols ();
   int symAvail = m_phyMacConfig->GetSymbPerSlot () - resvCtrl - m_resvChildrenDu;
   uint8_t ttiIdx = 1;
-  uint8_t symIdx = m_phyMacConfig->GetDlCtrlSymbols ();
+  uint8_t symDlIdx = m_phyMacConfig->GetDlCtrlSymbols ();
   ; // symbols reserved for control at beginning of subframe
   uint32_t iabDepth = 0;
   if (!m_getDepthCallback.IsNull ())
@@ -711,8 +771,50 @@ MmWaveFlexTtiMacScheduler::DoSchedTriggerReq (
     }
   if (iabDepth % 2 == 1) // odd depth IAB layer
     {
-      symIdx += m_resvChildrenDu;
+      symDlIdx += m_resvChildrenDu;
     }
+
+  if (m_slotsFormat != "")
+  {
+    uint8_t slotIndex = m_indexSlot % m_slotsFormat.length();
+
+    char slotType = m_slotsFormat.at(slotIndex);
+    switch (slotType)
+    {
+      case 'd': //Downlink slot
+      NS_LOG_DEBUG("DL slot");
+      m_resvDl = symAvail;
+      break;
+
+      case 'u': //Uplink slot
+      NS_LOG_DEBUG("UL slot");
+      m_resvDl = 0;
+      m_resvSwitch = 0;
+      break;
+
+      case 's': //Switching Slot
+      NS_LOG_DEBUG("SW slot");
+      m_resvDl = 0;
+      if (symAvail>4)
+      {
+        m_resvSwitch = symAvail-4;
+      }
+      else
+      {
+        m_resvSwitch = 0;
+      }
+      break;
+
+      default:
+      NS_FATAL_ERROR("Incorrect slot format");
+    }
+    m_indexSlot++;
+  }
+
+  uint8_t symDlAvail = m_resvDl;
+  uint8_t symUlIdx = symDlIdx + m_resvDl + m_resvSwitch;
+  uint8_t resvUl = symAvail - symDlAvail - m_resvSwitch;
+  uint8_t symUlAvail = resvUl;
 
   // Add TTI for DL control at the beginning of the slot
   TtiAllocInfo dlCtrlSlot (0, TtiAllocInfo::DL_slotAllocInfo, TtiAllocInfo::CTRL, 0);
@@ -768,7 +870,7 @@ MmWaveFlexTtiMacScheduler::DoSchedTriggerReq (
 
       for (unsigned i = 0; i < m_dlHarqInfoList.size (); i++)
         {
-          if (symAvail == 0)
+          if (symDlAvail == 0)
             {
               break; // no symbols left to allocate
             }
@@ -882,12 +984,13 @@ MmWaveFlexTtiMacScheduler::DoSchedTriggerReq (
               }*/
 
               // allocate retx if enough symbols are available
-              if (symAvail >= dciInfoReTx.m_numSym)
+              if (symDlAvail >= dciInfoReTx.m_numSym)
                 {
                   symAvail -= dciInfoReTx.m_numSym;
-                  dciInfoReTx.m_symStart = symIdx;
-                  symIdx += dciInfoReTx.m_numSym;
-                  NS_ASSERT (symIdx <= m_phyMacConfig->GetSymbPerSlot () -
+                  symDlAvail -= dciInfoReTx.m_numSym;
+                  dciInfoReTx.m_symStart = symDlIdx;
+                  symDlIdx += dciInfoReTx.m_numSym;
+                  NS_ASSERT (symDlIdx <= m_phyMacConfig->GetSymbPerSlot () -
                                            m_phyMacConfig->GetUlCtrlSymbols ());
                   dciInfoReTx.m_rv++;
                   dciInfoReTx.m_ndi = 0;
@@ -943,7 +1046,7 @@ MmWaveFlexTtiMacScheduler::DoSchedTriggerReq (
       // Process UL HARQ feedback
       for (uint16_t i = 0; i < m_ulHarqInfoList.size (); i++)
         {
-          if (symAvail == 0)
+          if (symUlAvail == 0)
             {
               break; // no symbols left to allocate
             }
@@ -988,12 +1091,12 @@ MmWaveFlexTtiMacScheduler::DoSchedTriggerReq (
                   continue;
                 }
 
-              if (symAvail >= dciInfoReTx.m_numSym)
+              if (symUlAvail >= dciInfoReTx.m_numSym)
                 {
-                  symAvail -= dciInfoReTx.m_numSym;
-                  dciInfoReTx.m_symStart = symIdx;
-                  symIdx += dciInfoReTx.m_numSym;
-                  NS_ASSERT (symIdx <= m_phyMacConfig->GetSymbPerSlot () -
+                  symUlAvail -= dciInfoReTx.m_numSym;
+                  dciInfoReTx.m_symStart = symUlIdx;
+                  symUlIdx += dciInfoReTx.m_numSym;
+                  NS_ASSERT (symUlIdx <= m_phyMacConfig->GetSymbPerSlot () -
                                            m_phyMacConfig->GetUlCtrlSymbols ());
                   dciInfoReTx.m_rv++;
                   dciInfoReTx.m_ndi = 0;
@@ -1035,7 +1138,7 @@ MmWaveFlexTtiMacScheduler::DoSchedTriggerReq (
   // ********************* END OF HARQ SECTION, START OF NEW DATA SCHEDULING ********************* //
 
   // get info on active DL flows
-  if (symAvail > 0 && !m_ulOnly) // remaining symbols in current subframe after HARQ retx sched
+  if (symDlAvail > 0 && !m_ulOnly) // remaining symbols in current subframe after HARQ retx sched
     {
       for (itRlcBuf = m_rlcBufferReq.begin (); itRlcBuf != m_rlcBufferReq.end (); itRlcBuf++)
         {
@@ -1134,7 +1237,7 @@ MmWaveFlexTtiMacScheduler::DoSchedTriggerReq (
     }
 
   // get info on active UL flows
-  if (symAvail > 0 && !m_dlOnly) // remaining symbols in future UL subframe after HARQ retx sched
+  if (symUlAvail > 0 && !m_dlOnly) // remaining symbols in future UL subframe after HARQ retx sched
     {
       std::map<uint16_t, uint32_t>::iterator ceBsrIt;
       for (ceBsrIt = m_ceBsrRxed.begin (); ceBsrIt != m_ceBsrRxed.end (); ceBsrIt++)
@@ -1200,7 +1303,6 @@ MmWaveFlexTtiMacScheduler::DoSchedTriggerReq (
         }
     }
 
-  int nFlowsTot = nFlowsDl + nFlowsUl;
   if (ueInfo.size () ==
       0) // No new data to schedule: only UL CTRL left to schedule, then scheduling operations are over
     {
@@ -1264,40 +1366,41 @@ MmWaveFlexTtiMacScheduler::DoSchedTriggerReq (
     }
   itUeInfo = itUeInfoStart;
 
+
   // divide OFDM symbols evenly between active UEs, which are then evenly divided between DL and UL flows
-  if (nFlowsTot > 0)
+  if (nFlowsDl > 0)
     {
-      int remSym = totDlSymReq + totUlSymReq;
-      if (remSym > symAvail)
+      int remSymDl = totDlSymReq;
+      if (remSymDl > symDlAvail)
         {
-          remSym = symAvail;
+          remSymDl = symDlAvail;
         }
 
-      int nSymPerFlow0 = remSym / nFlowsTot; // initial average symbols per non-retx flow
-      if (nSymPerFlow0 == 0) // minimum of 1
+      int nSymPerFlow0Dl = remSymDl / nFlowsDl; // initial average symbols per non-retx flow
+      if (nSymPerFlow0Dl == 0) // minimum of 1
         {
-          nSymPerFlow0 = 1;
+          nSymPerFlow0Dl = 1;
         }
       if (m_fixedTti)
         {
-          nSymPerFlow0 = ceil ((double) nSymPerFlow0 / (double) m_symPerSlot) *
-                         m_symPerSlot; // round up to nearest sym per TTI
+          nSymPerFlow0Dl = ceil ((double) nSymPerFlow0Dl / (double) m_resvDl) *
+                         m_resvDl; // round up to nearest sym per TTI
         }
       bool allocated = true; // someone got allocated
-      while (remSym > 0 && allocated)
+      while (remSymDl > 0 && allocated)
         {
           allocated = false; // additional symbols allocated to this RNTI in this iteration
-          int nRemSymPerFlow = remSym / nFlowsTot;
-          if (nRemSymPerFlow == 0)
+          int nRemSymPerFlowDl = remSymDl / nFlowsDl;
+          if (nRemSymPerFlowDl == 0)
             {
-              nRemSymPerFlow = 1;
+              nRemSymPerFlowDl = 1;
             }
           if (m_fixedTti)
             {
-              nRemSymPerFlow = ceil ((double) nRemSymPerFlow / (double) m_symPerSlot) *
-                               m_symPerSlot; // round up to nearest sym per TTI
+              nRemSymPerFlowDl = ceil ((double) nRemSymPerFlowDl / (double) m_resvDl) *
+                               m_resvDl; // round up to nearest sym per TTI
             }
-          while (remSym > 0)
+          while (remSymDl > 0)
             {
               int addSym = 0;
               // deficit = difference between requested and allocated symbols
@@ -1305,96 +1408,143 @@ MmWaveFlexTtiMacScheduler::DoSchedTriggerReq (
               NS_ASSERT (deficit >= 0);
               if (m_fixedTti)
                 {
-                  deficit = ceil ((double) deficit / (double) m_symPerSlot) *
-                            m_symPerSlot; // round up to nearest sym per TTI
+                  deficit = ceil ((double) deficit / (double) m_resvDl) *
+                            m_resvDl; // round up to nearest sym per TTI
                 }
               if (deficit > 0 && ((itUeInfo->second.m_dlSymbols +
-                                   itUeInfo->second.m_dlSymbolsRetx) <= nSymPerFlow0))
+                                   itUeInfo->second.m_dlSymbolsRetx) <= nSymPerFlow0Dl))
                 {
-                  if (deficit < nRemSymPerFlow)
+                  if (deficit < nRemSymPerFlowDl)
                     {
-                      if (deficit > remSym)
+                      if (deficit > remSymDl)
                         {
-                          addSym = remSym;
+                          addSym = remSymDl;
                         }
                       else
                         {
                           addSym = deficit;
                           // add remaining symbols to average
-                          nFlowsTot--;
-                          int extra = (nRemSymPerFlow - addSym) / nFlowsTot;
-                          nSymPerFlow0 += extra; // add extra to average symbols
-                          nRemSymPerFlow += extra; // add extra to average symbols
+                          nFlowsDl--;
+                          int extra = (nRemSymPerFlowDl - addSym) / nFlowsDl;
+                          nSymPerFlow0Dl += extra; // add extra to average symbols
+                          nRemSymPerFlowDl += extra; // add extra to average symbols
                         }
                     }
                   else
                     {
-                      if (nRemSymPerFlow > remSym)
+                      if (nRemSymPerFlowDl > remSymDl)
                         {
-                          addSym = remSym;
+                          addSym = remSymDl;
                         }
                       else
                         {
-                          addSym = nRemSymPerFlow;
+                          addSym = nRemSymPerFlowDl;
                         }
                     }
                   allocated = true;
                 }
               itUeInfo->second.m_dlSymbols += addSym;
-              remSym -= addSym;
-              NS_ASSERT (remSym >= 0);
+              remSymDl -= addSym;
+              NS_ASSERT (remSymDl >= 0);
 
-              addSym = 0;
+              itUeInfo++;
+              if (itUeInfo == ueInfo.end ())
+                { // loop around to first RNTI in map
+                  itUeInfo = ueInfo.begin ();
+                }
+              if (itUeInfo == itUeInfoStart)
+                { // break when looped back to initial RNTI or no symbols remain
+                  break;
+                }
+            }
+        }
+    }
+  if (nFlowsUl > 0)
+    {
+
+      int remSymUl = totUlSymReq;
+      if (remSymUl > symUlAvail)
+        {
+          remSymUl = symUlAvail;
+        }
+
+      int nSymPerFlow0Ul = remSymUl / nFlowsUl; // initial average symbols per non-retx flow
+      if (nSymPerFlow0Ul == 0) // minimum of 1
+        {
+          nSymPerFlow0Ul = 1;
+        }
+      if (m_fixedTti)
+        {
+          nSymPerFlow0Ul = ceil ((double) nSymPerFlow0Ul / (double) resvUl) *
+                         resvUl; // round up to nearest sym per TTI
+        }
+      bool allocated = true; // someone got allocated
+      while (remSymUl > 0 && allocated)
+        {
+          allocated = false; // additional symbols allocated to this RNTI in this iteration
+          int nRemSymPerFlowUl = remSymUl / nFlowsUl;
+          if (nRemSymPerFlowUl == 0)
+            {
+              nRemSymPerFlowUl = 1;
+            }
+          if (m_fixedTti)
+            {
+              nRemSymPerFlowUl = ceil ((double) nRemSymPerFlowUl / (double) resvUl) *
+                               resvUl; // round up to nearest sym per TTI
+            }
+          while (remSymUl > 0)
+            {
+              int addSym = 0;
               // deficit = difference between requested and allocated symbols
-              deficit = itUeInfo->second.m_maxUlSymbols - itUeInfo->second.m_ulSymbols;
+              int deficit = itUeInfo->second.m_maxUlSymbols - itUeInfo->second.m_ulSymbols;
               NS_ASSERT (deficit >= 0);
               if (m_fixedTti)
                 {
-                  deficit = ceil ((double) deficit / (double) m_symPerSlot) *
-                            m_symPerSlot; // round up to nearest sym per TTI
+                  deficit = ceil ((double) deficit / (double) resvUl) *
+                            resvUl; // round up to nearest sym per TTI
                 }
               if (m_fixedTti)
                 {
-                  nRemSymPerFlow = ceil ((double) nRemSymPerFlow / (double) m_symPerSlot) *
-                                   m_symPerSlot; // round up to nearest sym per TTI
+                  nRemSymPerFlowUl = ceil ((double) nRemSymPerFlowUl / (double) resvUl) *
+                                   resvUl; // round up to nearest sym per TTI
                 }
-              if (remSym > 0 && deficit > 0 &&
+              if (remSymUl > 0 && deficit > 0 &&
                   ((itUeInfo->second.m_ulSymbols + itUeInfo->second.m_ulSymbolsRetx) <=
-                   nSymPerFlow0))
+                   nSymPerFlow0Ul))
                 {
-                  if (deficit < nRemSymPerFlow)
+                  if (deficit < nRemSymPerFlowUl)
                     {
                       // add remaining symbols to average
-                      if (deficit > remSym)
+                      if (deficit > remSymUl)
                         {
-                          addSym = remSym;
+                          addSym = remSymUl;
                         }
                       else
                         {
                           addSym = deficit;
                           // add remaining symbols to average
-                          nFlowsTot--;
-                          int extra = (nRemSymPerFlow - addSym) / nFlowsTot;
-                          nSymPerFlow0 += extra; // add extra to average symbols
-                          nRemSymPerFlow += extra; // add extra to average symbols
+                          nFlowsUl--;
+                          int extra = (nRemSymPerFlowUl - addSym) / nFlowsUl;
+                          nSymPerFlow0Ul += extra; // add extra to average symbols
+                          nRemSymPerFlowUl += extra; // add extra to average symbols
                         }
                     }
                   else
                     {
-                      if (nRemSymPerFlow > remSym)
+                      if (nRemSymPerFlowUl > remSymUl)
                         {
-                          addSym = remSym;
+                          addSym = remSymUl;
                         }
                       else
                         {
-                          addSym = nRemSymPerFlow;
+                          addSym = nRemSymPerFlowUl;
                         }
                       allocated = true;
                     }
                 }
               itUeInfo->second.m_ulSymbols += addSym;
-              remSym -= addSym;
-              NS_ASSERT (remSym >= 0);
+              remSymUl -= addSym;
+              NS_ASSERT (remSymUl >= 0);
 
               itUeInfo++;
               if (itUeInfo == ueInfo.end ())
@@ -1418,7 +1568,7 @@ MmWaveFlexTtiMacScheduler::DoSchedTriggerReq (
 
   //ulSymIdx -= totUlSymActual; // symbols reserved for control at end of subframe before UL ctrl
   NS_ASSERT (
-      symIdx >
+      symDlIdx >
       0); // Should be at least 1, as the DL CTRL TTI at the beginning of the slot should have been scheduled already
   do
     {
@@ -1428,9 +1578,9 @@ MmWaveFlexTtiMacScheduler::DoSchedTriggerReq (
           DciInfoElementTdma dci;
           dci.m_rnti = itUeInfo->first;
           dci.m_format = 0;
-          dci.m_symStart = symIdx;
+          dci.m_symStart = symDlIdx;
           dci.m_numSym = ueSchedInfo.m_dlSymbols;
-          symIdx += ueSchedInfo.m_dlSymbols;
+          symDlIdx += ueSchedInfo.m_dlSymbols;
           dci.m_ndi = 1;
           dci.m_mcs = ueSchedInfo.m_dlMcs;
           dci.m_tbSize = m_amc->CalculateTbSize (dci.m_mcs, dci.m_numSym);
@@ -1439,7 +1589,7 @@ MmWaveFlexTtiMacScheduler::DoSchedTriggerReq (
                   dci.m_mcs--;
                   dci.m_tbSize = m_amc->CalculateTbSize (dci.m_mcs, dci.m_numSym) / 8;
           }*/
-          NS_ASSERT (symIdx <=
+          NS_ASSERT (symDlIdx <=
                      m_phyMacConfig->GetSymbPerSlot () - m_phyMacConfig->GetUlCtrlSymbols ());
           dci.m_rv = 0;
           dci.m_harqProcess = UpdateDlHarqProcessId (itUeInfo->first);
@@ -1538,19 +1688,7 @@ MmWaveFlexTtiMacScheduler::DoSchedTriggerReq (
               if (ret.m_slotAllocInfo.m_ttiAllocInfo[iTti].m_tddMode ==
                   TtiAllocInfo::UL_slotAllocInfo)
                 {
-                  ttiInfo.m_ttiIdx = ret.m_slotAllocInfo.m_ttiAllocInfo[iTti].m_ttiIdx;
-                  ttiInfo.m_dci.m_symStart =
-                      ret.m_slotAllocInfo.m_ttiAllocInfo[iTti].m_dci.m_symStart;
                   ret.m_slotAllocInfo.m_ttiAllocInfo.insert (itTti, ttiInfo);
-                  for (unsigned jTti = iTti + 1; jTti < ret.m_slotAllocInfo.m_ttiAllocInfo.size ();
-                       jTti++)
-                    {
-                      ret.m_slotAllocInfo.m_ttiAllocInfo[jTti]
-                          .m_ttiIdx++; // increase indices of UL slots
-                      ret.m_slotAllocInfo.m_ttiAllocInfo[jTti].m_dci.m_symStart =
-                          ret.m_slotAllocInfo.m_ttiAllocInfo[jTti - 1].m_dci.m_symStart +
-                          ret.m_slotAllocInfo.m_ttiAllocInfo[jTti - 1].m_dci.m_numSym;
-                    }
                   reordered = true;
                   break;
                 }
@@ -1569,11 +1707,11 @@ MmWaveFlexTtiMacScheduler::DoSchedTriggerReq (
           DciInfoElementTdma dci;
           dci.m_rnti = itUeInfo->first;
           dci.m_format = 1;
-          NS_ASSERT (symIdx <=
+          NS_ASSERT (symUlIdx <=
                      m_phyMacConfig->GetSymbPerSlot () - m_phyMacConfig->GetUlCtrlSymbols ());
           dci.m_numSym = ueSchedInfo.m_ulSymbols;
-          dci.m_symStart = symIdx;
-          symIdx += ueSchedInfo.m_ulSymbols;
+          dci.m_symStart = symUlIdx;
+          symUlIdx += ueSchedInfo.m_ulSymbols;
           dci.m_mcs = ueSchedInfo.m_ulMcs;
           dci.m_ndi = 1;
           dci.m_tbSize = m_amc->CalculateTbSize (dci.m_mcs, dci.m_numSym);

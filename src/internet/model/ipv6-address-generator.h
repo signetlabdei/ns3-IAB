@@ -21,7 +21,8 @@
 
 #include "ns3/ipv6-address.h"
 
-namespace ns3 {
+namespace ns3
+{
 
 /**
  * \ingroup address
@@ -59,8 +60,8 @@ namespace ns3 {
  */
 class Ipv6AddressGenerator
 {
-public:
-  /**
+  public:
+    /**
      * \brief Initialise the base network and interfaceId for the generator
      *
      * The first call to NextAddress() or GetAddress() will return the
@@ -70,10 +71,11 @@ public:
      * \param prefix The prefix of the base Ipv6Address
      * \param interfaceId The base interface ID used for initialization
      */
-  static void Init (const Ipv6Address net, const Ipv6Prefix prefix,
-                    const Ipv6Address interfaceId = "::1");
+    static void Init(const Ipv6Address net,
+                     const Ipv6Prefix prefix,
+                     const Ipv6Address interfaceId = "::1");
 
-  /**
+    /**
      * \brief Get the next network according to the given Ipv6Prefix
      *
      * This operation is a pre-increment, meaning that the internal state
@@ -85,9 +87,9 @@ public:
      * \param prefix The Ipv6Prefix used to set the next network
      * \returns the IPv6 address of the next network
      */
-  static Ipv6Address NextNetwork (const Ipv6Prefix prefix);
+    static Ipv6Address NextNetwork(const Ipv6Prefix prefix);
 
-  /**
+    /**
      * \brief Get the current network of the given Ipv6Prefix
      *
      * Does not change the internal state; this just peeks at the current
@@ -96,17 +98,17 @@ public:
      * \param prefix The Ipv6Prefix for the current network
      * \returns the IPv6 address of the current network
      */
-  static Ipv6Address GetNetwork (const Ipv6Prefix prefix);
+    static Ipv6Address GetNetwork(const Ipv6Prefix prefix);
 
-  /**
+    /**
      * \brief Set the interfaceId for the given Ipv6Prefix
      *
      * \param interfaceId The interfaceId to set for the current Ipv6Prefix
      * \param prefix The Ipv6Prefix whose address is to be set
      */
-  static void InitAddress (const Ipv6Address interfaceId, const Ipv6Prefix prefix);
+    static void InitAddress(const Ipv6Address interfaceId, const Ipv6Prefix prefix);
 
-  /**
+    /**
      * \brief Allocate the next Ipv6Address for the configured network and prefix
      *
      * This operation is a post-increment, meaning that the first address
@@ -115,9 +117,9 @@ public:
      * \param prefix The Ipv6Prefix for the current network
      * \returns the IPv6 address
      */
-  static Ipv6Address NextAddress (const Ipv6Prefix prefix);
+    static Ipv6Address NextAddress(const Ipv6Prefix prefix);
 
-  /**
+    /**
      * \brief Get the Ipv6Address that will be allocated upon NextAddress ()
      *
      * Does not change the internal state; just is used to peek the next
@@ -126,14 +128,14 @@ public:
      * \param prefix The Ipv6Prefix for the current network
      * \returns the IPv6 address
      */
-  static Ipv6Address GetAddress (const Ipv6Prefix prefix);
+    static Ipv6Address GetAddress(const Ipv6Prefix prefix);
 
-  /**
+    /**
      * \brief Reset the networks and Ipv6Address to zero
      */
-  static void Reset ();
+    static void Reset();
 
-  /**
+    /**
      * \brief Add the Ipv6Address to the list of IPv6 entries
      *
      * Typically, this is used by external address allocators that want
@@ -143,29 +145,29 @@ public:
      * \param addr The Ipv6Address to be added to the list of Ipv6 entries
      * \returns true on success
      */
-  static bool AddAllocated (const Ipv6Address addr);
+    static bool AddAllocated(const Ipv6Address addr);
 
-  /**
+    /**
      * \brief Check the Ipv6Address allocation in the list of IPv6 entries
      *
      * \param addr The Ipv6Address to be checked in the list of Ipv4 entries
      * \returns true if the address is already allocated
      */
-  static bool IsAddressAllocated (const Ipv6Address addr);
+    static bool IsAddressAllocated(const Ipv6Address addr);
 
-  /**
+    /**
      * \brief Check if a network has already allocated addresses
      *
      * \param addr The Ipv6 network to be checked
      * \param prefix The Ipv6 network prefix
      * \returns true if the network is already allocated
      */
-  static bool IsNetworkAllocated (const Ipv6Address addr, const Ipv6Prefix prefix);
+    static bool IsNetworkAllocated(const Ipv6Address addr, const Ipv6Prefix prefix);
 
-  /**
+    /**
      * \brief Used to turn off fatal errors and assertions, for testing
      */
-  static void TestMode ();
+    static void TestMode();
 };
 
 }; // namespace ns3

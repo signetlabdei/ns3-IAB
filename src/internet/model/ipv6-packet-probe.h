@@ -34,7 +34,8 @@
 #include "ns3/simulator.h"
 #include "ns3/traced-value.h"
 
-namespace ns3 {
+namespace ns3
+{
 
 /**
  * \ingroup ipv6
@@ -48,26 +49,26 @@ namespace ns3 {
  */
 class Ipv6PacketProbe : public Probe
 {
-public:
-  /**
+  public:
+    /**
      * \brief Get the type ID.
      * \return the object TypeId
      */
-  static TypeId GetTypeId ();
+    static TypeId GetTypeId();
 
-  Ipv6PacketProbe ();
-  ~Ipv6PacketProbe () override;
+    Ipv6PacketProbe();
+    ~Ipv6PacketProbe() override;
 
-  /**
+    /**
      * \brief Set a probe value
      *
      * \param packet set the traced packet equal to this
      * \param ipv6 set the IPv6 object for the traced packet equal to this
      * \param interface set the IPv6 interface for the traced packet equal to this
      */
-  void SetValue (Ptr<const Packet> packet, Ptr<Ipv6> ipv6, uint32_t interface);
+    void SetValue(Ptr<const Packet> packet, Ptr<Ipv6> ipv6, uint32_t interface);
 
-  /**
+    /**
      * \brief Set a probe value by its name in the Config system
      *
      * \param path config path to access the probe
@@ -75,19 +76,21 @@ public:
      * \param ipv6 set the IPv6 object for the traced packet equal to this
      * \param interface set the IPv6 interface for the traced packet equal to this
      */
-  static void SetValueByPath (std::string path, Ptr<const Packet> packet, Ptr<Ipv6> ipv6,
-                              uint32_t interface);
+    static void SetValueByPath(std::string path,
+                               Ptr<const Packet> packet,
+                               Ptr<Ipv6> ipv6,
+                               uint32_t interface);
 
-  /**
+    /**
      * \brief connect to a trace source attribute provided by a given object
      *
      * \param traceSource the name of the attribute TraceSource to connect to
      * \param obj ns3::Object to connect to
      * \return true if the trace source was successfully connected
      */
-  bool ConnectByObject (std::string traceSource, Ptr<Object> obj) override;
+    bool ConnectByObject(std::string traceSource, Ptr<Object> obj) override;
 
-  /**
+    /**
      * \brief connect to a trace source provided by a config path
      *
      * \param path Config path to bind to
@@ -95,10 +98,10 @@ public:
      * Note, if an invalid path is provided, the probe will not be connected
      * to anything.
      */
-  void ConnectByPath (std::string path) override;
+    void ConnectByPath(std::string path) override;
 
-private:
-  /**
+  private:
+    /**
      * \brief Method to connect to an underlying ns3::TraceSource with
      * arguments of type Ptr<const Packet>, Ptr<Ipv6>, and uint32_t
      *
@@ -106,24 +109,24 @@ private:
      * \param ipv6 the IPv6 object for the traced packet
      * \param interface the IPv6 interface for the traced packet
      */
-  void TraceSink (Ptr<const Packet> packet, Ptr<Ipv6> ipv6, uint32_t interface);
+    void TraceSink(Ptr<const Packet> packet, Ptr<Ipv6> ipv6, uint32_t interface);
 
-  /// Traced Callback: the packet, the Ipv6 object and the interface.
-  ns3::TracedCallback<Ptr<const Packet>, Ptr<Ipv6>, uint32_t> m_output;
-  /// Traced Callback: the previous packet's size and the actual packet's size.
-  ns3::TracedCallback<uint32_t, uint32_t> m_outputBytes;
+    /// Traced Callback: the packet, the Ipv6 object and the interface.
+    ns3::TracedCallback<Ptr<const Packet>, Ptr<Ipv6>, uint32_t> m_output;
+    /// Traced Callback: the previous packet's size and the actual packet's size.
+    ns3::TracedCallback<uint32_t, uint32_t> m_outputBytes;
 
-  /// The traced packet.
-  Ptr<const Packet> m_packet;
+    /// The traced packet.
+    Ptr<const Packet> m_packet;
 
-  /// The IPv6 object for the traced packet.
-  Ptr<Ipv6> m_ipv6;
+    /// The IPv6 object for the traced packet.
+    Ptr<Ipv6> m_ipv6;
 
-  /// The IPv6 interface for the traced packet.
-  uint32_t m_interface;
+    /// The IPv6 interface for the traced packet.
+    uint32_t m_interface;
 
-  /// The size of the traced packet.
-  uint32_t m_packetSizeOld;
+    /// The size of the traced packet.
+    uint32_t m_packetSizeOld;
 };
 
 } // namespace ns3

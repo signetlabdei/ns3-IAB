@@ -25,10 +25,11 @@
 #include <stdint.h>
 #include <string>
 
-namespace ns3 {
+namespace ns3
+{
 
 /**
- * The length in octects of the LLC/SNAP header
+ * The length in octets of the LLC/SNAP header
  */
 static const uint16_t LLC_SNAP_HEADER_LENGTH = 8;
 
@@ -42,33 +43,33 @@ static const uint16_t LLC_SNAP_HEADER_LENGTH = 8;
  */
 class LlcSnapHeader : public Header
 {
-public:
-  LlcSnapHeader ();
+  public:
+    LlcSnapHeader();
 
-  /**
+    /**
      * \brief Set the Ethertype.
      * \param type the Ethertype
      */
-  void SetType (uint16_t type);
-  /**
+    void SetType(uint16_t type);
+    /**
      * \brief Return the Ethertype.
      * \return Ethertype
      */
-  uint16_t GetType ();
+    uint16_t GetType();
 
-  /**
+    /**
      * \brief Get the type ID.
      * \return the object TypeId
      */
-  static TypeId GetTypeId ();
-  TypeId GetInstanceTypeId () const override;
-  void Print (std::ostream &os) const override;
-  uint32_t GetSerializedSize () const override;
-  void Serialize (Buffer::Iterator start) const override;
-  uint32_t Deserialize (Buffer::Iterator start) override;
+    static TypeId GetTypeId();
+    TypeId GetInstanceTypeId() const override;
+    void Print(std::ostream& os) const override;
+    uint32_t GetSerializedSize() const override;
+    void Serialize(Buffer::Iterator start) const override;
+    uint32_t Deserialize(Buffer::Iterator start) override;
 
-private:
-  uint16_t m_etherType; //!< the Ethertype
+  private:
+    uint16_t m_etherType; //!< the Ethertype
 };
 
 } // namespace ns3

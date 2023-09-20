@@ -260,6 +260,10 @@ private:
   uint8_t m_tbUid;
   uint32_t m_numChunks;
   uint32_t m_numDataSymbols;
+  std::string m_slotsFormat;
+  uint32_t m_indexSlot {0};
+  uint16_t m_resvCtrlSymbols;
+  uint16_t m_numFramesControlSymPeriod;
 
   MmWaveMacSchedSapProvider *m_macSchedSapProvider;
   MmWaveMacSchedSapUser *m_macSchedSapUser;
@@ -329,6 +333,8 @@ private:
   uint8_t m_symPerSlot; // symbols per slot
 
   uint8_t m_resvChildrenDu; // number of OFDM slots reserved for odd depth IAB layers
+  uint8_t m_resvDl; // number of OFDM symbols reserved for DL
+  uint8_t m_resvSwitch; // number of OFDM symbols reserved for switching
 };
 
 } // namespace mmwave

@@ -31,7 +31,8 @@
 
 #include "tcp-congestion-ops.h"
 
-namespace ns3 {
+namespace ns3
+{
 
 class TcpSocketState;
 
@@ -62,28 +63,28 @@ class TcpSocketState;
 
 class TcpScalable : public TcpNewReno
 {
-public:
-  /**
+  public:
+    /**
      * \brief Get the type ID.
      * \return the object TypeId
      */
-  static TypeId GetTypeId ();
+    static TypeId GetTypeId();
 
-  /**
+    /**
      * Create an unbound tcp socket.
      */
-  TcpScalable ();
+    TcpScalable();
 
-  /**
+    /**
      * \brief Copy constructor
      * \param sock the object to copy
      */
-  TcpScalable (const TcpScalable &sock);
-  ~TcpScalable () override;
+    TcpScalable(const TcpScalable& sock);
+    ~TcpScalable() override;
 
-  std::string GetName () const override;
+    std::string GetName() const override;
 
-  /**
+    /**
      * \brief Get slow start threshold following Scalable principle (Equation 2)
      *
      * \param tcb internal congestion state
@@ -91,23 +92,23 @@ public:
      *
      * \return the slow start threshold value
      */
-  uint32_t GetSsThresh (Ptr<const TcpSocketState> tcb, uint32_t bytesInFlight) override;
+    uint32_t GetSsThresh(Ptr<const TcpSocketState> tcb, uint32_t bytesInFlight) override;
 
-  Ptr<TcpCongestionOps> Fork () override;
+    Ptr<TcpCongestionOps> Fork() override;
 
-protected:
-  /**
+  protected:
+    /**
      * \brief Congestion avoidance of TcpScalable (Equation 1)
      *
      * \param tcb internal congestion state
      * \param segmentsAcked count of segments acked
      */
-  void CongestionAvoidance (Ptr<TcpSocketState> tcb, uint32_t segmentsAcked) override;
+    void CongestionAvoidance(Ptr<TcpSocketState> tcb, uint32_t segmentsAcked) override;
 
-private:
-  uint32_t m_ackCnt; //!< Number of received ACK
-  uint32_t m_aiFactor; //!< Additive increase factor
-  double m_mdFactor; //!< Multiplicative decrease factor
+  private:
+    uint32_t m_ackCnt;   //!< Number of received ACK
+    uint32_t m_aiFactor; //!< Additive increase factor
+    double m_mdFactor;   //!< Multiplicative decrease factor
 };
 
 } // namespace ns3

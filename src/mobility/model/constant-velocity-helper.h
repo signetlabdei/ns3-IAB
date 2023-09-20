@@ -23,7 +23,8 @@
 #include "ns3/nstime.h"
 #include "ns3/vector.h"
 
-namespace ns3 {
+namespace ns3
+{
 
 class Rectangle;
 
@@ -34,70 +35,70 @@ class Rectangle;
  */
 class ConstantVelocityHelper
 {
-public:
-  ConstantVelocityHelper ();
-  /**
+  public:
+    ConstantVelocityHelper();
+    /**
      * Create object and set position
      * \param position the position vector
      */
-  ConstantVelocityHelper (const Vector &position);
-  /**
+    ConstantVelocityHelper(const Vector& position);
+    /**
      * Create object and set position and velocity
      * \param position the position vector
      * \param vel the velocity vector
      */
-  ConstantVelocityHelper (const Vector &position, const Vector &vel);
+    ConstantVelocityHelper(const Vector& position, const Vector& vel);
 
-  /**
+    /**
      * Set position vector
      * \param position Position vector
      */
-  void SetPosition (const Vector &position);
-  /**
+    void SetPosition(const Vector& position);
+    /**
      * Get current position vector
      * \return Position vector
      */
-  Vector GetCurrentPosition () const;
-  /**
+    Vector GetCurrentPosition() const;
+    /**
      * Get velocity; if paused, will return a zero vector
      * \return Velocity vector
      */
-  Vector GetVelocity () const;
-  /**
+    Vector GetVelocity() const;
+    /**
      * Set new velocity vector
      * \param vel Velocity vector
      */
-  void SetVelocity (const Vector &vel);
-  /**
+    void SetVelocity(const Vector& vel);
+    /**
      * Pause mobility at current position
      */
-  void Pause ();
-  /**
+    void Pause();
+    /**
      * Resume mobility from current position at current velocity
      */
-  void Unpause ();
+    void Unpause();
 
-  /**
+    /**
      * Update position, if not paused, from last position and time of last update
      * \param rectangle 2D bounding rectangle for resulting position; object will not move outside
      * the rectangle
      */
-  void UpdateWithBounds (const Rectangle &rectangle) const;
-  /**
+    void UpdateWithBounds(const Rectangle& rectangle) const;
+    /**
      * Update position, if not paused, from last position and time of last update
      * \param bounds 3D bounding box for resulting position; object will not move outside the box
      */
-  void UpdateWithBounds (const Box &bounds) const;
-  /**
+    void UpdateWithBounds(const Box& bounds) const;
+    /**
      * Update position, if not paused, from last position and time of last update
      */
-  void Update () const;
+    void Update() const;
 
-private:
-  mutable Time m_lastUpdate; //!< time of last update
-  mutable Vector m_position; //!< state variable for current position
-  Vector m_velocity; //!< state variable for velocity
-  bool m_paused; //!< state variable for paused
+  private:
+    mutable Time m_lastUpdate; //!< time of last update
+    mutable Vector m_position; //!< state variable for current position
+    Vector m_velocity;         //!< state variable for velocity
+    bool m_paused;             //!< state variable for paused
 };
 
 } // namespace ns3

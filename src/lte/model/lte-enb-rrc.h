@@ -1562,7 +1562,7 @@ public:
 
   Ptr<Bap> GetBap () const;
 
-  void SetBapAddressFromImsiCallback (Callback<uint16_t, uint64_t> cb);
+  void SetBapAddressFromImsiCallback (Callback<std::optional<uint16_t>, uint64_t> cb);
 
   void SetDonorIpAddressCallback (Callback<Ipv4Address, uint64_t> cb);
 

@@ -26,7 +26,8 @@
 #include "ns3/object.h"
 #include "ns3/ptr.h"
 
-namespace ns3 {
+namespace ns3
+{
 
 class Node;
 
@@ -58,16 +59,16 @@ class Node;
  */
 class Application : public Object
 {
-public:
-  /**
+  public:
+    /**
      * \brief Get the type ID.
      * \return the object TypeId
      */
-  static TypeId GetTypeId ();
-  Application ();
-  ~Application () override;
+    static TypeId GetTypeId();
+    Application();
+    ~Application() override;
 
-  /**
+    /**
      * \brief Specify application start time
      * \param start Start time for this application,
      *        relative to the current simulation time.
@@ -78,9 +79,9 @@ public:
      * private "StartApplication" method defined below, which is called at the
      * time specified, to cause the application to begin.
      */
-  void SetStartTime (Time start);
+    void SetStartTime(Time start);
 
-  /**
+    /**
      * \brief Specify application stop time
      * \param stop Stop time for this application, relative to the
      *        current simulation time.
@@ -91,64 +92,64 @@ public:
      * the private StopApplication method, to be notified when that
      * time has come.
      */
-  void SetStopTime (Time stop);
+    void SetStopTime(Time stop);
 
-  /**
+    /**
      * \returns the Node to which this Application object is attached.
      */
-  Ptr<Node> GetNode () const;
+    Ptr<Node> GetNode() const;
 
-  /**
+    /**
      * \param node the node to which this Application object is attached.
      */
-  void SetNode (Ptr<Node> node);
+    void SetNode(Ptr<Node> node);
 
-  /**
+    /**
      * \brief Common callback signature for packet delay and address.
      *
      * \param delay The packet delay.
      * \param from The source socket address associated with the packet,
      *             indicating the packet's origin.
      */
-  typedef void (*DelayAddressCallback) (const Time &delay, const Address &from);
+    typedef void (*DelayAddressCallback)(const Time& delay, const Address& from);
 
-  /**
+    /**
      * \brief Common signature used by callbacks to application's state
      *        transition trace source.
      * \param oldState The name of the previous state.
      * \param newState The name of the current state.
      */
-  typedef void (*StateTransitionCallback) (const std::string &oldState,
-                                           const std::string &newState);
+    typedef void (*StateTransitionCallback)(const std::string& oldState,
+                                            const std::string& newState);
 
-private:
-  /**
+  private:
+    /**
      * \brief Application specific startup code
      *
      * The StartApplication method is called at the start time specified by Start
      * This method should be overridden by all or most application
      * subclasses.
      */
-  virtual void StartApplication ();
+    virtual void StartApplication();
 
-  /**
+    /**
      * \brief Application specific shutdown code
      *
      * The StopApplication method is called at the stop time specified by Stop
      * This method should be overridden by all or most application
      * subclasses.
      */
-  virtual void StopApplication ();
+    virtual void StopApplication();
 
-protected:
-  void DoDispose () override;
-  void DoInitialize () override;
+  protected:
+    void DoDispose() override;
+    void DoInitialize() override;
 
-  Ptr<Node> m_node; //!< The node that this application is installed on
-  Time m_startTime; //!< The simulation time that the application will start
-  Time m_stopTime; //!< The simulation time that the application will end
-  EventId m_startEvent; //!< The event that will fire at m_startTime to start the application
-  EventId m_stopEvent; //!< The event that will fire at m_stopTime to end the application
+    Ptr<Node> m_node;     //!< The node that this application is installed on
+    Time m_startTime;     //!< The simulation time that the application will start
+    Time m_stopTime;      //!< The simulation time that the application will end
+    EventId m_startEvent; //!< The event that will fire at m_startTime to start the application
+    EventId m_stopEvent;  //!< The event that will fire at m_stopTime to end the application
 };
 
 } // namespace ns3

@@ -19,18 +19,6 @@ enum AppType {
   TCP_APP = 2 // TCP application
 };
 
-enum FactoryScenario { InF_SH = 0, InF_DH = 1, InF_SL = 2, InF_DL = 3 };
-
-struct ScenarioParams
-{
-  double enbHeight;
-  double interSiteDistance;
-  double clutterDensity;
-  double clutterHeight;
-  double clutterSize;
-  double interClutterDistance;
-};
-
 struct AppSetupParams
 {
   uint16_t basePort;

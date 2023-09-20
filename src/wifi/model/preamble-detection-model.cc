@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2018 University of Washington
  *
@@ -20,16 +19,17 @@
 
 #include "preamble-detection-model.h"
 
-namespace ns3 {
+namespace ns3
+{
 
-NS_OBJECT_ENSURE_REGISTERED (PreambleDetectionModel);
+NS_OBJECT_ENSURE_REGISTERED(PreambleDetectionModel);
 
 TypeId
-PreambleDetectionModel::GetTypeId (void)
+PreambleDetectionModel::GetTypeId()
 {
-  static TypeId tid =
-      TypeId ("ns3::PreambleDetectionModel").SetParent<Object> ().SetGroupName ("Wifi");
-  return tid;
+    static TypeId tid =
+        TypeId("ns3::PreambleDetectionModel").SetParent<Object>().SetGroupName("Wifi");
+    return tid;
 }
 
-} //namespace ns3
+} // namespace ns3

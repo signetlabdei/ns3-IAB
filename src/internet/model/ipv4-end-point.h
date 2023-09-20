@@ -28,7 +28,8 @@
 
 #include <stdint.h>
 
-namespace ns3 {
+namespace ns3
+{
 
 class Header;
 class Packet;
@@ -48,53 +49,53 @@ class Packet;
 
 class Ipv4EndPoint
 {
-public:
-  /**
+  public:
+    /**
      * \brief Constructor.
      * \param address the IPv4 address
      * \param port the port
      */
-  Ipv4EndPoint (Ipv4Address address, uint16_t port);
-  ~Ipv4EndPoint ();
+    Ipv4EndPoint(Ipv4Address address, uint16_t port);
+    ~Ipv4EndPoint();
 
-  /**
+    /**
      * \brief Get the local address.
      * \return the local address
      */
-  Ipv4Address GetLocalAddress ();
+    Ipv4Address GetLocalAddress();
 
-  /**
+    /**
      * \brief Set the local address.
      * \param address the address to set
      */
-  void SetLocalAddress (Ipv4Address address);
+    void SetLocalAddress(Ipv4Address address);
 
-  /**
+    /**
      * \brief Get the local port.
      * \return the local port
      */
-  uint16_t GetLocalPort ();
+    uint16_t GetLocalPort();
 
-  /**
+    /**
      * \brief Get the peer address.
      * \return the peer address
      */
-  Ipv4Address GetPeerAddress ();
+    Ipv4Address GetPeerAddress();
 
-  /**
+    /**
      * \brief Get the peer port.
      * \return the peer port
      */
-  uint16_t GetPeerPort ();
+    uint16_t GetPeerPort();
 
-  /**
+    /**
      * \brief Set the peer information (address and port).
      * \param address peer address
      * \param port peer port
      */
-  void SetPeer (Ipv4Address address, uint16_t port);
+    void SetPeer(Ipv4Address address, uint16_t port);
 
-  /**
+    /**
      * \brief Bind a socket to specific device.
      *
      * This method corresponds to using setsockopt() SO_BINDTODEVICE
@@ -112,9 +113,9 @@ public:
      *
      * \param netdevice Pointer to Netdevice of desired interface
      */
-  void BindToNetDevice (Ptr<NetDevice> netdevice);
+    void BindToNetDevice(Ptr<NetDevice> netdevice);
 
-  /**
+    /**
      * \brief Returns socket's bound netdevice, if any.
      *
      * This method corresponds to using getsockopt() SO_BINDTODEVICE
@@ -123,27 +124,27 @@ public:
      *
      * \returns Pointer to interface.
      */
-  Ptr<NetDevice> GetBoundNetDevice ();
+    Ptr<NetDevice> GetBoundNetDevice();
 
-  // Called from socket implementations to get notified about important events.
-  /**
+    // Called from socket implementations to get notified about important events.
+    /**
      * \brief Set the reception callback.
      * \param callback callback function
      */
-  void
-  SetRxCallback (Callback<void, Ptr<Packet>, Ipv4Header, uint16_t, Ptr<Ipv4Interface>> callback);
-  /**
+    void SetRxCallback(
+        Callback<void, Ptr<Packet>, Ipv4Header, uint16_t, Ptr<Ipv4Interface>> callback);
+    /**
      * \brief Set the ICMP callback.
      * \param callback callback function
      */
-  void SetIcmpCallback (Callback<void, Ipv4Address, uint8_t, uint8_t, uint8_t, uint32_t> callback);
-  /**
+    void SetIcmpCallback(Callback<void, Ipv4Address, uint8_t, uint8_t, uint8_t, uint32_t> callback);
+    /**
      * \brief Set the default destroy callback.
      * \param callback callback function
      */
-  void SetDestroyCallback (Callback<void> callback);
+    void SetDestroyCallback(Callback<void> callback);
 
-  /**
+    /**
      * \brief Forward the packet to the upper level.
      *
      * Called from an L4Protocol implementation to notify an endpoint of a
@@ -153,10 +154,12 @@ public:
      * \param sport source port
      * \param incomingInterface incoming interface
      */
-  void ForwardUp (Ptr<Packet> p, const Ipv4Header &header, uint16_t sport,
-                  Ptr<Ipv4Interface> incomingInterface);
+    void ForwardUp(Ptr<Packet> p,
+                   const Ipv4Header& header,
+                   uint16_t sport,
+                   Ptr<Ipv4Interface> incomingInterface);
 
-  /**
+    /**
      * \brief Forward the ICMP packet to the upper level.
      *
      * Called from an L4Protocol implementation to notify an endpoint of
@@ -168,66 +171,69 @@ public:
      * \param icmpCode ICMP code
      * \param icmpInfo ICMP info
      */
-  void ForwardIcmp (Ipv4Address icmpSource, uint8_t icmpTtl, uint8_t icmpType, uint8_t icmpCode,
-                    uint32_t icmpInfo);
+    void ForwardIcmp(Ipv4Address icmpSource,
+                     uint8_t icmpTtl,
+                     uint8_t icmpType,
+                     uint8_t icmpCode,
+                     uint32_t icmpInfo);
 
-  /**
+    /**
      * \brief Enable or Disable the endpoint Rx capability.
      * \param enabled true if Rx is enabled
      */
-  void SetRxEnabled (bool enabled);
+    void SetRxEnabled(bool enabled);
 
-  /**
+    /**
      * \brief Checks if the endpoint can receive packets.
      * \returns true if the endpoint can receive packets.
      */
-  bool IsRxEnabled ();
+    bool IsRxEnabled() const;
 
-private:
-  /**
+  private:
+    /**
      * \brief The local address.
      */
-  Ipv4Address m_localAddr;
+    Ipv4Address m_localAddr;
 
-  /**
+    /**
      * \brief The local port.
      */
-  uint16_t m_localPort;
+    uint16_t m_localPort;
 
-  /**
+    /**
      * \brief The peer address.
      */
-  Ipv4Address m_peerAddr;
+    Ipv4Address m_peerAddr;
 
-  /**
+    /**
      * \brief The peer port.
      */
-  uint16_t m_peerPort;
+    uint16_t m_peerPort;
 
-  /**
+    /**
      * \brief The NetDevice the EndPoint is bound to (if any).
      */
-  Ptr<NetDevice> m_boundnetdevice;
+    Ptr<NetDevice> m_boundnetdevice;
 
-  /**
+    /**
      * \brief The RX callback.
      */
-  Callback<void, Ptr<Packet>, Ipv4Header, uint16_t, Ptr<Ipv4Interface>> m_rxCallback;
+    Callback<void, Ptr<Packet>, Ipv4Header, uint16_t, Ptr<Ipv4Interface>> m_rxCallback;
 
-  /**
+    /**
      * \brief The ICMPv6 callback.
      */
-  Callback<void, Ipv4Address, uint8_t, uint8_t, uint8_t, uint32_t> m_icmpCallback;
+    Callback<void, Ipv4Address, uint8_t, uint8_t, uint8_t, uint32_t> m_icmpCallback;
 
-  /**
+    /**
      * \brief The destroy callback.
      */
-  Callback<void> m_destroyCallback;
+    Callback<void> m_destroyCallback;
 
-  /**
+    /**
      * \brief true if the endpoint can receive packets.
      */
-  bool m_rxEnabled;
+    bool m_rxEnabled;
 };
 
 } // namespace ns3

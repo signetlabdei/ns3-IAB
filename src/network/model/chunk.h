@@ -24,7 +24,8 @@
 
 #include "ns3/object-base.h"
 
-namespace ns3 {
+namespace ns3
+{
 
 /**
  * \ingroup packet
@@ -33,14 +34,14 @@ namespace ns3 {
  */
 class Chunk : public ObjectBase
 {
-public:
-  /**
+  public:
+    /**
      * \brief Get the type ID.
      * \return the object TypeId
      */
-  static TypeId GetTypeId ();
+    static TypeId GetTypeId();
 
-  /**
+    /**
      * \brief Deserialize the object from a buffer iterator
      *
      * This version of Deserialize can be used when the Chunk has a fixed
@@ -50,9 +51,9 @@ public:
      * \param start the buffer iterator
      * \returns the number of deserialized bytes
      */
-  virtual uint32_t Deserialize (Buffer::Iterator start) = 0;
+    virtual uint32_t Deserialize(Buffer::Iterator start) = 0;
 
-  /**
+    /**
      * \brief Deserialize the object from a buffer iterator
      *
      * This version of Deserialize must be used when the Chunk has a variable
@@ -65,13 +66,13 @@ public:
      * \param end the ending point
      * \returns the number of deserialized bytes
      */
-  virtual uint32_t Deserialize (Buffer::Iterator start, Buffer::Iterator end);
+    virtual uint32_t Deserialize(Buffer::Iterator start, Buffer::Iterator end);
 
-  /**
+    /**
      * \brief Print the object contents
      * \param os the output stream
      */
-  virtual void Print (std::ostream &os) const = 0;
+    virtual void Print(std::ostream& os) const = 0;
 };
 
 } // namespace ns3

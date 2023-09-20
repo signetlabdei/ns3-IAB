@@ -42,6 +42,7 @@ double ipiMs = 100.0;
 double appStartMs = 100.0;
 unsigned int expectedPackets = std::ceil ((simTimeSeconds * 1e3 - appStartMs) / ipiMs)*3;
 unsigned int numSymResvForOddIabs = 6;
+unsigned int numSymResvForDl = 3;
 
 NS_LOG_COMPONENT_DEFINE ("IabE2EData1Node");
 
@@ -120,9 +121,11 @@ main (int argc, char *argv[])
   cmd.AddValue ("useIdealRrc", "Whether to us ea simplified RRC model", useIdealRrc);
   cmd.Parse (argc, argv);
 
-  Config::SetDefault ("ns3::MmWaveHelper::UseIdealRrc", BooleanValue (useIdealRrc));
-  Config::SetDefault ("ns3::MmWaveFlexTtiMacScheduler::NumSymResvForChildrenDu",
-                      UintegerValue (numSymResvForOddIabs));
+  Config::SetDefault("ns3::MmWaveHelper::UseIdealRrc", BooleanValue(useIdealRrc));
+  Config::SetDefault("ns3::MmWaveFlexTtiMacScheduler::NumSymResvForChildrenDu",
+                     UintegerValue(numSymResvForOddIabs));
+  Config::SetDefault("ns3::MmWaveFlexTtiMacScheduler::NumSymResvForDl",
+                     UintegerValue(numSymResvForDl));
 
   Ptr<MmWaveHelper> mmwaveHelper = CreateObject<MmWaveHelper> ();
   Ptr<MmWavePointToPointEpcHelper> epcHelper = CreateObject<MmWavePointToPointEpcHelper> ();

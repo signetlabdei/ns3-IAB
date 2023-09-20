@@ -22,7 +22,8 @@
 
 #include <ns3/callback.h>
 
-namespace ns3 {
+namespace ns3
+{
 
 class Packet;
 

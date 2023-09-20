@@ -33,7 +33,8 @@
 #include <stdint.h>
 #include <vector>
 
-namespace ns3 {
+namespace ns3
+{
 
 const uint32_t SPF_INFINITY = 0xffffffff; //!< "infinite" distance between nodes
 
@@ -68,21 +69,22 @@ class Ipv4GlobalRouting;
  */
 class SPFVertex
 {
-public:
-  /**
+  public:
+    /**
      * @brief Enumeration of the possible types of SPFVertex objects.
      *
      * Currently we use VertexRouter to identify objects that represent a router
      * in the simulation topology, and VertexNetwork to identify objects that
      * represent a network.
      */
-  enum VertexType {
-    VertexUnknown = 0, /**< Uninitialized Link Record */
-    VertexRouter, /**< Vertex representing a router in the topology */
-    VertexNetwork /**< Vertex representing a network in the topology */
-  };
+    enum VertexType
+    {
+        VertexUnknown = 0, /**< Uninitialized Link Record */
+        VertexRouter,      /**< Vertex representing a router in the topology */
+        VertexNetwork      /**< Vertex representing a network in the topology */
+    };
 
-  /**
+    /**
      * @brief Construct an empty ("uninitialized") SPFVertex (Shortest Path First
      * Vertex).
      *
@@ -95,9 +97,9 @@ public:
      *
      * @see VertexType
      */
-  SPFVertex ();
+    SPFVertex();
 
-  /**
+    /**
      * @brief Construct an initialized SPFVertex (Shortest Path First Vertex).
      *
      * The Vertex Type is initialized to VertexRouter and the Vertex ID is found
@@ -112,22 +114,22 @@ public:
      * @see GlobalRoutingLSA
      * @param lsa The Link State Advertisement used for finding initial values.
      */
-  SPFVertex (GlobalRoutingLSA *lsa);
+    SPFVertex(GlobalRoutingLSA* lsa);
 
-  /**
+    /**
      * @brief Destroy an SPFVertex (Shortest Path First Vertex).
      *
      * The children vertices of the SPFVertex are recursively deleted.
      *
      * @see SPFVertex::SPFVertex ()
      */
-  ~SPFVertex ();
+    ~SPFVertex();
 
-  // Delete copy constructor and assignment operator to avoid misuse
-  SPFVertex (const SPFVertex &) = delete;
-  SPFVertex &operator= (const SPFVertex &) = delete;
+    // Delete copy constructor and assignment operator to avoid misuse
+    SPFVertex(const SPFVertex&) = delete;
+    SPFVertex& operator=(const SPFVertex&) = delete;
 
-  /**
+    /**
      * @brief Get the Vertex Type field of a SPFVertex object.
      *
      * The Vertex Type describes the kind of simulation object a given SPFVertex
@@ -136,9 +138,9 @@ public:
      * @see VertexType
      * @returns The VertexType of the current SPFVertex object.
      */
-  VertexType GetVertexType () const;
+    VertexType GetVertexType() const;
 
-  /**
+    /**
      * @brief Set the Vertex Type field of a SPFVertex object.
      *
      * The Vertex Type describes the kind of simulation object a given SPFVertex
@@ -147,9 +149,9 @@ public:
      * @see VertexType
      * @param type The new VertexType for the current SPFVertex object.
      */
-  void SetVertexType (VertexType type);
+    void SetVertexType(VertexType type);
 
-  /**
+    /**
      * @brief Get the Vertex ID field of a SPFVertex object.
      *
      * The Vertex ID uniquely identifies the simulation object a given SPFVertex
@@ -162,9 +164,9 @@ public:
      *
      * @returns The Ipv4Address Vertex ID of the current SPFVertex object.
      */
-  Ipv4Address GetVertexId () const;
+    Ipv4Address GetVertexId() const;
 
-  /**
+    /**
      * @brief Set the Vertex ID field of a SPFVertex object.
      *
      * The Vertex ID uniquely identifies the simulation object a given SPFVertex
@@ -178,9 +180,9 @@ public:
      *
      * @param id The new Ipv4Address Vertex ID for the current SPFVertex object.
      */
-  void SetVertexId (Ipv4Address id);
+    void SetVertexId(Ipv4Address id);
 
-  /**
+    /**
      * @brief Get the Global Router Link State Advertisement returned by the
      * Global Router represented by this SPFVertex during the route discovery
      * process.
@@ -191,9 +193,9 @@ public:
      * @returns A pointer to the GlobalRoutingLSA found by the router represented
      * by this SPFVertex object.
      */
-  GlobalRoutingLSA *GetLSA () const;
+    GlobalRoutingLSA* GetLSA() const;
 
-  /**
+    /**
      * @brief Set the Global Router Link State Advertisement returned by the
      * Global Router represented by this SPFVertex during the route discovery
      * process.
@@ -206,9 +208,9 @@ public:
      * must not delete the LSA after calling this method.
      * @param lsa A pointer to the GlobalRoutingLSA.
      */
-  void SetLSA (GlobalRoutingLSA *lsa);
+    void SetLSA(GlobalRoutingLSA* lsa);
 
-  /**
+    /**
      * @brief Get the distance from the root vertex to "this" SPFVertex object.
      *
      * Each router in the simulation is associated with an SPFVertex object.  When
@@ -228,9 +230,9 @@ public:
      *
      * @returns The distance, in hops, from the root SPFVertex to "this" SPFVertex.
      */
-  uint32_t GetDistanceFromRoot () const;
+    uint32_t GetDistanceFromRoot() const;
 
-  /**
+    /**
      * @brief Set the distance from the root vertex to "this" SPFVertex object.
      *
      * Each router in the simulation is associated with an SPFVertex object.  When
@@ -248,9 +250,9 @@ public:
      * @param distance The distance, in hops, from the root SPFVertex to "this"
      * SPFVertex.
      */
-  void SetDistanceFromRoot (uint32_t distance);
+    void SetDistanceFromRoot(uint32_t distance);
 
-  /**
+    /**
      * @brief Set the IP address and outgoing interface index that should be used
      * to begin forwarding packets from the root SPFVertex to "this" SPFVertex.
      *
@@ -291,12 +293,12 @@ public:
      * @param id The interface index to use when forwarding packets to the host or
      * network represented by "this" SPFVertex.
      */
-  void SetRootExitDirection (Ipv4Address nextHop, int32_t id = SPF_INFINITY);
+    void SetRootExitDirection(Ipv4Address nextHop, int32_t id = SPF_INFINITY);
 
-  typedef std::pair<Ipv4Address, int32_t>
-      NodeExit_t; //!< IPv4 / interface container for exit nodes.
+    typedef std::pair<Ipv4Address, int32_t>
+        NodeExit_t; //!< IPv4 / interface container for exit nodes.
 
-  /**
+    /**
      * @brief Set the IP address and outgoing interface index that should be used
      * to begin forwarding packets from the root SPFVertex to "this" SPFVertex.
      *
@@ -335,8 +337,8 @@ public:
      * @param exit The pair of next-hop-IP and outgoing-interface-index to use when
      * forwarding packets to the host or network represented by "this" SPFVertex.
      */
-  void SetRootExitDirection (SPFVertex::NodeExit_t exit);
-  /**
+    void SetRootExitDirection(SPFVertex::NodeExit_t exit);
+    /**
      * \brief Obtain a pair indicating the exit direction from the root
      *
      * \param i An index to a pair
@@ -344,8 +346,8 @@ public:
      * indicating an exit direction from the root. It is 0 if the index 'i'
      * is out-of-range
      */
-  NodeExit_t GetRootExitDirection (uint32_t i) const;
-  /**
+    NodeExit_t GetRootExitDirection(uint32_t i) const;
+    /**
      * \brief Obtain a pair indicating the exit direction from the root
      *
      * This method assumes there is only a single exit direction from the root.
@@ -354,8 +356,8 @@ public:
      * \return The pair of next-hop-IP and outgoing-interface-index for reaching
      * 'this' vertex from the root
      */
-  NodeExit_t GetRootExitDirection () const;
-  /**
+    NodeExit_t GetRootExitDirection() const;
+    /**
      * \brief Merge into 'this' vertex the list of exit directions from
      * another vertex
      *
@@ -364,22 +366,22 @@ public:
      * \param vertex From which the list of exit directions are obtain
      * and are merged into 'this' vertex
      */
-  void MergeRootExitDirections (const SPFVertex *vertex);
-  /**
+    void MergeRootExitDirections(const SPFVertex* vertex);
+    /**
      * \brief Inherit all root exit directions from a given vertex to 'this' vertex
      * \param vertex The vertex from which all root exit directions are to be inherited
      *
      * After the call of this method, the original root exit directions
      * in 'this' vertex are all lost.
      */
-  void InheritAllRootExitDirections (const SPFVertex *vertex);
-  /**
+    void InheritAllRootExitDirections(const SPFVertex* vertex);
+    /**
      * \brief Get the number of exit directions from root for reaching 'this' vertex
      * \return The number of exit directions from root
      */
-  uint32_t GetNRootExitDirections () const;
+    uint32_t GetNRootExitDirections() const;
 
-  /**
+    /**
      * @brief Get a pointer to the SPFVector that is the parent of "this"
      * SPFVertex.
      *
@@ -398,9 +400,9 @@ public:
      * @returns A pointer to the SPFVertex that is the parent of "this" SPFVertex
      * in the SPF tree.
      */
-  SPFVertex *GetParent (uint32_t i = 0) const;
+    SPFVertex* GetParent(uint32_t i = 0) const;
 
-  /**
+    /**
      * @brief Set the pointer to the SPFVector that is the parent of "this"
      * SPFVertex.
      *
@@ -418,17 +420,17 @@ public:
      * @param parent A pointer to the SPFVertex that is the parent of "this"
      * SPFVertex* in the SPF tree.
      */
-  void SetParent (SPFVertex *parent);
-  /**
+    void SetParent(SPFVertex* parent);
+    /**
      * \brief Merge the Parent list from the v into this vertex
      *
      * \param v The vertex from which its list of Parent is read
      * and then merged into the list of Parent of *this* vertex.
      * Note that the list in v remains intact
      */
-  void MergeParent (const SPFVertex *v);
+    void MergeParent(const SPFVertex* v);
 
-  /**
+    /**
      * @brief Get the number of children of "this" SPFVertex.
      *
      * Each router node in the simulation is associated with an SPFVertex object.
@@ -447,9 +449,9 @@ public:
      * @returns The number of children of "this" SPFVertex (which reside in the
      * SPF tree).
      */
-  uint32_t GetNChildren () const;
+    uint32_t GetNChildren() const;
 
-  /**
+    /**
      * @brief Get a borrowed SPFVertex pointer to the specified child of "this"
      * SPFVertex.
      *
@@ -475,9 +477,9 @@ public:
      * @returns A pointer to the specified child SPFVertex (which resides in the
      * SPF tree).
      */
-  SPFVertex *GetChild (uint32_t n) const;
+    SPFVertex* GetChild(uint32_t n) const;
 
-  /**
+    /**
      * @brief Get a borrowed SPFVertex pointer to the specified child of "this"
      * SPFVertex.
      *
@@ -503,57 +505,57 @@ public:
      * @returns The number of children of "this" SPFVertex after the addition of
      * the new child.
      */
-  uint32_t AddChild (SPFVertex *child);
+    uint32_t AddChild(SPFVertex* child);
 
-  /**
+    /**
      * @brief Set the value of the VertexProcessed flag
      *
      * Flag to note whether vertex has been processed in stage two of
      * SPF computation
      * @param value boolean value to set the flag
      */
-  void SetVertexProcessed (bool value);
+    void SetVertexProcessed(bool value);
 
-  /**
+    /**
      * @brief Check the value of the VertexProcessed flag
      *
      * Flag to note whether vertex has been processed in stage two of
      * SPF computation
      * @returns value of underlying flag
      */
-  bool IsVertexProcessed () const;
+    bool IsVertexProcessed() const;
 
-  /**
+    /**
      * @brief Clear the value of the VertexProcessed flag
      *
      * Flag to note whether vertex has been processed in stage two of
      * SPF computation
      */
-  void ClearVertexProcessed ();
+    void ClearVertexProcessed();
 
-private:
-  VertexType m_vertexType; //!< Vertex type
-  Ipv4Address m_vertexId; //!< Vertex ID
-  GlobalRoutingLSA *m_lsa; //!< Link State Advertisement
-  uint32_t m_distanceFromRoot; //!< Distance from root node
-  int32_t m_rootOif; //!< root Output Interface
-  Ipv4Address m_nextHop; //!< next hop
-  typedef std::list<NodeExit_t> ListOfNodeExit_t; //!< container of Exit nodes
-  ListOfNodeExit_t m_ecmpRootExits; //!< store the multiple root's exits for supporting ECMP
-  typedef std::list<SPFVertex *> ListOfSPFVertex_t; //!< container of SPFVertexes
-  ListOfSPFVertex_t m_parents; //!< parent list
-  ListOfSPFVertex_t m_children; //!< Children list
-  bool m_vertexProcessed; //!< Flag to note whether vertex has been processed in stage two of SPF
-      //!< computation
+  private:
+    VertexType m_vertexType;                        //!< Vertex type
+    Ipv4Address m_vertexId;                         //!< Vertex ID
+    GlobalRoutingLSA* m_lsa;                        //!< Link State Advertisement
+    uint32_t m_distanceFromRoot;                    //!< Distance from root node
+    int32_t m_rootOif;                              //!< root Output Interface
+    Ipv4Address m_nextHop;                          //!< next hop
+    typedef std::list<NodeExit_t> ListOfNodeExit_t; //!< container of Exit nodes
+    ListOfNodeExit_t m_ecmpRootExits; //!< store the multiple root's exits for supporting ECMP
+    typedef std::list<SPFVertex*> ListOfSPFVertex_t; //!< container of SPFVertexes
+    ListOfSPFVertex_t m_parents;                     //!< parent list
+    ListOfSPFVertex_t m_children;                    //!< Children list
+    bool m_vertexProcessed; //!< Flag to note whether vertex has been processed in stage two of SPF
+                            //!< computation
 
-  /**
+    /**
      * \brief Stream insertion operator.
      *
      * \param os the reference to the output stream
      * \param vs a list of SPFVertexes
      * \returns the reference to the output stream
      */
-  friend std::ostream &operator<< (std::ostream &os, const SPFVertex::ListOfSPFVertex_t &vs);
+    friend std::ostream& operator<<(std::ostream& os, const SPFVertex::ListOfSPFVertex_t& vs);
 };
 
 /**
@@ -571,29 +573,29 @@ private:
  */
 class GlobalRouteManagerLSDB
 {
-public:
-  /**
+  public:
+    /**
      * @brief Construct an empty Global Router Manager Link State Database.
      *
      * The database map composing the Link State Database is initialized in
      * this constructor.
      */
-  GlobalRouteManagerLSDB ();
+    GlobalRouteManagerLSDB();
 
-  /**
+    /**
      * @brief Destroy an empty Global Router Manager Link State Database.
      *
      * The database map is walked and all of the Link State Advertisements stored
      * in the database are freed; then the database map itself is clear ()ed to
      * release any remaining resources.
      */
-  ~GlobalRouteManagerLSDB ();
+    ~GlobalRouteManagerLSDB();
 
-  // Delete copy constructor and assignment operator to avoid misuse
-  GlobalRouteManagerLSDB (const GlobalRouteManagerLSDB &) = delete;
-  GlobalRouteManagerLSDB &operator= (const GlobalRouteManagerLSDB &) = delete;
+    // Delete copy constructor and assignment operator to avoid misuse
+    GlobalRouteManagerLSDB(const GlobalRouteManagerLSDB&) = delete;
+    GlobalRouteManagerLSDB& operator=(const GlobalRouteManagerLSDB&) = delete;
 
-  /**
+    /**
      * @brief Insert an IP address / Link State Advertisement pair into the Link
      * State Database.
      *
@@ -606,9 +608,9 @@ public:
      * ID.
      * @param lsa A pointer to the Link State Advertisement for the router.
      */
-  void Insert (Ipv4Address addr, GlobalRoutingLSA *lsa);
+    void Insert(Ipv4Address addr, GlobalRoutingLSA* lsa);
 
-  /**
+    /**
      * @brief Look up the Link State Advertisement associated with the given
      * link state ID (address).
      *
@@ -622,8 +624,8 @@ public:
      * @returns A pointer to the Link State Advertisement for the router specified
      * by the IP address addr.
      */
-  GlobalRoutingLSA *GetLSA (Ipv4Address addr) const;
-  /**
+    GlobalRoutingLSA* GetLSA(Ipv4Address addr) const;
+    /**
      * @brief Look up the Link State Advertisement associated with the given
      * link state ID (address).  This is a variation of the GetLSA call
      * to allow the LSA to be found by matching addr with the LinkData field
@@ -635,9 +637,9 @@ public:
      * by the IP address addr.
      * ID.
      */
-  GlobalRoutingLSA *GetLSAByLinkData (Ipv4Address addr) const;
+    GlobalRoutingLSA* GetLSAByLinkData(Ipv4Address addr) const;
 
-  /**
+    /**
      * @brief Set all LSA flags to an initialized state, for SPF computation
      *
      * This function walks the database and resets the status flags of all of the
@@ -648,9 +650,9 @@ public:
      * @see GlobalRoutingLSA
      * @see SPFVertex
      */
-  void Initialize ();
+    void Initialize();
 
-  /**
+    /**
      * @brief Look up the External Link State Advertisement associated with the given
      * index.
      *
@@ -661,23 +663,24 @@ public:
      * @param index the index associated with the LSA.
      * @returns A pointer to the Link State Advertisement.
      */
-  GlobalRoutingLSA *GetExtLSA (uint32_t index) const;
-  /**
+    GlobalRoutingLSA* GetExtLSA(uint32_t index) const;
+    /**
      * @brief Get the number of External Link State Advertisements.
      *
      * @see GlobalRoutingLSA
      * @returns the number of External Link State Advertisements.
      */
-  uint32_t GetNumExtLSAs () const;
+    uint32_t GetNumExtLSAs() const;
 
-private:
-  typedef std::map<Ipv4Address, GlobalRoutingLSA *>
-      LSDBMap_t; //!< container of IPv4 addresses / Link State Advertisements
-  typedef std::pair<Ipv4Address, GlobalRoutingLSA *>
-      LSDBPair_t; //!< pair of IPv4 addresses / Link State Advertisements
+  private:
+    typedef std::map<Ipv4Address, GlobalRoutingLSA*>
+        LSDBMap_t; //!< container of IPv4 addresses / Link State Advertisements
+    typedef std::pair<Ipv4Address, GlobalRoutingLSA*>
+        LSDBPair_t; //!< pair of IPv4 addresses / Link State Advertisements
 
-  LSDBMap_t m_database; //!< database of IPv4 addresses / Link State Advertisements
-  std::vector<GlobalRoutingLSA *> m_extdatabase; //!< database of External Link State Advertisements
+    LSDBMap_t m_database; //!< database of IPv4 addresses / Link State Advertisements
+    std::vector<GlobalRoutingLSA*>
+        m_extdatabase; //!< database of External Link State Advertisements
 };
 
 /**
@@ -693,52 +696,52 @@ private:
  */
 class GlobalRouteManagerImpl
 {
-public:
-  GlobalRouteManagerImpl ();
-  virtual ~GlobalRouteManagerImpl ();
+  public:
+    GlobalRouteManagerImpl();
+    virtual ~GlobalRouteManagerImpl();
 
-  // Delete copy constructor and assignment operator to avoid misuse
-  GlobalRouteManagerImpl (const GlobalRouteManagerImpl &) = delete;
-  GlobalRouteManagerImpl &operator= (const GlobalRouteManagerImpl &) = delete;
+    // Delete copy constructor and assignment operator to avoid misuse
+    GlobalRouteManagerImpl(const GlobalRouteManagerImpl&) = delete;
+    GlobalRouteManagerImpl& operator=(const GlobalRouteManagerImpl&) = delete;
 
-  /**
+    /**
      * @brief Delete all static routes on all nodes that have a
      * GlobalRouterInterface
      *
      * \todo  separate manually assigned static routes from static routes that
      * the global routing code injects, and only delete the latter
      */
-  virtual void DeleteGlobalRoutes ();
+    virtual void DeleteGlobalRoutes();
 
-  /**
+    /**
      * @brief Build the routing database by gathering Link State Advertisements
      * from each node exporting a GlobalRouter interface.
      */
-  virtual void BuildGlobalRoutingDatabase ();
+    virtual void BuildGlobalRoutingDatabase();
 
-  /**
+    /**
      * @brief Compute routes using a Dijkstra SPF computation and populate
      * per-node forwarding tables
      */
-  virtual void InitializeRoutes ();
+    virtual void InitializeRoutes();
 
-  /**
+    /**
      * @brief Debugging routine; allow client code to supply a pre-built LSDB
      * @param lsdb the pre-built LSDB
      */
-  void DebugUseLsdb (GlobalRouteManagerLSDB *lsdb);
+    void DebugUseLsdb(GlobalRouteManagerLSDB* lsdb);
 
-  /**
+    /**
      * @brief Debugging routine; call the core SPF from the unit tests
      * @param root the root node to start calculations
      */
-  void DebugSPFCalculate (Ipv4Address root);
+    void DebugSPFCalculate(Ipv4Address root);
 
-private:
-  SPFVertex *m_spfroot; //!< the root node
-  GlobalRouteManagerLSDB *m_lsdb; //!< the Link State DataBase (LSDB) of the Global Route Manager
+  private:
+    SPFVertex* m_spfroot;           //!< the root node
+    GlobalRouteManagerLSDB* m_lsdb; //!< the Link State DataBase (LSDB) of the Global Route Manager
 
-  /**
+    /**
      * \brief Test if a node is a stub, from an OSPF sense.
      *
      * If there is only one link of type 1 or 2, then a default route
@@ -748,17 +751,17 @@ private:
      * \param root the root node
      * \returns true if the node is a stub
      */
-  bool CheckForStubNode (Ipv4Address root);
+    bool CheckForStubNode(Ipv4Address root);
 
-  /**
+    /**
      * \brief Calculate the shortest path first (SPF) tree
      *
      * Equivalent to quagga ospf_spf_calculate
      * \param root the root node
      */
-  void SPFCalculate (Ipv4Address root);
+    void SPFCalculate(Ipv4Address root);
 
-  /**
+    /**
      * \brief Process Stub nodes
      *
      * Processing logic from RFC 2328, page 166 and quagga ospf_spf_process_stubs ()
@@ -767,17 +770,17 @@ private:
      *
      * \param v vertex to be processed
      */
-  void SPFProcessStubs (SPFVertex *v);
+    void SPFProcessStubs(SPFVertex* v);
 
-  /**
+    /**
      * \brief Process Autonomous Systems (AS) External LSA
      *
      * \param v vertex to be processed
      * \param extlsa external LSA
      */
-  void ProcessASExternals (SPFVertex *v, GlobalRoutingLSA *extlsa);
+    void ProcessASExternals(SPFVertex* v, GlobalRoutingLSA* extlsa);
 
-  /**
+    /**
      * \brief Examine the links in v's LSA and update the list of candidates with any
      *        vertices not already on the list
      *
@@ -798,9 +801,9 @@ private:
      * \param v the vertex
      * \param candidate the SPF candidate queue
      */
-  void SPFNext (SPFVertex *v, CandidateQueue &candidate);
+    void SPFNext(SPFVertex* v, CandidateQueue& candidate);
 
-  /**
+    /**
      * \brief Calculate nexthop from root through V (parent) to vertex W (destination)
      *        with given distance from root->W.
      *
@@ -813,10 +816,12 @@ private:
      * \param distance the target distance
      * \returns 1 on success
      */
-  int SPFNexthopCalculation (SPFVertex *v, SPFVertex *w, GlobalRoutingLinkRecord *l,
-                             uint32_t distance);
+    int SPFNexthopCalculation(SPFVertex* v,
+                              SPFVertex* w,
+                              GlobalRoutingLinkRecord* l,
+                              uint32_t distance);
 
-  /**
+    /**
      * \brief Adds a vertex to the list of children *in* each of its parents
      *
      * Derived from quagga ospf_vertex_add_parents ()
@@ -830,9 +835,9 @@ private:
      *
      * \param v the vertex
      */
-  void SPFVertexAddParent (SPFVertex *v);
+    void SPFVertexAddParent(SPFVertex* v);
 
-  /**
+    /**
      * \brief Search for a link between two vertices.
      *
      * This method is derived from quagga ospf_get_next_link ()
@@ -851,10 +856,11 @@ private:
      * \param prev_link the previous link in the list
      * \returns the link's record
      */
-  GlobalRoutingLinkRecord *SPFGetNextLink (SPFVertex *v, SPFVertex *w,
-                                           GlobalRoutingLinkRecord *prev_link);
+    GlobalRoutingLinkRecord* SPFGetNextLink(SPFVertex* v,
+                                            SPFVertex* w,
+                                            GlobalRoutingLinkRecord* prev_link);
 
-  /**
+    /**
      * \brief Add a host route to the routing tables
      *
      *
@@ -876,32 +882,32 @@ private:
      * \param v the vertex
      *
      */
-  void SPFIntraAddRouter (SPFVertex *v);
+    void SPFIntraAddRouter(SPFVertex* v);
 
-  /**
+    /**
      * \brief Add a transit to the routing tables
      *
      * \param v the vertex
      */
-  void SPFIntraAddTransit (SPFVertex *v);
+    void SPFIntraAddTransit(SPFVertex* v);
 
-  /**
+    /**
      * \brief Add a stub to the routing tables
      *
      * \param l the global routing link record
      * \param v the vertex
      */
-  void SPFIntraAddStub (GlobalRoutingLinkRecord *l, SPFVertex *v);
+    void SPFIntraAddStub(GlobalRoutingLinkRecord* l, SPFVertex* v);
 
-  /**
+    /**
      * \brief Add an external route to the routing tables
      *
      * \param extlsa the external LSA
      * \param v the vertex
      */
-  void SPFAddASExternal (GlobalRoutingLSA *extlsa, SPFVertex *v);
+    void SPFAddASExternal(GlobalRoutingLSA* extlsa, SPFVertex* v);
 
-  /**
+    /**
      * \brief Return the interface number corresponding to a given IP address and mask
      *
      * This is a wrapper around GetInterfaceForPrefix(), but we first
@@ -913,7 +919,7 @@ private:
      * \param amask the target subnet mask
      * \return the outgoing interface number
      */
-  int32_t FindOutgoingInterfaceId (Ipv4Address a, Ipv4Mask amask = Ipv4Mask ("255.255.255.255"));
+    int32_t FindOutgoingInterfaceId(Ipv4Address a, Ipv4Mask amask = Ipv4Mask("255.255.255.255"));
 };
 
 } // namespace ns3

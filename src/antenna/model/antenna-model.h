@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011 CTTC
  *
@@ -21,10 +20,11 @@
 #ifndef ANTENNA_MODEL_H
 #define ANTENNA_MODEL_H
 
-#include <ns3/object.h>
 #include <ns3/angles.h>
+#include <ns3/object.h>
 
-namespace ns3 {
+namespace ns3
+{
 
 /**
  * \defgroup antenna Antenna module
@@ -52,28 +52,28 @@ namespace ns3 {
  */
 class AntennaModel : public Object
 {
-public:
-  AntennaModel ();
-  virtual ~AntennaModel ();
+  public:
+    AntennaModel();
+    ~AntennaModel() override;
 
-  /**
-   * \brief Get the type ID.
-   * \return The object TypeId.
-   */
-  static TypeId GetTypeId ();
+    /**
+     * \brief Get the type ID.
+     * \return The object TypeId.
+     */
+    static TypeId GetTypeId();
 
-  /**
-   * this method is expected to be re-implemented by each antenna model
-   *
-   * \param a the spherical angles at which the radiation pattern should
-   * be evaluated
-   *
-   * \return the power gain in dBi of the antenna radiation pattern at
-   * the specified angles; dBi means dB with respect to the gain of an
-   * isotropic radiator. Since a power gain is used, the efficiency of
-   * the antenna is expected to be included in the gain value.
-   */
-  virtual double GetGainDb (Angles a) = 0;
+    /**
+     * this method is expected to be re-implemented by each antenna model
+     *
+     * \param a the spherical angles at which the radiation pattern should
+     * be evaluated
+     *
+     * \return the power gain in dBi of the antenna radiation pattern at
+     * the specified angles; dBi means dB with respect to the gain of an
+     * isotropic radiator. Since a power gain is used, the efficiency of
+     * the antenna is expected to be included in the gain value.
+     */
+    virtual double GetGainDb(Angles a) = 0;
 };
 
 } // namespace ns3

@@ -22,7 +22,8 @@
 #include "ns3/object.h"
 #include "ns3/ptr.h"
 
-namespace ns3 {
+namespace ns3
+{
 
 class Socket;
 
@@ -46,21 +47,21 @@ class Socket;
  */
 class SocketFactory : public Object
 {
-public:
-  /**
+  public:
+    /**
      * \brief Get the type ID.
      * \return the object TypeId
      */
-  static TypeId GetTypeId ();
+    static TypeId GetTypeId();
 
-  SocketFactory ();
+    SocketFactory();
 
-  /**
+    /**
      * \return smart pointer to Socket
      *
      * Base class method for creating socket instances.
      */
-  virtual Ptr<Socket> CreateSocket () = 0;
+    virtual Ptr<Socket> CreateSocket() = 0;
 };
 
 } // namespace ns3

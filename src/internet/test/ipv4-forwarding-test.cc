@@ -44,197 +44,203 @@ using namespace ns3;
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief IPv4 Forwarding Test
  */
 class Ipv4ForwardingTest : public TestCase
 {
-  Ptr<Packet> m_receivedPacket; //!< Received packet
+    Ptr<Packet> m_receivedPacket; //!< Received packet
 
-  /**
+    /**
      * \brief Send data.
      * \param socket The sending socket.
      * \param to Destination address.
      */
-  void DoSendData (Ptr<Socket> socket, std::string to);
-  /**
+    void DoSendData(Ptr<Socket> socket, std::string to);
+    /**
      * \brief Send data.
      * \param socket The sending socket.
      * \param to Destination address.
      */
-  void SendData (Ptr<Socket> socket, std::string to);
+    void SendData(Ptr<Socket> socket, std::string to);
 
-public:
-  void DoRun () override;
-  Ipv4ForwardingTest ();
+  public:
+    void DoRun() override;
+    Ipv4ForwardingTest();
 
-  /**
+    /**
      * \brief Receive data.
      * \param socket The receiving socket.
      */
-  void ReceivePkt (Ptr<Socket> socket);
+    void ReceivePkt(Ptr<Socket> socket);
 };
 
-Ipv4ForwardingTest::Ipv4ForwardingTest () : TestCase ("UDP socket implementation")
+Ipv4ForwardingTest::Ipv4ForwardingTest()
+    : TestCase("UDP socket implementation")
 {
 }
 
 void
-Ipv4ForwardingTest::ReceivePkt (Ptr<Socket> socket)
+Ipv4ForwardingTest::ReceivePkt(Ptr<Socket> socket)
 {
-  uint32_t availableData;
-  availableData = socket->GetRxAvailable ();
-  m_receivedPacket = socket->Recv (std::numeric_limits<uint32_t>::max (), 0);
-  NS_TEST_ASSERT_MSG_EQ (availableData, m_receivedPacket->GetSize (),
-                         "Received packet size is not equal to Rx buffer size");
+    uint32_t availableData;
+    availableData = socket->GetRxAvailable();
+    m_receivedPacket = socket->Recv(std::numeric_limits<uint32_t>::max(), 0);
+    NS_TEST_ASSERT_MSG_EQ(availableData,
+                          m_receivedPacket->GetSize(),
+                          "Received packet size is not equal to Rx buffer size");
 }
 
 void
-Ipv4ForwardingTest::DoSendData (Ptr<Socket> socket, std::string to)
+Ipv4ForwardingTest::DoSendData(Ptr<Socket> socket, std::string to)
 {
-  Address realTo = InetSocketAddress (Ipv4Address (to.c_str ()), 1234);
-  NS_TEST_EXPECT_MSG_EQ (socket->SendTo (Create<Packet> (123), 0, realTo), 123, "100");
+    Address realTo = InetSocketAddress(Ipv4Address(to.c_str()), 1234);
+    NS_TEST_EXPECT_MSG_EQ(socket->SendTo(Create<Packet>(123), 0, realTo), 123, "100");
 }
 
 void
-Ipv4ForwardingTest::SendData (Ptr<Socket> socket, std::string to)
+Ipv4ForwardingTest::SendData(Ptr<Socket> socket, std::string to)
 {
-  m_receivedPacket = Create<Packet> ();
-  Simulator::ScheduleWithContext (socket->GetNode ()->GetId (), Seconds (0),
-                                  &Ipv4ForwardingTest::DoSendData, this, socket, to);
-  Simulator::Run ();
+    m_receivedPacket = Create<Packet>();
+    Simulator::ScheduleWithContext(socket->GetNode()->GetId(),
+                                   Seconds(0),
+                                   &Ipv4ForwardingTest::DoSendData,
+                                   this,
+                                   socket,
+                                   to);
+    Simulator::Run();
 }
 
 void
-Ipv4ForwardingTest::DoRun ()
+Ipv4ForwardingTest::DoRun()
 {
-  // Create topology
+    // Create topology
 
-  // Receiver Node
-  Ptr<Node> rxNode = CreateObject<Node> ();
+    // Receiver Node
+    Ptr<Node> rxNode = CreateObject<Node>();
 
-  InternetStackHelper internet;
-  internet.SetIpv6StackInstall (false);
+    InternetStackHelper internet;
+    internet.SetIpv6StackInstall(false);
 
-  internet.Install (rxNode);
-  Ptr<SimpleNetDevice> rxDev;
-  { // first interface
-    rxDev = CreateObject<SimpleNetDevice> ();
-    rxDev->SetAddress (Mac48Address::ConvertFrom (Mac48Address::Allocate ()));
-    rxNode->AddDevice (rxDev);
-    Ptr<Ipv4> ipv4 = rxNode->GetObject<Ipv4> ();
-    uint32_t netdev_idx = ipv4->AddInterface (rxDev);
-    Ipv4InterfaceAddress ipv4Addr =
-        Ipv4InterfaceAddress (Ipv4Address ("10.0.0.2"), Ipv4Mask (0xffff0000U));
-    ipv4->AddAddress (netdev_idx, ipv4Addr);
-    ipv4->SetUp (netdev_idx);
-  }
+    internet.Install(rxNode);
+    Ptr<SimpleNetDevice> rxDev;
+    { // first interface
+        rxDev = CreateObject<SimpleNetDevice>();
+        rxDev->SetAddress(Mac48Address::ConvertFrom(Mac48Address::Allocate()));
+        rxNode->AddDevice(rxDev);
+        Ptr<Ipv4> ipv4 = rxNode->GetObject<Ipv4>();
+        uint32_t netdev_idx = ipv4->AddInterface(rxDev);
+        Ipv4InterfaceAddress ipv4Addr =
+            Ipv4InterfaceAddress(Ipv4Address("10.0.0.2"), Ipv4Mask(0xffff0000U));
+        ipv4->AddAddress(netdev_idx, ipv4Addr);
+        ipv4->SetUp(netdev_idx);
+    }
 
-  // Forwarding Node
-  Ptr<Node> fwNode = CreateObject<Node> ();
+    // Forwarding Node
+    Ptr<Node> fwNode = CreateObject<Node>();
 
-  internet.Install (fwNode);
-  Ptr<SimpleNetDevice> fwDev1;
-  Ptr<SimpleNetDevice> fwDev2;
-  { // first interface
-    fwDev1 = CreateObject<SimpleNetDevice> ();
-    fwDev1->SetAddress (Mac48Address::ConvertFrom (Mac48Address::Allocate ()));
-    fwNode->AddDevice (fwDev1);
-    Ptr<Ipv4> ipv4 = fwNode->GetObject<Ipv4> ();
-    uint32_t netdev_idx = ipv4->AddInterface (fwDev1);
-    Ipv4InterfaceAddress ipv4Addr =
-        Ipv4InterfaceAddress (Ipv4Address ("10.0.0.1"), Ipv4Mask (0xffff0000U));
-    ipv4->AddAddress (netdev_idx, ipv4Addr);
-    ipv4->SetUp (netdev_idx);
-  }
+    internet.Install(fwNode);
+    Ptr<SimpleNetDevice> fwDev1;
+    Ptr<SimpleNetDevice> fwDev2;
+    { // first interface
+        fwDev1 = CreateObject<SimpleNetDevice>();
+        fwDev1->SetAddress(Mac48Address::ConvertFrom(Mac48Address::Allocate()));
+        fwNode->AddDevice(fwDev1);
+        Ptr<Ipv4> ipv4 = fwNode->GetObject<Ipv4>();
+        uint32_t netdev_idx = ipv4->AddInterface(fwDev1);
+        Ipv4InterfaceAddress ipv4Addr =
+            Ipv4InterfaceAddress(Ipv4Address("10.0.0.1"), Ipv4Mask(0xffff0000U));
+        ipv4->AddAddress(netdev_idx, ipv4Addr);
+        ipv4->SetUp(netdev_idx);
+    }
 
-  { // second interface
-    fwDev2 = CreateObject<SimpleNetDevice> ();
-    fwDev2->SetAddress (Mac48Address::ConvertFrom (Mac48Address::Allocate ()));
-    fwNode->AddDevice (fwDev2);
-    Ptr<Ipv4> ipv4 = fwNode->GetObject<Ipv4> ();
-    uint32_t netdev_idx = ipv4->AddInterface (fwDev2);
-    Ipv4InterfaceAddress ipv4Addr =
-        Ipv4InterfaceAddress (Ipv4Address ("10.1.0.1"), Ipv4Mask (0xffff0000U));
-    ipv4->AddAddress (netdev_idx, ipv4Addr);
-    ipv4->SetUp (netdev_idx);
-  }
+    { // second interface
+        fwDev2 = CreateObject<SimpleNetDevice>();
+        fwDev2->SetAddress(Mac48Address::ConvertFrom(Mac48Address::Allocate()));
+        fwNode->AddDevice(fwDev2);
+        Ptr<Ipv4> ipv4 = fwNode->GetObject<Ipv4>();
+        uint32_t netdev_idx = ipv4->AddInterface(fwDev2);
+        Ipv4InterfaceAddress ipv4Addr =
+            Ipv4InterfaceAddress(Ipv4Address("10.1.0.1"), Ipv4Mask(0xffff0000U));
+        ipv4->AddAddress(netdev_idx, ipv4Addr);
+        ipv4->SetUp(netdev_idx);
+    }
 
-  // Sender Node
-  Ptr<Node> txNode = CreateObject<Node> ();
+    // Sender Node
+    Ptr<Node> txNode = CreateObject<Node>();
 
-  internet.Install (txNode);
-  Ptr<SimpleNetDevice> txDev;
-  {
-    txDev = CreateObject<SimpleNetDevice> ();
-    txDev->SetAddress (Mac48Address::ConvertFrom (Mac48Address::Allocate ()));
-    txNode->AddDevice (txDev);
-    Ptr<Ipv4> ipv4 = txNode->GetObject<Ipv4> ();
-    uint32_t netdev_idx = ipv4->AddInterface (txDev);
-    Ipv4InterfaceAddress ipv4Addr =
-        Ipv4InterfaceAddress (Ipv4Address ("10.1.0.2"), Ipv4Mask (0xffff0000U));
-    ipv4->AddAddress (netdev_idx, ipv4Addr);
-    ipv4->SetUp (netdev_idx);
-    Ptr<Ipv4StaticRouting> ipv4StaticRouting = Ipv4RoutingHelper::GetRouting<Ipv4StaticRouting> (
-        txNode->GetObject<Ipv4> ()->GetRoutingProtocol ());
-    ipv4StaticRouting->SetDefaultRoute (Ipv4Address ("10.1.0.1"), netdev_idx);
-  }
+    internet.Install(txNode);
+    Ptr<SimpleNetDevice> txDev;
+    {
+        txDev = CreateObject<SimpleNetDevice>();
+        txDev->SetAddress(Mac48Address::ConvertFrom(Mac48Address::Allocate()));
+        txNode->AddDevice(txDev);
+        Ptr<Ipv4> ipv4 = txNode->GetObject<Ipv4>();
+        uint32_t netdev_idx = ipv4->AddInterface(txDev);
+        Ipv4InterfaceAddress ipv4Addr =
+            Ipv4InterfaceAddress(Ipv4Address("10.1.0.2"), Ipv4Mask(0xffff0000U));
+        ipv4->AddAddress(netdev_idx, ipv4Addr);
+        ipv4->SetUp(netdev_idx);
+        Ptr<Ipv4StaticRouting> ipv4StaticRouting = Ipv4RoutingHelper::GetRouting<Ipv4StaticRouting>(
+            txNode->GetObject<Ipv4>()->GetRoutingProtocol());
+        ipv4StaticRouting->SetDefaultRoute(Ipv4Address("10.1.0.1"), netdev_idx);
+    }
 
-  // link the two nodes
-  Ptr<SimpleChannel> channel1 = CreateObject<SimpleChannel> ();
-  rxDev->SetChannel (channel1);
-  fwDev1->SetChannel (channel1);
+    // link the two nodes
+    Ptr<SimpleChannel> channel1 = CreateObject<SimpleChannel>();
+    rxDev->SetChannel(channel1);
+    fwDev1->SetChannel(channel1);
 
-  Ptr<SimpleChannel> channel2 = CreateObject<SimpleChannel> ();
-  fwDev2->SetChannel (channel2);
-  txDev->SetChannel (channel2);
+    Ptr<SimpleChannel> channel2 = CreateObject<SimpleChannel>();
+    fwDev2->SetChannel(channel2);
+    txDev->SetChannel(channel2);
 
-  // Create the UDP sockets
-  Ptr<SocketFactory> rxSocketFactory = rxNode->GetObject<UdpSocketFactory> ();
-  Ptr<Socket> rxSocket = rxSocketFactory->CreateSocket ();
-  NS_TEST_EXPECT_MSG_EQ (rxSocket->Bind (InetSocketAddress (Ipv4Address ("10.0.0.2"), 1234)), 0,
-                         "trivial");
-  rxSocket->SetRecvCallback (MakeCallback (&Ipv4ForwardingTest::ReceivePkt, this));
+    // Create the UDP sockets
+    Ptr<SocketFactory> rxSocketFactory = rxNode->GetObject<UdpSocketFactory>();
+    Ptr<Socket> rxSocket = rxSocketFactory->CreateSocket();
+    NS_TEST_EXPECT_MSG_EQ(rxSocket->Bind(InetSocketAddress(Ipv4Address("10.0.0.2"), 1234)),
+                          0,
+                          "trivial");
+    rxSocket->SetRecvCallback(MakeCallback(&Ipv4ForwardingTest::ReceivePkt, this));
 
-  Ptr<SocketFactory> txSocketFactory = txNode->GetObject<UdpSocketFactory> ();
-  Ptr<Socket> txSocket = txSocketFactory->CreateSocket ();
-  txSocket->SetAllowBroadcast (true);
+    Ptr<SocketFactory> txSocketFactory = txNode->GetObject<UdpSocketFactory>();
+    Ptr<Socket> txSocket = txSocketFactory->CreateSocket();
+    txSocket->SetAllowBroadcast(true);
 
-  // ------ Now the tests ------------
+    // ------ Now the tests ------------
 
-  // Unicast test
-  SendData (txSocket, "10.0.0.2");
-  NS_TEST_EXPECT_MSG_EQ (m_receivedPacket->GetSize (), 123, "IPv4 Forwarding on");
+    // Unicast test
+    SendData(txSocket, "10.0.0.2");
+    NS_TEST_EXPECT_MSG_EQ(m_receivedPacket->GetSize(), 123, "IPv4 Forwarding on");
 
-  m_receivedPacket->RemoveAllByteTags ();
-  m_receivedPacket = nullptr;
+    m_receivedPacket->RemoveAllByteTags();
+    m_receivedPacket = nullptr;
 
-  Ptr<Ipv4> ipv4 = fwNode->GetObject<Ipv4> ();
-  ipv4->SetAttribute ("IpForward", BooleanValue (false));
-  SendData (txSocket, "10.0.0.2");
-  NS_TEST_EXPECT_MSG_EQ (m_receivedPacket->GetSize (), 0, "IPv4 Forwarding off");
+    Ptr<Ipv4> ipv4 = fwNode->GetObject<Ipv4>();
+    ipv4->SetAttribute("IpForward", BooleanValue(false));
+    SendData(txSocket, "10.0.0.2");
+    NS_TEST_EXPECT_MSG_EQ(m_receivedPacket->GetSize(), 0, "IPv4 Forwarding off");
 
-  Simulator::Destroy ();
+    Simulator::Destroy();
 }
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief IPv4 Forwarding TestSuite
  */
 class Ipv4ForwardingTestSuite : public TestSuite
 {
-public:
-  Ipv4ForwardingTestSuite ();
+  public:
+    Ipv4ForwardingTestSuite();
 
-private:
+  private:
 };
 
-Ipv4ForwardingTestSuite::Ipv4ForwardingTestSuite () : TestSuite ("ipv4-forwarding", UNIT)
+Ipv4ForwardingTestSuite::Ipv4ForwardingTestSuite()
+    : TestSuite("ipv4-forwarding", UNIT)
 {
-  AddTestCase (new Ipv4ForwardingTest, TestCase::QUICK);
+    AddTestCase(new Ipv4ForwardingTest, TestCase::QUICK);
 }
 
 static Ipv4ForwardingTestSuite

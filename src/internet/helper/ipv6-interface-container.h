@@ -28,7 +28,8 @@
 #include <stdint.h>
 #include <vector>
 
-namespace ns3 {
+namespace ns3
+{
 
 /**
  * \ingroup ipv6
@@ -37,18 +38,18 @@ namespace ns3 {
  */
 class Ipv6InterfaceContainer
 {
-public:
-  /**
+  public:
+    /**
      * \brief Container Const Iterator for pairs of Ipv6 smart pointer / Interface Index.
      */
-  typedef std::vector<std::pair<Ptr<Ipv6>, uint32_t>>::const_iterator Iterator;
+    typedef std::vector<std::pair<Ptr<Ipv6>, uint32_t>>::const_iterator Iterator;
 
-  /**
+    /**
      * \brief Constructor.
      */
-  Ipv6InterfaceContainer ();
+    Ipv6InterfaceContainer();
 
-  /**
+    /**
      * \returns the number of Ptr<Ipv6> and interface pairs stored in this
      * Ipv6InterfaceContainer.
      *
@@ -67,45 +68,45 @@ public:
      *     }
      * \endcode
      */
-  uint32_t GetN () const;
+    uint32_t GetN() const;
 
-  /**
+    /**
      * \brief Get the interface index for the specified node index.
      * \param i index of the node
      * \return interface index
      */
-  uint32_t GetInterfaceIndex (uint32_t i) const;
+    uint32_t GetInterfaceIndex(uint32_t i) const;
 
-  /**
+    /**
      * \brief Get the address for the specified index.
      * \param i interface index
      * \param j address index, generally index 0 is the link-local address
      * \return IPv6 address
      */
-  Ipv6Address GetAddress (uint32_t i, uint32_t j) const;
+    Ipv6Address GetAddress(uint32_t i, uint32_t j) const;
 
-  /**
+    /**
      * \brief Get the link-local address for the specified index.
      * \param i index
      * \return the link-local address, or "::" if the interface has no link local address.
      */
-  Ipv6Address GetLinkLocalAddress (uint32_t i);
+    Ipv6Address GetLinkLocalAddress(uint32_t i);
 
-  /**
+    /**
      * \brief Get the link-local address for the node with the specified global address.
      * \param address the address to find.
      * \return the link-local address, or "::" if the interface has no link local address.
      */
-  Ipv6Address GetLinkLocalAddress (Ipv6Address address);
+    Ipv6Address GetLinkLocalAddress(Ipv6Address address);
 
-  /**
+    /**
      * \brief Add a couple IPv6/interface.
      * \param ipv6 IPv6 address
      * \param interface interface index
      */
-  void Add (Ptr<Ipv6> ipv6, uint32_t interface);
+    void Add(Ptr<Ipv6> ipv6, uint32_t interface);
 
-  /**
+    /**
      * \brief Get an iterator which refers to the first pair in the
      * container.
      *
@@ -125,9 +126,9 @@ public:
      *
      * \returns an iterator which refers to the first pair in the container.
      */
-  Iterator Begin () const;
+    Iterator Begin() const;
 
-  /**
+    /**
      * \brief Get an iterator which indicates past-the-last Node in the
      * container.
      *
@@ -147,22 +148,22 @@ public:
      *
      * \returns an iterator which indicates an ending condition for a loop.
      */
-  Iterator End () const;
+    Iterator End() const;
 
-  /**
+    /**
      * \brief Fusion with another Ipv6InterfaceContainer.
      * \param c container
      */
-  void Add (const Ipv6InterfaceContainer &c);
+    void Add(const Ipv6InterfaceContainer& c);
 
-  /**
+    /**
      * \brief Add a couple of name/interface.
      * \param ipv6Name name of a node
      * \param interface interface index to add
      */
-  void Add (std::string ipv6Name, uint32_t interface);
+    void Add(std::string ipv6Name, uint32_t interface);
 
-  /**
+    /**
      * Get the std::pair of an Ptr<Ipv6> and interface stored at the location
      * specified by the index.
      *
@@ -183,56 +184,56 @@ public:
      *   Ptr<Ipv6Interface> iface =  DynamicCast<Ipv6L3Protocol> (ipv6)->GetInterface (index);
      * \endcode
      */
-  std::pair<Ptr<Ipv6>, uint32_t> Get (uint32_t i) const;
+    std::pair<Ptr<Ipv6>, uint32_t> Get(uint32_t i) const;
 
-  /**
+    /**
      * \brief Set the state of the stack (act as a router or as an host) for the specified index.
      * This automatically sets all the node's interfaces to the same forwarding state.
      * \param i index
      * \param state true : is a router, false : is an host
      */
-  void SetForwarding (uint32_t i, bool state);
+    void SetForwarding(uint32_t i, bool state);
 
-  /**
+    /**
      * \brief Set the default route for all the devices (except the router itself).
      * \param router the default router index
      */
-  void SetDefaultRouteInAllNodes (uint32_t router);
+    void SetDefaultRouteInAllNodes(uint32_t router);
 
-  /**
+    /**
      * \brief Set the default route for all the devices (except the router itself).
      * Note that the route will be set to the link-local address of the node with the specified
      * address.
      * \param routerAddr the default router address
      */
-  void SetDefaultRouteInAllNodes (Ipv6Address routerAddr);
+    void SetDefaultRouteInAllNodes(Ipv6Address routerAddr);
 
-  /**
+    /**
      * \brief Set the default route for the specified index.
      * \param i index
      * \param router the default router
      */
-  void SetDefaultRoute (uint32_t i, uint32_t router);
+    void SetDefaultRoute(uint32_t i, uint32_t router);
 
-  /**
+    /**
      * \brief Set the default route for the specified index.
      * Note that the route will be set to the link-local address of the node with the specified
      * address.
      * \param i index
      * \param routerAddr the default router address
      */
-  void SetDefaultRoute (uint32_t i, Ipv6Address routerAddr);
+    void SetDefaultRoute(uint32_t i, Ipv6Address routerAddr);
 
-private:
-  /**
+  private:
+    /**
      * \brief Container for pairs of Ipv6 smart pointer / Interface Index.
      */
-  typedef std::vector<std::pair<Ptr<Ipv6>, uint32_t>> InterfaceVector;
+    typedef std::vector<std::pair<Ptr<Ipv6>, uint32_t>> InterfaceVector;
 
-  /**
+    /**
      * \brief List of IPv6 stack and interfaces index.
      */
-  InterfaceVector m_interfaces;
+    InterfaceVector m_interfaces;
 };
 
 } /* namespace ns3 */

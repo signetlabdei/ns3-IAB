@@ -27,6 +27,8 @@ set(base_examples
     iab-e2e-data-1-node-test
     iab-3-nodes-test
     iab-inmarsat-scenario-1
+    iab-scheduling-flexible-slot-test
+    iab-dl-flow-test
 )
 
 foreach(
@@ -36,7 +38,10 @@ foreach(
   build_lib_example(
     NAME ${example}
     SOURCE_FILES ${example}.cc
-    LIBRARIES_TO_LINK ${libmmwave}
+    LIBRARIES_TO_LINK
+      ${libmmwave}
+      ${libantenna}
+      ${libspectrum}
   )
 endforeach()
 

@@ -26,7 +26,8 @@
 #include <stdint.h>
 #include <string>
 
-namespace ns3 {
+namespace ns3
+{
 
 class Packet;
 class Header;
@@ -40,29 +41,29 @@ class Header;
  */
 class PcapFile
 {
-public:
-  static const int32_t ZONE_DEFAULT = 0; //!< Time zone offset for current location
-  static const uint32_t SNAPLEN_DEFAULT =
-      65535; //!< Default value for maximum octets to save per packet
+  public:
+    static const int32_t ZONE_DEFAULT = 0; //!< Time zone offset for current location
+    static const uint32_t SNAPLEN_DEFAULT =
+        65535; //!< Default value for maximum octets to save per packet
 
-public:
-  PcapFile ();
-  ~PcapFile ();
+  public:
+    PcapFile();
+    ~PcapFile();
 
-  /**
+    /**
      * \return true if the 'fail' bit is set in the underlying iostream, false otherwise.
      */
-  bool Fail () const;
-  /**
+    bool Fail() const;
+    /**
      * \return true if the 'eof' bit is set in the underlying iostream, false otherwise.
      */
-  bool Eof () const;
-  /**
+    bool Eof() const;
+    /**
      * Clear all state bits of the underlying iostream.
      */
-  void Clear ();
+    void Clear();
 
-  /**
+    /**
      * Create a new pcap file or open an existing pcap file.  Semantics are
      * similar to the stdc++ io stream classes, but differ in that
      * positions in the file are based on packets not characters.  For example
@@ -78,14 +79,14 @@ public:
      *
      * \param mode the access mode for the file.
      */
-  void Open (const std::string &filename, std::ios::openmode mode);
+    void Open(const std::string& filename, std::ios::openmode mode);
 
-  /**
+    /**
      * Close the underlying file.
      */
-  void Close ();
+    void Close();
 
-  /**
+    /**
      * Initialize the pcap file associated with this object.  This file must have
      * been previously opened with write permissions.
      *
@@ -114,11 +115,13 @@ public:
      * \warning Calling this method on an existing file will result in the loss
      * any existing data.
      */
-  void Init (uint32_t dataLinkType, uint32_t snapLen = SNAPLEN_DEFAULT,
-             int32_t timeZoneCorrection = ZONE_DEFAULT, bool swapMode = false,
-             bool nanosecMode = false);
+    void Init(uint32_t dataLinkType,
+              uint32_t snapLen = SNAPLEN_DEFAULT,
+              int32_t timeZoneCorrection = ZONE_DEFAULT,
+              bool swapMode = false,
+              bool nanosecMode = false);
 
-  /**
+    /**
      * \brief Write next packet to file
      *
      * \param tsSec       Packet timestamp, seconds
@@ -127,9 +130,9 @@ public:
      * \param totalLen    Total packet length
      *
      */
-  void Write (uint32_t tsSec, uint32_t tsUsec, const uint8_t *const data, uint32_t totalLen);
+    void Write(uint32_t tsSec, uint32_t tsUsec, const uint8_t* const data, uint32_t totalLen);
 
-  /**
+    /**
      * \brief Write next packet to file
      *
      * \param tsSec       Packet timestamp, seconds
@@ -137,8 +140,8 @@ public:
      * \param p           Packet to write
      *
      */
-  void Write (uint32_t tsSec, uint32_t tsUsec, Ptr<const Packet> p);
-  /**
+    void Write(uint32_t tsSec, uint32_t tsUsec, Ptr<const Packet> p);
+    /**
      * \brief Write next packet to file
      *
      * \param tsSec       Packet timestamp, seconds
@@ -147,9 +150,9 @@ public:
      * \param p           Packet to write
      *
      */
-  void Write (uint32_t tsSec, uint32_t tsUsec, const Header &header, Ptr<const Packet> p);
+    void Write(uint32_t tsSec, uint32_t tsUsec, const Header& header, Ptr<const Packet> p);
 
-  /**
+    /**
      * \brief Read next packet from file
      *
      * \param data        [out] Data buffer
@@ -161,10 +164,15 @@ public:
      * \param readLen     [out] Number of bytes read
      *
      */
-  void Read (uint8_t *const data, uint32_t maxBytes, uint32_t &tsSec, uint32_t &tsUsec,
-             uint32_t &inclLen, uint32_t &origLen, uint32_t &readLen);
+    void Read(uint8_t* const data,
+              uint32_t maxBytes,
+              uint32_t& tsSec,
+              uint32_t& tsUsec,
+              uint32_t& inclLen,
+              uint32_t& origLen,
+              uint32_t& readLen);
 
-  /**
+    /**
      * \brief Get the swap mode of the file.
      *
      * Pcap files use a magic number that is overloaded to identify both the
@@ -183,17 +191,17 @@ public:
      *
      * \returns swap mode of the file
      */
-  bool GetSwapMode ();
+    bool GetSwapMode();
 
-  /**
+    /**
      * \brief Get the nanosecond mode of the file.
      *
      * \returns true if the packet timestamps in the PCAP
      * file have nanosecond resolution.
      */
-  bool IsNanoSecMode ();
+    bool IsNanoSecMode();
 
-  /**
+    /**
      * \brief Returns the magic number of the pcap file as defined by the magic_number
      * field in the pcap global header.
      *
@@ -201,9 +209,9 @@ public:
      *
      * \returns magic number
      */
-  uint32_t GetMagic ();
+    uint32_t GetMagic();
 
-  /**
+    /**
      * \brief Returns the major version of the pcap file as defined by the version_major
      * field in the pcap global header.
      *
@@ -211,9 +219,9 @@ public:
      *
      * \returns major version
      */
-  uint16_t GetVersionMajor ();
+    uint16_t GetVersionMajor();
 
-  /**
+    /**
      * \brief Returns the minor version of the pcap file as defined by the version_minor
      * field in the pcap global header.
      *
@@ -221,9 +229,9 @@ public:
      *
      * \returns minor version
      */
-  uint16_t GetVersionMinor ();
+    uint16_t GetVersionMinor();
 
-  /**
+    /**
      * \brief Returns the time zone offset of the pcap file as defined by the thiszone
      * field in the pcap global header.
      *
@@ -231,9 +239,9 @@ public:
      *
      * \returns time zone offset
      */
-  int32_t GetTimeZoneOffset ();
+    int32_t GetTimeZoneOffset();
 
-  /**
+    /**
      * \brief Returns the accuracy of timestamps field of the pcap file as defined
      * by the sigfigs field in the pcap global header.
      *
@@ -241,9 +249,9 @@ public:
      *
      * \returns accuracy of timestamps
      */
-  uint32_t GetSigFigs ();
+    uint32_t GetSigFigs();
 
-  /**
+    /**
      * \brief Returns the max length of saved packets field of the pcap file as
      * defined by the snaplen field in the pcap global header.
      *
@@ -251,9 +259,9 @@ public:
      *
      * \returns max length of saved packets field
      */
-  uint32_t GetSnapLen ();
+    uint32_t GetSnapLen();
 
-  /**
+    /**
      * \brief Returns the data link type field of the pcap file as defined by the
      * network field in the pcap global header.
      *
@@ -261,9 +269,9 @@ public:
      *
      * \returns data link type field
      */
-  uint32_t GetDataLinkType ();
+    uint32_t GetDataLinkType();
 
-  /**
+    /**
      * \brief Compare two PCAP files packet-by-packet
      *
      * \param f1 First PCAP file name
@@ -277,71 +285,77 @@ public:
      * \param snapLen Snap length (if used)
      * \return true if files are different, false otherwise
      */
-  static bool Diff (const std::string &f1, const std::string &f2, uint32_t &sec, uint32_t &usec,
-                    uint32_t &packets, uint32_t snapLen = SNAPLEN_DEFAULT);
+    static bool Diff(const std::string& f1,
+                     const std::string& f2,
+                     uint32_t& sec,
+                     uint32_t& usec,
+                     uint32_t& packets,
+                     uint32_t snapLen = SNAPLEN_DEFAULT);
 
-private:
-  /**
+  private:
+    /**
      * \brief Pcap file header
      */
-  typedef struct
-  {
-    uint32_t m_magicNumber; //!< Magic number identifying this as a pcap file
-    uint16_t m_versionMajor; //!< Major version identifying the version of pcap used in this file
-    uint16_t m_versionMinor; //!< Minor version identifying the version of pcap used in this file
-    int32_t m_zone; //!< Time zone correction to be applied to timestamps of packets
-    uint32_t m_sigFigs; //!< Unused by pretty much everybody
-    uint32_t m_snapLen; //!< Maximum length of packet data stored in records
-    uint32_t m_type; //!< Data link type of packet data
-  } PcapFileHeader;
+    struct PcapFileHeader
+    {
+        uint32_t m_magicNumber; //!< Magic number identifying this as a pcap file
+        uint16_t
+            m_versionMajor; //!< Major version identifying the version of pcap used in this file
+        uint16_t
+            m_versionMinor; //!< Minor version identifying the version of pcap used in this file
+        int32_t m_zone;     //!< Time zone correction to be applied to timestamps of packets
+        uint32_t m_sigFigs; //!< Unused by pretty much everybody
+        uint32_t m_snapLen; //!< Maximum length of packet data stored in records
+        uint32_t m_type;    //!< Data link type of packet data
+    };
 
-  /**
+    /**
      * \brief Pcap record header
      */
-  typedef struct
-  {
-    uint32_t m_tsSec; //!< seconds part of timestamp
-    uint32_t m_tsUsec; //!< microseconds part of timestamp (nsecs for PCAP_NSEC_MAGIC)
-    uint32_t m_inclLen; //!< number of octets of packet saved in file
-    uint32_t m_origLen; //!< actual length of original packet
-  } PcapRecordHeader;
+    struct PcapRecordHeader
+    {
+        uint32_t m_tsSec;   //!< seconds part of timestamp
+        uint32_t m_tsUsec;  //!< microseconds part of timestamp (nsecs for PCAP_NSEC_MAGIC)
+        uint32_t m_inclLen; //!< number of octets of packet saved in file
+        uint32_t m_origLen; //!< actual length of original packet
+    };
 
-  /**
+    /**
      * \brief Swap a value byte order
      * \param val the value
      * \returns the value with byte order swapped
      */
-  uint8_t Swap (uint8_t val);
-  /**
+    uint8_t Swap(uint8_t val);
+    /**
      * \brief Swap a value byte order
      * \param val the value
      * \returns the value with byte order swapped
      */
-  uint16_t Swap (uint16_t val);
-  /**
+    uint16_t Swap(uint16_t val);
+    /**
      * \brief Swap a value byte order
      * \param val the value
      * \returns the value with byte order swapped
      */
-  uint32_t Swap (uint32_t val);
-  /**
+    uint32_t Swap(uint32_t val);
+    /**
      * \brief Swap the byte order of a Pcap file header
      * \param from original file header
      * \param to swapped file header
      */
-  void Swap (PcapFileHeader *from, PcapFileHeader *to);
-  /**
+    void Swap(PcapFileHeader* from, PcapFileHeader* to);
+    /**
      * \brief Swap the byte order of a Pcap record header
      * \param from original record header
      * \param to swapped record header
      */
-  void Swap (PcapRecordHeader *from, PcapRecordHeader *to);
+    void Swap(PcapRecordHeader* from, PcapRecordHeader* to);
 
-  /**
+    /**
      * \brief Write a Pcap file header
      */
-  void WriteFileHeader ();
-  /**
+    void WriteFileHeader();
+    /**
      * \brief Write a Pcap packet header
      *
      * The pcap header has a fixed length of 24 bytes. The last 4 bytes
@@ -352,18 +366,18 @@ private:
      * \param totalLen total packet length
      * \returns the length of the packet to write in the Pcap file
      */
-  uint32_t WritePacketHeader (uint32_t tsSec, uint32_t tsUsec, uint32_t totalLen);
+    uint32_t WritePacketHeader(uint32_t tsSec, uint32_t tsUsec, uint32_t totalLen);
 
-  /**
+    /**
      * \brief Read and verify a Pcap file header
      */
-  void ReadAndVerifyFileHeader ();
+    void ReadAndVerifyFileHeader();
 
-  std::string m_filename; //!< file name
-  std::fstream m_file; //!< file stream
-  PcapFileHeader m_fileHeader; //!< file header
-  bool m_swapMode; //!< swap mode
-  bool m_nanosecMode; //!< nanosecond timestamp mode
+    std::string m_filename;      //!< file name
+    std::fstream m_file;         //!< file stream
+    PcapFileHeader m_fileHeader; //!< file header
+    bool m_swapMode;             //!< swap mode
+    bool m_nanosecMode;          //!< nanosecond timestamp mode
 };
 
 } // namespace ns3

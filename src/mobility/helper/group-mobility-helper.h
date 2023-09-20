@@ -28,7 +28,8 @@
 
 #include <vector>
 
-namespace ns3 {
+namespace ns3
+{
 
 class PositionAllocator;
 class MobilityModel;
@@ -45,26 +46,26 @@ class MobilityModel;
  */
 class GroupMobilityHelper
 {
-public:
-  /**
+  public:
+    /**
      * Construct a group mobility helper
      */
-  GroupMobilityHelper ();
+    GroupMobilityHelper();
 
-  /**
+    /**
      * Destroy a group mobility helper
      */
-  ~GroupMobilityHelper ();
+    ~GroupMobilityHelper();
 
-  /**
+    /**
      * Set the position allocator which will be used to allocate the initial
      * position of the reference mobility model.
      *
      * \param allocator allocate initial reference mobility model position
      */
-  void SetReferencePositionAllocator (Ptr<PositionAllocator> allocator);
+    void SetReferencePositionAllocator(Ptr<PositionAllocator> allocator);
 
-  /**
+    /**
      * Configure the position allocator which will be used to allocate
      * the initial position of the reference mobility model.
      *
@@ -72,18 +73,18 @@ public:
      * \param type the type of position allocator to use.
      * \param [in] args Name and AttributeValue pairs to set.
      */
-  template <typename... Ts>
-  void SetReferencePositionAllocator (std::string type, Ts &&...args);
+    template <typename... Ts>
+    void SetReferencePositionAllocator(std::string type, Ts&&... args);
 
-  /**
+    /**
      * Set the position allocator which will be used to allocate the initial
      * position of the member mobility models.
      *
      * \param allocator allocate initial member mobility model positions
      */
-  void SetMemberPositionAllocator (Ptr<PositionAllocator> allocator);
+    void SetMemberPositionAllocator(Ptr<PositionAllocator> allocator);
 
-  /**
+    /**
      * Configure the position allocator which will be used to allocate the
      * initial position of the member mobility models.
      *
@@ -91,18 +92,18 @@ public:
      * \param type the type of position allocator to use.
      * \param [in] args Name and AttributeValue pairs to set.
      */
-  template <typename... Ts>
-  void SetMemberPositionAllocator (std::string type, Ts &&...args);
+    template <typename... Ts>
+    void SetMemberPositionAllocator(std::string type, Ts&&... args);
 
-  /**
+    /**
      * Set the reference mobility model which will be installed as the parent
      * mobility model during GroupMobilityModel::Install.
      *
      * \param mobility reference mobility model
      */
-  void SetReferenceMobilityModel (Ptr<MobilityModel> mobility);
+    void SetReferenceMobilityModel(Ptr<MobilityModel> mobility);
 
-  /**
+    /**
      * Configure the reference mobility model which will be installed as the
      * parent mobility model during GroupMobilityModel::Install.
      *
@@ -110,10 +111,10 @@ public:
      * \param type the type of mobility model to use.
      * \param [in] args Name and AttributeValue pairs to set.
      */
-  template <typename... Ts>
-  void SetReferenceMobilityModel (std::string type, Ts &&...args);
+    template <typename... Ts>
+    void SetReferenceMobilityModel(std::string type, Ts&&... args);
 
-  /**
+    /**
      * Configure the mobility model which will be installed as the
      * member (child) mobility model during GroupMobilityModel::Install.
      *
@@ -124,10 +125,10 @@ public:
      * \param type the type of mobility model to use.
      * \param [in] args Name and AttributeValue pairs to set.
      */
-  template <typename... Ts>
-  void SetMemberMobilityModel (std::string type, Ts &&...args);
+    template <typename... Ts>
+    void SetMemberMobilityModel(std::string type, Ts&&... args);
 
-  /**
+    /**
      * \brief Install and configure a hierarchical mobility model to the
      * given node, based on the configured reference and member models.
      *
@@ -136,8 +137,8 @@ public:
      *
      * \param node The node to configure
      */
-  void Install (Ptr<Node> node);
-  /**
+    void Install(Ptr<Node> node);
+    /**
      * \brief Install and configure a hierarchical mobility model to the
      * given node, based on the configured reference and member models.
      *
@@ -146,9 +147,9 @@ public:
      *
      * \param nodeName The name of the node to configure
      */
-  void Install (std::string nodeName);
+    void Install(std::string nodeName);
 
-  /**
+    /**
      * \brief Install and configure a hierarchical mobility model to all nodes
      * in the container, based on the configured reference and member models.
      *
@@ -157,9 +158,9 @@ public:
      *
      * \param container The set of nodes to configure
      */
-  void Install (NodeContainer container);
+    void Install(NodeContainer container);
 
-  /**
+    /**
      * Assign a fixed random variable stream number to the random variables
      * used by the mobility models on these nodes. Return the number of
      * streams (possibly zero) that have been assigned. The Install()
@@ -177,20 +178,20 @@ public:
      * \param stream first stream index to use
      * \return the number of stream indices assigned by this helper
      */
-  int64_t AssignStreams (NodeContainer c, int64_t stream);
+    int64_t AssignStreams(NodeContainer c, int64_t stream);
 
-private:
-  // Enable loggin from template instantiations
-  NS_LOG_TEMPLATE_DECLARE; //!< the log component
+  private:
+    // Enable logging from template instantiations
+    NS_LOG_TEMPLATE_DECLARE; //!< the log component
 
-  bool m_referencePositionSet{
-      false}; //!< flag for avoiding multiple SetPosition calls on the reference model
-  Ptr<MobilityModel> m_referenceMobility; //!< Reference mobility model
-  Ptr<PositionAllocator>
-      m_referencePosition; //!< Position allocator for use as reference position allocator
-  ObjectFactory m_memberMobilityFactory; //!< Object factory to create member mobility models
-  Ptr<PositionAllocator>
-      m_memberPosition; //!< Position allocator for use as member position allocator
+    bool m_referencePositionSet{
+        false}; //!< flag for avoiding multiple SetPosition calls on the reference model
+    Ptr<MobilityModel> m_referenceMobility; //!< Reference mobility model
+    Ptr<PositionAllocator>
+        m_referencePosition; //!< Position allocator for use as reference position allocator
+    ObjectFactory m_memberMobilityFactory; //!< Object factory to create member mobility models
+    Ptr<PositionAllocator>
+        m_memberPosition; //!< Position allocator for use as member position allocator
 };
 
 /***************************************************************
@@ -199,39 +200,39 @@ private:
 
 template <typename... Ts>
 void
-GroupMobilityHelper::SetReferencePositionAllocator (std::string type, Ts &&...args)
+GroupMobilityHelper::SetReferencePositionAllocator(std::string type, Ts&&... args)
 {
-  ObjectFactory pos (type, std::forward<Ts> (args)...);
-  m_referencePosition = pos.Create ()->GetObject<PositionAllocator> ();
-  NS_ABORT_MSG_IF (!m_referencePosition, "Unable to create allocator from TypeId " << type);
+    ObjectFactory pos(type, std::forward<Ts>(args)...);
+    m_referencePosition = pos.Create()->GetObject<PositionAllocator>();
+    NS_ABORT_MSG_IF(!m_referencePosition, "Unable to create allocator from TypeId " << type);
 }
 
 template <typename... Ts>
 void
-GroupMobilityHelper::SetMemberPositionAllocator (std::string type, Ts &&...args)
+GroupMobilityHelper::SetMemberPositionAllocator(std::string type, Ts&&... args)
 {
-  ObjectFactory pos (type, std::forward<Ts> (args)...);
-  m_memberPosition = pos.Create ()->GetObject<PositionAllocator> ();
-  NS_ABORT_MSG_IF (!m_memberPosition, "Unable to create allocator from TypeId " << type);
+    ObjectFactory pos(type, std::forward<Ts>(args)...);
+    m_memberPosition = pos.Create()->GetObject<PositionAllocator>();
+    NS_ABORT_MSG_IF(!m_memberPosition, "Unable to create allocator from TypeId " << type);
 }
 
 template <typename... Ts>
 void
-GroupMobilityHelper::SetReferenceMobilityModel (std::string type, Ts &&...args)
+GroupMobilityHelper::SetReferenceMobilityModel(std::string type, Ts&&... args)
 {
-  NS_LOG_FUNCTION (this << type);
-  ObjectFactory mob (type, std::forward<Ts> (args)...);
-  m_referenceMobility = mob.Create ()->GetObject<MobilityModel> ();
-  NS_ABORT_MSG_IF (!m_referenceMobility, "Unable to create mobility from TypeId " << type);
+    NS_LOG_FUNCTION(this << type);
+    ObjectFactory mob(type, std::forward<Ts>(args)...);
+    m_referenceMobility = mob.Create()->GetObject<MobilityModel>();
+    NS_ABORT_MSG_IF(!m_referenceMobility, "Unable to create mobility from TypeId " << type);
 }
 
 template <typename... Ts>
 void
-GroupMobilityHelper::SetMemberMobilityModel (std::string type, Ts &&...args)
+GroupMobilityHelper::SetMemberMobilityModel(std::string type, Ts&&... args)
 {
-  NS_LOG_FUNCTION (this << type);
-  m_memberMobilityFactory.SetTypeId (type);
-  m_memberMobilityFactory.Set (std::forward<Ts> (args)...);
+    NS_LOG_FUNCTION(this << type);
+    m_memberMobilityFactory.SetTypeId(type);
+    m_memberMobilityFactory.Set(std::forward<Ts>(args)...);
 }
 
 } // namespace ns3

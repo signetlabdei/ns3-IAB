@@ -321,11 +321,20 @@ EpcEnbApplication::RecvFromS1uSocket (Ptr<Socket> socket)
   //packet->RemovePacketTag (tag);
 
   std::map<uint32_t, EpsFlowId_t>::iterator it = m_teidRbidMap.find (teid);
-  if (it != m_teidRbidMap.end ())
-    {
-      m_rxS1uSocketPktTrace (packet->Copy ());
-      SendToLteSocket (packet, it->second.m_rnti, it->second.m_bid);
-    }
+  if (it != m_teidRbidMap.end())
+  {
+    auto bapAddressIabNode = GetBapAddressFromImsi (m_imsiRntiMap.find(it->second.m_rnti)->first);
+    if (bapAddressIabNode)
+      {
+        auto donorDevice = DynamicCast<mmwave::MmWaveEnbNetDevice> (GetNode()->GetDevice(0));
+        donorDevice->GetBap ()-> TransmitBapSduViaNonPduInterface (packet, bapAddressIabNode.value());
+      }
+      else
+      {
+          m_rxS1uSocketPktTrace(packet->Copy());
+          SendToLteSocket(packet, it->second.m_rnti, it->second.m_bid);
+      }
+  }
   else
     {
       packet = 0;

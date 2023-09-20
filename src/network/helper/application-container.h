@@ -26,7 +26,8 @@
 #include <stdint.h>
 #include <vector>
 
-namespace ns3 {
+namespace ns3
+{
 
 /**
  * \brief holds a vector of ns3::Application pointers.
@@ -41,34 +42,34 @@ namespace ns3 {
  */
 class ApplicationContainer
 {
-public:
-  /**
+  public:
+    /**
      * Create an empty ApplicationContainer.
      */
-  ApplicationContainer ();
+    ApplicationContainer();
 
-  /**
+    /**
      * Create an ApplicationContainer with exactly one application which has
      * been previously instantiated.  The single application is specified
      * by a smart pointer.
      *
      * \param application The Ptr<Application> to add to the container.
      */
-  ApplicationContainer (Ptr<Application> application);
+    ApplicationContainer(Ptr<Application> application);
 
-  /**
+    /**
      * Create an ApplicationContainer with exactly one application which has
      * been previously instantiated and assigned a name using the Object Name
      * Service.  This Application is then specified by its assigned name.
      *
      * \param name The name of the Application Object to add to the container.
      */
-  ApplicationContainer (std::string name);
+    ApplicationContainer(std::string name);
 
-  /// Application container iterator
-  typedef std::vector<Ptr<Application>>::const_iterator Iterator;
+    /// Application container iterator
+    typedef std::vector<Ptr<Application>>::const_iterator Iterator;
 
-  /**
+    /**
      * \brief Get an iterator which refers to the first Application in the
      * container.
      *
@@ -87,9 +88,9 @@ public:
      *
      * \returns an iterator which refers to the first Application in the container.
      */
-  Iterator Begin () const;
+    Iterator Begin() const;
 
-  /**
+    /**
      * \brief Get an iterator which indicates past-the-last Application in the
      * container.
      *
@@ -108,9 +109,9 @@ public:
      *
      * \returns an iterator which indicates an ending condition for a loop.
      */
-  Iterator End () const;
+    Iterator End() const;
 
-  /**
+    /**
      * \brief Get the number of Ptr<Application> stored in this container.
      *
      * Applications can be retrieved from the container in two ways.  First,
@@ -130,16 +131,16 @@ public:
      *
      * \returns the number of Ptr<Application> stored in this container.
      */
-  uint32_t GetN () const;
+    uint32_t GetN() const;
 
-  /**
+    /**
      * \brief Get the Ptr<Application> stored in this container at a given
      * index.
      *
      * Applications can be retrieved from the container in two ways.  First,
      * directly by an index into the container, and second, using an iterator.
      * This method is used in the direct method and is used to retrieve the
-     * indexed Ptr<Appliation>.
+     * indexed Ptr<Application>.
      *
      * \code
      *   uint32_t nApplications = container.GetN ();
@@ -153,32 +154,32 @@ public:
      * \param i the index of the requested application pointer.
      * \returns the requested application pointer.
      */
-  Ptr<Application> Get (uint32_t i) const;
+    Ptr<Application> Get(uint32_t i) const;
 
-  /**
+    /**
      * \brief Append the contents of another ApplicationContainer to the end of
      * this container.
      *
      * \param other The ApplicationContainer to append.
      */
-  void Add (ApplicationContainer other);
+    void Add(ApplicationContainer other);
 
-  /**
+    /**
      * \brief Append a single Ptr<Application> to this container.
      *
      * \param application The Ptr<Application> to append.
      */
-  void Add (Ptr<Application> application);
+    void Add(Ptr<Application> application);
 
-  /**
+    /**
      * \brief Append to this container the single Ptr<Application> referred to
      * via its object name service registered name.
      *
      * \param name The name of the Application Object to add to the container.
      */
-  void Add (std::string name);
+    void Add(std::string name);
 
-  /**
+    /**
      * \brief Start all of the Applications in this container at the start time
      * given as a parameter.
      *
@@ -192,9 +193,9 @@ public:
      *
      * \param start The Time at which each of the applications should start.
      */
-  void Start (Time start);
+    void Start(Time start) const;
 
-  /**
+    /**
      * \brief Start all of the Applications in this container at the start time
      * given as a parameter, plus some jitter.
      *
@@ -205,9 +206,9 @@ public:
      * \param start The Time at which each of the applications should start.
      * \param rv The random variable that adds jitter (units of seconds)
      */
-  void StartWithJitter (Time start, Ptr<RandomVariableStream> rv);
+    void StartWithJitter(Time start, Ptr<RandomVariableStream> rv) const;
 
-  /**
+    /**
      * \brief Arrange for all of the Applications in this container to Stop()
      * at the Time given as a parameter.
      *
@@ -221,10 +222,10 @@ public:
      *
      * \param stop The Time at which each of the applications should stop.
      */
-  void Stop (Time stop);
+    void Stop(Time stop) const;
 
-private:
-  std::vector<Ptr<Application>> m_applications; //!< Applications smart pointers
+  private:
+    std::vector<Ptr<Application>> m_applications; //!< Applications smart pointers
 };
 
 } // namespace ns3

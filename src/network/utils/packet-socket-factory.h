@@ -21,7 +21,8 @@
 
 #include "ns3/socket-factory.h"
 
-namespace ns3 {
+namespace ns3
+{
 
 class Socket;
 
@@ -33,21 +34,21 @@ class Socket;
  */
 class PacketSocketFactory : public SocketFactory
 {
-public:
-  /**
+  public:
+    /**
      * \brief Get the type ID.
      * \return the object TypeId
      */
-  static TypeId GetTypeId ();
+    static TypeId GetTypeId();
 
-  PacketSocketFactory ();
+    PacketSocketFactory();
 
-  /**
+    /**
      * Creates a PacketSocket and returns a pointer to it.
      *
      * \return a pointer to the created socket
      */
-  Ptr<Socket> CreateSocket () override;
+    Ptr<Socket> CreateSocket() override;
 };
 
 } // namespace ns3

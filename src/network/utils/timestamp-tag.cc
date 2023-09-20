@@ -23,66 +23,68 @@
 #include "ns3/type-id.h"
 #include "ns3/uinteger.h"
 
-namespace ns3 {
+namespace ns3
+{
 
-NS_OBJECT_ENSURE_REGISTERED (TimestampTag);
+NS_OBJECT_ENSURE_REGISTERED(TimestampTag);
 
-TimestampTag::TimestampTag () = default;
+TimestampTag::TimestampTag() = default;
 
-TimestampTag::TimestampTag (Time timestamp) : m_timestamp (timestamp)
+TimestampTag::TimestampTag(Time timestamp)
+    : m_timestamp(timestamp)
 {
 }
 
 TypeId
-TimestampTag::GetTypeId ()
+TimestampTag::GetTypeId()
 {
-  static TypeId tid = TypeId ("ns3::TimestampTag")
-                          .SetParent<Tag> ()
-                          .SetGroupName ("Network")
-                          .AddConstructor<TimestampTag> ();
-  return tid;
+    static TypeId tid = TypeId("ns3::TimestampTag")
+                            .SetParent<Tag>()
+                            .SetGroupName("Network")
+                            .AddConstructor<TimestampTag>();
+    return tid;
 }
 
 TypeId
-TimestampTag::GetInstanceTypeId () const
+TimestampTag::GetInstanceTypeId() const
 {
-  return GetTypeId ();
+    return GetTypeId();
 }
 
 uint32_t
-TimestampTag::GetSerializedSize () const
+TimestampTag::GetSerializedSize() const
 {
-  return 8;
+    return 8;
 }
 
 void
-TimestampTag::Serialize (TagBuffer i) const
+TimestampTag::Serialize(TagBuffer i) const
 {
-  i.WriteU64 (m_timestamp.GetTimeStep ());
+    i.WriteU64(m_timestamp.GetTimeStep());
 }
 
 void
-TimestampTag::Deserialize (TagBuffer i)
+TimestampTag::Deserialize(TagBuffer i)
 {
-  m_timestamp = TimeStep (i.ReadU64 ());
+    m_timestamp = TimeStep(i.ReadU64());
 }
 
 void
-TimestampTag::Print (std::ostream &os) const
+TimestampTag::Print(std::ostream& os) const
 {
-  os << "timestamp=" << m_timestamp.As (Time::S);
+    os << "timestamp=" << m_timestamp.As(Time::S);
 }
 
 Time
-TimestampTag::GetTimestamp () const
+TimestampTag::GetTimestamp() const
 {
-  return m_timestamp;
+    return m_timestamp;
 }
 
 void
-TimestampTag::SetTimestamp (Time timestamp)
+TimestampTag::SetTimestamp(Time timestamp)
 {
-  m_timestamp = timestamp;
+    m_timestamp = timestamp;
 }
 
 } // namespace ns3

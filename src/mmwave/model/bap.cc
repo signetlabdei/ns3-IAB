@@ -200,8 +200,19 @@ Bap::DoTransmitBapPdu (Ptr<Packet> p, uint16_t destBapAddress, uint16_t pathId)
 {
   NS_LOG_FUNCTION (this);
 
-  NS_ASSERT (!m_nextHopAddressCallback.IsNull ());
-  auto [nextHopAddress, mode] = m_nextHopAddressCallback (m_localAddress, destBapAddress, pathId);
+  uint16_t nextHopAddress;
+  Mode mode;
+
+  if (m_epcEnbApplication) // If this is a Donor
+  {
+    std::tie(nextHopAddress, mode) = m_epcEnbApplication->GetNexBapPathHop (m_localAddress, destBapAddress, pathId);
+  }
+  else
+  {
+    NS_ASSERT (!m_nextHopAddressCallback.IsNull ());
+    std::tie(nextHopAddress, mode) = m_nextHopAddressCallback (m_localAddress, destBapAddress, pathId);
+  }
+
 
   NS_ASSERT (m_bapAddressRlcMap.find (nextHopAddress) !=
              m_bapAddressRlcMap.end ());
@@ -230,17 +241,25 @@ Bap::DoReceiveBapSdu (Ptr<Packet> p, bool isFromNonPduInterface, BapHeader heade
       // Forward to the inner PDCP to remove the IP, UDP and GTP headers
       m_innerPdcp->DoReceiveInnerPdcpPdu (p);
     }
-  else
+    else
     {
-      // Retrieve the IMSI of the sending IAB node
-      auto imsi = m_epcEnbApplication->GetIabNodeImsiFromPathIdAndOtherEndpoint (
-          m_localAddress, header.GetPathId ());
+      if (m_isDonor)
+      {
+          // Retrieve the IMSI of the sending IAB node
+          auto imsi =
+              m_epcEnbApplication->GetIabNodeImsiFromPathIdAndOtherEndpoint(m_localAddress,
+                                                                            header.GetPathId());
 
-      // Default to default DRB for now
-      uint32_t teid = imsi * 11 + 2; //TODO: retrieve this using TFT classifiers
+          // Default to default DRB for now
+          uint32_t teid = imsi * 11 + 2; // TODO: retrieve this using TFT classifiers
 
-      // Forwards to the S1-U interface
-      m_epcEnbApplication->SendToS1uSocket (p, teid);
+          // Forwards to the S1-U interface
+          m_epcEnbApplication->SendToS1uSocket(p, teid);
+      }
+      else
+      {
+          m_iabMtRrc->DoReceiveBapSdu(p);
+      }
     }
 }
 
@@ -283,15 +302,25 @@ Bap::SetInnerPdcp (Ptr<InnerPdcp> innerPdcp)
 }
 
 void
-Bap::TransmitBapSduViaNonPduInterface (Ptr<Packet> p)
+Bap::TransmitBapSduViaNonPduInterface (Ptr<Packet> p, uint16_t destBapAddress)
 {
   NS_LOG_FUNCTION (this);
-  uint16_t destBapAddress = m_donorBapAddressCallback (m_imsi);
+
+  uint16_t pathId;
+
+  if (m_epcEnbApplication) // If this is a Donor
+  {
+    pathId = m_epcEnbApplication->GetPathId (m_localAddress, destBapAddress);
+  }
+  else
+  {
+    destBapAddress = m_donorBapAddressCallback (m_imsi);
+    pathId = m_pathIdCallback (m_localAddress, destBapAddress);
+  }
 
   BapHeader bapHeader;
   bapHeader.SetDestinationAddress (destBapAddress);
 
-  uint16_t pathId = m_pathIdCallback (m_localAddress, destBapAddress);
   bapHeader.SetPathId (pathId);
   bapHeader.SetDcField (BapHeader::BapDcField::Data);
   bapHeader.SetReservedBits (1, // Non PDU Session bit flag
@@ -322,4 +351,10 @@ Bap::SetEpcEnbApplication (Ptr<EpcEnbApplication> app)
   m_epcEnbApplication = app;
 }
 
+void
+Bap::SetMtRrc (Ptr<LteUeRrc> mtRrc)
+{
+  NS_LOG_FUNCTION(this);
+  m_iabMtRrc = mtRrc;
+}
 } // namespace ns3

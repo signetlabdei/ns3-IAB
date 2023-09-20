@@ -26,7 +26,8 @@
 
 #include <stdint.h>
 
-namespace ns3 {
+namespace ns3
+{
 
 /**
  * \ingroup address
@@ -35,105 +36,105 @@ namespace ns3 {
  */
 class Inet6SocketAddress
 {
-public:
-  /**
+  public:
+    /**
      * \brief Constructor.
      * \param ipv6 the IPv6 address
      * \param port the port
      */
-  Inet6SocketAddress (Ipv6Address ipv6, uint16_t port);
+    Inet6SocketAddress(Ipv6Address ipv6, uint16_t port);
 
-  /**
+    /**
      * \brief Constructor (the port is set to zero).
      * \param ipv6 the IPv6 address
      */
-  Inet6SocketAddress (Ipv6Address ipv6);
+    Inet6SocketAddress(Ipv6Address ipv6);
 
-  /**
+    /**
      * \brief Constructor (the address is set to "any").
      * \param port the port
      */
-  Inet6SocketAddress (uint16_t port);
+    Inet6SocketAddress(uint16_t port);
 
-  /**
+    /**
      * \brief Constructor.
      * \param ipv6 string which represents an IPv6 address
      * \param port the port
      */
-  Inet6SocketAddress (const char *ipv6, uint16_t port);
+    Inet6SocketAddress(const char* ipv6, uint16_t port);
 
-  /**
+    /**
      * \brief Constructor.
      * \param ipv6 string which represents an IPv6 address
      */
-  Inet6SocketAddress (const char *ipv6);
+    Inet6SocketAddress(const char* ipv6);
 
-  /**
+    /**
      * \brief Get the port.
      * \return the port
      */
-  uint16_t GetPort () const;
+    uint16_t GetPort() const;
 
-  /**
+    /**
      * \brief Set the port
      * \param port the port
      */
-  void SetPort (uint16_t port);
+    void SetPort(uint16_t port);
 
-  /**
+    /**
      * \brief Get the IPv6 address.
      * \return the IPv6 address
      */
-  Ipv6Address GetIpv6 () const;
+    Ipv6Address GetIpv6() const;
 
-  /**
+    /**
      * \brief Set the IPv6 address.
      * \param ipv6 the address
      */
-  void SetIpv6 (Ipv6Address ipv6);
+    void SetIpv6(Ipv6Address ipv6);
 
-  /**
+    /**
      * \brief If the address match.
      * \param addr the address to test
      * \return true if the address match, false otherwise
      */
-  static bool IsMatchingType (const Address &addr);
+    static bool IsMatchingType(const Address& addr);
 
-  /**
+    /**
      * \brief Get an Address instance which represents this
      * Inet6SocketAddress instance.
      */
-  operator Address () const;
+    operator Address() const;
 
-  /**
+    /**
      * \brief Convert the address to a InetSocketAddress.
      * \param addr the address to convert
      * \return an Inet6SocketAddress instance corresponding to address
      */
-  static Inet6SocketAddress ConvertFrom (const Address &addr);
+    static Inet6SocketAddress ConvertFrom(const Address& addr);
 
-  /**
+    /**
      * \brief Convert to Address.
      * \return Address instance
      */
-  Address ConvertTo () const;
+    Address ConvertTo() const;
 
-private:
-  /**
+  private:
+    /**
      * \brief Get the type.
      * \return the type of Inet6SocketAddress
      */
-  static uint8_t GetType ();
+    static uint8_t GetType();
 
-  /**
+    /**
      * \brief The IPv6 address.
      */
-  Ipv6Address m_ipv6;
+    Ipv6Address m_ipv6;
 
-  /**
+    /**
      * \brief The port.
      */
-  uint16_t m_port;
+    uint16_t m_port;
 };
 
 } /* namespace ns3 */

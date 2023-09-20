@@ -29,7 +29,8 @@
 #include "ns3/random-variable-stream.h"
 #include "ns3/rectangle.h"
 
-namespace ns3 {
+namespace ns3
+{
 
 /**
  * \ingroup mobility
@@ -43,45 +44,45 @@ namespace ns3 {
  */
 class RandomDirection2dMobilityModel : public MobilityModel
 {
-public:
-  /**
+  public:
+    /**
      * Register this type with the TypeId system.
      * \return the object TypeId
      */
-  static TypeId GetTypeId ();
-  RandomDirection2dMobilityModel ();
+    static TypeId GetTypeId();
+    RandomDirection2dMobilityModel();
 
-private:
-  /**
+  private:
+    /**
      * Set a new direction and speed
      */
-  void ResetDirectionAndSpeed ();
-  /**
+    void ResetDirectionAndSpeed();
+    /**
      * Pause, cancel currently scheduled event, schedule end of pause event
      */
-  void BeginPause ();
-  /**
+    void BeginPause();
+    /**
      * Set new velocity and direction, and schedule next pause event
      * \param direction (radians)
      */
-  void SetDirectionAndSpeed (double direction);
-  /**
+    void SetDirectionAndSpeed(double direction);
+    /**
      * Sets a new random direction and calls SetDirectionAndSpeed
      */
-  void DoInitializePrivate ();
-  void DoDispose () override;
-  void DoInitialize () override;
-  Vector DoGetPosition () const override;
-  void DoSetPosition (const Vector &position) override;
-  Vector DoGetVelocity () const override;
-  int64_t DoAssignStreams (int64_t) override;
+    void DoInitializePrivate();
+    void DoDispose() override;
+    void DoInitialize() override;
+    Vector DoGetPosition() const override;
+    void DoSetPosition(const Vector& position) override;
+    Vector DoGetVelocity() const override;
+    int64_t DoAssignStreams(int64_t) override;
 
-  Ptr<UniformRandomVariable> m_direction; //!< rv to control direction
-  Rectangle m_bounds; //!< the 2D bounding area
-  Ptr<RandomVariableStream> m_speed; //!< a random variable to control speed
-  Ptr<RandomVariableStream> m_pause; //!< a random variable to control pause
-  EventId m_event; //!< event ID of next scheduled event
-  ConstantVelocityHelper m_helper; //!< helper for velocity computations
+    Ptr<UniformRandomVariable> m_direction; //!< rv to control direction
+    Rectangle m_bounds;                     //!< the 2D bounding area
+    Ptr<RandomVariableStream> m_speed;      //!< a random variable to control speed
+    Ptr<RandomVariableStream> m_pause;      //!< a random variable to control pause
+    EventId m_event;                        //!< event ID of next scheduled event
+    ConstantVelocityHelper m_helper;        //!< helper for velocity computations
 };
 
 } // namespace ns3

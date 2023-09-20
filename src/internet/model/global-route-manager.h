@@ -23,7 +23,8 @@
 
 #include <cstdint>
 
-namespace ns3 {
+namespace ns3
+{
 
 /**
  * \ingroup globalrouting
@@ -40,35 +41,35 @@ namespace ns3 {
  */
 class GlobalRouteManager
 {
-public:
-  // Delete copy constructor and assignment operator to avoid misuse
-  GlobalRouteManager (const GlobalRouteManager &) = delete;
-  GlobalRouteManager &operator= (const GlobalRouteManager &) = delete;
+  public:
+    // Delete copy constructor and assignment operator to avoid misuse
+    GlobalRouteManager(const GlobalRouteManager&) = delete;
+    GlobalRouteManager& operator=(const GlobalRouteManager&) = delete;
 
-  /**
+    /**
      * @brief Allocate a 32-bit router ID from monotonically increasing counter.
      * @returns A new new RouterId.
      */
-  static uint32_t AllocateRouterId ();
+    static uint32_t AllocateRouterId();
 
-  /**
+    /**
      * @brief Delete all static routes on all nodes that have a
      * GlobalRouterInterface
      *
      */
-  static void DeleteGlobalRoutes ();
+    static void DeleteGlobalRoutes();
 
-  /**
+    /**
      * @brief Build the routing database by gathering Link State Advertisements
      * from each node exporting a GlobalRouter interface.
      */
-  static void BuildGlobalRoutingDatabase ();
+    static void BuildGlobalRoutingDatabase();
 
-  /**
+    /**
      * @brief Compute routes using a Dijkstra SPF computation and populate
      * per-node forwarding tables
      */
-  static void InitializeRoutes ();
+    static void InitializeRoutes();
 };
 
 } // namespace ns3

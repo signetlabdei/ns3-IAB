@@ -21,22 +21,23 @@
 
 #include "ns3/log.h"
 
-namespace ns3 {
+namespace ns3
+{
 
-NS_LOG_COMPONENT_DEFINE ("NetDevice");
+NS_LOG_COMPONENT_DEFINE("NetDevice");
 
-NS_OBJECT_ENSURE_REGISTERED (NetDevice);
+NS_OBJECT_ENSURE_REGISTERED(NetDevice);
 
 TypeId
-NetDevice::GetTypeId ()
+NetDevice::GetTypeId()
 {
-  static TypeId tid = TypeId ("ns3::NetDevice").SetParent<Object> ().SetGroupName ("Network");
-  return tid;
+    static TypeId tid = TypeId("ns3::NetDevice").SetParent<Object>().SetGroupName("Network");
+    return tid;
 }
 
-NetDevice::~NetDevice ()
+NetDevice::~NetDevice()
 {
-  NS_LOG_FUNCTION (this);
+    NS_LOG_FUNCTION(this);
 }
 
 } // namespace ns3

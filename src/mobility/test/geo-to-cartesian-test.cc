@@ -21,7 +21,7 @@
 #include <ns3/log.h>
 #include <ns3/test.h>
 
-NS_LOG_COMPONENT_DEFINE ("GeoToCartesianTest");
+NS_LOG_COMPONENT_DEFINE("GeoToCartesianTest");
 
 using namespace ns3;
 
@@ -1486,12 +1486,12 @@ const double ZWGS84_MATLAB[216] = {
 
 /**
  * \ingroup mobility
+ * \ingroup tests
  * \defgroup mobility-test mobility module tests
  */
 
 /**
  * \ingroup mobility-test
- * \ingroup tests
  *
  * \brief Geo To Cartesian Test Case
  *
@@ -1508,8 +1508,8 @@ const double ZWGS84_MATLAB[216] = {
  */
 class GeoToCartesianTestCase : public TestCase
 {
-public:
-  /**
+  public:
+    /**
      * Constructor
      *
      * \param latitude latitude (deg)
@@ -1518,14 +1518,17 @@ public:
      * \param sphType sphere type
      * \param i index
      */
-  GeoToCartesianTestCase (double latitude, double longitude, double altitude,
-                          GeographicPositions::EarthSpheroidType sphType, int i);
-  ~GeoToCartesianTestCase () override;
+    GeoToCartesianTestCase(double latitude,
+                           double longitude,
+                           double altitude,
+                           GeographicPositions::EarthSpheroidType sphType,
+                           int i);
+    ~GeoToCartesianTestCase() override;
 
-private:
-  void DoRun () override;
+  private:
+    void DoRun() override;
 
-  /**
+    /**
      * Name function
      * \param latitude the latitude (deg)
      * \param longitude the longitude (deg)
@@ -1533,119 +1536,144 @@ private:
      * \param sphType the sphere type
      * \returns the name string
      */
-  static std::string Name (double latitude, double longitude, double altitude,
-                           GeographicPositions::EarthSpheroidType sphType);
-  double m_latitude; ///< latitude (deg)
-  double m_longitude; ///< longitude (deg)
-  double m_altitude; ///< altitude (m)
-  GeographicPositions::EarthSpheroidType m_sphType; ///< spheroid type
-  int m_i; ///< index
+    static std::string Name(double latitude,
+                            double longitude,
+                            double altitude,
+                            GeographicPositions::EarthSpheroidType sphType);
+    double m_latitude;                                ///< latitude (deg)
+    double m_longitude;                               ///< longitude (deg)
+    double m_altitude;                                ///< altitude (m)
+    GeographicPositions::EarthSpheroidType m_sphType; ///< spheroid type
+    int m_i;                                          ///< index
 };
 
 std::string
-GeoToCartesianTestCase::Name (double latitude, double longitude, double altitude,
-                              GeographicPositions::EarthSpheroidType sphType)
+GeoToCartesianTestCase::Name(double latitude,
+                             double longitude,
+                             double altitude,
+                             GeographicPositions::EarthSpheroidType sphType)
 {
-  std::ostringstream oss;
-  oss << "Geo->Cart: "
-      << "LAT-LON-ALT-SPHEROID = " << latitude << " deg - " << longitude << " deg - " << altitude
-      << " m - ";
-  switch (sphType)
+    std::ostringstream oss;
+    oss << "Geo->Cart: "
+        << "LAT-LON-ALT-SPHEROID = " << latitude << " deg - " << longitude << " deg - " << altitude
+        << " m - ";
+    switch (sphType)
     {
     case GeographicPositions::SPHERE:
-      oss << "SPHERE";
-      break;
+        oss << "SPHERE";
+        break;
     case GeographicPositions::GRS80:
-      oss << "GRS80";
-      break;
+        oss << "GRS80";
+        break;
     case GeographicPositions::WGS84:
-      oss << "WGS84";
-      break;
+        oss << "WGS84";
+        break;
     };
 
-  return oss.str ();
+    return oss.str();
 }
 
-GeoToCartesianTestCase::GeoToCartesianTestCase (double latitude, double longitude, double altitude,
-                                                GeographicPositions::EarthSpheroidType sphType,
-                                                int i)
-    : TestCase (Name (latitude, longitude, altitude, sphType)),
-      m_latitude (latitude),
-      m_longitude (longitude),
-      m_altitude (altitude),
-      m_sphType (sphType),
-      m_i (i)
+GeoToCartesianTestCase::GeoToCartesianTestCase(double latitude,
+                                               double longitude,
+                                               double altitude,
+                                               GeographicPositions::EarthSpheroidType sphType,
+                                               int i)
+    : TestCase(Name(latitude, longitude, altitude, sphType)),
+      m_latitude(latitude),
+      m_longitude(longitude),
+      m_altitude(altitude),
+      m_sphType(sphType),
+      m_i(i)
 {
 }
 
-GeoToCartesianTestCase::~GeoToCartesianTestCase ()
+GeoToCartesianTestCase::~GeoToCartesianTestCase()
 {
 }
 
 void
-GeoToCartesianTestCase::DoRun ()
+GeoToCartesianTestCase::DoRun()
 {
-  Vector cart = GeographicPositions::GeographicToCartesianCoordinates (m_latitude, m_longitude,
-                                                                       m_altitude, m_sphType);
-  if (m_sphType == GeographicPositions::SPHERE)
+    Vector cart = GeographicPositions::GeographicToCartesianCoordinates(m_latitude,
+                                                                        m_longitude,
+                                                                        m_altitude,
+                                                                        m_sphType);
+    if (m_sphType == GeographicPositions::SPHERE)
     {
-      NS_TEST_ASSERT_MSG_EQ_TOL (cart.x, XSPHERE_MATLAB[m_i], TOLERANCE,
-                                 "x coordinate (" << cart.x
-                                                  << ") is incorrect "
-                                                     "for perfect sphere model in iteration "
-                                                  << m_i);
-      NS_TEST_ASSERT_MSG_EQ_TOL (cart.y, YSPHERE_MATLAB[m_i], TOLERANCE,
-                                 "y coordinate (" << cart.y
-                                                  << ") is incorrect "
-                                                     "for perfect sphere model in iteration "
-                                                  << m_i);
-      NS_TEST_ASSERT_MSG_EQ_TOL (cart.z, ZSPHERE_MATLAB[m_i], TOLERANCE,
-                                 "z coordinate (" << cart.z
-                                                  << ") is incorrect "
-                                                     "for perfect sphere model in iteration "
-                                                  << m_i);
+        NS_TEST_ASSERT_MSG_EQ_TOL(cart.x,
+                                  XSPHERE_MATLAB[m_i],
+                                  TOLERANCE,
+                                  "x coordinate (" << cart.x
+                                                   << ") is incorrect "
+                                                      "for perfect sphere model in iteration "
+                                                   << m_i);
+        NS_TEST_ASSERT_MSG_EQ_TOL(cart.y,
+                                  YSPHERE_MATLAB[m_i],
+                                  TOLERANCE,
+                                  "y coordinate (" << cart.y
+                                                   << ") is incorrect "
+                                                      "for perfect sphere model in iteration "
+                                                   << m_i);
+        NS_TEST_ASSERT_MSG_EQ_TOL(cart.z,
+                                  ZSPHERE_MATLAB[m_i],
+                                  TOLERANCE,
+                                  "z coordinate (" << cart.z
+                                                   << ") is incorrect "
+                                                      "for perfect sphere model in iteration "
+                                                   << m_i);
     }
-  else if (m_sphType == GeographicPositions::GRS80)
+    else if (m_sphType == GeographicPositions::GRS80)
     {
-      NS_TEST_ASSERT_MSG_EQ_TOL (cart.x, XGRS80_MATLAB[m_i], TOLERANCE,
-                                 "x coordinate (" << cart.x
-                                                  << ") is incorrect "
-                                                     "for GRS80 model in iteration "
-                                                  << m_i);
-      NS_TEST_ASSERT_MSG_EQ_TOL (cart.y, YGRS80_MATLAB[m_i], TOLERANCE,
-                                 "y coordinate (" << cart.y
-                                                  << ") is incorrect "
-                                                     "for GRS80 model in iteration "
-                                                  << m_i);
-      NS_TEST_ASSERT_MSG_EQ_TOL (cart.z, ZGRS80_MATLAB[m_i], TOLERANCE,
-                                 "z coordinate (" << cart.z
-                                                  << ") is incorrect "
-                                                     "for GRS80 model in iteration "
-                                                  << m_i);
+        NS_TEST_ASSERT_MSG_EQ_TOL(cart.x,
+                                  XGRS80_MATLAB[m_i],
+                                  TOLERANCE,
+                                  "x coordinate (" << cart.x
+                                                   << ") is incorrect "
+                                                      "for GRS80 model in iteration "
+                                                   << m_i);
+        NS_TEST_ASSERT_MSG_EQ_TOL(cart.y,
+                                  YGRS80_MATLAB[m_i],
+                                  TOLERANCE,
+                                  "y coordinate (" << cart.y
+                                                   << ") is incorrect "
+                                                      "for GRS80 model in iteration "
+                                                   << m_i);
+        NS_TEST_ASSERT_MSG_EQ_TOL(cart.z,
+                                  ZGRS80_MATLAB[m_i],
+                                  TOLERANCE,
+                                  "z coordinate (" << cart.z
+                                                   << ") is incorrect "
+                                                      "for GRS80 model in iteration "
+                                                   << m_i);
     }
-  else // if m_sphType == GeographicPositions::WGS84
+    else // if m_sphType == GeographicPositions::WGS84
     {
-      NS_TEST_ASSERT_MSG_EQ_TOL (cart.x, XWGS84_MATLAB[m_i], TOLERANCE,
-                                 "x coordinate (" << cart.x
-                                                  << ") is incorrect "
-                                                     "for WGS84 model in iteration "
-                                                  << m_i);
-      NS_TEST_ASSERT_MSG_EQ_TOL (cart.y, YWGS84_MATLAB[m_i], TOLERANCE,
-                                 "y coordinate (" << cart.y
-                                                  << ") is incorrect "
-                                                     "for WGS84 model in iteration "
-                                                  << m_i);
-      NS_TEST_ASSERT_MSG_EQ_TOL (cart.z, ZWGS84_MATLAB[m_i], TOLERANCE,
-                                 "z coordinate (" << cart.z
-                                                  << ") is incorrect "
-                                                     "for WGS84 model in iteration "
-                                                  << m_i);
+        NS_TEST_ASSERT_MSG_EQ_TOL(cart.x,
+                                  XWGS84_MATLAB[m_i],
+                                  TOLERANCE,
+                                  "x coordinate (" << cart.x
+                                                   << ") is incorrect "
+                                                      "for WGS84 model in iteration "
+                                                   << m_i);
+        NS_TEST_ASSERT_MSG_EQ_TOL(cart.y,
+                                  YWGS84_MATLAB[m_i],
+                                  TOLERANCE,
+                                  "y coordinate (" << cart.y
+                                                   << ") is incorrect "
+                                                      "for WGS84 model in iteration "
+                                                   << m_i);
+        NS_TEST_ASSERT_MSG_EQ_TOL(cart.z,
+                                  ZWGS84_MATLAB[m_i],
+                                  TOLERANCE,
+                                  "z coordinate (" << cart.z
+                                                   << ") is incorrect "
+                                                      "for WGS84 model in iteration "
+                                                   << m_i);
     }
 }
 
 /**
  * \ingroup mobility-test
- * \ingroup tests
  *
  * \brief Cartesian to Geo Test Case
  *
@@ -1658,8 +1686,8 @@ GeoToCartesianTestCase::DoRun ()
  */
 class CartesianToGeoTestCase : public TestCase
 {
-public:
-  /**
+  public:
+    /**
      * Constructor
      *
      * \param latitude latitude (deg)
@@ -1668,14 +1696,17 @@ public:
      * \param sphType sphere type
      * \param i index
      */
-  CartesianToGeoTestCase (double latitude, double longitude, double altitude,
-                          GeographicPositions::EarthSpheroidType sphType, int i);
-  ~CartesianToGeoTestCase () override;
+    CartesianToGeoTestCase(double latitude,
+                           double longitude,
+                           double altitude,
+                           GeographicPositions::EarthSpheroidType sphType,
+                           int i);
+    ~CartesianToGeoTestCase() override;
 
-private:
-  void DoRun () override;
+  private:
+    void DoRun() override;
 
-  /**
+    /**
      * Name function
      * \param latitude the latitude (deg)
      * \param longitude the longitude (deg)
@@ -1683,138 +1714,168 @@ private:
      * \param sphType the sphere type
      * \returns the name string
      */
-  static std::string Name (double latitude, double longitude, double altitude,
-                           GeographicPositions::EarthSpheroidType sphType);
-  double m_latitude; ///< latitude (deg)
-  double m_longitude; ///< longitude (deg)
-  double m_altitude; ///< altitude (m)
-  GeographicPositions::EarthSpheroidType m_sphType; ///< spheroid type
+    static std::string Name(double latitude,
+                            double longitude,
+                            double altitude,
+                            GeographicPositions::EarthSpheroidType sphType);
+    double m_latitude;                                ///< latitude (deg)
+    double m_longitude;                               ///< longitude (deg)
+    double m_altitude;                                ///< altitude (m)
+    GeographicPositions::EarthSpheroidType m_sphType; ///< spheroid type
 };
 
 std::string
-CartesianToGeoTestCase::Name (double latitude, double longitude, double altitude,
-                              GeographicPositions::EarthSpheroidType sphType)
+CartesianToGeoTestCase::Name(double latitude,
+                             double longitude,
+                             double altitude,
+                             GeographicPositions::EarthSpheroidType sphType)
 {
-  std::ostringstream oss;
-  oss << "Cart->Geo: "
-      << "LAT-LON-ALT-SPHEROID = " << latitude << " deg - " << longitude << " deg - " << altitude
-      << " m - ";
-  switch (sphType)
+    std::ostringstream oss;
+    oss << "Cart->Geo: "
+        << "LAT-LON-ALT-SPHEROID = " << latitude << " deg - " << longitude << " deg - " << altitude
+        << " m - ";
+    switch (sphType)
     {
     case GeographicPositions::SPHERE:
-      oss << "SPHERE";
-      break;
+        oss << "SPHERE";
+        break;
     case GeographicPositions::GRS80:
-      oss << "GRS80";
-      break;
+        oss << "GRS80";
+        break;
     case GeographicPositions::WGS84:
-      oss << "WGS84";
-      break;
+        oss << "WGS84";
+        break;
     };
 
-  return oss.str ();
+    return oss.str();
 }
 
-CartesianToGeoTestCase::CartesianToGeoTestCase (double latitude, double longitude, double altitude,
-                                                GeographicPositions::EarthSpheroidType sphType,
-                                                int i)
-    : TestCase (Name (latitude, longitude, altitude, sphType)),
-      m_latitude (latitude),
-      m_longitude (longitude),
-      m_altitude (altitude),
-      m_sphType (sphType)
+CartesianToGeoTestCase::CartesianToGeoTestCase(double latitude,
+                                               double longitude,
+                                               double altitude,
+                                               GeographicPositions::EarthSpheroidType sphType,
+                                               int i)
+    : TestCase(Name(latitude, longitude, altitude, sphType)),
+      m_latitude(latitude),
+      m_longitude(longitude),
+      m_altitude(altitude),
+      m_sphType(sphType)
 {
 }
 
-CartesianToGeoTestCase::~CartesianToGeoTestCase ()
+CartesianToGeoTestCase::~CartesianToGeoTestCase()
 {
 }
 
 void
-CartesianToGeoTestCase::DoRun ()
+CartesianToGeoTestCase::DoRun()
 {
-  Vector cart = GeographicPositions::GeographicToCartesianCoordinates (m_latitude, m_longitude,
-                                                                       m_altitude, m_sphType);
-  Vector geo = GeographicPositions::CartesianToGeographicCoordinates (cart, m_sphType);
+    Vector cart = GeographicPositions::GeographicToCartesianCoordinates(m_latitude,
+                                                                        m_longitude,
+                                                                        m_altitude,
+                                                                        m_sphType);
+    Vector geo = GeographicPositions::CartesianToGeographicCoordinates(cart, m_sphType);
 
-  // geographic coords are ambiguous due to angular wrapping, convert to
-  // rectangular for comparison
-  Vector geocart =
-      GeographicPositions::GeographicToCartesianCoordinates (geo.x, geo.y, geo.z, m_sphType);
+    // geographic coords are ambiguous due to angular wrapping, convert to
+    // rectangular for comparison
+    Vector geocart =
+        GeographicPositions::GeographicToCartesianCoordinates(geo.x, geo.y, geo.z, m_sphType);
 
-  NS_TEST_ASSERT_MSG_LT_OR_EQ (CalculateDistance (cart, geocart),
-                               2.5, // minimum passing tolerance (m)
-                               "Double conversion out-of-tolerance: "
-                                   << geo << " <> "
-                                   << Vector ({m_latitude, m_longitude, m_altitude}));
+    NS_TEST_ASSERT_MSG_LT_OR_EQ(CalculateDistance(cart, geocart),
+                                2.5, // minimum passing tolerance (m)
+                                "Double conversion out-of-tolerance: "
+                                    << geo << " <> "
+                                    << Vector({m_latitude, m_longitude, m_altitude}));
 }
 
 /**
  * \ingroup mobility-test
- * \ingroup tests
  *
  * \brief Geo To Cartesian Test Suite
  */
 class GeoToCartesianTestSuite : public TestSuite
 {
-public:
-  GeoToCartesianTestSuite ();
+  public:
+    GeoToCartesianTestSuite();
 };
 
-GeoToCartesianTestSuite::GeoToCartesianTestSuite () : TestSuite ("geo-to-cartesian", UNIT)
+GeoToCartesianTestSuite::GeoToCartesianTestSuite()
+    : TestSuite("geo-to-cartesian", UNIT)
 {
-  NS_LOG_INFO ("creating GeoToCartesianTestSuite");
-  int i = 0; // iteration number
-  for (double altitude = 0; altitude <= 1000; altitude += 200)
+    NS_LOG_INFO("creating GeoToCartesianTestSuite");
+    int i = 0; // iteration number
+    for (double altitude = 0; altitude <= 1000; altitude += 200)
     {
-      for (double latitude = 0; latitude <= 360; latitude += 72)
+        for (double latitude = 0; latitude <= 360; latitude += 72)
         {
-          for (double longitude = 0; longitude <= 360; longitude += 72)
+            for (double longitude = 0; longitude <= 360; longitude += 72)
             {
-              AddTestCase (new GeoToCartesianTestCase (latitude, longitude, altitude,
-                                                       GeographicPositions::SPHERE, i),
-                           TestCase::QUICK);
-              AddTestCase (new CartesianToGeoTestCase (latitude, longitude, altitude,
-                                                       GeographicPositions::SPHERE, i),
-                           TestCase::QUICK);
-              ++i;
+                AddTestCase(new GeoToCartesianTestCase(latitude,
+                                                       longitude,
+                                                       altitude,
+                                                       GeographicPositions::SPHERE,
+                                                       i),
+                            TestCase::QUICK);
+                AddTestCase(new CartesianToGeoTestCase(latitude,
+                                                       longitude,
+                                                       altitude,
+                                                       GeographicPositions::SPHERE,
+                                                       i),
+                            TestCase::QUICK);
+                ++i;
             }
         }
     }
-  i = 0;
-  for (double altitude = 0; altitude <= 1000; altitude += 200)
+    i = 0;
+    for (double altitude = 0; altitude <= 1000; altitude += 200)
     {
-      for (double latitude = 0; latitude <= 360; latitude += 72)
+        for (double latitude = 0; latitude <= 360; latitude += 72)
         {
-          for (double longitude = 0; longitude <= 360; longitude += 72)
+            for (double longitude = 0; longitude <= 360; longitude += 72)
             {
-              AddTestCase (new GeoToCartesianTestCase (latitude, longitude, altitude,
-                                                       GeographicPositions::GRS80, i),
-                           TestCase::QUICK);
-              AddTestCase (new CartesianToGeoTestCase (latitude, longitude, altitude,
-                                                       GeographicPositions::GRS80, i),
-                           TestCase::QUICK);
-              ++i;
+                AddTestCase(new GeoToCartesianTestCase(latitude,
+                                                       longitude,
+                                                       altitude,
+                                                       GeographicPositions::GRS80,
+                                                       i),
+                            TestCase::QUICK);
+                AddTestCase(new CartesianToGeoTestCase(latitude,
+                                                       longitude,
+                                                       altitude,
+                                                       GeographicPositions::GRS80,
+                                                       i),
+                            TestCase::QUICK);
+                ++i;
             }
         }
     }
-  i = 0;
-  for (double altitude = 0; altitude <= 1000; altitude += 200)
+    i = 0;
+    for (double altitude = 0; altitude <= 1000; altitude += 200)
     {
-      for (double latitude = 0; latitude <= 360; latitude += 72)
+        for (double latitude = 0; latitude <= 360; latitude += 72)
         {
-          for (double longitude = 0; longitude <= 360; longitude += 72)
+            for (double longitude = 0; longitude <= 360; longitude += 72)
             {
-              AddTestCase (new GeoToCartesianTestCase (latitude, longitude, altitude,
-                                                       GeographicPositions::WGS84, i),
-                           TestCase::QUICK);
-              AddTestCase (new CartesianToGeoTestCase (latitude, longitude, altitude,
-                                                       GeographicPositions::WGS84, i),
-                           TestCase::QUICK);
-              ++i;
+                AddTestCase(new GeoToCartesianTestCase(latitude,
+                                                       longitude,
+                                                       altitude,
+                                                       GeographicPositions::WGS84,
+                                                       i),
+                            TestCase::QUICK);
+                AddTestCase(new CartesianToGeoTestCase(latitude,
+                                                       longitude,
+                                                       altitude,
+                                                       GeographicPositions::WGS84,
+                                                       i),
+                            TestCase::QUICK);
+                ++i;
             }
         }
     }
 }
 
+/**
+ * \ingroup mobility-test
+ * Static variable for test initialization
+ */
 static GeoToCartesianTestSuite g_GeoToCartesianTestSuite;

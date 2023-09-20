@@ -24,7 +24,8 @@
 #include <stdint.h>
 #include <vector>
 
-namespace ns3 {
+namespace ns3
+{
 
 /**
  * \brief holds a vector of ns3::NetDevice pointers
@@ -40,24 +41,24 @@ namespace ns3 {
  */
 class NetDeviceContainer
 {
-public:
-  /// NetDevice container iterator
-  typedef std::vector<Ptr<NetDevice>>::const_iterator Iterator;
+  public:
+    /// NetDevice container iterator
+    typedef std::vector<Ptr<NetDevice>>::const_iterator Iterator;
 
-  /**
+    /**
      * Create an empty NetDeviceContainer.
      */
-  NetDeviceContainer ();
+    NetDeviceContainer();
 
-  /**
+    /**
      * \param dev a device to add to the container
      *
      * Create a NetDeviceContainer with exactly one net device that has previously
      * been instantiated
      */
-  NetDeviceContainer (Ptr<NetDevice> dev);
+    NetDeviceContainer(Ptr<NetDevice> dev);
 
-  /**
+    /**
      * Create a NetDeviceContainer with exactly one device which has been
      * previously instantiated and assigned a name using the Object name
      * service.  This NetDevice is specified by its assigned name.
@@ -66,9 +67,9 @@ public:
      *
      * Create a NetDeviceContainer with exactly one device
      */
-  NetDeviceContainer (std::string devName);
+    NetDeviceContainer(std::string devName);
 
-  /**
+    /**
      * \param a a device container
      * \param b another device container
      *
@@ -83,9 +84,9 @@ public:
      * one may provide optionally provide arguments of Ptr<NetDevice> to these
      * constructors.
      */
-  NetDeviceContainer (const NetDeviceContainer &a, const NetDeviceContainer &b);
+    NetDeviceContainer(const NetDeviceContainer& a, const NetDeviceContainer& b);
 
-  /**
+    /**
      * \brief Get an iterator which refers to the first NetDevice in the
      * container.
      *
@@ -104,9 +105,9 @@ public:
      *
      * \returns an iterator which refers to the first NetDevice in the container.
      */
-  Iterator Begin () const;
+    Iterator Begin() const;
 
-  /**
+    /**
      * \brief Get an iterator which indicates past-the-last NetDevice in the
      * container.
      *
@@ -125,9 +126,9 @@ public:
      *
      * \returns an iterator which indicates an ending condition for a loop.
      */
-  Iterator End () const;
+    Iterator End() const;
 
-  /**
+    /**
      * \brief Get the number of Ptr<NetDevice> stored in this container.
      *
      * NetDevices can be retrieved from the container in two ways.  First,
@@ -147,9 +148,9 @@ public:
      *
      * \returns the number of Ptr<NetDevice> stored in this container.
      */
-  uint32_t GetN () const;
+    uint32_t GetN() const;
 
-  /**
+    /**
      * \brief Get the Ptr<NetDevice> stored in this container at a given
      * index.
      *
@@ -170,33 +171,33 @@ public:
      * \param i the index of the requested device pointer.
      * \returns the requested device pointer.
      */
-  Ptr<NetDevice> Get (uint32_t i) const;
+    Ptr<NetDevice> Get(uint32_t i) const;
 
-  /**
+    /**
      * \brief Append the contents of another NetDeviceContainer to the end of
      * this container.
      *
      * \param other The NetDeviceContainer to append.
      */
-  void Add (NetDeviceContainer other);
+    void Add(NetDeviceContainer other);
 
-  /**
+    /**
      * \brief Append a single Ptr<NetDevice> to this container.
      *
      * \param device The Ptr<NetDevice> to append.
      */
-  void Add (Ptr<NetDevice> device);
+    void Add(Ptr<NetDevice> device);
 
-  /**
+    /**
      * \brief Append to this container the single Ptr<NetDevice> referred to
      * via its object name service registered name.
      *
      * \param deviceName The name of the NetDevice Object to add to the container.
      */
-  void Add (std::string deviceName);
+    void Add(std::string deviceName);
 
-private:
-  std::vector<Ptr<NetDevice>> m_devices; //!< NetDevices smart pointers
+  private:
+    std::vector<Ptr<NetDevice>> m_devices; //!< NetDevices smart pointers
 };
 
 } // namespace ns3

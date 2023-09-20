@@ -26,7 +26,8 @@
 #include "ns3/ptr.h"
 #include "ns3/traced-callback.h"
 
-namespace ns3 {
+namespace ns3
+{
 
 class Socket;
 class Packet;
@@ -45,45 +46,45 @@ class Packet;
  */
 class PacketSocketServer : public Application
 {
-public:
-  /**
+  public:
+    /**
      * \brief Get the type ID.
      * \return the object TypeId
      */
-  static TypeId GetTypeId ();
+    static TypeId GetTypeId();
 
-  PacketSocketServer ();
+    PacketSocketServer();
 
-  ~PacketSocketServer () override;
+    ~PacketSocketServer() override;
 
-  /**
+    /**
      * \brief set the local address and protocol to be used
      * \param addr local address
      */
-  void SetLocal (PacketSocketAddress addr);
+    void SetLocal(PacketSocketAddress addr);
 
-protected:
-  void DoDispose () override;
+  protected:
+    void DoDispose() override;
 
-private:
-  void StartApplication () override;
-  void StopApplication () override;
+  private:
+    void StartApplication() override;
+    void StopApplication() override;
 
-  /**
+    /**
      * \brief Handle a packet received by the application
      * \param socket the receiving socket
      */
-  void HandleRead (Ptr<Socket> socket);
+    void HandleRead(Ptr<Socket> socket);
 
-  uint32_t m_pktRx; //!< The number of received packets
-  uint32_t m_bytesRx; //!< Total bytes received
+    uint32_t m_pktRx;   //!< The number of received packets
+    uint32_t m_bytesRx; //!< Total bytes received
 
-  Ptr<Socket> m_socket; //!< Socket
-  PacketSocketAddress m_localAddress; //!< Local address
-  bool m_localAddressSet; //!< Sanity check
+    Ptr<Socket> m_socket;               //!< Socket
+    PacketSocketAddress m_localAddress; //!< Local address
+    bool m_localAddressSet;             //!< Sanity check
 
-  /// Traced Callback: received packets, source address.
-  TracedCallback<Ptr<const Packet>, const Address &> m_rxTrace;
+    /// Traced Callback: received packets, source address.
+    TracedCallback<Ptr<const Packet>, const Address&> m_rxTrace;
 };
 
 } // namespace ns3

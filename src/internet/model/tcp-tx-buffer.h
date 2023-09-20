@@ -27,7 +27,8 @@
 #include "ns3/tcp-tx-item.h"
 #include "ns3/traced-value.h"
 
-namespace ns3 {
+namespace ns3
+{
 class Packet;
 
 /**
@@ -120,83 +121,83 @@ class Packet;
  */
 class TcpTxBuffer : public Object
 {
-public:
-  /**
+  public:
+    /**
      * \brief Get the type ID.
      * \return the object TypeId
      */
-  static TypeId GetTypeId ();
-  /**
+    static TypeId GetTypeId();
+    /**
      * \brief Constructor
      * \param n initial Sequence number to be transmitted
      */
-  TcpTxBuffer (uint32_t n = 0);
-  ~TcpTxBuffer () override;
+    TcpTxBuffer(uint32_t n = 0);
+    ~TcpTxBuffer() override;
 
-  // Accessors
+    // Accessors
 
-  /**
+    /**
      * \brief Get the sequence number of the buffer head
      * \returns the first byte's sequence number
      */
-  SequenceNumber32 HeadSequence () const;
+    SequenceNumber32 HeadSequence() const;
 
-  /**
+    /**
      * \brief Get the sequence number of the buffer tail (plus one)
      * \returns the last byte's sequence number + 1
      */
-  SequenceNumber32 TailSequence () const;
+    SequenceNumber32 TailSequence() const;
 
-  /**
+    /**
      * \brief Returns total number of bytes in this buffer
      * \returns total number of bytes in this Tx buffer
      */
-  uint32_t Size () const;
+    uint32_t Size() const;
 
-  /**
+    /**
      * \brief Get the maximum buffer size
      * \returns the Tx window size (in bytes)
      */
-  uint32_t MaxBufferSize () const;
+    uint32_t MaxBufferSize() const;
 
-  /**
+    /**
      * \brief Set the maximum buffer size
      * \param n Tx window size (in bytes)
      */
-  void SetMaxBufferSize (uint32_t n);
+    void SetMaxBufferSize(uint32_t n);
 
-  /**
+    /**
      * \brief check whether SACK is used on the corresponding TCP socket
      * \return true if SACK is used
      */
-  bool IsSackEnabled () const;
+    bool IsSackEnabled() const;
 
-  /**
+    /**
      * \brief tell tx-buffer whether SACK is used on this TCP socket
      *
      * \param enabled whether sack is used
      */
-  void SetSackEnabled (bool enabled);
+    void SetSackEnabled(bool enabled);
 
-  /**
+    /**
      * \brief Returns the available capacity of this buffer
      * \returns available capacity in this Tx window
      */
-  uint32_t Available () const;
+    uint32_t Available() const;
 
-  /**
+    /**
      * \brief Set the DupAckThresh
      * \param dupAckThresh the threshold
      */
-  void SetDupAckThresh (uint32_t dupAckThresh);
+    void SetDupAckThresh(uint32_t dupAckThresh);
 
-  /**
+    /**
      * \brief Set the segment size
      * \param segmentSize the segment size
      */
-  void SetSegmentSize (uint32_t segmentSize);
+    void SetSegmentSize(uint32_t segmentSize);
 
-  /**
+    /**
      * \brief Return the number of segments in the sent list that
      * have been transmitted more than once, without acknowledgment.
      *
@@ -205,39 +206,39 @@ public:
      *
      * \returns number of segments that have been transmitted more than once, without acknowledgment
      */
-  uint32_t GetRetransmitsCount () const;
+    uint32_t GetRetransmitsCount() const;
 
-  /**
+    /**
      * \brief Get the number of segments that we believe are lost in the network
      *
      * It is calculated in UpdateLostCount.
      * \return the number of lost segment
      */
-  uint32_t GetLost () const;
+    uint32_t GetLost() const;
 
-  /**
+    /**
      * \brief Get the number of segments that have been explicitly sacked by the receiver.
      * \return the number of sacked segment.
      */
-  uint32_t GetSacked () const;
+    uint32_t GetSacked() const;
 
-  /**
+    /**
      * \brief Append a data packet to the end of the buffer
      *
      * \param p The packet to be appended to the Tx buffer
      * \return Boolean to indicate success
      */
-  bool Add (Ptr<Packet> p);
+    bool Add(Ptr<Packet> p);
 
-  /**
+    /**
      * \brief Returns the number of bytes from the buffer in the range [seq, tailSequence)
      *
      * \param seq initial sequence number
      * \returns the number of bytes from the buffer in the range
      */
-  uint32_t SizeFromSequence (const SequenceNumber32 &seq) const;
+    uint32_t SizeFromSequence(const SequenceNumber32& seq) const;
 
-  /**
+    /**
      * \brief Copy data from the range [seq, seq+numBytes) into a packet
      *
      * In the following, we refer to the block [seq, seq+numBytes) simply as "block".
@@ -257,26 +258,26 @@ public:
      * \returns a pointer to the TcpTxItem that corresponds to what requested.
      * Please do not delete the pointer, nor modify Packet data or sequence numbers.
      */
-  TcpTxItem *CopyFromSequence (uint32_t numBytes, const SequenceNumber32 &seq);
+    TcpTxItem* CopyFromSequence(uint32_t numBytes, const SequenceNumber32& seq);
 
-  /**
+    /**
      * \brief Set the head sequence of the buffer
      *
      * Set the head (m_firstByteSeq) to seq. Supposed to be called only when the
      * connection is just set up and we did not send any data out yet.
      * \param seq The sequence number of the head byte
      */
-  void SetHeadSequence (const SequenceNumber32 &seq);
+    void SetHeadSequence(const SequenceNumber32& seq);
 
-  /**
+    /**
      * \brief Checks whether the ack corresponds to retransmitted data
      *
      * \param ack ACK number received
      * \return true if retransmitted data was acked
      */
-  bool IsRetransmittedDataAcked (const SequenceNumber32 &ack) const;
+    bool IsRetransmittedDataAcked(const SequenceNumber32& ack) const;
 
-  /**
+    /**
      * \brief Discard data up to but not including this sequence number.
      *
      * \param seq The first sequence number to maintain after discarding all the
@@ -284,20 +285,20 @@ public:
      * \param beforeDelCb Callback invoked, if it is not null, before the deletion
      * of an Item (because it was, probably, ACKed)
      */
-  void DiscardUpTo (const SequenceNumber32 &seq,
-                    const Callback<void, TcpTxItem *> &beforeDelCb = m_nullCb);
+    void DiscardUpTo(const SequenceNumber32& seq,
+                     const Callback<void, TcpTxItem*>& beforeDelCb = m_nullCb);
 
-  /**
+    /**
      * \brief Update the scoreboard
      * \param list list of SACKed blocks
      * \param sackedCb Callback invoked, if it is not null, when a segment has been
      * SACKed by the receiver.
      * \returns the number of bytes newly sacked by the list of blocks
      */
-  uint32_t Update (const TcpOptionSack::SackList &list,
-                   const Callback<void, TcpTxItem *> &sackedCb = m_nullCb);
+    uint32_t Update(const TcpOptionSack::SackList& list,
+                    const Callback<void, TcpTxItem*>& sackedCb = m_nullCb);
 
-  /**
+    /**
      * \brief Check if a segment is lost
      *
      * It does a check on the flags to determine if the segment has to be considered
@@ -306,9 +307,9 @@ public:
      * \param seq sequence to check
      * \return true if the sequence is supposed to be lost, false otherwise
      */
-  bool IsLost (const SequenceNumber32 &seq) const;
+    bool IsLost(const SequenceNumber32& seq) const;
 
-  /**
+    /**
      * \brief Get the next sequence number to transmit, according to RFC 6675
      *
      * \param seq Next sequence number to transmit, based on the scoreboard information
@@ -316,9 +317,9 @@ public:
      * \param isRecovery true if the socket congestion state is in recovery mode
      * \return true is seq is updated, false otherwise
      */
-  bool NextSeg (SequenceNumber32 *seq, SequenceNumber32 *seqHigh, bool isRecovery) const;
+    bool NextSeg(SequenceNumber32* seq, SequenceNumber32* seqHigh, bool isRecovery) const;
 
-  /**
+    /**
      * \brief Return total bytes in flight
      *
      * Counting packets in flight is pretty simple:
@@ -334,9 +335,9 @@ public:
      *
      * \returns total bytes in flight
      */
-  uint32_t BytesInFlight () const;
+    uint32_t BytesInFlight() const;
 
-  /**
+    /**
      * \brief Set the entire sent list as lost (typically after an RTO)
      *
      * Used to set all the sent list as lost, so the bytes in flight is not counting
@@ -346,39 +347,39 @@ public:
      * Moreover, reset the retransmit flag for every item.
      * \param resetSack True if the function should reset the SACK flags.
      */
-  void SetSentListLost (bool resetSack = false);
+    void SetSentListLost(bool resetSack = false);
 
-  /**
+    /**
      * \brief Check if the head is retransmitted
      *
      * \return true if the head is retransmitted, false in all other cases
      * (including no segment sent)
      */
-  bool IsHeadRetransmitted () const;
+    bool IsHeadRetransmitted() const;
 
-  /**
+    /**
      * \brief DeleteRetransmittedFlagFromHead
      */
-  void DeleteRetransmittedFlagFromHead ();
+    void DeleteRetransmittedFlagFromHead();
 
-  /**
+    /**
      * \brief Reset the sent list
      *
      */
-  void ResetSentList ();
+    void ResetSentList();
 
-  /**
+    /**
      * \brief Take the last segment sent and put it back into the un-sent list
      * (at the beginning)
      */
-  void ResetLastSegmentSent ();
+    void ResetLastSegmentSent();
 
-  /**
+    /**
      * \brief Mark the head of the sent list as lost.
      */
-  void MarkHeadAsLost ();
+    void MarkHeadAsLost();
 
-  /**
+    /**
      * \brief Emulate SACKs for SACKless connection: account for a new dupack.
      *
      * The method walk the list of the sent segment until it finds a segment
@@ -390,28 +391,28 @@ public:
      * flag on the discarded item. As example, if the implementation discard an item
      * that is marked as sacked, the sackedOut count is decreased accordingly.
      */
-  void AddRenoSack ();
+    void AddRenoSack();
 
-  /**
+    /**
      * \brief Reset the SACKs.
      *
      * Reset the Scoreboard from all SACK information. This method also works in
      * case the SACKs are set by the Update method.
      */
-  void ResetRenoSack ();
+    void ResetRenoSack();
 
-  /**
+    /**
      * \brief Set callback to obtain receiver window value
      * \param rWndCallback receiver window callback
      */
-  void SetRWndCallback (Callback<uint32_t> rWndCallback);
+    void SetRWndCallback(Callback<uint32_t> rWndCallback);
 
-private:
-  friend std::ostream &operator<< (std::ostream &os, const TcpTxBuffer &tcpTxBuf);
+  private:
+    friend std::ostream& operator<<(std::ostream& os, const TcpTxBuffer& tcpTxBuf);
 
-  typedef std::list<TcpTxItem *> PacketList; //!< container for data stored in the buffer
+    typedef std::list<TcpTxItem*> PacketList; //!< container for data stored in the buffer
 
-  /**
+    /**
      * \brief Update the lost count
      *
      * Reset lost to 0, then walk the sent list looking for lost segments.
@@ -430,9 +431,9 @@ private:
      * the entire list, but a subset.
      *
      */
-  void UpdateLostCount ();
+    void UpdateLostCount();
 
-  /**
+    /**
      * \brief Remove the size specified from the lostOut, retrans, sacked count
      *
      * Used only in DiscardUpTo
@@ -440,23 +441,23 @@ private:
      * \param item Item that will be discarded
      * \param size size to remove (can be different from pktSize because of fragmentation)
      */
-  void RemoveFromCounts (TcpTxItem *item, uint32_t size);
+    void RemoveFromCounts(TcpTxItem* item, uint32_t size);
 
-  /**
+    /**
      * \brief Decide if a segment is lost based on RFC 6675 algorithm.
      * \param seq Sequence
      * \param segment Iterator to the sequence
      * \return true if seq is lost per RFC 6675, false otherwise
      */
-  bool IsLostRFC (const SequenceNumber32 &seq, const PacketList::const_iterator &segment) const;
+    bool IsLostRFC(const SequenceNumber32& seq, const PacketList::const_iterator& segment) const;
 
-  /**
+    /**
      * \brief Calculate the number of bytes in flight per RFC 6675
      * \return the number of bytes in flight
      */
-  uint32_t BytesInFlightRFC () const;
+    uint32_t BytesInFlightRFC() const;
 
-  /**
+    /**
      * \brief Get a block of data not transmitted yet and move it into SentList
      *
      * If the block is not yet transmitted, hopefully, seq is exactly the sequence
@@ -470,9 +471,9 @@ private:
      *
      * \return the item that contains the right packet
      */
-  TcpTxItem *GetNewSegment (uint32_t numBytes);
+    TcpTxItem* GetNewSegment(uint32_t numBytes);
 
-  /**
+    /**
      * \brief Get a block of data previously transmitted
      *
      * This is clearly a retransmission, and if everything is going well,
@@ -486,9 +487,9 @@ private:
      * \param seq sequence requested
      * \returns the item that contains the right packet
      */
-  TcpTxItem *GetTransmittedSegment (uint32_t numBytes, const SequenceNumber32 &seq);
+    TcpTxItem* GetTransmittedSegment(uint32_t numBytes, const SequenceNumber32& seq);
 
-  /**
+    /**
      * \brief Get a block (which is returned as Packet) from a list
      *
      * This function extract a block [requestedSeq,numBytes) from the list, which
@@ -558,11 +559,13 @@ private:
      * \param listEdited output parameter which indicates if the list has been edited
      * \return the item that contains the right packet
      */
-  TcpTxItem *GetPacketFromList (PacketList &list, const SequenceNumber32 &startingSeq,
-                                uint32_t numBytes, const SequenceNumber32 &requestedSeq,
-                                bool *listEdited = nullptr) const;
+    TcpTxItem* GetPacketFromList(PacketList& list,
+                                 const SequenceNumber32& startingSeq,
+                                 uint32_t numBytes,
+                                 const SequenceNumber32& requestedSeq,
+                                 bool* listEdited = nullptr) const;
 
-  /**
+    /**
      * \brief Merge two TcpTxItem
      *
      * Merge t2 in t1. It consists in copying the lastSent field if t2 is more
@@ -572,9 +575,9 @@ private:
      * \param t1 first item
      * \param t2 second item
      */
-  void MergeItems (TcpTxItem *t1, TcpTxItem *t2) const;
+    void MergeItems(TcpTxItem* t1, TcpTxItem* t2) const;
 
-  /**
+    /**
      * \brief Split one TcpTxItem
      *
      * Move "size" bytes from t2 into t1, copying all the fields.
@@ -584,41 +587,41 @@ private:
      * \param t2 second item
      * \param size Size to split
      */
-  void SplitItems (TcpTxItem *t1, TcpTxItem *t2, uint32_t size) const;
+    void SplitItems(TcpTxItem* t1, TcpTxItem* t2, uint32_t size) const;
 
-  /**
+    /**
      * \brief Check if the values of sacked, lost, retrans, are in sync
      * with the sent list.
      */
-  void ConsistencyCheck () const;
+    void ConsistencyCheck() const;
 
-  /**
+    /**
      * \brief Find the highest SACK byte
      * \return a pair with the highest byte and an iterator inside m_sentList
      */
-  std::pair<TcpTxBuffer::PacketList::const_iterator, SequenceNumber32> FindHighestSacked () const;
+    std::pair<TcpTxBuffer::PacketList::const_iterator, SequenceNumber32> FindHighestSacked() const;
 
-  PacketList m_appList; //!< Buffer for application data
-  PacketList m_sentList; //!< Buffer for sent (but not acked) data
-  uint32_t m_maxBuffer; //!< Max number of data bytes in buffer (SND.WND)
-  uint32_t m_size; //!< Size of all data in this buffer
-  uint32_t m_sentSize; //!< Size of sent (and not discarded) segments
-  Callback<uint32_t> m_rWndCallback; //!< Callback to obtain RCV.WND value
+    PacketList m_appList;              //!< Buffer for application data
+    PacketList m_sentList;             //!< Buffer for sent (but not acked) data
+    uint32_t m_maxBuffer;              //!< Max number of data bytes in buffer (SND.WND)
+    uint32_t m_size;                   //!< Size of all data in this buffer
+    uint32_t m_sentSize;               //!< Size of sent (and not discarded) segments
+    Callback<uint32_t> m_rWndCallback; //!< Callback to obtain RCV.WND value
 
-  TracedValue<SequenceNumber32>
-      m_firstByteSeq; //!< Sequence number of the first byte in data (SND.UNA)
-  std::pair<PacketList::const_iterator, SequenceNumber32> m_highestSack; //!< Highest SACK byte
+    TracedValue<SequenceNumber32>
+        m_firstByteSeq; //!< Sequence number of the first byte in data (SND.UNA)
+    std::pair<PacketList::const_iterator, SequenceNumber32> m_highestSack; //!< Highest SACK byte
 
-  uint32_t m_lostOut{0}; //!< Number of lost bytes
-  uint32_t m_sackedOut{0}; //!< Number of sacked bytes
-  uint32_t m_retrans{0}; //!< Number of retransmitted bytes
+    uint32_t m_lostOut{0};   //!< Number of lost bytes
+    uint32_t m_sackedOut{0}; //!< Number of sacked bytes
+    uint32_t m_retrans{0};   //!< Number of retransmitted bytes
 
-  uint32_t m_dupAckThresh{0}; //!< Duplicate Ack threshold from TcpSocketBase
-  uint32_t m_segmentSize{0}; //!< Segment size from TcpSocketBase
-  bool m_renoSack{false}; //!< Indicates if AddRenoSack was called
-  bool m_sackEnabled{true}; //!< Indicates if SACK is enabled on this connection
+    uint32_t m_dupAckThresh{0}; //!< Duplicate Ack threshold from TcpSocketBase
+    uint32_t m_segmentSize{0};  //!< Segment size from TcpSocketBase
+    bool m_renoSack{false};     //!< Indicates if AddRenoSack was called
+    bool m_sackEnabled{true};   //!< Indicates if SACK is enabled on this connection
 
-  static Callback<void, TcpTxItem *> m_nullCb; //!< Null callback for an item
+    static Callback<void, TcpTxItem*> m_nullCb; //!< Null callback for an item
 };
 
 /**
@@ -627,7 +630,7 @@ private:
  * \param tcpTxBuf the TcpTxBuffer to print.
  * \returns The output stream.
  */
-std::ostream &operator<< (std::ostream &os, const TcpTxBuffer &tcpTxBuf);
+std::ostream& operator<<(std::ostream& os, const TcpTxBuffer& tcpTxBuf);
 
 /**
  * \brief Output operator.
@@ -635,7 +638,7 @@ std::ostream &operator<< (std::ostream &os, const TcpTxBuffer &tcpTxBuf);
  * \param item the item to print.
  * \returns The output stream.
  */
-std::ostream &operator<< (std::ostream &os, const TcpTxItem &item);
+std::ostream& operator<<(std::ostream& os, const TcpTxItem& item);
 
 } // namespace ns3
 

@@ -21,7 +21,8 @@
 
 #include "mobility-model.h"
 
-namespace ns3 {
+namespace ns3
+{
 
 /**
  * \ingroup mobility
@@ -31,24 +32,24 @@ namespace ns3 {
  */
 class ConstantPositionMobilityModel : public MobilityModel
 {
-public:
-  /**
+  public:
+    /**
      * Register this type with the TypeId system.
      * \return the object TypeId
      */
-  static TypeId GetTypeId ();
-  /**
+    static TypeId GetTypeId();
+    /**
      * Create a position located at coordinates (0,0,0)
      */
-  ConstantPositionMobilityModel ();
-  ~ConstantPositionMobilityModel () override;
+    ConstantPositionMobilityModel();
+    ~ConstantPositionMobilityModel() override;
 
-private:
-  Vector DoGetPosition () const override;
-  void DoSetPosition (const Vector &position) override;
-  Vector DoGetVelocity () const override;
+  private:
+    Vector DoGetPosition() const override;
+    void DoSetPosition(const Vector& position) override;
+    Vector DoGetVelocity() const override;
 
-  Vector m_position; //!< the constant position
+    Vector m_position; //!< the constant position
 };
 
 } // namespace ns3

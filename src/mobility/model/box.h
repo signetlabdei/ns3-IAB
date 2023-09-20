@@ -23,7 +23,8 @@
 #include "ns3/attribute.h"
 #include "ns3/vector.h"
 
-namespace ns3 {
+namespace ns3
+{
 
 /**
  * \ingroup mobility
@@ -32,13 +33,21 @@ namespace ns3 {
  */
 class Box
 {
-public:
-  /**
+  public:
+    /**
      * Enum class to specify sides of a box
      */
-  enum Side { RIGHT, LEFT, TOP, BOTTOM, UP, DOWN };
+    enum Side
+    {
+        RIGHT,
+        LEFT,
+        TOP,
+        BOTTOM,
+        UP,
+        DOWN
+    };
 
-  /**
+    /**
      * \param _xMin x coordinates of left boundary.
      * \param _xMax x coordinates of right boundary.
      * \param _yMin y coordinates of bottom boundary.
@@ -48,27 +57,27 @@ public:
      *
      * Create a box.
      */
-  Box (double _xMin, double _xMax, double _yMin, double _yMax, double _zMin, double _zMax);
-  /**
+    Box(double _xMin, double _xMax, double _yMin, double _yMax, double _zMin, double _zMax);
+    /**
      * Create a zero-sized box located at coordinates (0.0,0.0,0.0)
      */
-  Box ();
-  /**
+    Box();
+    /**
      * \param position the position to test.
      * \returns true if the input position is located within the box,
      *          false otherwise.
      *
      * This method compares the x, y, and z coordinates of the input position.
      */
-  bool IsInside (const Vector &position) const;
-  /**
+    bool IsInside(const Vector& position) const;
+    /**
      * \param position the position to test.
      * \returns the side of the cube the input position is closest to.
      *
      * This method compares the x, y, and z coordinates of the input position.
      */
-  Side GetClosestSide (const Vector &position) const;
-  /**
+    Side GetClosestSide(const Vector& position) const;
+    /**
      * \param current the current position
      * \param speed the current speed
      * \returns the intersection point between the rectangle and the current+speed vector.
@@ -78,8 +87,8 @@ public:
      * This method compares only the x and y coordinates of the input position
      * and speed. It ignores the z coordinate.
      */
-  Vector CalculateIntersection (const Vector &current, const Vector &speed) const;
-  /**
+    Vector CalculateIntersection(const Vector& current, const Vector& speed) const;
+    /**
      * \brief Checks if a line-segment between position l1 and position l2
      *        intersects a box.
      *
@@ -95,26 +104,26 @@ public:
      * \param l2 position
      * \return true if there is a intersection, false otherwise
      */
-  bool IsIntersect (const Vector &l1, const Vector &l2) const;
+    bool IsIntersect(const Vector& l1, const Vector& l2) const;
 
-  /** The x coordinate of the left bound of the box */
-  double xMin;
-  /** The x coordinate of the right bound of the box */
-  double xMax;
-  /** The y coordinate of the bottom bound of the box */
-  double yMin;
-  /** The y coordinate of the top bound of the box */
-  double yMax;
-  /** The z coordinate of the down bound of the box */
-  double zMin;
-  /** The z coordinate of the up bound of the box */
-  double zMax;
+    /** The x coordinate of the left bound of the box */
+    double xMin;
+    /** The x coordinate of the right bound of the box */
+    double xMax;
+    /** The y coordinate of the bottom bound of the box */
+    double yMin;
+    /** The y coordinate of the top bound of the box */
+    double yMax;
+    /** The z coordinate of the down bound of the box */
+    double zMin;
+    /** The z coordinate of the up bound of the box */
+    double zMax;
 };
 
-std::ostream &operator<< (std::ostream &os, const Box &box);
-std::istream &operator>> (std::istream &is, Box &box);
+std::ostream& operator<<(std::ostream& os, const Box& box);
+std::istream& operator>>(std::istream& is, Box& box);
 
-ATTRIBUTE_HELPER_HEADER (Box);
+ATTRIBUTE_HELPER_HEADER(Box);
 
 } // namespace ns3
 

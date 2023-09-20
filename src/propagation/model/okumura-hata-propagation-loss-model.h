@@ -1,4 +1,3 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2011, 2012 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
@@ -23,10 +22,11 @@
 #ifndef OKUMURA_HATA_PROPAGATION_LOSS_MODEL_H
 #define OKUMURA_HATA_PROPAGATION_LOSS_MODEL_H
 
-#include <ns3/propagation-loss-model.h>
 #include <ns3/propagation-environment.h>
+#include <ns3/propagation-loss-model.h>
 
-namespace ns3 {
+namespace ns3
+{
 
 /**
  * \ingroup propagation
@@ -41,38 +41,38 @@ namespace ns3 {
  */
 class OkumuraHataPropagationLossModel : public PropagationLossModel
 {
+  public:
+    /**
+     * \brief Get the type ID.
+     * \return the object TypeId
+     */
+    static TypeId GetTypeId();
 
-public:
-  /**
-   * \brief Get the type ID.
-   * \return the object TypeId
-   */
-  static TypeId GetTypeId (void);
+    OkumuraHataPropagationLossModel();
+    ~OkumuraHataPropagationLossModel() override;
 
-  OkumuraHataPropagationLossModel ();
-  virtual ~OkumuraHataPropagationLossModel ();
+    // Delete copy constructor and assignment operator to avoid misuse
+    OkumuraHataPropagationLossModel(const OkumuraHataPropagationLossModel&) = delete;
+    OkumuraHataPropagationLossModel& operator=(const OkumuraHataPropagationLossModel&) = delete;
 
-  // Delete copy constructor and assignment operator to avoid misuse
-  OkumuraHataPropagationLossModel (const OkumuraHataPropagationLossModel &) = delete;
-  OkumuraHataPropagationLossModel &operator= (const OkumuraHataPropagationLossModel &) = delete;
+    /**
+     * \param a the first mobility model
+     * \param b the second mobility model
+     *
+     * \return the loss in dBm for the propagation between
+     * the two given mobility models
+     */
+    double GetLoss(Ptr<MobilityModel> a, Ptr<MobilityModel> b) const;
 
-  /**
-   * \param a the first mobility model
-   * \param b the second mobility model
-   *
-   * \return the loss in dBm for the propagation between
-   * the two given mobility models
-   */
-  double GetLoss (Ptr<MobilityModel> a, Ptr<MobilityModel> b) const;
+  private:
+    double DoCalcRxPower(double txPowerDbm,
+                         Ptr<MobilityModel> a,
+                         Ptr<MobilityModel> b) const override;
+    int64_t DoAssignStreams(int64_t stream) override;
 
-private:
-  double DoCalcRxPower (double txPowerDbm, Ptr<MobilityModel> a,
-                        Ptr<MobilityModel> b) const override;
-  int64_t DoAssignStreams (int64_t stream) override;
-
-  EnvironmentType m_environment; //!< Environment Scenario
-  CitySize m_citySize; //!< Size of the city
-  double m_frequency; //!< frequency in Hz
+    EnvironmentType m_environment; //!< Environment Scenario
+    CitySize m_citySize;           //!< Size of the city
+    double m_frequency;            //!< frequency in Hz
 };
 
 } // namespace ns3

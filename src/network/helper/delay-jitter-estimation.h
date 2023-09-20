@@ -22,7 +22,8 @@
 #include "ns3/nstime.h"
 #include "ns3/packet.h"
 
-namespace ns3 {
+namespace ns3
+{
 
 /**
  * \ingroup stats
@@ -37,10 +38,10 @@ namespace ns3 {
  */
 class DelayJitterEstimation
 {
-public:
-  DelayJitterEstimation ();
+  public:
+    DelayJitterEstimation();
 
-  /**
+    /**
      * This method should be invoked once on each packet to
      * record within the packet the tx time which is used upon
      * packet reception to calculate the delay and jitter. The
@@ -50,35 +51,35 @@ public:
      *
      * \param packet the packet to send over a wire
      */
-  static void PrepareTx (Ptr<const Packet> packet);
+    static void PrepareTx(Ptr<const Packet> packet);
 
-  /**
+    /**
      * Invoke this method to update the delay and jitter calculations
      * After a call to this method, \ref GetLastDelay and \ref GetLastJitter
      * will return an updated delay and jitter.
      *
      * \param packet the packet received
      */
-  void RecordRx (Ptr<const Packet> packet);
+    void RecordRx(Ptr<const Packet> packet);
 
-  /**
+    /**
      * Get the Last Delay object.
      *
      * \return the updated delay.
      */
-  Time GetLastDelay () const;
+    Time GetLastDelay() const;
 
-  /**
+    /**
      * The jitter is calculated using the \RFC{1889} (RTP) jitter
      * definition.
      *
      * \return the updated jitter.
      */
-  uint64_t GetLastJitter () const;
+    uint64_t GetLastJitter() const;
 
-private:
-  Time m_jitter{0}; //!< Jitter estimation
-  Time m_transit{0}; //!< Relative transit time for the previous packet
+  private:
+    Time m_jitter{0};  //!< Jitter estimation
+    Time m_transit{0}; //!< Relative transit time for the previous packet
 };
 
 } // namespace ns3

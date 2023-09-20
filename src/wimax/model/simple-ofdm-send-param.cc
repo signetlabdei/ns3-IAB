@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  *  Copyright (c) 2007,2008, 2009 INRIA, UDcast
  *
@@ -20,129 +19,149 @@
  */
 
 #include "simple-ofdm-send-param.h"
-#include "simple-ofdm-wimax-phy.h"
+
 #include "simple-ofdm-wimax-channel.h"
+#include "simple-ofdm-wimax-phy.h"
 
-namespace ns3 {
-simpleOfdmSendParam::simpleOfdmSendParam (void)
+namespace ns3
 {
-  // m_fecBlock = 0;
-  m_burstSize = 0;
-  m_isFirstBlock = 0;
-  m_frequency = 0;
-  m_modulationType = WimaxPhy::MODULATION_TYPE_QPSK_12;
-  m_direction = 0;
-  m_rxPowerDbm = 0;
-}
-simpleOfdmSendParam::simpleOfdmSendParam (const bvec &fecBlock, uint32_t burstSize,
-                                          bool isFirstBlock, uint64_t Frequency,
-                                          WimaxPhy::ModulationType modulationType,
-                                          uint8_t direction, double rxPowerDbm)
+SimpleOfdmSendParam::SimpleOfdmSendParam()
 {
-
-  m_fecBlock = fecBlock;
-  m_burstSize = burstSize;
-  m_isFirstBlock = isFirstBlock;
-  m_frequency = Frequency;
-  m_modulationType = modulationType;
-  m_direction = direction;
-  m_rxPowerDbm = rxPowerDbm;
+    // m_fecBlock = 0;
+    m_burstSize = 0;
+    m_isFirstBlock = 0;
+    m_frequency = 0;
+    m_modulationType = WimaxPhy::MODULATION_TYPE_QPSK_12;
+    m_direction = 0;
+    m_rxPowerDbm = 0;
 }
 
-simpleOfdmSendParam::simpleOfdmSendParam (uint32_t burstSize, bool isFirstBlock, uint64_t Frequency,
-                                          WimaxPhy::ModulationType modulationType,
-                                          uint8_t direction, double rxPowerDbm,
-                                          Ptr<PacketBurst> burst)
+SimpleOfdmSendParam::SimpleOfdmSendParam(const Bvec& fecBlock,
+                                         uint32_t burstSize,
+                                         bool isFirstBlock,
+                                         uint64_t Frequency,
+                                         WimaxPhy::ModulationType modulationType,
+                                         uint8_t direction,
+                                         double rxPowerDbm)
 {
-  m_burstSize = burstSize;
-  m_isFirstBlock = isFirstBlock;
-  m_frequency = Frequency;
-  m_modulationType = modulationType;
-  m_direction = direction;
-  m_rxPowerDbm = rxPowerDbm;
-  m_burst = burst;
+    m_fecBlock = fecBlock;
+    m_burstSize = burstSize;
+    m_isFirstBlock = isFirstBlock;
+    m_frequency = Frequency;
+    m_modulationType = modulationType;
+    m_direction = direction;
+    m_rxPowerDbm = rxPowerDbm;
 }
 
-simpleOfdmSendParam::~simpleOfdmSendParam (void)
+SimpleOfdmSendParam::SimpleOfdmSendParam(uint32_t burstSize,
+                                         bool isFirstBlock,
+                                         uint64_t Frequency,
+                                         WimaxPhy::ModulationType modulationType,
+                                         uint8_t direction,
+                                         double rxPowerDbm,
+                                         Ptr<PacketBurst> burst)
+{
+    m_burstSize = burstSize;
+    m_isFirstBlock = isFirstBlock;
+    m_frequency = Frequency;
+    m_modulationType = modulationType;
+    m_direction = direction;
+    m_rxPowerDbm = rxPowerDbm;
+    m_burst = burst;
+}
+
+SimpleOfdmSendParam::~SimpleOfdmSendParam()
 {
 }
 
 void
-simpleOfdmSendParam::SetFecBlock (const bvec &fecBlock)
+SimpleOfdmSendParam::SetFecBlock(const Bvec& fecBlock)
 {
-  m_fecBlock = fecBlock;
+    m_fecBlock = fecBlock;
 }
 
 void
-simpleOfdmSendParam::SetBurstSize (uint32_t burstSize)
+SimpleOfdmSendParam::SetBurstSize(uint32_t burstSize)
 {
-  m_burstSize = burstSize;
-}
-void
-simpleOfdmSendParam::SetIsFirstBlock (bool isFirstBlock)
-{
-  m_isFirstBlock = isFirstBlock;
-}
-void
-simpleOfdmSendParam::SetFrequency (uint64_t Frequency)
-{
-  m_frequency = Frequency;
-}
-void
-simpleOfdmSendParam::SetModulationType (WimaxPhy::ModulationType modulationType)
-{
-  m_modulationType = modulationType;
-}
-void
-simpleOfdmSendParam::SetDirection (uint8_t direction)
-{
-  m_direction = direction;
-}
-void
-simpleOfdmSendParam::SetRxPowerDbm (double rxPowerDbm)
-{
-  m_rxPowerDbm = rxPowerDbm;
+    m_burstSize = burstSize;
 }
 
-bvec
-simpleOfdmSendParam::GetFecBlock (void)
+void
+SimpleOfdmSendParam::SetIsFirstBlock(bool isFirstBlock)
 {
-  return m_fecBlock;
+    m_isFirstBlock = isFirstBlock;
 }
+
+void
+SimpleOfdmSendParam::SetFrequency(uint64_t Frequency)
+{
+    m_frequency = Frequency;
+}
+
+void
+SimpleOfdmSendParam::SetModulationType(WimaxPhy::ModulationType modulationType)
+{
+    m_modulationType = modulationType;
+}
+
+void
+SimpleOfdmSendParam::SetDirection(uint8_t direction)
+{
+    m_direction = direction;
+}
+
+void
+SimpleOfdmSendParam::SetRxPowerDbm(double rxPowerDbm)
+{
+    m_rxPowerDbm = rxPowerDbm;
+}
+
+Bvec
+SimpleOfdmSendParam::GetFecBlock()
+{
+    return m_fecBlock;
+}
+
 uint32_t
-simpleOfdmSendParam::GetBurstSize (void)
+SimpleOfdmSendParam::GetBurstSize() const
 {
-  return m_burstSize;
+    return m_burstSize;
 }
+
 bool
-simpleOfdmSendParam::GetIsFirstBlock (void)
+SimpleOfdmSendParam::GetIsFirstBlock() const
 {
-  return m_isFirstBlock;
+    return m_isFirstBlock;
 }
+
 uint64_t
-simpleOfdmSendParam::GetFrequency (void)
+SimpleOfdmSendParam::GetFrequency() const
 {
-  return m_frequency;
+    return m_frequency;
 }
+
 WimaxPhy::ModulationType
-simpleOfdmSendParam::GetModulationType (void)
+SimpleOfdmSendParam::GetModulationType()
 {
-  return m_modulationType;
+    return m_modulationType;
 }
+
 uint8_t
-simpleOfdmSendParam::GetDirection (void)
+SimpleOfdmSendParam::GetDirection() const
 {
-  return m_direction;
+    return m_direction;
 }
+
 double
-simpleOfdmSendParam::GetRxPowerDbm (void)
+SimpleOfdmSendParam::GetRxPowerDbm() const
 {
-  return m_rxPowerDbm;
+    return m_rxPowerDbm;
 }
+
 Ptr<PacketBurst>
-simpleOfdmSendParam::GetBurst (void)
+SimpleOfdmSendParam::GetBurst()
 {
-  return m_burst;
+    return m_burst;
 }
 
 } // namespace ns3

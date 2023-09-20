@@ -23,7 +23,8 @@
 #ifndef GEOGRAPHIC_POSITIONS_H
 #define GEOGRAPHIC_POSITIONS_H
 
-namespace ns3 {
+namespace ns3
+{
 
 /**
  * \ingroup mobility
@@ -32,8 +33,8 @@ namespace ns3 {
  */
 class GeographicPositions
 {
-public:
-  /**
+  public:
+    /**
      * Spheroid model to use for earth: perfect sphere (SPHERE), Geodetic
      * Reference System 1980 (GRS80), or World Geodetic System 1984 (WGS84)
      *
@@ -44,9 +45,14 @@ public:
      * Mapping Agency, 1 Jan. 2000.
      * <https://web.archive.org/web/20200729203634/https://earth-info.nga.mil/GandG/publications/tr8350.2/wgs84fin.pdf>.
      */
-  enum EarthSpheroidType { SPHERE, GRS80, WGS84 };
+    enum EarthSpheroidType
+    {
+        SPHERE,
+        GRS80,
+        WGS84
+    };
 
-  /**
+    /**
      * Converts earth geographic/geodetic coordinates (latitude and longitude in
      * degrees) with a given altitude above earth's surface (in meters) to Earth
      * Centered Earth Fixed (ECEF) Cartesian coordinates (x, y, z in meters),
@@ -60,10 +66,12 @@ public:
      * @return a vector containing the Cartesian coordinates (x, y, z referenced
      * in meters) of the point (origin (0, 0, 0) is center of earth)
      */
-  static Vector GeographicToCartesianCoordinates (double latitude, double longitude,
-                                                  double altitude, EarthSpheroidType sphType);
+    static Vector GeographicToCartesianCoordinates(double latitude,
+                                                   double longitude,
+                                                   double altitude,
+                                                   EarthSpheroidType sphType);
 
-  /**
+    /**
      * Inverse of GeographicToCartesianCoordinates using [1]
      *
      * This function iteratively converts cartesian (ECEF) coordinates to
@@ -81,9 +89,9 @@ public:
      * European Space Agency, Jul 8, 2019.
      * <https://gssc.esa.int/navipedia/index.php/Ellipsoidal_and_Cartesian_Coordinates_Conversion>
      */
-  static Vector CartesianToGeographicCoordinates (Vector pos, EarthSpheroidType sphType);
+    static Vector CartesianToGeographicCoordinates(Vector pos, EarthSpheroidType sphType);
 
-  /**
+    /**
      * Generates uniformly distributed random points (in ECEF Cartesian
      * coordinates) within a given altitude above earth's surface centered around
      * a given origin point (on earth's surface, in geographic/geodetic coordinates)
@@ -108,9 +116,13 @@ public:
      * @return a list containing the vectors (x, y, z location referenced in
      * meters from origin at center of earth) of each point generated
      */
-  static std::list<Vector> RandCartesianPointsAroundGeographicPoint (
-      double originLatitude, double originLongitude, double maxAltitude, int numPoints,
-      double maxDistFromOrigin, Ptr<UniformRandomVariable> uniRand);
+    static std::list<Vector> RandCartesianPointsAroundGeographicPoint(
+        double originLatitude,
+        double originLongitude,
+        double maxAltitude,
+        int numPoints,
+        double maxDistFromOrigin,
+        Ptr<UniformRandomVariable> uniRand);
 };
 
 } // namespace ns3

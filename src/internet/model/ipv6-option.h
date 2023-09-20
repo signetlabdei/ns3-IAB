@@ -32,7 +32,8 @@
 
 #include <map>
 
-namespace ns3 {
+namespace ns3
+{
 
 /**
  * \ingroup ipv6HeaderExt
@@ -44,31 +45,31 @@ namespace ns3 {
  */
 class Ipv6Option : public Object
 {
-public:
-  /**
+  public:
+    /**
      * \brief Get the type identificator.
      * \return type identificator
      */
-  static TypeId GetTypeId ();
+    static TypeId GetTypeId();
 
-  /**
+    /**
      * \brief Destructor.
      */
-  ~Ipv6Option () override;
+    ~Ipv6Option() override;
 
-  /**
+    /**
      * \brief Set the node.
      * \param node the node to set
      */
-  void SetNode (Ptr<Node> node);
+    void SetNode(Ptr<Node> node);
 
-  /**
+    /**
      * \brief Get the option number.
      * \return option number
      */
-  virtual uint8_t GetOptionNumber () const = 0;
+    virtual uint8_t GetOptionNumber() const = 0;
 
-  /**
+    /**
      * \brief Process method
      *
      * Called from Ipv6L3Protocol::Receive.
@@ -78,14 +79,16 @@ public:
      * \param isDropped if the packet must be dropped
      * \return the processed size
      */
-  virtual uint8_t Process (Ptr<Packet> packet, uint8_t offset, const Ipv6Header &ipv6Header,
-                           bool &isDropped) = 0;
+    virtual uint8_t Process(Ptr<Packet> packet,
+                            uint8_t offset,
+                            const Ipv6Header& ipv6Header,
+                            bool& isDropped) = 0;
 
-private:
-  /**
+  private:
+    /**
      * \brief The node.
      */
-  Ptr<Node> m_node;
+    Ptr<Node> m_node;
 };
 
 /**
@@ -95,35 +98,35 @@ private:
  */
 class Ipv6OptionPad1 : public Ipv6Option
 {
-public:
-  /**
+  public:
+    /**
      * \brief Pad1 option number.
      */
-  static const uint8_t OPT_NUMBER = 0;
+    static const uint8_t OPT_NUMBER = 0;
 
-  /**
+    /**
      * \brief Get the type identificator.
      * \return type identificator
      */
-  static TypeId GetTypeId ();
+    static TypeId GetTypeId();
 
-  /**
+    /**
      * \brief Constructor.
      */
-  Ipv6OptionPad1 ();
+    Ipv6OptionPad1();
 
-  /**
+    /**
      * \brief Destructor.
      */
-  ~Ipv6OptionPad1 () override;
+    ~Ipv6OptionPad1() override;
 
-  /**
+    /**
      * \brief Get the option number.
      * \return option number
      */
-  uint8_t GetOptionNumber () const override;
+    uint8_t GetOptionNumber() const override;
 
-  /**
+    /**
      * \brief Process method
      *
      * Called from Ipv6L3Protocol::Receive.
@@ -133,8 +136,10 @@ public:
      * \param isDropped if the packet must be dropped
      * \return the processed size
      */
-  uint8_t Process (Ptr<Packet> packet, uint8_t offset, const Ipv6Header &ipv6Header,
-                   bool &isDropped) override;
+    uint8_t Process(Ptr<Packet> packet,
+                    uint8_t offset,
+                    const Ipv6Header& ipv6Header,
+                    bool& isDropped) override;
 };
 
 /**
@@ -144,35 +149,35 @@ public:
  */
 class Ipv6OptionPadn : public Ipv6Option
 {
-public:
-  /**
+  public:
+    /**
      * \brief PadN option number.
      */
-  static const uint8_t OPT_NUMBER = 60;
+    static const uint8_t OPT_NUMBER = 60;
 
-  /**
+    /**
      * \brief Get the type identificator.
      * \return type identificator
      */
-  static TypeId GetTypeId ();
+    static TypeId GetTypeId();
 
-  /**
+    /**
      * \brief Constructor.
      */
-  Ipv6OptionPadn ();
+    Ipv6OptionPadn();
 
-  /**
+    /**
      * \brief Destructor.
      */
-  ~Ipv6OptionPadn () override;
+    ~Ipv6OptionPadn() override;
 
-  /**
+    /**
      * \brief Get the option number.
      * \return option number
      */
-  uint8_t GetOptionNumber () const override;
+    uint8_t GetOptionNumber() const override;
 
-  /**
+    /**
      * \brief Process method
      *
      * Called from Ipv6L3Protocol::Receive.
@@ -182,8 +187,10 @@ public:
      * \param isDropped if the packet must be dropped
      * \return the processed size
      */
-  uint8_t Process (Ptr<Packet> packet, uint8_t offset, const Ipv6Header &ipv6Header,
-                   bool &isDropped) override;
+    uint8_t Process(Ptr<Packet> packet,
+                    uint8_t offset,
+                    const Ipv6Header& ipv6Header,
+                    bool& isDropped) override;
 };
 
 /**
@@ -193,35 +200,35 @@ public:
  */
 class Ipv6OptionJumbogram : public Ipv6Option
 {
-public:
-  /**
+  public:
+    /**
      * \brief Jumbogram option number.
      */
-  static const uint8_t OPT_NUMBER = 44;
+    static const uint8_t OPT_NUMBER = 44;
 
-  /**
+    /**
      * \brief Get the type identificator.
      * \return type identificator
      */
-  static TypeId GetTypeId ();
+    static TypeId GetTypeId();
 
-  /**
+    /**
      * \brief Constructor.
      */
-  Ipv6OptionJumbogram ();
+    Ipv6OptionJumbogram();
 
-  /**
+    /**
      * \brief Destructor.
      */
-  ~Ipv6OptionJumbogram () override;
+    ~Ipv6OptionJumbogram() override;
 
-  /**
+    /**
      * \brief Get the option number.
      * \return option number
      */
-  uint8_t GetOptionNumber () const override;
+    uint8_t GetOptionNumber() const override;
 
-  /**
+    /**
      * \brief Process method
      * Called from Ipv6L3Protocol::Receive.
      * \param packet the packet
@@ -230,8 +237,10 @@ public:
      * \param isDropped if the packet must be dropped
      * \return the processed size
      */
-  uint8_t Process (Ptr<Packet> packet, uint8_t offset, const Ipv6Header &ipv6Header,
-                   bool &isDropped) override;
+    uint8_t Process(Ptr<Packet> packet,
+                    uint8_t offset,
+                    const Ipv6Header& ipv6Header,
+                    bool& isDropped) override;
 };
 
 /**
@@ -241,35 +250,35 @@ public:
  */
 class Ipv6OptionRouterAlert : public Ipv6Option
 {
-public:
-  /**
+  public:
+    /**
      * \brief Router alert option number.
      */
-  static const uint8_t OPT_NUMBER = 43;
+    static const uint8_t OPT_NUMBER = 43;
 
-  /**
+    /**
      * \brief Get the type identificator.
      * \return type identificator
      */
-  static TypeId GetTypeId ();
+    static TypeId GetTypeId();
 
-  /**
+    /**
      * \brief Constructor.
      */
-  Ipv6OptionRouterAlert ();
+    Ipv6OptionRouterAlert();
 
-  /**
+    /**
      * \brief Destructor.
      */
-  ~Ipv6OptionRouterAlert () override;
+    ~Ipv6OptionRouterAlert() override;
 
-  /**
+    /**
      * \brief Get the option number.
      * \return option number
      */
-  uint8_t GetOptionNumber () const override;
+    uint8_t GetOptionNumber() const override;
 
-  /**
+    /**
      * \brief Process method
      *
      * Called from Ipv6L3Protocol::Receive.
@@ -279,8 +288,10 @@ public:
      * \param isDropped if the packet must be dropped
      * \return the processed size
      */
-  uint8_t Process (Ptr<Packet> packet, uint8_t offset, const Ipv6Header &ipv6Header,
-                   bool &isDropped) override;
+    uint8_t Process(Ptr<Packet> packet,
+                    uint8_t offset,
+                    const Ipv6Header& ipv6Header,
+                    bool& isDropped) override;
 };
 
 } /* namespace ns3 */

@@ -26,7 +26,8 @@
 
 #include <stdint.h>
 
-namespace ns3 {
+namespace ns3
+{
 
 /**
  * \ingroup mobility
@@ -36,32 +37,32 @@ namespace ns3 {
  */
 class ConstantVelocityMobilityModel : public MobilityModel
 {
-public:
-  /**
+  public:
+    /**
      * Register this type with the TypeId system.
      * \return the object TypeId
      */
-  static TypeId GetTypeId ();
-  /**
+    static TypeId GetTypeId();
+    /**
      * Create position located at coordinates (0,0,0) with
      * speed (0,0,0).
      */
-  ConstantVelocityMobilityModel ();
-  ~ConstantVelocityMobilityModel () override;
+    ConstantVelocityMobilityModel();
+    ~ConstantVelocityMobilityModel() override;
 
-  /**
+    /**
      * \param speed the new speed to set.
      *
      * Set the current speed now to (dx,dy,dz)
      * Unit is meters/s
      */
-  void SetVelocity (const Vector &speed);
+    void SetVelocity(const Vector& speed);
 
-private:
-  Vector DoGetPosition () const override;
-  void DoSetPosition (const Vector &position) override;
-  Vector DoGetVelocity () const override;
-  ConstantVelocityHelper m_helper; //!< helper object for this model
+  private:
+    Vector DoGetPosition() const override;
+    void DoSetPosition(const Vector& position) override;
+    Vector DoGetVelocity() const override;
+    ConstantVelocityHelper m_helper; //!< helper object for this model
 };
 
 } // namespace ns3

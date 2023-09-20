@@ -30,7 +30,8 @@
 #include <functional>
 #include <vector>
 
-namespace ns3 {
+namespace ns3
+{
 
 class QueueLimits;
 class NetDeviceQueueInterface;
@@ -55,45 +56,45 @@ class QueueItem;
  */
 class NetDeviceQueue : public Object
 {
-public:
-  /**
+  public:
+    /**
      * \brief Get the type ID.
      * \return the object TypeId
      */
-  static TypeId GetTypeId ();
+    static TypeId GetTypeId();
 
-  NetDeviceQueue ();
-  ~NetDeviceQueue () override;
+    NetDeviceQueue();
+    ~NetDeviceQueue() override;
 
-  /**
+    /**
      * Called by the device to start this device transmission queue.
      * This is the analogous to the netif_tx_start_queue function of the Linux kernel.
      */
-  virtual void Start ();
+    virtual void Start();
 
-  /**
+    /**
      * Called by the device to stop this device transmission queue.
      * This is the analogous to the netif_tx_stop_queue function of the Linux kernel.
      */
-  virtual void Stop ();
+    virtual void Stop();
 
-  /**
+    /**
      * Called by the device to wake the queue disc associated with this
      * device transmission queue. This is done by invoking the wake callback.
      * This is the analogous to the netif_tx_wake_queue function of the Linux kernel.
      */
-  virtual void Wake ();
+    virtual void Wake();
 
-  /**
+    /**
      * \brief Get the status of the device transmission queue.
      * \return true if the device transmission queue is stopped.
      *
      * Called by queue discs to enquire about the status of a given transmission queue.
      * This is the analogous to the netif_xmit_stopped function of the Linux kernel.
      */
-  virtual bool IsStopped () const;
+    virtual bool IsStopped() const;
 
-  /**
+    /**
      * \brief Notify this NetDeviceQueue that the NetDeviceQueueInterface was
      *        aggregated to an object.
      *
@@ -102,12 +103,12 @@ public:
      * This NetDeviceQueue stores a pointer to the NetDevice the NetDeviceQueueInterface
      * was aggregated to.
      */
-  void NotifyAggregatedObject (Ptr<NetDeviceQueueInterface> ndqi);
+    void NotifyAggregatedObject(Ptr<NetDeviceQueueInterface> ndqi);
 
-  /// Callback invoked by netdevices to wake upper layers
-  typedef Callback<void> WakeCallback;
+    /// Callback invoked by netdevices to wake upper layers
+    typedef Callback<void> WakeCallback;
 
-  /**
+    /**
      * \brief Set the wake callback
      * \param cb the callback to set
      *
@@ -117,38 +118,38 @@ public:
      * multi-queue aware queue discs) or to the network device (otherwise) to send
      * packets down to the device).
      */
-  virtual void SetWakeCallback (WakeCallback cb);
+    virtual void SetWakeCallback(WakeCallback cb);
 
-  /**
+    /**
      * \brief Called by the netdevice to report the number of bytes queued to the device queue
      * \param bytes number of bytes queued to the device queue
      */
-  virtual void NotifyQueuedBytes (uint32_t bytes);
+    virtual void NotifyQueuedBytes(uint32_t bytes);
 
-  /**
+    /**
      * \brief Called by the netdevice to report the number of bytes it is going to transmit
      * \param bytes number of bytes the device is going to transmit
      */
-  virtual void NotifyTransmittedBytes (uint32_t bytes);
+    virtual void NotifyTransmittedBytes(uint32_t bytes);
 
-  /**
+    /**
      * \brief Reset queue limits state
      */
-  void ResetQueueLimits ();
+    void ResetQueueLimits();
 
-  /**
+    /**
      * \brief Set queue limits to this queue
      * \param ql the queue limits associated to this queue
      */
-  void SetQueueLimits (Ptr<QueueLimits> ql);
+    void SetQueueLimits(Ptr<QueueLimits> ql);
 
-  /**
+    /**
      * \brief Get queue limits to this queue
      * \return the queue limits associated to this queue
      */
-  Ptr<QueueLimits> GetQueueLimits ();
+    Ptr<QueueLimits> GetQueueLimits();
 
-  /**
+    /**
      * \brief Perform the actions required by flow control and dynamic queue
      *        limits when a packet is enqueued in the queue of a netdevice
      *
@@ -159,10 +160,10 @@ public:
      * object (through a bound callback) in order for a netdevice to support
      * flow control and dynamic queue limits.
      */
-  template <typename QueueType>
-  void PacketEnqueued (QueueType *queue, Ptr<const typename QueueType::ItemType> item);
+    template <typename QueueType>
+    void PacketEnqueued(QueueType* queue, Ptr<const typename QueueType::ItemType> item);
 
-  /**
+    /**
      * \brief Perform the actions required by flow control and dynamic queue
      *        limits when a packet is dequeued (or dropped after dequeue) from
      *        the queue of a netdevice
@@ -174,10 +175,10 @@ public:
      * object (through a bound callback) in order for
      * a netdevice to support flow control and dynamic queue limits.
      */
-  template <typename QueueType>
-  void PacketDequeued (QueueType *queue, Ptr<const typename QueueType::ItemType> item);
+    template <typename QueueType>
+    void PacketDequeued(QueueType* queue, Ptr<const typename QueueType::ItemType> item);
 
-  /**
+    /**
      * \brief Perform the actions required by flow control and dynamic queue
      *        limits when a packet is dropped before being enqueued in the queue
      *        of a netdevice (which likely indicates that the queue is full)
@@ -189,10 +190,10 @@ public:
      * of a Queue object (through a bound callback) in order for a netdevice to
      * support flow control and dynamic queue limits.
      */
-  template <typename QueueType>
-  void PacketDiscarded (QueueType *queue, Ptr<const typename QueueType::ItemType> item);
+    template <typename QueueType>
+    void PacketDiscarded(QueueType* queue, Ptr<const typename QueueType::ItemType> item);
 
-  /**
+    /**
      * \brief Connect the traced callbacks of a queue to the methods providing support
      *        for flow control and dynamic queue limits. A queue can be any object providing:
      *        - "Enqueue", "Dequeue", "DropBeforeEnqueue" traces
@@ -200,17 +201,17 @@ public:
      *        - GetCurrentSize and GetMaxSize methods
      * \param queue the queue
      */
-  template <typename QueueType>
-  void ConnectQueueTraces (Ptr<QueueType> queue);
+    template <typename QueueType>
+    void ConnectQueueTraces(Ptr<QueueType> queue);
 
-private:
-  bool m_stoppedByDevice; //!< True if the queue has been stopped by the device
-  bool m_stoppedByQueueLimits; //!< True if the queue has been stopped by a queue limits object
-  Ptr<QueueLimits> m_queueLimits; //!< Queue limits object
-  WakeCallback m_wakeCallback; //!< Wake callback
-  Ptr<NetDevice> m_device; //!< the netdevice aggregated to the NetDeviceQueueInterface
+  private:
+    bool m_stoppedByDevice;         //!< True if the queue has been stopped by the device
+    bool m_stoppedByQueueLimits;    //!< True if the queue has been stopped by a queue limits object
+    Ptr<QueueLimits> m_queueLimits; //!< Queue limits object
+    WakeCallback m_wakeCallback;    //!< Wake callback
+    Ptr<NetDevice> m_device;        //!< the netdevice aggregated to the NetDeviceQueueInterface
 
-  NS_LOG_TEMPLATE_DECLARE; //!< redefinition of the log component
+    NS_LOG_TEMPLATE_DECLARE; //!< redefinition of the log component
 };
 
 /**
@@ -228,20 +229,20 @@ private:
  */
 class NetDeviceQueueInterface : public Object
 {
-public:
-  /**
+  public:
+    /**
      * \brief Get the type ID.
      * \return the object TypeId
      */
-  static TypeId GetTypeId ();
+    static TypeId GetTypeId();
 
-  /**
+    /**
      * \brief Constructor
      */
-  NetDeviceQueueInterface ();
-  ~NetDeviceQueueInterface () override;
+    NetDeviceQueueInterface();
+    ~NetDeviceQueueInterface() override;
 
-  /**
+    /**
      * \brief Get the i-th transmission queue of the device.
      *
      * \param i the index of the requested queue.
@@ -249,15 +250,15 @@ public:
      *
      * The index of the first transmission queue is zero.
      */
-  Ptr<NetDeviceQueue> GetTxQueue (std::size_t i) const;
+    Ptr<NetDeviceQueue> GetTxQueue(std::size_t i) const;
 
-  /**
+    /**
      * \brief Get the number of device transmission queues.
      * \return the number of device transmission queues.
      */
-  std::size_t GetNTxQueues () const;
+    std::size_t GetNTxQueues() const;
 
-  /**
+    /**
      * \brief Set the type of device transmission queues to create.
      * \param type type of device transmission queues to create.
      *
@@ -265,9 +266,9 @@ public:
      * the corresponding type of device transmission queues. It cannot be
      * called again afterwards.
      */
-  void SetTxQueuesType (TypeId type);
+    void SetTxQueuesType(TypeId type);
 
-  /**
+    /**
      * \brief Set the number of device transmission queues to create.
      * \param numTxQueues number of device transmission queues to create.
      *
@@ -275,43 +276,43 @@ public:
      * the corresponding number of device transmission queues. It cannot be
      * called again afterwards.
      */
-  void SetNTxQueues (std::size_t numTxQueues);
+    void SetNTxQueues(std::size_t numTxQueues);
 
-  /// Callback invoked to determine the tx queue selected for a given packet
-  typedef std::function<std::size_t (Ptr<QueueItem>)> SelectQueueCallback;
+    /// Callback invoked to determine the tx queue selected for a given packet
+    typedef std::function<std::size_t(Ptr<QueueItem>)> SelectQueueCallback;
 
-  /**
+    /**
      * \brief Set the select queue callback.
      * \param cb the callback to set.
      *
      * This method is called to set the select queue callback, i.e., the
      * method used to select a device transmission queue for a given packet.
      */
-  void SetSelectQueueCallback (SelectQueueCallback cb);
+    void SetSelectQueueCallback(SelectQueueCallback cb);
 
-  /**
+    /**
      * \brief Get the select queue callback.
      * \return the select queue callback.
      *
      * Called by the traffic control layer to get the select queue callback set
      * by a multi-queue device.
      */
-  SelectQueueCallback GetSelectQueueCallback () const;
+    SelectQueueCallback GetSelectQueueCallback() const;
 
-protected:
-  /**
+  protected:
+    /**
      * \brief Dispose of the object
      */
-  void DoDispose () override;
-  /**
+    void DoDispose() override;
+    /**
      * \brief Notify that an object was aggregated
      */
-  void NotifyNewAggregate () override;
+    void NotifyNewAggregate() override;
 
-private:
-  ObjectFactory m_txQueues; //!< Device transmission queues TypeId
-  std::vector<Ptr<NetDeviceQueue>> m_txQueuesVector; //!< Device transmission queues
-  SelectQueueCallback m_selectQueueCallback; //!< Select queue callback
+  private:
+    ObjectFactory m_txQueues;                          //!< Device transmission queues TypeId
+    std::vector<Ptr<NetDeviceQueue>> m_txQueuesVector; //!< Device transmission queues
+    SelectQueueCallback m_selectQueueCallback;         //!< Select queue callback
 };
 
 /**
@@ -320,79 +321,79 @@ private:
 
 template <typename QueueType>
 void
-NetDeviceQueue::ConnectQueueTraces (Ptr<QueueType> queue)
+NetDeviceQueue::ConnectQueueTraces(Ptr<QueueType> queue)
 {
-  NS_ASSERT (queue);
+    NS_ASSERT(queue);
 
-  queue->TraceConnectWithoutContext (
-      "Enqueue",
-      MakeCallback (&NetDeviceQueue::PacketEnqueued<QueueType>, this).Bind (PeekPointer (queue)));
-  queue->TraceConnectWithoutContext (
-      "Dequeue",
-      MakeCallback (&NetDeviceQueue::PacketDequeued<QueueType>, this).Bind (PeekPointer (queue)));
-  queue->TraceConnectWithoutContext (
-      "DropBeforeEnqueue",
-      MakeCallback (&NetDeviceQueue::PacketDiscarded<QueueType>, this).Bind (PeekPointer (queue)));
+    queue->TraceConnectWithoutContext(
+        "Enqueue",
+        MakeCallback(&NetDeviceQueue::PacketEnqueued<QueueType>, this).Bind(PeekPointer(queue)));
+    queue->TraceConnectWithoutContext(
+        "Dequeue",
+        MakeCallback(&NetDeviceQueue::PacketDequeued<QueueType>, this).Bind(PeekPointer(queue)));
+    queue->TraceConnectWithoutContext(
+        "DropBeforeEnqueue",
+        MakeCallback(&NetDeviceQueue::PacketDiscarded<QueueType>, this).Bind(PeekPointer(queue)));
 }
 
 template <typename QueueType>
 void
-NetDeviceQueue::PacketEnqueued (QueueType *queue, Ptr<const typename QueueType::ItemType> item)
+NetDeviceQueue::PacketEnqueued(QueueType* queue, Ptr<const typename QueueType::ItemType> item)
 {
-  NS_LOG_FUNCTION (this << queue << item);
+    NS_LOG_FUNCTION(this << queue << item);
 
-  // Inform BQL
-  NotifyQueuedBytes (item->GetSize ());
+    // Inform BQL
+    NotifyQueuedBytes(item->GetSize());
 
-  NS_ASSERT_MSG (m_device, "Aggregated NetDevice not set");
-  // After enqueuing a packet, we need to check whether the queue is able to
-  // store another packet. If not, we stop the queue
+    NS_ASSERT_MSG(m_device, "Aggregated NetDevice not set");
+    // After enqueuing a packet, we need to check whether the queue is able to
+    // store another packet. If not, we stop the queue
 
-  if (queue->WouldOverflow (1, m_device->GetMtu ()))
+    if (queue->WouldOverflow(1, m_device->GetMtu()))
     {
-      NS_LOG_DEBUG ("The device queue is being stopped (" << queue->GetCurrentSize ()
-                                                          << " inside)");
-      Stop ();
+        NS_LOG_DEBUG("The device queue is being stopped (" << queue->GetCurrentSize()
+                                                           << " inside)");
+        Stop();
     }
 }
 
 template <typename QueueType>
 void
-NetDeviceQueue::PacketDequeued (QueueType *queue, Ptr<const typename QueueType::ItemType> item)
+NetDeviceQueue::PacketDequeued(QueueType* queue, Ptr<const typename QueueType::ItemType> item)
 {
-  NS_LOG_FUNCTION (this << queue << item);
-  NS_ASSERT_MSG (m_device, "Aggregated NetDevice not set");
+    NS_LOG_FUNCTION(this << queue << item);
+    NS_ASSERT_MSG(m_device, "Aggregated NetDevice not set");
 
-  Simulator::ScheduleNow ([=] () {
-    // Inform BQL
-    NotifyTransmittedBytes (item->GetSize ());
+    Simulator::ScheduleNow([=]() {
+        // Inform BQL
+        NotifyTransmittedBytes(item->GetSize());
 
-    // After dequeuing a packet, if there is room for another packet we
-    // call Wake () that ensures that the queue is not stopped and restarts
-    // the queue disc if the queue was stopped
+        // After dequeuing a packet, if there is room for another packet we
+        // call Wake () that ensures that the queue is not stopped and restarts
+        // the queue disc if the queue was stopped
 
-    if (!queue->WouldOverflow (1, m_device->GetMtu ()))
-      {
-        Wake ();
-      }
-  });
+        if (!queue->WouldOverflow(1, m_device->GetMtu()))
+        {
+            Wake();
+        }
+    });
 }
 
 template <typename QueueType>
 void
-NetDeviceQueue::PacketDiscarded (QueueType *queue, Ptr<const typename QueueType::ItemType> item)
+NetDeviceQueue::PacketDiscarded(QueueType* queue, Ptr<const typename QueueType::ItemType> item)
 {
-  NS_LOG_FUNCTION (this << queue << item);
+    NS_LOG_FUNCTION(this << queue << item);
 
-  // This method is called when a packet is discarded before being enqueued in the
-  // device queue, likely because the queue is full. This should not happen if the
-  // device correctly stops the queue. Anyway, stop the tx queue, so that the upper
-  // layers do not send packets until there is room in the queue again.
+    // This method is called when a packet is discarded before being enqueued in the
+    // device queue, likely because the queue is full. This should not happen if the
+    // device correctly stops the queue. Anyway, stop the tx queue, so that the upper
+    // layers do not send packets until there is room in the queue again.
 
-  NS_LOG_ERROR ("BUG! No room in the device queue for the received packet! ("
-                << queue->GetCurrentSize () << " inside)");
+    NS_LOG_ERROR("BUG! No room in the device queue for the received packet! ("
+                 << queue->GetCurrentSize() << " inside)");
 
-  Stop ();
+    Stop();
 }
 
 } // namespace ns3

@@ -28,7 +28,8 @@
 #include <stdint.h>
 #include <string>
 
-namespace ns3 {
+namespace ns3
+{
 
 class ConstantVelocityMobilityModel;
 
@@ -75,22 +76,22 @@ class ConstantVelocityMobilityModel;
  */
 class Ns2MobilityHelper
 {
-public:
-  /**
+  public:
+    /**
      * \param filename filename of file which contains the
      *        ns2 movement trace.
      */
-  Ns2MobilityHelper (std::string filename);
+    Ns2MobilityHelper(std::string filename);
 
-  /**
+    /**
      * Read the ns2 trace file and configure the movement
      * patterns of all nodes contained in the global ns3::NodeList
      * whose nodeId is matches the nodeId of the nodes in the trace
      * file.
      */
-  void Install () const;
+    void Install() const;
 
-  /**
+    /**
      * \param begin an iterator which points to the start of the input
      *        object array.
      * \param end an iterator which points to the end of the input
@@ -101,77 +102,79 @@ public:
      * is identified by a unique node id which reflects
      * the index of the object in the input array.
      */
-  template <typename T>
-  void Install (T begin, T end) const;
+    template <typename T>
+    void Install(T begin, T end) const;
 
-private:
-  /**
+  private:
+    /**
      * \brief a class to hold input objects internally
      */
-  class ObjectStore
-  {
-  public:
-    virtual ~ObjectStore ()
+    class ObjectStore
     {
-    }
+      public:
+        virtual ~ObjectStore()
+        {
+        }
 
-    /**
+        /**
          * Return ith object in store
          * \param i index
          * \return pointer to object
          */
-    virtual Ptr<Object> Get (uint32_t i) const = 0;
-  };
+        virtual Ptr<Object> Get(uint32_t i) const = 0;
+    };
 
-  /**
+    /**
      * Parses ns-2 mobility file to create ns-3 mobility events
      * \param store Object store containing ns-3 mobility models
      */
-  void ConfigNodesMovements (const ObjectStore &store) const;
-  /**
+    void ConfigNodesMovements(const ObjectStore& store) const;
+    /**
      * Get or create a ConstantVelocityMobilityModel corresponding to idString
      * \param idString string name for a node
      * \param store Object store containing ns-3 mobility models
      * \return pointer to a ConstantVelocityMobilityModel
      */
-  Ptr<ConstantVelocityMobilityModel> GetMobilityModel (std::string idString,
-                                                       const ObjectStore &store) const;
-  std::string m_filename; //!< filename of file containing ns-2 mobility trace
+    Ptr<ConstantVelocityMobilityModel> GetMobilityModel(std::string idString,
+                                                        const ObjectStore& store) const;
+    std::string m_filename; //!< filename of file containing ns-2 mobility trace
 };
 
 } // namespace ns3
 
-namespace ns3 {
+namespace ns3
+{
 
 template <typename T>
 void
-Ns2MobilityHelper::Install (T begin, T end) const
+Ns2MobilityHelper::Install(T begin, T end) const
 {
-  class MyObjectStore : public ObjectStore
-  {
-  public:
-    MyObjectStore (T begin, T end) : m_begin (begin), m_end (end)
+    class MyObjectStore : public ObjectStore
     {
-    }
-
-    Ptr<Object>
-    Get (uint32_t i) const override
-    {
-      T iterator = m_begin;
-      iterator += i;
-      if (iterator >= m_end)
+      public:
+        MyObjectStore(T begin, T end)
+            : m_begin(begin),
+              m_end(end)
         {
-          return nullptr;
         }
-      return *iterator;
-    }
 
-  private:
-    T m_begin;
-    T m_end;
-  };
+        Ptr<Object> Get(uint32_t i) const override
+        {
+            T iterator = m_begin;
+            iterator += i;
+            if (iterator >= m_end)
+            {
+                return nullptr;
+            }
+            return *iterator;
+        }
 
-  ConfigNodesMovements (MyObjectStore (begin, end));
+      private:
+        T m_begin;
+        T m_end;
+    };
+
+    ConfigNodesMovements(MyObjectStore(begin, end));
 }
 
 } // namespace ns3

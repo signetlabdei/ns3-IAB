@@ -25,223 +25,233 @@
 #include "ns3/log.h"
 #include "ns3/uinteger.h"
 
-namespace ns3 {
+namespace ns3
+{
 
-NS_LOG_COMPONENT_DEFINE ("Ipv6Option");
+NS_LOG_COMPONENT_DEFINE("Ipv6Option");
 
-NS_OBJECT_ENSURE_REGISTERED (Ipv6Option);
+NS_OBJECT_ENSURE_REGISTERED(Ipv6Option);
 
 TypeId
-Ipv6Option::GetTypeId ()
+Ipv6Option::GetTypeId()
 {
-  static TypeId tid =
-      TypeId ("ns3::Ipv6Option")
-          .SetParent<Object> ()
-          .SetGroupName ("Internet")
-          .AddAttribute ("OptionNumber", "The IPv6 option number.", UintegerValue (0),
-                         MakeUintegerAccessor (&Ipv6Option::GetOptionNumber),
-                         MakeUintegerChecker<uint8_t> ());
-  return tid;
+    static TypeId tid = TypeId("ns3::Ipv6Option")
+                            .SetParent<Object>()
+                            .SetGroupName("Internet")
+                            .AddAttribute("OptionNumber",
+                                          "The IPv6 option number.",
+                                          UintegerValue(0),
+                                          MakeUintegerAccessor(&Ipv6Option::GetOptionNumber),
+                                          MakeUintegerChecker<uint8_t>());
+    return tid;
 }
 
-Ipv6Option::~Ipv6Option ()
+Ipv6Option::~Ipv6Option()
 {
-  NS_LOG_FUNCTION (this);
+    NS_LOG_FUNCTION(this);
 }
 
 void
-Ipv6Option::SetNode (Ptr<Node> node)
+Ipv6Option::SetNode(Ptr<Node> node)
 {
-  NS_LOG_FUNCTION (this << node);
-  m_node = node;
+    NS_LOG_FUNCTION(this << node);
+    m_node = node;
 }
 
-NS_OBJECT_ENSURE_REGISTERED (Ipv6OptionPad1);
+NS_OBJECT_ENSURE_REGISTERED(Ipv6OptionPad1);
 
 TypeId
-Ipv6OptionPad1::GetTypeId ()
+Ipv6OptionPad1::GetTypeId()
 {
-  static TypeId tid = TypeId ("ns3::Ipv6OptionPad1")
-                          .SetParent<Ipv6Option> ()
-                          .SetGroupName ("Internet")
-                          .AddConstructor<Ipv6OptionPad1> ();
-  return tid;
+    static TypeId tid = TypeId("ns3::Ipv6OptionPad1")
+                            .SetParent<Ipv6Option>()
+                            .SetGroupName("Internet")
+                            .AddConstructor<Ipv6OptionPad1>();
+    return tid;
 }
 
-Ipv6OptionPad1::Ipv6OptionPad1 ()
+Ipv6OptionPad1::Ipv6OptionPad1()
 {
-  NS_LOG_FUNCTION (this);
+    NS_LOG_FUNCTION(this);
 }
 
-Ipv6OptionPad1::~Ipv6OptionPad1 ()
+Ipv6OptionPad1::~Ipv6OptionPad1()
 {
-  NS_LOG_FUNCTION (this);
-}
-
-uint8_t
-Ipv6OptionPad1::GetOptionNumber () const
-{
-  NS_LOG_FUNCTION (this);
-
-  return OPT_NUMBER;
+    NS_LOG_FUNCTION(this);
 }
 
 uint8_t
-Ipv6OptionPad1::Process (Ptr<Packet> packet, uint8_t offset, const Ipv6Header &ipv6Header,
-                         bool &isDropped)
+Ipv6OptionPad1::GetOptionNumber() const
 {
-  NS_LOG_FUNCTION (this << packet << offset << ipv6Header << isDropped);
+    NS_LOG_FUNCTION(this);
 
-  Ptr<Packet> p = packet->Copy ();
-  p->RemoveAtStart (offset);
-
-  Ipv6OptionPad1Header pad1Header;
-  p->RemoveHeader (pad1Header);
-
-  isDropped = false;
-
-  return pad1Header.GetSerializedSize ();
+    return OPT_NUMBER;
 }
 
-NS_OBJECT_ENSURE_REGISTERED (Ipv6OptionPadn);
+uint8_t
+Ipv6OptionPad1::Process(Ptr<Packet> packet,
+                        uint8_t offset,
+                        const Ipv6Header& ipv6Header,
+                        bool& isDropped)
+{
+    NS_LOG_FUNCTION(this << packet << offset << ipv6Header << isDropped);
+
+    Ptr<Packet> p = packet->Copy();
+    p->RemoveAtStart(offset);
+
+    Ipv6OptionPad1Header pad1Header;
+    p->RemoveHeader(pad1Header);
+
+    isDropped = false;
+
+    return pad1Header.GetSerializedSize();
+}
+
+NS_OBJECT_ENSURE_REGISTERED(Ipv6OptionPadn);
 
 TypeId
-Ipv6OptionPadn::GetTypeId ()
+Ipv6OptionPadn::GetTypeId()
 {
-  static TypeId tid = TypeId ("ns3::Ipv6OptionPadn")
-                          .SetParent<Ipv6Option> ()
-                          .SetGroupName ("Internet")
-                          .AddConstructor<Ipv6OptionPadn> ();
-  return tid;
+    static TypeId tid = TypeId("ns3::Ipv6OptionPadn")
+                            .SetParent<Ipv6Option>()
+                            .SetGroupName("Internet")
+                            .AddConstructor<Ipv6OptionPadn>();
+    return tid;
 }
 
-Ipv6OptionPadn::Ipv6OptionPadn ()
+Ipv6OptionPadn::Ipv6OptionPadn()
 {
-  NS_LOG_FUNCTION (this);
+    NS_LOG_FUNCTION(this);
 }
 
-Ipv6OptionPadn::~Ipv6OptionPadn ()
+Ipv6OptionPadn::~Ipv6OptionPadn()
 {
-  NS_LOG_FUNCTION (this);
-}
-
-uint8_t
-Ipv6OptionPadn::GetOptionNumber () const
-{
-  NS_LOG_FUNCTION (this);
-
-  return OPT_NUMBER;
+    NS_LOG_FUNCTION(this);
 }
 
 uint8_t
-Ipv6OptionPadn::Process (Ptr<Packet> packet, uint8_t offset, const Ipv6Header &ipv6Header,
-                         bool &isDropped)
+Ipv6OptionPadn::GetOptionNumber() const
 {
-  NS_LOG_FUNCTION (this << packet << offset << ipv6Header << isDropped);
+    NS_LOG_FUNCTION(this);
 
-  Ptr<Packet> p = packet->Copy ();
-  p->RemoveAtStart (offset);
-
-  Ipv6OptionPadnHeader padnHeader;
-  p->RemoveHeader (padnHeader);
-
-  isDropped = false;
-
-  return padnHeader.GetSerializedSize ();
+    return OPT_NUMBER;
 }
 
-NS_OBJECT_ENSURE_REGISTERED (Ipv6OptionJumbogram);
+uint8_t
+Ipv6OptionPadn::Process(Ptr<Packet> packet,
+                        uint8_t offset,
+                        const Ipv6Header& ipv6Header,
+                        bool& isDropped)
+{
+    NS_LOG_FUNCTION(this << packet << offset << ipv6Header << isDropped);
+
+    Ptr<Packet> p = packet->Copy();
+    p->RemoveAtStart(offset);
+
+    Ipv6OptionPadnHeader padnHeader;
+    p->RemoveHeader(padnHeader);
+
+    isDropped = false;
+
+    return padnHeader.GetSerializedSize();
+}
+
+NS_OBJECT_ENSURE_REGISTERED(Ipv6OptionJumbogram);
 
 TypeId
-Ipv6OptionJumbogram::GetTypeId ()
+Ipv6OptionJumbogram::GetTypeId()
 {
-  static TypeId tid = TypeId ("ns3::Ipv6OptionJumbogram")
-                          .SetParent<Ipv6Option> ()
-                          .SetGroupName ("Internet")
-                          .AddConstructor<Ipv6OptionJumbogram> ();
-  return tid;
+    static TypeId tid = TypeId("ns3::Ipv6OptionJumbogram")
+                            .SetParent<Ipv6Option>()
+                            .SetGroupName("Internet")
+                            .AddConstructor<Ipv6OptionJumbogram>();
+    return tid;
 }
 
-Ipv6OptionJumbogram::Ipv6OptionJumbogram ()
+Ipv6OptionJumbogram::Ipv6OptionJumbogram()
 {
-  NS_LOG_FUNCTION (this);
+    NS_LOG_FUNCTION(this);
 }
 
-Ipv6OptionJumbogram::~Ipv6OptionJumbogram ()
+Ipv6OptionJumbogram::~Ipv6OptionJumbogram()
 {
-  NS_LOG_FUNCTION (this);
-}
-
-uint8_t
-Ipv6OptionJumbogram::GetOptionNumber () const
-{
-  NS_LOG_FUNCTION (this);
-
-  return OPT_NUMBER;
+    NS_LOG_FUNCTION(this);
 }
 
 uint8_t
-Ipv6OptionJumbogram::Process (Ptr<Packet> packet, uint8_t offset, const Ipv6Header &ipv6Header,
-                              bool &isDropped)
+Ipv6OptionJumbogram::GetOptionNumber() const
 {
-  NS_LOG_FUNCTION (this << packet << offset << ipv6Header << isDropped);
+    NS_LOG_FUNCTION(this);
 
-  Ptr<Packet> p = packet->Copy ();
-  p->RemoveAtStart (offset);
-
-  Ipv6OptionJumbogramHeader jumbogramHeader;
-  p->RemoveHeader (jumbogramHeader);
-
-  isDropped = false;
-
-  return jumbogramHeader.GetSerializedSize ();
+    return OPT_NUMBER;
 }
 
-NS_OBJECT_ENSURE_REGISTERED (Ipv6OptionRouterAlert);
+uint8_t
+Ipv6OptionJumbogram::Process(Ptr<Packet> packet,
+                             uint8_t offset,
+                             const Ipv6Header& ipv6Header,
+                             bool& isDropped)
+{
+    NS_LOG_FUNCTION(this << packet << offset << ipv6Header << isDropped);
+
+    Ptr<Packet> p = packet->Copy();
+    p->RemoveAtStart(offset);
+
+    Ipv6OptionJumbogramHeader jumbogramHeader;
+    p->RemoveHeader(jumbogramHeader);
+
+    isDropped = false;
+
+    return jumbogramHeader.GetSerializedSize();
+}
+
+NS_OBJECT_ENSURE_REGISTERED(Ipv6OptionRouterAlert);
 
 TypeId
-Ipv6OptionRouterAlert::GetTypeId ()
+Ipv6OptionRouterAlert::GetTypeId()
 {
-  static TypeId tid = TypeId ("ns3::Ipv6OptionRouterAlert")
-                          .SetParent<Ipv6Option> ()
-                          .SetGroupName ("Internet")
-                          .AddConstructor<Ipv6OptionRouterAlert> ();
-  return tid;
+    static TypeId tid = TypeId("ns3::Ipv6OptionRouterAlert")
+                            .SetParent<Ipv6Option>()
+                            .SetGroupName("Internet")
+                            .AddConstructor<Ipv6OptionRouterAlert>();
+    return tid;
 }
 
-Ipv6OptionRouterAlert::Ipv6OptionRouterAlert ()
+Ipv6OptionRouterAlert::Ipv6OptionRouterAlert()
 {
-  NS_LOG_FUNCTION (this);
+    NS_LOG_FUNCTION(this);
 }
 
-Ipv6OptionRouterAlert::~Ipv6OptionRouterAlert ()
+Ipv6OptionRouterAlert::~Ipv6OptionRouterAlert()
 {
-  NS_LOG_FUNCTION (this);
-}
-
-uint8_t
-Ipv6OptionRouterAlert::GetOptionNumber () const
-{
-  NS_LOG_FUNCTION (this);
-
-  return OPT_NUMBER;
+    NS_LOG_FUNCTION(this);
 }
 
 uint8_t
-Ipv6OptionRouterAlert::Process (Ptr<Packet> packet, uint8_t offset, const Ipv6Header &ipv6Header,
-                                bool &isDropped)
+Ipv6OptionRouterAlert::GetOptionNumber() const
 {
-  NS_LOG_FUNCTION (this << packet << offset << ipv6Header << isDropped);
+    NS_LOG_FUNCTION(this);
 
-  Ptr<Packet> p = packet->Copy ();
-  p->RemoveAtStart (offset);
+    return OPT_NUMBER;
+}
 
-  Ipv6OptionRouterAlertHeader routerAlertHeader;
-  p->RemoveHeader (routerAlertHeader);
+uint8_t
+Ipv6OptionRouterAlert::Process(Ptr<Packet> packet,
+                               uint8_t offset,
+                               const Ipv6Header& ipv6Header,
+                               bool& isDropped)
+{
+    NS_LOG_FUNCTION(this << packet << offset << ipv6Header << isDropped);
 
-  isDropped = false;
+    Ptr<Packet> p = packet->Copy();
+    p->RemoveAtStart(offset);
 
-  return routerAlertHeader.GetSerializedSize ();
+    Ipv6OptionRouterAlertHeader routerAlertHeader;
+    p->RemoveHeader(routerAlertHeader);
+
+    isDropped = false;
+
+    return routerAlertHeader.GetSerializedSize();
 }
 
 } /* namespace ns3 */

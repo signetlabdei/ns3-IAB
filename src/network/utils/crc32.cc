@@ -26,7 +26,8 @@
  */
 #include <stdint.h>
 
-namespace ns3 {
+namespace ns3
+{
 
 /**
  * Table of CRC-32 values.
@@ -67,15 +68,15 @@ static uint32_t crc32table[256] = {
 };
 
 uint32_t
-CRC32Calculate (const uint8_t *data, int length)
+CRC32Calculate(const uint8_t* data, int length)
 {
-  uint32_t crc = 0xffffffff;
+    uint32_t crc = 0xffffffff;
 
-  while (length--)
+    while (length--)
     {
-      crc = (crc >> 8) ^ crc32table[(crc & 0xFF) ^ *data++];
+        crc = (crc >> 8) ^ crc32table[(crc & 0xFF) ^ *data++];
     }
-  return ~crc;
+    return ~crc;
 }
 
 } // namespace ns3

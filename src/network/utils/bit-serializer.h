@@ -23,7 +23,8 @@
 #include <cstdint>
 #include <vector>
 
-namespace ns3 {
+namespace ns3
+{
 
 /**
  * \ingroup packet
@@ -57,23 +58,23 @@ namespace ns3 {
 
 class BitSerializer
 {
-public:
-  BitSerializer ();
+  public:
+    BitSerializer();
 
-  /**
+    /**
      * Toggles the padding insertion policy.
      * \param padAtEnd true if the padding have to be inserted at the end of the bit blob.
      */
-  void InsertPaddingAtEnd (bool padAtEnd);
+    void InsertPaddingAtEnd(bool padAtEnd);
 
-  /**
+    /**
      * Pushes a number of bits in the blob.
      * \param value the bits to be inserted.
      * \param significantBits Number of bits to insert.
      */
-  void PushBits (uint64_t value, uint8_t significantBits);
+    void PushBits(uint64_t value, uint8_t significantBits);
 
-  /**
+    /**
      * Get the bytes representation of the blob.
      * Note that this operation  \b automatically add the
      * needed padding at the end (or start) of the blob.
@@ -82,9 +83,9 @@ public:
      *
      * \returns The byte representation of the blob.
      */
-  std::vector<uint8_t> GetBytes ();
+    std::vector<uint8_t> GetBytes();
 
-  /**
+    /**
      * Get the bytes representation of the blob.
      * Note that this operation  \b automatically add the
      * needed padding at the end (or start) of the blob.
@@ -95,21 +96,21 @@ public:
      * \param [in] size The size of the buffer.
      * \returns The number of bytes actually used in the buffer.
      */
-  uint8_t GetBytes (uint8_t *buffer, uint32_t size);
+    uint8_t GetBytes(uint8_t* buffer, uint32_t size);
 
-private:
-  /**
+  private:
+    /**
      * Add the padding at the start of the blob.
      */
-  void PadAtStart ();
+    void PadAtStart();
 
-  /**
+    /**
      * Add the padding at the end of the blob.
      */
-  void PadAtEnd ();
+    void PadAtEnd();
 
-  std::vector<bool> m_blob; //!< Blob of serialized bits.
-  bool m_padAtEnd; //!< True if the padding must be added at the end of the blob.
+    std::vector<bool> m_blob; //!< Blob of serialized bits.
+    bool m_padAtEnd;          //!< True if the padding must be added at the end of the blob.
 };
 
 } // namespace ns3

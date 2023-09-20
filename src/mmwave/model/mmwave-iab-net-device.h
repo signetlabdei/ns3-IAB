@@ -32,6 +32,7 @@
 #include "mmwave-ue-mac.h"
 #include "mmwave-mac-scheduler.h"
 #include <vector>
+#include <ns3/ipv4-interface-container.h>
 #include <map>
 #include <ns3/lte-enb-rrc.h>
 #include <ns3/epc-ue-nas.h>
@@ -83,6 +84,10 @@ public:
   Ptr<Bap> GetBap ();
 
   void SetBap (Ptr<Bap> bap);
+
+  void SetIpInterface (Ipv4InterfaceContainer address);
+
+  Ipv4InterfaceContainer GetIpInterface (void) const;
 
   uint16_t GetCellId () const;
 
@@ -167,6 +172,8 @@ private:
   bool m_isConstructed;
 
   bool m_isInitialized;
+
+  Ipv4InterfaceContainer m_ipInterface;
 
   std::map<uint8_t, Ptr<MmWaveComponentCarrier>> m_mtCcMap; //!< ComponentCarrier map
 

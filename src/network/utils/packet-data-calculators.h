@@ -25,7 +25,8 @@
 #include "ns3/mac48-address.h"
 #include "ns3/packet.h"
 
-namespace ns3 {
+namespace ns3
+{
 
 /**
  * \ingroup stats
@@ -35,25 +36,25 @@ namespace ns3 {
  */
 class PacketCounterCalculator : public CounterCalculator<uint32_t>
 {
-public:
-  PacketCounterCalculator ();
-  ~PacketCounterCalculator () override;
+  public:
+    PacketCounterCalculator();
+    ~PacketCounterCalculator() override;
 
-  /**
+    /**
      * Register this type.
      * \return The TypeId.
      */
-  static TypeId GetTypeId ();
+    static TypeId GetTypeId();
 
-  /**
+    /**
      * Increments the packet counter by one
      *
      * \param path not used in this method
      * \param packet not used in this method
      */
-  void PacketUpdate (std::string path, Ptr<const Packet> packet);
+    void PacketUpdate(std::string path, Ptr<const Packet> packet);
 
-  /**
+    /**
      * Increments the packet counter by one
      *
      * \param path not used in this method
@@ -61,15 +62,15 @@ public:
      * \param realto not used in this method
      */
 
-  void FrameUpdate (std::string path, Ptr<const Packet> packet, Mac48Address realto);
+    void FrameUpdate(std::string path, Ptr<const Packet> packet, Mac48Address realto);
 
-protected:
-  /**
+  protected:
+    /**
      * Dispose of this Object.
      */
-  void DoDispose () override;
+    void DoDispose() override;
 
-  // end class PacketCounterCalculator
+    // end class PacketCounterCalculator
 };
 
 /**
@@ -80,37 +81,37 @@ protected:
  */
 class PacketSizeMinMaxAvgTotalCalculator : public MinMaxAvgTotalCalculator<uint32_t>
 {
-public:
-  PacketSizeMinMaxAvgTotalCalculator ();
-  ~PacketSizeMinMaxAvgTotalCalculator () override;
+  public:
+    PacketSizeMinMaxAvgTotalCalculator();
+    ~PacketSizeMinMaxAvgTotalCalculator() override;
 
-  /**
+    /**
      * Register this type.
      * \return The TypeId.
      */
-  static TypeId GetTypeId ();
+    static TypeId GetTypeId();
 
-  /**
+    /**
      * Increments the packet stats by the size of the packet
      *
      * \param path not used in this method
      * \param packet packet size used to update stats
      */
-  void PacketUpdate (std::string path, Ptr<const Packet> packet);
+    void PacketUpdate(std::string path, Ptr<const Packet> packet);
 
-  /**
+    /**
      * Increments the packet stats by the size of the packet
      *
      * \param path not used in this method
      * \param packet packet size used to update stats
      * \param realto not used in this method
      */
-  void FrameUpdate (std::string path, Ptr<const Packet> packet, Mac48Address realto);
+    void FrameUpdate(std::string path, Ptr<const Packet> packet, Mac48Address realto);
 
-protected:
-  void DoDispose () override;
+  protected:
+    void DoDispose() override;
 
-  // end class PacketSizeMinMaxAvgTotalCalculator
+    // end class PacketSizeMinMaxAvgTotalCalculator
 };
 
 // end namespace ns3

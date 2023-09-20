@@ -21,7 +21,8 @@
 
 #include "ns3/socket-factory.h"
 
-namespace ns3 {
+namespace ns3
+{
 
 class Socket;
 
@@ -45,13 +46,13 @@ class Socket;
  */
 class TcpSocketFactory : public SocketFactory
 {
-public:
-  /**
+  public:
+    /**
      * Get the type ID.
      * \brief Get the type ID.
      * \return the object TypeId
      */
-  static TypeId GetTypeId ();
+    static TypeId GetTypeId();
 };
 
 } // namespace ns3

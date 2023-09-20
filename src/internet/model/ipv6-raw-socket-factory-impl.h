@@ -22,7 +22,8 @@
 
 #include "ns3/ipv6-raw-socket-factory.h"
 
-namespace ns3 {
+namespace ns3
+{
 
 /**
  * \ingroup socket
@@ -32,12 +33,12 @@ namespace ns3 {
  */
 class Ipv6RawSocketFactoryImpl : public Ipv6RawSocketFactory
 {
-public:
-  /**
+  public:
+    /**
      * \brief Create a raw IPv6 socket.
      * \returns A new RAW IPv6 socket.
      */
-  Ptr<Socket> CreateSocket () override;
+    Ptr<Socket> CreateSocket() override;
 };
 
 } /* namespace ns3 */

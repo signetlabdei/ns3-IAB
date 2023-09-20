@@ -21,7 +21,8 @@
 #include "tcp-rate-ops.h"
 #include "tcp-socket-state.h"
 
-namespace ns3 {
+namespace ns3
+{
 
 /**
  * \ingroup tcp
@@ -49,46 +50,45 @@ namespace ns3 {
  */
 class TcpCongestionOps : public Object
 {
-public:
-  /**
+  public:
+    /**
      * \brief Get the type ID.
      * \return the object TypeId
      */
-  static TypeId GetTypeId ();
+    static TypeId GetTypeId();
 
-  TcpCongestionOps ();
+    TcpCongestionOps();
 
-  /**
+    /**
      * \brief Copy constructor.
      * \param other object to copy.
      */
-  TcpCongestionOps (const TcpCongestionOps &other);
+    TcpCongestionOps(const TcpCongestionOps& other);
 
-  ~TcpCongestionOps () override;
+    ~TcpCongestionOps() override;
 
-  /**
+    /**
      * \brief Get the name of the congestion control algorithm
      *
      * \return A string identifying the name
      */
-  virtual std::string GetName () const = 0;
+    virtual std::string GetName() const = 0;
 
-  /**
+    /**
      * \brief Set configuration required by congestion control algorithm
      *
      * \param tcb internal congestion state
      */
-  virtual void
-  Init (Ptr<TcpSocketState> tcb [[maybe_unused]])
-  {
-  }
+    virtual void Init(Ptr<TcpSocketState> tcb [[maybe_unused]])
+    {
+    }
 
-  /**
+    /**
      * \brief Get the slow start threshold after a loss event
      *
      * Is guaranteed that the congestion control state (\p TcpAckState_t) is
      * changed BEFORE the invocation of this method.
-     * The implementator should return the slow start threshold (and not change
+     * The implementer should return the slow start threshold (and not change
      * it directly) because, in the future, the TCP implementation may require to
      * instantly recover from a loss event (e.g. when there is a network with an high
      * reordering factor).
@@ -97,9 +97,9 @@ public:
      * \param bytesInFlight total bytes in flight
      * \return Slow start threshold
      */
-  virtual uint32_t GetSsThresh (Ptr<const TcpSocketState> tcb, uint32_t bytesInFlight) = 0;
+    virtual uint32_t GetSsThresh(Ptr<const TcpSocketState> tcb, uint32_t bytesInFlight) = 0;
 
-  /**
+    /**
      * \brief Congestion avoidance algorithm implementation
      *
      * Mimic the function \pname{cong_avoid} in Linux. New segments have been ACKed,
@@ -110,9 +110,9 @@ public:
      * \param tcb internal congestion state
      * \param segmentsAcked count of segments acked
      */
-  virtual void IncreaseWindow (Ptr<TcpSocketState> tcb, uint32_t segmentsAcked);
+    virtual void IncreaseWindow(Ptr<TcpSocketState> tcb, uint32_t segmentsAcked);
 
-  /**
+    /**
      * \brief Timing information on received ACK
      *
      * The function is called every time an ACK is received (only one time
@@ -124,9 +124,9 @@ public:
      * \param segmentsAcked count of segments acked
      * \param rtt last rtt
      */
-  virtual void PktsAcked (Ptr<TcpSocketState> tcb, uint32_t segmentsAcked, const Time &rtt);
+    virtual void PktsAcked(Ptr<TcpSocketState> tcb, uint32_t segmentsAcked, const Time& rtt);
 
-  /**
+    /**
      * \brief Trigger events/calculations specific to a congestion state
      *
      * This function mimics the notification function \pname{set_state} in Linux.
@@ -142,10 +142,10 @@ public:
      * \param tcb internal congestion state
      * \param newState new congestion state to which the TCP is going to switch
      */
-  virtual void CongestionStateSet (Ptr<TcpSocketState> tcb,
-                                   const TcpSocketState::TcpCongState_t newState);
+    virtual void CongestionStateSet(Ptr<TcpSocketState> tcb,
+                                    const TcpSocketState::TcpCongState_t newState);
 
-  /**
+    /**
      * \brief Trigger events/calculations on occurrence of congestion window event
      *
      * This function mimics the function \pname{cwnd_event} in Linux.
@@ -154,9 +154,9 @@ public:
      * \param tcb internal congestion state
      * \param event the event which triggered this function
      */
-  virtual void CwndEvent (Ptr<TcpSocketState> tcb, const TcpSocketState::TcpCAEvent_t event);
+    virtual void CwndEvent(Ptr<TcpSocketState> tcb, const TcpSocketState::TcpCAEvent_t event);
 
-  /**
+    /**
      * \brief Returns true when Congestion Control Algorithm implements CongControl
      *
      * \return true if CC implements CongControl function
@@ -168,9 +168,9 @@ public:
      * CongControl is present. Therefore, this check should return true for any
      * congestion controls that implements the CongControl optional function.
      */
-  virtual bool HasCongControl () const;
+    virtual bool HasCongControl() const;
 
-  /**
+    /**
      * \brief Called when packets are delivered to update cwnd and pacing rate
      *
      * This function mimics the function cong_control in Linux. It is allowed to
@@ -180,23 +180,24 @@ public:
      * \param rc Rate information for the connection
      * \param rs Rate sample (over a period of time) information
      */
-  virtual void CongControl (Ptr<TcpSocketState> tcb, const TcpRateOps::TcpRateConnection &rc,
-                            const TcpRateOps::TcpRateSample &rs);
+    virtual void CongControl(Ptr<TcpSocketState> tcb,
+                             const TcpRateOps::TcpRateConnection& rc,
+                             const TcpRateOps::TcpRateSample& rs);
 
-  // Present in Linux but not in ns-3 yet:
-  /* call when ack arrives (optional) */
-  //     void (*in_ack_event)(struct sock *sk, u32 flags);
-  /* new value of cwnd after loss (optional) */
-  //     u32  (*undo_cwnd)(struct sock *sk);
-  /* hook for packet ack accounting (optional) */
-  //     void (*pkts_acked)(struct sock *sk, u32 ext, int *attr, union tcp_cc_info *info);
+    // Present in Linux but not in ns-3 yet:
+    /* call when ack arrives (optional) */
+    //     void (*in_ack_event)(struct sock *sk, u32 flags);
+    /* new value of cwnd after loss (optional) */
+    //     u32  (*undo_cwnd)(struct sock *sk);
+    /* hook for packet ack accounting (optional) */
+    //     void (*pkts_acked)(struct sock *sk, u32 ext, int *attr, union tcp_cc_info *info);
 
-  /**
+    /**
      * \brief Copy the congestion control algorithm across sockets
      *
      * \return a pointer of the copied object
      */
-  virtual Ptr<TcpCongestionOps> Fork () = 0;
+    virtual Ptr<TcpCongestionOps> Fork() = 0;
 };
 
 /**
@@ -209,32 +210,32 @@ public:
  */
 class TcpNewReno : public TcpCongestionOps
 {
-public:
-  /**
+  public:
+    /**
      * \brief Get the type ID.
      * \return the object TypeId
      */
-  static TypeId GetTypeId ();
+    static TypeId GetTypeId();
 
-  TcpNewReno ();
+    TcpNewReno();
 
-  /**
+    /**
      * \brief Copy constructor.
      * \param sock object to copy.
      */
-  TcpNewReno (const TcpNewReno &sock);
+    TcpNewReno(const TcpNewReno& sock);
 
-  ~TcpNewReno () override;
+    ~TcpNewReno() override;
 
-  std::string GetName () const override;
+    std::string GetName() const override;
 
-  void IncreaseWindow (Ptr<TcpSocketState> tcb, uint32_t segmentsAcked) override;
-  uint32_t GetSsThresh (Ptr<const TcpSocketState> tcb, uint32_t bytesInFlight) override;
-  Ptr<TcpCongestionOps> Fork () override;
+    void IncreaseWindow(Ptr<TcpSocketState> tcb, uint32_t segmentsAcked) override;
+    uint32_t GetSsThresh(Ptr<const TcpSocketState> tcb, uint32_t bytesInFlight) override;
+    Ptr<TcpCongestionOps> Fork() override;
 
-protected:
-  virtual uint32_t SlowStart (Ptr<TcpSocketState> tcb, uint32_t segmentsAcked);
-  virtual void CongestionAvoidance (Ptr<TcpSocketState> tcb, uint32_t segmentsAcked);
+  protected:
+    virtual uint32_t SlowStart(Ptr<TcpSocketState> tcb, uint32_t segmentsAcked);
+    virtual void CongestionAvoidance(Ptr<TcpSocketState> tcb, uint32_t segmentsAcked);
 };
 
 } // namespace ns3

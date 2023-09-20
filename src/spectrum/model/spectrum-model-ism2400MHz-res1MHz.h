@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2009 CTTC
  *
@@ -23,7 +22,8 @@
 
 #include <ns3/spectrum-value.h>
 
-namespace ns3 {
+namespace ns3
+{
 
 extern Ptr<SpectrumModel> SpectrumModelIsm2400MhzRes1Mhz;
 

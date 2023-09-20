@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2010 INRIA
  *
@@ -42,7 +41,8 @@
  * Declaration of the ns3::int64x64_t type and associated operators.
  */
 
-namespace ns3 {
+namespace ns3
+{
 
 /**
  * \ingroup core
@@ -85,12 +85,13 @@ namespace ns3 {
  * \return The result of the operator.
  */
 inline int64x64_t
-operator+ (const int64x64_t &lhs, const int64x64_t &rhs)
+operator+(const int64x64_t& lhs, const int64x64_t& rhs)
 {
-  int64x64_t tmp = lhs;
-  tmp += rhs;
-  return tmp;
+    int64x64_t tmp = lhs;
+    tmp += rhs;
+    return tmp;
 }
+
 /**
  * \ingroup highprec
  * Subtraction operator.
@@ -99,12 +100,13 @@ operator+ (const int64x64_t &lhs, const int64x64_t &rhs)
  * \return The result of the operator.
  */
 inline int64x64_t
-operator- (const int64x64_t &lhs, const int64x64_t &rhs)
+operator-(const int64x64_t& lhs, const int64x64_t& rhs)
 {
-  int64x64_t tmp = lhs;
-  tmp -= rhs;
-  return tmp;
+    int64x64_t tmp = lhs;
+    tmp -= rhs;
+    return tmp;
 }
+
 /**
  * \ingroup highprec
  * Multiplication operator.
@@ -113,12 +115,13 @@ operator- (const int64x64_t &lhs, const int64x64_t &rhs)
  * \return The result of the operator.
  */
 inline int64x64_t
-operator* (const int64x64_t &lhs, const int64x64_t &rhs)
+operator*(const int64x64_t& lhs, const int64x64_t& rhs)
 {
-  int64x64_t tmp = lhs;
-  tmp *= rhs;
-  return tmp;
+    int64x64_t tmp = lhs;
+    tmp *= rhs;
+    return tmp;
 }
+
 /**
  * \ingroup highprec
  * Division operator.
@@ -127,12 +130,13 @@ operator* (const int64x64_t &lhs, const int64x64_t &rhs)
  * \return The result of the operator.
  */
 inline int64x64_t
-operator/ (const int64x64_t &lhs, const int64x64_t &rhs)
+operator/(const int64x64_t& lhs, const int64x64_t& rhs)
 {
-  int64x64_t tmp = lhs;
-  tmp /= rhs;
-  return tmp;
+    int64x64_t tmp = lhs;
+    tmp /= rhs;
+    return tmp;
 }
+
 /**
  * \ingroup highprec
  * Inequality operator
@@ -141,10 +145,11 @@ operator/ (const int64x64_t &lhs, const int64x64_t &rhs)
  * \return The result of the operator.
  */
 inline bool
-operator!= (const int64x64_t &lhs, const int64x64_t &rhs)
+operator!=(const int64x64_t& lhs, const int64x64_t& rhs)
 {
-  return !(lhs == rhs);
+    return !(lhs == rhs);
 }
+
 /**
  * \ingroup highprec
  * Less or equal operator.
@@ -153,10 +158,11 @@ operator!= (const int64x64_t &lhs, const int64x64_t &rhs)
  * \return The result of the operator.
  */
 inline bool
-operator<= (const int64x64_t &lhs, const int64x64_t &rhs)
+operator<=(const int64x64_t& lhs, const int64x64_t& rhs)
 {
-  return !(lhs > rhs);
+    return !(lhs > rhs);
 }
+
 /**
  * \ingroup highprec
  * Greater or equal operator.
@@ -165,10 +171,11 @@ operator<= (const int64x64_t &lhs, const int64x64_t &rhs)
  * \return The result of the operator.
  */
 inline bool
-operator>= (const int64x64_t &lhs, const int64x64_t &rhs)
+operator>=(const int64x64_t& lhs, const int64x64_t& rhs)
 {
-  return !(lhs < rhs);
+    return !(lhs < rhs);
 }
+
 /**
  * \ingroup highprec
  * Output streamer for int64x64_t.
@@ -187,7 +194,7 @@ operator>= (const int64x64_t &lhs, const int64x64_t &rhs)
  * \param [in] value The numerical value to print.
  * \returns The stream.
  */
-std::ostream &operator<< (std::ostream &os, const int64x64_t &value);
+std::ostream& operator<<(std::ostream& os, const int64x64_t& value);
 /**
  * \ingroup highprec
  * Input streamer for int64x64_t.
@@ -196,7 +203,7 @@ std::ostream &operator<< (std::ostream &os, const int64x64_t &value);
  * \param [out] value The numerical value to set.
  * \returns The stream.
  */
-std::istream &operator>> (std::istream &is, int64x64_t &value);
+std::istream& operator>>(std::istream& is, int64x64_t& value);
 
 /**
  * \ingroup highprec
@@ -205,9 +212,9 @@ std::istream &operator>> (std::istream &is, int64x64_t &value);
  * \return The absolute value of \pname{value}.
  */
 inline int64x64_t
-Abs (const int64x64_t &value)
+Abs(const int64x64_t& value)
 {
-  return (value < 0) ? -value : value;
+    return (value < 0) ? -value : value;
 }
 
 /**
@@ -219,10 +226,11 @@ Abs (const int64x64_t &value)
  * \return The smaller of the arguments.
  */
 inline int64x64_t
-Min (const int64x64_t &a, const int64x64_t &b)
+Min(const int64x64_t& a, const int64x64_t& b)
 {
-  return (a < b) ? a : b;
+    return (a < b) ? a : b;
 }
+
 /**
  * \ingroup highprec
  * Maximum.
@@ -232,9 +240,9 @@ Min (const int64x64_t &a, const int64x64_t &b)
  * \return The larger of the arguments.
  */
 inline int64x64_t
-Max (const int64x64_t &a, const int64x64_t &b)
+Max(const int64x64_t& a, const int64x64_t& b)
 {
-  return (a > b) ? a : b;
+    return (a > b) ? a : b;
 }
 
 } // namespace ns3

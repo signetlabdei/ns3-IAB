@@ -25,7 +25,8 @@
 #include <list>
 #include <stdint.h>
 
-namespace ns3 {
+namespace ns3
+{
 
 class SPFVertex;
 
@@ -50,35 +51,35 @@ class SPFVertex;
  */
 class CandidateQueue
 {
-public:
-  /**
+  public:
+    /**
      * @brief Create an empty SPF Candidate Queue.
      *
      * @see SPFVertex
      */
-  CandidateQueue ();
+    CandidateQueue();
 
-  /**
+    /**
      * @brief Destroy an SPF Candidate Queue and release any resources held
      * by the contents.
      *
      * @see SPFVertex
      */
-  virtual ~CandidateQueue ();
+    virtual ~CandidateQueue();
 
-  // Delete copy constructor and assignment operator to avoid misuse
-  CandidateQueue (const CandidateQueue &) = delete;
-  CandidateQueue &operator= (const CandidateQueue &) = delete;
+    // Delete copy constructor and assignment operator to avoid misuse
+    CandidateQueue(const CandidateQueue&) = delete;
+    CandidateQueue& operator=(const CandidateQueue&) = delete;
 
-  /**
+    /**
      * @brief Empty the Candidate Queue and release all of the resources
      * associated with the Shortest Path First Vertex pointers in the queue.
      *
      * @see SPFVertex
      */
-  void Clear ();
+    void Clear();
 
-  /**
+    /**
      * @brief Push a Shortest Path First Vertex pointer onto the queue according
      * to the priority scheme.
      *
@@ -90,9 +91,9 @@ public:
      * @see SPFVertex
      * @param vNew The Shortest Path First Vertex to add to the queue.
      */
-  void Push (SPFVertex *vNew);
+    void Push(SPFVertex* vNew);
 
-  /**
+    /**
      * @brief Pop the Shortest Path First Vertex pointer at the top of the queue.
      *
      * The caller is given the responsibility for releasing the resources
@@ -102,9 +103,9 @@ public:
      * @see Top ()
      * @returns The Shortest Path First Vertex pointer at the top of the queue.
      */
-  SPFVertex *Pop ();
+    SPFVertex* Pop();
 
-  /**
+    /**
      * @brief Return the Shortest Path First Vertex pointer at the top of the
      * queue.
      *
@@ -115,25 +116,25 @@ public:
      * @see Pop ()
      * @returns The Shortest Path First Vertex pointer at the top of the queue.
      */
-  SPFVertex *Top () const;
+    SPFVertex* Top() const;
 
-  /**
+    /**
      * @brief Test the Candidate Queue to determine if it is empty.
      *
      * @returns True if the queue is empty, false otherwise.
      */
-  bool Empty () const;
+    bool Empty() const;
 
-  /**
+    /**
      * @brief Return the number of Shortest Path First Vertex pointers presently
      * stored in the Candidate Queue.
      *
      * @see SPFVertex
      * @returns The number of SPFVertex* pointers in the Candidate Queue.
      */
-  uint32_t Size () const;
+    uint32_t Size() const;
 
-  /**
+    /**
      * @brief Searches the Candidate Queue for a Shortest Path First Vertex
      * pointer that points to a vertex having the given IP address.
      *
@@ -141,9 +142,9 @@ public:
      * @param addr The IP address to search for.
      * @returns The SPFVertex* pointer corresponding to the given IP address.
      */
-  SPFVertex *Find (const Ipv4Address addr) const;
+    SPFVertex* Find(const Ipv4Address addr) const;
 
-  /**
+    /**
      * @brief Reorders the Candidate Queue according to the priority scheme.
      *
      * On completion, the top of the queue will hold the Shortest Path First
@@ -156,10 +157,10 @@ public:
      *
      * @see SPFVertex
      */
-  void Reorder ();
+    void Reorder();
 
-private:
-  /**
+  private:
+    /**
      * \brief return true if v1 < v2
      *
      * SPFVertexes are added into the queue according to the ordering
@@ -170,19 +171,19 @@ private:
      * \param v2 second operand
      * \return True if v1 should be popped before v2; false otherwise
      */
-  static bool CompareSPFVertex (const SPFVertex *v1, const SPFVertex *v2);
+    static bool CompareSPFVertex(const SPFVertex* v1, const SPFVertex* v2);
 
-  typedef std::list<SPFVertex *> CandidateList_t; //!< container of SPFVertex pointers
-  CandidateList_t m_candidates; //!< SPFVertex candidates
+    typedef std::list<SPFVertex*> CandidateList_t; //!< container of SPFVertex pointers
+    CandidateList_t m_candidates;                  //!< SPFVertex candidates
 
-  /**
+    /**
      * \brief Stream insertion operator.
      *
      * \param os the reference to the output stream
      * \param q the CandidateQueue
      * \returns the reference to the output stream
      */
-  friend std::ostream &operator<< (std::ostream &os, const CandidateQueue &q);
+    friend std::ostream& operator<<(std::ostream& os, const CandidateQueue& q);
 };
 
 } // namespace ns3

@@ -25,7 +25,8 @@
 
 #include <stdint.h>
 
-namespace ns3 {
+namespace ns3
+{
 
 /**
  * \ingroup packet
@@ -41,16 +42,16 @@ namespace ns3 {
  */
 class Header : public Chunk
 {
-public:
-  /**
+  public:
+    /**
      * \brief Get the type ID.
      * \return the object TypeId
      */
-  static TypeId GetTypeId ();
-  ~Header () override;
+    static TypeId GetTypeId();
+    ~Header() override;
 
-  using Chunk::Deserialize;
-  /**
+    using Chunk::Deserialize;
+    /**
      * \returns the expected size of the header.
      *
      * This method is used by Packet::AddHeader
@@ -58,8 +59,8 @@ public:
      * should return the number of bytes which are needed to store
      * the full header data by Serialize.
      */
-  virtual uint32_t GetSerializedSize () const = 0;
-  /**
+    virtual uint32_t GetSerializedSize() const = 0;
+    /**
      * \param start an iterator which points to where the header should
      *        be written.
      *
@@ -69,8 +70,8 @@ public:
      * is expected to match bit-for-bit the representation of this
      * header in a real network.
      */
-  virtual void Serialize (Buffer::Iterator start) const = 0;
-  /**
+    virtual void Serialize(Buffer::Iterator start) const = 0;
+    /**
      * \param start an iterator which points to where the header should
      *        read from.
      * \returns the number of bytes read.
@@ -87,8 +88,8 @@ public:
      * has additional statements to remove the header bytes from the
      * underlying buffer and associated metadata.
      */
-  uint32_t Deserialize (Buffer::Iterator start) override = 0;
-  /**
+    uint32_t Deserialize(Buffer::Iterator start) override = 0;
+    /**
      * \param os output stream
      * This method is used by Packet::Print to print the
      * content of a header as ascii data to a c++ output stream.
@@ -100,7 +101,7 @@ public:
      * separated by whitespace.
      * i.e.: (field1 val1 field2 val2 field3 val3) field4 val4 field5 val5
      */
-  void Print (std::ostream &os) const override = 0;
+    void Print(std::ostream& os) const override = 0;
 };
 
 /**
@@ -110,7 +111,7 @@ public:
  * \param header the header
  * \returns a reference to the stream
  */
-std::ostream &operator<< (std::ostream &os, const Header &header);
+std::ostream& operator<<(std::ostream& os, const Header& header);
 
 } // namespace ns3
 

@@ -28,7 +28,8 @@
 #include "ns3/packet.h"
 #include "ns3/socket.h"
 
-namespace ns3 {
+namespace ns3
+{
 
 class Ipv4MulticastRoute;
 class Ipv4Route;
@@ -55,28 +56,28 @@ class NetDevice;
  */
 class Ipv4RoutingProtocol : public Object
 {
-public:
-  /**
+  public:
+    /**
      * \brief Get the type ID.
      * \return the object TypeId
      */
-  static TypeId GetTypeId ();
+    static TypeId GetTypeId();
 
-  /// Callback for unicast packets to be forwarded
-  typedef Callback<void, Ptr<Ipv4Route>, Ptr<const Packet>, const Ipv4Header &>
-      UnicastForwardCallback;
+    /// Callback for unicast packets to be forwarded
+    typedef Callback<void, Ptr<Ipv4Route>, Ptr<const Packet>, const Ipv4Header&>
+        UnicastForwardCallback;
 
-  /// Callback for multicast packets to be forwarded
-  typedef Callback<void, Ptr<Ipv4MulticastRoute>, Ptr<const Packet>, const Ipv4Header &>
-      MulticastForwardCallback;
+    /// Callback for multicast packets to be forwarded
+    typedef Callback<void, Ptr<Ipv4MulticastRoute>, Ptr<const Packet>, const Ipv4Header&>
+        MulticastForwardCallback;
 
-  /// Callback for packets to be locally delivered
-  typedef Callback<void, Ptr<const Packet>, const Ipv4Header &, uint32_t> LocalDeliverCallback;
+    /// Callback for packets to be locally delivered
+    typedef Callback<void, Ptr<const Packet>, const Ipv4Header&, uint32_t> LocalDeliverCallback;
 
-  /// Callback for routing errors (e.g., no route found)
-  typedef Callback<void, Ptr<const Packet>, const Ipv4Header &, Socket::SocketErrno> ErrorCallback;
+    /// Callback for routing errors (e.g., no route found)
+    typedef Callback<void, Ptr<const Packet>, const Ipv4Header&, Socket::SocketErrno> ErrorCallback;
 
-  /**
+    /**
      * \brief Query routing cache for an existing route, for an outbound packet
      *
      * This lookup is used by transport protocols.  It does not cause any
@@ -96,10 +97,12 @@ public:
      *
      * \returns a code that indicates what happened in the lookup
      */
-  virtual Ptr<Ipv4Route> RouteOutput (Ptr<Packet> p, const Ipv4Header &header, Ptr<NetDevice> oif,
-                                      Socket::SocketErrno &sockerr) = 0;
+    virtual Ptr<Ipv4Route> RouteOutput(Ptr<Packet> p,
+                                       const Ipv4Header& header,
+                                       Ptr<NetDevice> oif,
+                                       Socket::SocketErrno& sockerr) = 0;
 
-  /**
+    /**
      * \brief Route an input packet (to be forwarded or locally delivered)
      *
      * This lookup is used in the forwarding process.  The packet is
@@ -120,26 +123,30 @@ public:
      * \returns true if the Ipv4RoutingProtocol takes responsibility for
      *          forwarding or delivering the packet, false otherwise
      */
-  virtual bool RouteInput (Ptr<const Packet> p, const Ipv4Header &header, Ptr<const NetDevice> idev,
-                           UnicastForwardCallback ucb, MulticastForwardCallback mcb,
-                           LocalDeliverCallback lcb, ErrorCallback ecb) = 0;
+    virtual bool RouteInput(Ptr<const Packet> p,
+                            const Ipv4Header& header,
+                            Ptr<const NetDevice> idev,
+                            UnicastForwardCallback ucb,
+                            MulticastForwardCallback mcb,
+                            LocalDeliverCallback lcb,
+                            ErrorCallback ecb) = 0;
 
-  /**
+    /**
      * \param interface the index of the interface we are being notified about
      *
      * Protocols are expected to implement this method to be notified of the state change of
      * an interface in a node.
      */
-  virtual void NotifyInterfaceUp (uint32_t interface) = 0;
-  /**
+    virtual void NotifyInterfaceUp(uint32_t interface) = 0;
+    /**
      * \param interface the index of the interface we are being notified about
      *
      * Protocols are expected to implement this method to be notified of the state change of
      * an interface in a node.
      */
-  virtual void NotifyInterfaceDown (uint32_t interface) = 0;
+    virtual void NotifyInterfaceDown(uint32_t interface) = 0;
 
-  /**
+    /**
      * \param interface the index of the interface we are being notified about
      * \param address a new address being added to an interface
      *
@@ -147,9 +154,9 @@ public:
      * a new address is added to an interface. Typically used to add a 'network route' on an
      * interface. Can be invoked on an up or down interface.
      */
-  virtual void NotifyAddAddress (uint32_t interface, Ipv4InterfaceAddress address) = 0;
+    virtual void NotifyAddAddress(uint32_t interface, Ipv4InterfaceAddress address) = 0;
 
-  /**
+    /**
      * \param interface the index of the interface we are being notified about
      * \param address a new address being added to an interface
      *
@@ -157,23 +164,23 @@ public:
      * a new address is removed from an interface. Typically used to remove the 'network route' of
      * an interface. Can be invoked on an up or down interface.
      */
-  virtual void NotifyRemoveAddress (uint32_t interface, Ipv4InterfaceAddress address) = 0;
+    virtual void NotifyRemoveAddress(uint32_t interface, Ipv4InterfaceAddress address) = 0;
 
-  /**
+    /**
      * \param ipv4 the ipv4 object this routing protocol is being associated with
      *
      * Typically, invoked directly or indirectly from ns3::Ipv4::SetRoutingProtocol
      */
-  virtual void SetIpv4 (Ptr<Ipv4> ipv4) = 0;
+    virtual void SetIpv4(Ptr<Ipv4> ipv4) = 0;
 
-  /**
+    /**
      * \brief Print the Routing Table entries
      *
      * \param stream The ostream the Routing table is printed to
      * \param unit The time unit to be used in the report
      */
-  virtual void PrintRoutingTable (Ptr<OutputStreamWrapper> stream,
-                                  Time::Unit unit = Time::S) const = 0;
+    virtual void PrintRoutingTable(Ptr<OutputStreamWrapper> stream,
+                                   Time::Unit unit = Time::S) const = 0;
 };
 
 } // namespace ns3

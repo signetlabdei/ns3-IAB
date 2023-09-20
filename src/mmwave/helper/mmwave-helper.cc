@@ -2412,6 +2412,7 @@ MmWaveHelper::InstallSingleIabDevice (Ptr<Node> n)
   mtRrc->InitializeSap ();
 
   mtRrc->SetBap (bap);
+  bap->SetMtRrc (mtRrc);
 
   // create the MmWaveComponentCarrierConf map used for the RRC setup
   std::map<uint8_t, LteEnbRrc::MmWaveComponentCarrierConf> ccConfMap;
@@ -2677,7 +2678,7 @@ MmWaveHelper::InstallSingleIabDevice (Ptr<Node> n)
 
   mtNas->SetDevice (iabDevice);
 
-  // mtNas->SetForwardUpCallback (MakeCallback (&MmWaveUeNetDevice::Receive, iabDevice)); TODO: not to be used
+  mtNas->SetForwardUpCallback (MakeCallback (&MmWaveIabNetDevice::Receive, iabDevice));
 
   if (m_epcHelper)
     {

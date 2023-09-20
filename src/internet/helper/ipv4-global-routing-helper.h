@@ -22,7 +22,8 @@
 #include "ns3/ipv4-routing-helper.h"
 #include "ns3/node-container.h"
 
-namespace ns3 {
+namespace ns3
+{
 
 /**
  * \ingroup ipv4Helpers
@@ -31,40 +32,40 @@ namespace ns3 {
  */
 class Ipv4GlobalRoutingHelper : public Ipv4RoutingHelper
 {
-public:
-  /**
+  public:
+    /**
      * \brief Construct a GlobalRoutingHelper to make life easier for managing
      * global routing tasks.
      */
-  Ipv4GlobalRoutingHelper ();
+    Ipv4GlobalRoutingHelper();
 
-  /**
+    /**
      * \brief Construct a GlobalRoutingHelper from another previously initialized
      * instance (Copy Constructor).
      * \param o object to be copied
      */
-  Ipv4GlobalRoutingHelper (const Ipv4GlobalRoutingHelper &o);
+    Ipv4GlobalRoutingHelper(const Ipv4GlobalRoutingHelper& o);
 
-  // Delete assignment operator to avoid misuse
-  Ipv4GlobalRoutingHelper &operator= (const Ipv4GlobalRoutingHelper &) = delete;
+    // Delete assignment operator to avoid misuse
+    Ipv4GlobalRoutingHelper& operator=(const Ipv4GlobalRoutingHelper&) = delete;
 
-  /**
+    /**
      * \returns pointer to clone of this Ipv4GlobalRoutingHelper
      *
      * This method is mainly for internal use by the other helpers;
      * clients are expected to free the dynamic memory allocated by this method
      */
-  Ipv4GlobalRoutingHelper *Copy () const override;
+    Ipv4GlobalRoutingHelper* Copy() const override;
 
-  /**
+    /**
      * \param node the node on which the routing protocol will run
      * \returns a newly-created routing protocol
      *
      * This method will be called by ns3::InternetStackHelper::Install
      */
-  Ptr<Ipv4RoutingProtocol> Create (Ptr<Node> node) const override;
+    Ptr<Ipv4RoutingProtocol> Create(Ptr<Node> node) const override;
 
-  /**
+    /**
      * \brief Build a routing database and initialize the routing tables of
      * the nodes in the simulation.  Makes all nodes in the simulation into
      * routers.
@@ -73,8 +74,8 @@ public:
      * BuildGlobalRoutingDatabase () and  InitializeRoutes ().
      *
      */
-  static void PopulateRoutingTables ();
-  /**
+    static void PopulateRoutingTables();
+    /**
      * \brief Remove all routes that were previously installed in a prior call
      * to either PopulateRoutingTables() or RecomputeRoutingTables(), and
      * add a new set of routes.
@@ -86,7 +87,7 @@ public:
      * call RecomputeRoutingTables() at any later time in the simulation.
      *
      */
-  static void RecomputeRoutingTables ();
+    static void RecomputeRoutingTables();
 };
 
 } // namespace ns3

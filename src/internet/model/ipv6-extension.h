@@ -37,7 +37,8 @@
 #include <map>
 #include <tuple>
 
-namespace ns3 {
+namespace ns3
+{
 
 /**
  * \ingroup ipv6
@@ -53,42 +54,42 @@ namespace ns3 {
  */
 class Ipv6Extension : public Object
 {
-public:
-  /**
+  public:
+    /**
      * \brief Get the type identificator.
      * \return type identificator
      */
-  static TypeId GetTypeId ();
+    static TypeId GetTypeId();
 
-  /**
+    /**
      * \brief Constructor.
      */
-  Ipv6Extension ();
+    Ipv6Extension();
 
-  /**
+    /**
      * \brief Destructor.
      */
-  ~Ipv6Extension () override;
+    ~Ipv6Extension() override;
 
-  /**
+    /**
      * \brief Set the node.
      * \param node the node to set
      */
-  void SetNode (Ptr<Node> node);
+    void SetNode(Ptr<Node> node);
 
-  /**
+    /**
      * \brief Get the node.
      * \return the node
      */
-  Ptr<Node> GetNode () const;
+    Ptr<Node> GetNode() const;
 
-  /**
+    /**
      * \brief Get the extension number.
      * \return extension number
      */
-  virtual uint8_t GetExtensionNumber () const = 0;
+    virtual uint8_t GetExtensionNumber() const = 0;
 
-  /**
+    /**
      * \brief Process method
      * Called from Ipv6L3Protocol::Receive.
      *
@@ -102,11 +103,16 @@ public:
      * \param dropReason dropping reason
      * \return the size processed
      */
-  virtual uint8_t Process (Ptr<Packet> &packet, uint8_t offset, const Ipv6Header &ipv6Header,
-                           Ipv6Address dst, uint8_t *nextHeader, bool &stopProcessing,
-                           bool &isDropped, Ipv6L3Protocol::DropReason &dropReason) = 0;
+    virtual uint8_t Process(Ptr<Packet>& packet,
+                            uint8_t offset,
+                            const Ipv6Header& ipv6Header,
+                            Ipv6Address dst,
+                            uint8_t* nextHeader,
+                            bool& stopProcessing,
+                            bool& isDropped,
+                            Ipv6L3Protocol::DropReason& dropReason) = 0;
 
-  /**
+    /**
      * \brief Process options
      * Called by implementing classes to process the options
      *
@@ -121,12 +127,17 @@ public:
      * \param dropReason dropping reason
      * \return the size processed
      */
-  virtual uint8_t ProcessOptions (Ptr<Packet> &packet, uint8_t offset, uint8_t length,
-                                  const Ipv6Header &ipv6Header, Ipv6Address dst,
-                                  uint8_t *nextHeader, bool &stopProcessing, bool &isDropped,
-                                  Ipv6L3Protocol::DropReason &dropReason);
+    virtual uint8_t ProcessOptions(Ptr<Packet>& packet,
+                                   uint8_t offset,
+                                   uint8_t length,
+                                   const Ipv6Header& ipv6Header,
+                                   Ipv6Address dst,
+                                   uint8_t* nextHeader,
+                                   bool& stopProcessing,
+                                   bool& isDropped,
+                                   Ipv6L3Protocol::DropReason& dropReason);
 
-  /**
+    /**
      * Assign a fixed random variable stream number to the random variables
      * used by this model.  Return the number of streams (possibly zero) that
      * have been assigned.
@@ -134,19 +145,19 @@ public:
      * \param stream first stream index to use
      * \return the number of stream indices assigned by this model
      */
-  int64_t AssignStreams (int64_t stream);
+    int64_t AssignStreams(int64_t stream);
 
-protected:
-  /**
+  protected:
+    /**
      * \brief Provides uniform random variables.
      */
-  Ptr<UniformRandomVariable> m_uvar;
+    Ptr<UniformRandomVariable> m_uvar;
 
-private:
-  /**
+  private:
+    /**
      * \brief The node.
      */
-  Ptr<Node> m_node;
+    Ptr<Node> m_node;
 };
 
 /**
@@ -156,37 +167,42 @@ private:
  */
 class Ipv6ExtensionHopByHop : public Ipv6Extension
 {
-public:
-  /**
+  public:
+    /**
      * \brief Hop-by-hop extension number.
      */
-  static const uint8_t EXT_NUMBER = 0;
+    static const uint8_t EXT_NUMBER = 0;
 
-  /**
+    /**
      * \brief Get the type identificator.
      * \return type identificator
      */
-  static TypeId GetTypeId ();
+    static TypeId GetTypeId();
 
-  /**
+    /**
      * \brief Constructor.
      */
-  Ipv6ExtensionHopByHop ();
+    Ipv6ExtensionHopByHop();
 
-  /**
+    /**
      * \brief Destructor.
      */
-  ~Ipv6ExtensionHopByHop () override;
+    ~Ipv6ExtensionHopByHop() override;
 
-  /**
+    /**
      * \brief Get the extension number.
      * \return extension number
      */
-  uint8_t GetExtensionNumber () const override;
+    uint8_t GetExtensionNumber() const override;
 
-  uint8_t Process (Ptr<Packet> &packet, uint8_t offset, const Ipv6Header &ipv6Header,
-                   Ipv6Address dst, uint8_t *nextHeader, bool &stopProcessing, bool &isDropped,
-                   Ipv6L3Protocol::DropReason &dropReason) override;
+    uint8_t Process(Ptr<Packet>& packet,
+                    uint8_t offset,
+                    const Ipv6Header& ipv6Header,
+                    Ipv6Address dst,
+                    uint8_t* nextHeader,
+                    bool& stopProcessing,
+                    bool& isDropped,
+                    Ipv6L3Protocol::DropReason& dropReason) override;
 };
 
 /**
@@ -196,37 +212,42 @@ public:
  */
 class Ipv6ExtensionDestination : public Ipv6Extension
 {
-public:
-  /**
+  public:
+    /**
      * \brief Destination extension number.
      */
-  static const uint8_t EXT_NUMBER = 60;
+    static const uint8_t EXT_NUMBER = 60;
 
-  /**
+    /**
      * \brief Get the type identificator.
      * \return type identificator
      */
-  static TypeId GetTypeId ();
+    static TypeId GetTypeId();
 
-  /**
+    /**
      * \brief Constructor.
      */
-  Ipv6ExtensionDestination ();
+    Ipv6ExtensionDestination();
 
-  /**
+    /**
      * \brief Destructor.
      */
-  ~Ipv6ExtensionDestination () override;
+    ~Ipv6ExtensionDestination() override;
 
-  /**
+    /**
      * \brief Get the extension number.
      * \return extension number
      */
-  uint8_t GetExtensionNumber () const override;
+    uint8_t GetExtensionNumber() const override;
 
-  uint8_t Process (Ptr<Packet> &packet, uint8_t offset, const Ipv6Header &ipv6Header,
-                   Ipv6Address dst, uint8_t *nextHeader, bool &stopProcessing, bool &isDropped,
-                   Ipv6L3Protocol::DropReason &dropReason) override;
+    uint8_t Process(Ptr<Packet>& packet,
+                    uint8_t offset,
+                    const Ipv6Header& ipv6Header,
+                    Ipv6Address dst,
+                    uint8_t* nextHeader,
+                    bool& stopProcessing,
+                    bool& isDropped,
+                    Ipv6L3Protocol::DropReason& dropReason) override;
 };
 
 /**
@@ -236,44 +257,49 @@ public:
  */
 class Ipv6ExtensionFragment : public Ipv6Extension
 {
-public:
-  /**
+  public:
+    /**
      * \brief Fragmentation extension number.
      */
-  static const uint8_t EXT_NUMBER = 44;
+    static const uint8_t EXT_NUMBER = 44;
 
-  /**
+    /**
      * \brief Get the type identificator.
      * \return type identificator
      */
-  static TypeId GetTypeId ();
+    static TypeId GetTypeId();
 
-  /**
+    /**
      * \brief Constructor.
      */
-  Ipv6ExtensionFragment ();
+    Ipv6ExtensionFragment();
 
-  /**
+    /**
      * \brief Destructor.
      */
-  ~Ipv6ExtensionFragment () override;
+    ~Ipv6ExtensionFragment() override;
 
-  /**
+    /**
      * \brief Get the extension number.
      * \return extension number
      */
-  uint8_t GetExtensionNumber () const override;
+    uint8_t GetExtensionNumber() const override;
 
-  uint8_t Process (Ptr<Packet> &packet, uint8_t offset, const Ipv6Header &ipv6Header,
-                   Ipv6Address dst, uint8_t *nextHeader, bool &stopProcessing, bool &isDropped,
-                   Ipv6L3Protocol::DropReason &dropReason) override;
+    uint8_t Process(Ptr<Packet>& packet,
+                    uint8_t offset,
+                    const Ipv6Header& ipv6Header,
+                    Ipv6Address dst,
+                    uint8_t* nextHeader,
+                    bool& stopProcessing,
+                    bool& isDropped,
+                    Ipv6L3Protocol::DropReason& dropReason) override;
 
-  /**
+    /**
      * \brief Pair of a packet and an Ipv6 header.
      */
-  typedef std::pair<Ptr<Packet>, Ipv6Header> Ipv6PayloadHeaderPair;
+    typedef std::pair<Ptr<Packet>, Ipv6Header> Ipv6PayloadHeaderPair;
 
-  /**
+    /**
      * \brief Fragment a packet.
      *
      * \param packet the packet.
@@ -282,164 +308,167 @@ public:
      * header + fragmentable part).
      * \param listFragments the list of fragments.
      */
-  void GetFragments (Ptr<Packet> packet, Ipv6Header ipv6Header, uint32_t fragmentSize,
-                     std::list<Ipv6PayloadHeaderPair> &listFragments);
+    void GetFragments(Ptr<Packet> packet,
+                      Ipv6Header ipv6Header,
+                      uint32_t fragmentSize,
+                      std::list<Ipv6PayloadHeaderPair>& listFragments);
 
-protected:
-  /**
+  protected:
+    /**
      * \brief Dispose this object.
      */
-  void DoDispose () override;
+    void DoDispose() override;
 
-private:
-  /**
+  private:
+    /**
      * Key identifying a fragmented packet
      */
-  typedef std::pair<Ipv6Address, uint32_t> FragmentKey_t;
+    typedef std::pair<Ipv6Address, uint32_t> FragmentKey_t;
 
-  /**
+    /**
      * Container for fragment timeouts.
      */
-  typedef std::list<std::tuple<Time, FragmentKey_t, Ipv6Header>> FragmentsTimeoutsList_t;
-  /**
+    typedef std::list<std::tuple<Time, FragmentKey_t, Ipv6Header>> FragmentsTimeoutsList_t;
+    /**
      * Container Iterator for fragment timeouts.
      */
-  typedef std::list<std::tuple<Time, FragmentKey_t, Ipv6Header>>::iterator FragmentsTimeoutsListI_t;
+    typedef std::list<std::tuple<Time, FragmentKey_t, Ipv6Header>>::iterator
+        FragmentsTimeoutsListI_t;
 
-  /**
+    /**
      * \ingroup ipv6HeaderExt
      *
      * \brief This class stores the fragments of a packet waiting to be rebuilt.
      */
-  class Fragments : public SimpleRefCount<Fragments>
-  {
-  public:
-    /**
+    class Fragments : public SimpleRefCount<Fragments>
+    {
+      public:
+        /**
          * \brief Constructor.
          */
-    Fragments ();
+        Fragments();
 
-    /**
+        /**
          * \brief Destructor.
          */
-    ~Fragments ();
+        ~Fragments();
 
-    /**
+        /**
          * \brief Add a fragment.
          * \param fragment the fragment
          * \param fragmentOffset the offset of the fragment
          * \param moreFragment the bit "More Fragment"
          */
-    void AddFragment (Ptr<Packet> fragment, uint16_t fragmentOffset, bool moreFragment);
+        void AddFragment(Ptr<Packet> fragment, uint16_t fragmentOffset, bool moreFragment);
 
-    /**
+        /**
          * \brief Set the unfragmentable part of the packet.
          * \param unfragmentablePart the unfragmentable part
          */
-    void SetUnfragmentablePart (Ptr<Packet> unfragmentablePart);
+        void SetUnfragmentablePart(Ptr<Packet> unfragmentablePart);
 
-    /**
+        /**
          * \brief If all fragments have been added.
          * \returns true if the packet is entire
          */
-    bool IsEntire () const;
+        bool IsEntire() const;
 
-    /**
+        /**
          * \brief Get the entire packet.
          * \return the entire packet
          */
-    Ptr<Packet> GetPacket () const;
+        Ptr<Packet> GetPacket() const;
 
-    /**
+        /**
          * \brief Get the packet parts so far received.
          * \return the partial packet
          */
-    Ptr<Packet> GetPartialPacket () const;
+        Ptr<Packet> GetPartialPacket() const;
 
-    /**
+        /**
          * \brief Set the Timeout iterator.
          * \param iter The iterator.
          */
-    void SetTimeoutIter (FragmentsTimeoutsListI_t iter);
+        void SetTimeoutIter(FragmentsTimeoutsListI_t iter);
 
-    /**
+        /**
          * \brief Get the Timeout iterator.
          * \returns The iterator.
          */
-    FragmentsTimeoutsListI_t GetTimeoutIter ();
+        FragmentsTimeoutsListI_t GetTimeoutIter();
 
-  private:
-    /**
+      private:
+        /**
          * \brief If other fragments will be sent.
          */
-    bool m_moreFragment;
+        bool m_moreFragment;
 
-    /**
+        /**
          * \brief The current fragments.
          */
-    std::list<std::pair<Ptr<Packet>, uint16_t>> m_packetFragments;
+        std::list<std::pair<Ptr<Packet>, uint16_t>> m_packetFragments;
 
-    /**
+        /**
          * \brief The unfragmentable part.
          */
-    Ptr<Packet> m_unfragmentable;
+        Ptr<Packet> m_unfragmentable;
 
-    /**
+        /**
          * \brief Timeout iterator to "event" handler
          */
-    FragmentsTimeoutsListI_t m_timeoutIter;
-  };
+        FragmentsTimeoutsListI_t m_timeoutIter;
+    };
 
-  /**
+    /**
      * \brief Process the timeout for packet fragments
      * \param key representing the packet fragments
      * \param ipHeader the IP header of the original packet
      */
-  void HandleFragmentsTimeout (FragmentKey_t key, Ipv6Header ipHeader);
+    void HandleFragmentsTimeout(FragmentKey_t key, Ipv6Header ipHeader);
 
-  /**
+    /**
      * \brief Get the packet parts so far received.
      * \return the partial packet
      */
-  Ptr<Packet> GetPartialPacket () const;
+    Ptr<Packet> GetPartialPacket() const;
 
-  /**
+    /**
      * \brief Set the Timeout EventId.
      * \param event The event.
      */
-  void SetTimeoutEventId (EventId event);
+    void SetTimeoutEventId(EventId event);
 
-  /**
+    /**
      * \brief Cancel the timeout event
      */
-  void CancelTimeout ();
+    void CancelTimeout();
 
-  /**
+    /**
      * \brief Container for the packet fragments.
      */
-  typedef std::map<FragmentKey_t, Ptr<Fragments>> MapFragments_t;
+    typedef std::map<FragmentKey_t, Ptr<Fragments>> MapFragments_t;
 
-  /**
+    /**
      * \brief The hash of fragmented packets.
      */
-  MapFragments_t m_fragments;
+    MapFragments_t m_fragments;
 
-  /**
+    /**
      * \brief Set a new timeout "event" for a fragmented packet
      * \param key the fragment identification
      * \param ipHeader the IPv6 header of the fragmented packet
      * \return an iterator to the inserted "event"
      */
-  FragmentsTimeoutsListI_t SetTimeout (FragmentKey_t key, Ipv6Header ipHeader);
+    FragmentsTimeoutsListI_t SetTimeout(FragmentKey_t key, Ipv6Header ipHeader);
 
-  /**
+    /**
      * \brief Handles a fragmented packet timeout
      */
-  void HandleTimeout ();
+    void HandleTimeout();
 
-  FragmentsTimeoutsList_t m_timeoutEventList; //!< Timeout "events" container
-  EventId m_timeoutEvent; //!< Event for the next scheduled timeout
-  Time m_fragmentExpirationTimeout; //!< Expiration timeout
+    FragmentsTimeoutsList_t m_timeoutEventList; //!< Timeout "events" container
+    EventId m_timeoutEvent;                     //!< Event for the next scheduled timeout
+    Time m_fragmentExpirationTimeout;           //!< Expiration timeout
 };
 
 /**
@@ -452,43 +481,48 @@ private:
  */
 class Ipv6ExtensionRouting : public Ipv6Extension
 {
-public:
-  /**
+  public:
+    /**
      * \brief Routing extension number.
      */
-  static const uint8_t EXT_NUMBER = 43;
+    static const uint8_t EXT_NUMBER = 43;
 
-  /**
+    /**
      * \brief Get the type identificator.
      * \return type identificator
      */
-  static TypeId GetTypeId ();
+    static TypeId GetTypeId();
 
-  /**
+    /**
      * \brief Constructor.
      */
-  Ipv6ExtensionRouting ();
+    Ipv6ExtensionRouting();
 
-  /**
+    /**
      * \brief Destructor.
      */
-  ~Ipv6ExtensionRouting () override;
+    ~Ipv6ExtensionRouting() override;
 
-  /**
+    /**
      * \brief Get the extension number.
      * \return extension number
      */
-  uint8_t GetExtensionNumber () const override;
+    uint8_t GetExtensionNumber() const override;
 
-  /**
+    /**
      * \brief Get the type of routing.
      * \return type of routing
      */
-  virtual uint8_t GetTypeRouting () const;
+    virtual uint8_t GetTypeRouting() const;
 
-  uint8_t Process (Ptr<Packet> &packet, uint8_t offset, const Ipv6Header &ipv6Header,
-                   Ipv6Address dst, uint8_t *nextHeader, bool &stopProcessing, bool &isDropped,
-                   Ipv6L3Protocol::DropReason &dropReason) override;
+    uint8_t Process(Ptr<Packet>& packet,
+                    uint8_t offset,
+                    const Ipv6Header& ipv6Header,
+                    Ipv6Address dst,
+                    uint8_t* nextHeader,
+                    bool& stopProcessing,
+                    bool& isDropped,
+                    Ipv6L3Protocol::DropReason& dropReason) override;
 };
 
 /**
@@ -498,69 +532,69 @@ public:
  */
 class Ipv6ExtensionRoutingDemux : public Object
 {
-public:
-  /**
+  public:
+    /**
      * \brief The interface ID.
      * \return type ID
      */
-  static TypeId GetTypeId ();
+    static TypeId GetTypeId();
 
-  /**
+    /**
      * \brief Constructor.
      */
-  Ipv6ExtensionRoutingDemux ();
+    Ipv6ExtensionRoutingDemux();
 
-  /**
+    /**
      * \brief Destructor.
      */
-  ~Ipv6ExtensionRoutingDemux () override;
+    ~Ipv6ExtensionRoutingDemux() override;
 
-  /**
+    /**
      * \brief Set the node.
      * \param node the node to set
      */
-  void SetNode (Ptr<Node> node);
+    void SetNode(Ptr<Node> node);
 
-  /**
+    /**
      * \brief Insert a new IPv6 Routing Extension.
      * \param extensionRouting the routing extension to insert
      */
-  void Insert (Ptr<Ipv6ExtensionRouting> extensionRouting);
+    void Insert(Ptr<Ipv6ExtensionRouting> extensionRouting);
 
-  /**
+    /**
      * \brief Get the routing extension corresponding to typeRouting.
      * \param typeRouting the number of the routing extension to retrieve
      * \return a matching IPv6 routing extension
      */
-  Ptr<Ipv6ExtensionRouting> GetExtensionRouting (uint8_t typeRouting);
+    Ptr<Ipv6ExtensionRouting> GetExtensionRouting(uint8_t typeRouting);
 
-  /**
+    /**
      * \brief Remove a routing extension from this demux.
      * \param extensionRouting pointer on the extension to remove
      */
-  void Remove (Ptr<Ipv6ExtensionRouting> extensionRouting);
+    void Remove(Ptr<Ipv6ExtensionRouting> extensionRouting);
 
-protected:
-  /**
+  protected:
+    /**
      * \brief Dispose this object.
      */
-  void DoDispose () override;
+    void DoDispose() override;
 
-private:
-  /**
+  private:
+    /**
      * \brief Container for the extension routing.
      */
-  typedef std::list<Ptr<Ipv6ExtensionRouting>> Ipv6ExtensionRoutingList_t;
+    typedef std::list<Ptr<Ipv6ExtensionRouting>> Ipv6ExtensionRoutingList_t;
 
-  /**
+    /**
      * \brief List of IPv6 Routing Extensions supported.
      */
-  Ipv6ExtensionRoutingList_t m_extensionsRouting;
+    Ipv6ExtensionRoutingList_t m_extensionsRouting;
 
-  /**
+    /**
      * \brief The node.
      */
-  Ptr<Node> m_node;
+    Ptr<Node> m_node;
 };
 
 /**
@@ -570,37 +604,42 @@ private:
  */
 class Ipv6ExtensionLooseRouting : public Ipv6ExtensionRouting
 {
-public:
-  /**
+  public:
+    /**
      * \brief Routing type.
      */
-  static const uint8_t TYPE_ROUTING = 0;
+    static const uint8_t TYPE_ROUTING = 0;
 
-  /**
+    /**
      * \brief Get the type identificator.
      * \return type identificator
      */
-  static TypeId GetTypeId ();
+    static TypeId GetTypeId();
 
-  /**
+    /**
      * \brief Constructor.
      */
-  Ipv6ExtensionLooseRouting ();
+    Ipv6ExtensionLooseRouting();
 
-  /**
+    /**
      * \brief Destructor.
      */
-  ~Ipv6ExtensionLooseRouting () override;
+    ~Ipv6ExtensionLooseRouting() override;
 
-  /**
+    /**
      * \brief Get the type of routing.
      * \return type of routing
      */
-  uint8_t GetTypeRouting () const override;
+    uint8_t GetTypeRouting() const override;
 
-  uint8_t Process (Ptr<Packet> &packet, uint8_t offset, const Ipv6Header &ipv6Header,
-                   Ipv6Address dst, uint8_t *nextHeader, bool &stopProcessing, bool &isDropped,
-                   Ipv6L3Protocol::DropReason &dropReason) override;
+    uint8_t Process(Ptr<Packet>& packet,
+                    uint8_t offset,
+                    const Ipv6Header& ipv6Header,
+                    Ipv6Address dst,
+                    uint8_t* nextHeader,
+                    bool& stopProcessing,
+                    bool& isDropped,
+                    Ipv6L3Protocol::DropReason& dropReason) override;
 };
 
 /**
@@ -610,37 +649,42 @@ public:
  */
 class Ipv6ExtensionESP : public Ipv6Extension
 {
-public:
-  /**
+  public:
+    /**
      * \brief ESP extension number.
      */
-  static const uint8_t EXT_NUMBER = 50;
+    static const uint8_t EXT_NUMBER = 50;
 
-  /**
+    /**
      * \brief Get the type identificator.
      * \return type identificator
      */
-  static TypeId GetTypeId ();
+    static TypeId GetTypeId();
 
-  /**
+    /**
      * \brief Constructor.
      */
-  Ipv6ExtensionESP ();
+    Ipv6ExtensionESP();
 
-  /**
+    /**
      * \brief Destructor.
      */
-  ~Ipv6ExtensionESP () override;
+    ~Ipv6ExtensionESP() override;
 
-  /**
+    /**
      * \brief Get the extension number.
      * \return extension number
      */
-  uint8_t GetExtensionNumber () const override;
+    uint8_t GetExtensionNumber() const override;
 
-  uint8_t Process (Ptr<Packet> &packet, uint8_t offset, const Ipv6Header &ipv6Header,
-                   Ipv6Address dst, uint8_t *nextHeader, bool &stopProcessing, bool &isDropped,
-                   Ipv6L3Protocol::DropReason &dropReason) override;
+    uint8_t Process(Ptr<Packet>& packet,
+                    uint8_t offset,
+                    const Ipv6Header& ipv6Header,
+                    Ipv6Address dst,
+                    uint8_t* nextHeader,
+                    bool& stopProcessing,
+                    bool& isDropped,
+                    Ipv6L3Protocol::DropReason& dropReason) override;
 };
 
 /**
@@ -650,37 +694,42 @@ public:
  */
 class Ipv6ExtensionAH : public Ipv6Extension
 {
-public:
-  /**
+  public:
+    /**
      * \brief AH extension number.
      */
-  static const uint8_t EXT_NUMBER = 51;
+    static const uint8_t EXT_NUMBER = 51;
 
-  /**
+    /**
      * \brief Get the type identificator.
      * \return type identificator
      */
-  static TypeId GetTypeId ();
+    static TypeId GetTypeId();
 
-  /**
+    /**
      * \brief Constructor.
      */
-  Ipv6ExtensionAH ();
+    Ipv6ExtensionAH();
 
-  /**
+    /**
      * \brief Destructor.
      */
-  ~Ipv6ExtensionAH () override;
+    ~Ipv6ExtensionAH() override;
 
-  /**
+    /**
      * \brief Get the extension number.
      * \return extension number
      */
-  uint8_t GetExtensionNumber () const override;
+    uint8_t GetExtensionNumber() const override;
 
-  uint8_t Process (Ptr<Packet> &packet, uint8_t offset, const Ipv6Header &ipv6Header,
-                   Ipv6Address dst, uint8_t *nextHeader, bool &stopProcessing, bool &isDropped,
-                   Ipv6L3Protocol::DropReason &dropReason) override;
+    uint8_t Process(Ptr<Packet>& packet,
+                    uint8_t offset,
+                    const Ipv6Header& ipv6Header,
+                    Ipv6Address dst,
+                    uint8_t* nextHeader,
+                    bool& stopProcessing,
+                    bool& isDropped,
+                    Ipv6L3Protocol::DropReason& dropReason) override;
 };
 
 } /* namespace ns3 */

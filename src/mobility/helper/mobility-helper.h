@@ -28,7 +28,8 @@
 
 #include <vector>
 
-namespace ns3 {
+namespace ns3
+{
 
 class PositionAllocator;
 class MobilityModel;
@@ -41,35 +42,35 @@ class MobilityModel;
  */
 class MobilityHelper
 {
-public:
-  /**
+  public:
+    /**
      * Construct a Mobility Helper which is used to make life easier when working
      * with mobility models.
      */
-  MobilityHelper ();
+    MobilityHelper();
 
-  /**
+    /**
      * Destroy a Mobility Helper
      */
-  ~MobilityHelper ();
+    ~MobilityHelper();
 
-  /**
+    /**
      * Set the position allocator which will be used to allocate the initial
      * position of every node initialized during MobilityModel::Install.
      *
      * \param allocator allocate initial node positions
      */
-  void SetPositionAllocator (Ptr<PositionAllocator> allocator);
+    void SetPositionAllocator(Ptr<PositionAllocator> allocator);
 
-  /**
+    /**
      * \tparam Ts \deduced Argument types
      * \param type the type of mobility model to use.
      * \param [in] args Name and AttributeValue pairs to set.
      */
-  template <typename... Ts>
-  void SetPositionAllocator (std::string type, Ts &&...args);
+    template <typename... Ts>
+    void SetPositionAllocator(std::string type, Ts&&... args);
 
-  /**
+    /**
      * \tparam Ts \deduced Argument types
      * \param type the type of mobility model to use.
      * \param [in] args Name and AttributeValue pairs to set.
@@ -77,10 +78,10 @@ public:
      * Calls to MobilityHelper::Install will create an instance of a matching
      * mobility model for each node.
      */
-  template <typename... Ts>
-  void SetMobilityModel (std::string type, Ts &&...args);
+    template <typename... Ts>
+    void SetMobilityModel(std::string type, Ts&&... args);
 
-  /**
+    /**
      * \param reference item to push.
      *
      * Push an item on the top of the stack of "reference mobility models".
@@ -98,8 +99,8 @@ public:
      * features, and, then, defining the smaller-scale movements relative
      * to a few reference points in the large-scale model.
      */
-  void PushReferenceMobilityModel (Ptr<Object> reference);
-  /**
+    void PushReferenceMobilityModel(Ptr<Object> reference);
+    /**
      * \param referenceName named item to push.
      *
      * Push an item on the top of the stack of "reference mobility models".
@@ -117,20 +118,20 @@ public:
      * features, and, then, defining the smaller-scale movements relative
      * to a few reference points in the large-scale model.
      */
-  void PushReferenceMobilityModel (std::string referenceName);
-  /**
+    void PushReferenceMobilityModel(std::string referenceName);
+    /**
      * Remove the top item from the top of the stack of
      * "reference mobility models".
      */
-  void PopReferenceMobilityModel ();
+    void PopReferenceMobilityModel();
 
-  /**
+    /**
      * \return a string which contains the TypeId of the currently-selected
      *          mobility model.
      */
-  std::string GetMobilityModelType () const;
+    std::string GetMobilityModelType() const;
 
-  /**
+    /**
      * \brief "Layout" a single node according to the current position allocator type.
      *
      * This method creates an instance of a ns3::MobilityModel subclass (the
@@ -140,8 +141,8 @@ public:
      *
      * \param node The node to "layout."
      */
-  void Install (Ptr<Node> node) const;
-  /**
+    void Install(Ptr<Node> node) const;
+    /**
      * \brief "Layout" a single node according to the current position allocator type.
      *
      * This method creates an instance of a ns3::MobilityModel subclass (the
@@ -151,9 +152,9 @@ public:
      *
      * \param nodeName The name of the node to "layout."
      */
-  void Install (std::string nodeName) const;
+    void Install(std::string nodeName) const;
 
-  /**
+    /**
      * \brief Layout a collection of nodes according to the current position allocator type.
      *
      * For each node in the provided NodeContainer, this method creates an instance
@@ -164,15 +165,15 @@ public:
      *
      * \param container The set of nodes to layout.
      */
-  void Install (NodeContainer container) const;
+    void Install(NodeContainer container) const;
 
-  /**
+    /**
      * Perform the work of MobilityHelper::Install on _all_ nodes which
      * exist in the simulation.
      */
-  void InstallAll ();
+    void InstallAll() const;
 
-  /**
+    /**
      * \param stream an output stream wrapper
      * \param nodeid the id of the node to generate ascii output for.
      *
@@ -181,8 +182,8 @@ public:
      * stream.  If the Node does not have a MobilityModel aggregated,
      * this method will not produce any output.
      */
-  static void EnableAscii (Ptr<OutputStreamWrapper> stream, uint32_t nodeid);
-  /**
+    static void EnableAscii(Ptr<OutputStreamWrapper> stream, uint32_t nodeid);
+    /**
      * \param stream an output stream wrapper
      * \param n node container
      *
@@ -191,8 +192,8 @@ public:
      * specified output stream.  Nodes that do not have a MobilityModel
      * aggregated will not result in any output.
      */
-  static void EnableAscii (Ptr<OutputStreamWrapper> stream, NodeContainer n);
-  /**
+    static void EnableAscii(Ptr<OutputStreamWrapper> stream, NodeContainer n);
+    /**
      * \param stream an output stream wrapper
      *
      * Enable ascii output to record course changes from the mobility models
@@ -200,8 +201,8 @@ public:
      * output stream.  Nodes that do not have a MobilityModel aggregated
      * will not result in any output.
      */
-  static void EnableAsciiAll (Ptr<OutputStreamWrapper> stream);
-  /**
+    static void EnableAsciiAll(Ptr<OutputStreamWrapper> stream);
+    /**
      * Assign a fixed random variable stream number to the random variables
      * used by the mobility models on these nodes. Return the number of
      * streams (possibly zero) that have been assigned. The Install()
@@ -219,25 +220,26 @@ public:
      * \param stream first stream index to use
      * \return the number of stream indices assigned by this helper
      */
-  int64_t AssignStreams (NodeContainer c, int64_t stream);
+    int64_t AssignStreams(NodeContainer c, int64_t stream);
 
-  /**
+    /**
      * \param n1 node 1
      * \param n2 node 2
      * \return the distance (squared), in meters, between two nodes
      */
-  static double GetDistanceSquaredBetween (Ptr<Node> n1, Ptr<Node> n2);
+    static double GetDistanceSquaredBetween(Ptr<Node> n1, Ptr<Node> n2);
 
-private:
-  /**
+  private:
+    /**
      * Output course change events from mobility model to output stream
      * \param stream output stream
      * \param mobility mobility model
      */
-  static void CourseChanged (Ptr<OutputStreamWrapper> stream, Ptr<const MobilityModel> mobility);
-  std::vector<Ptr<MobilityModel>> m_mobilityStack; //!< Internal stack of mobility models
-  ObjectFactory m_mobility; //!< Object factory to create mobility objects
-  Ptr<PositionAllocator> m_position; //!< Position allocator for use in hierarchical mobility model
+    static void CourseChanged(Ptr<OutputStreamWrapper> stream, Ptr<const MobilityModel> mobility);
+    std::vector<Ptr<MobilityModel>> m_mobilityStack; //!< Internal stack of mobility models
+    ObjectFactory m_mobility;                        //!< Object factory to create mobility objects
+    Ptr<PositionAllocator>
+        m_position; //!< Position allocator for use in hierarchical mobility model
 };
 
 /***************************************************************
@@ -246,18 +248,18 @@ private:
 
 template <typename... Ts>
 void
-MobilityHelper::SetPositionAllocator (std::string type, Ts &&...args)
+MobilityHelper::SetPositionAllocator(std::string type, Ts&&... args)
 {
-  ObjectFactory pos (type, std::forward<Ts> (args)...);
-  m_position = pos.Create ()->GetObject<PositionAllocator> ();
+    ObjectFactory pos(type, std::forward<Ts>(args)...);
+    m_position = pos.Create()->GetObject<PositionAllocator>();
 }
 
 template <typename... Ts>
 void
-MobilityHelper::SetMobilityModel (std::string type, Ts &&...args)
+MobilityHelper::SetMobilityModel(std::string type, Ts&&... args)
 {
-  m_mobility.SetTypeId (type);
-  m_mobility.Set (std::forward<Ts> (args)...);
+    m_mobility.SetTypeId(type);
+    m_mobility.Set(std::forward<Ts>(args)...);
 }
 
 } // namespace ns3

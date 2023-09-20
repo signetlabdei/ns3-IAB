@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2020 University of Washington
  *
@@ -26,15 +25,16 @@
 #ifndef ERROR_RATE_TABLES_H
 #define ERROR_RATE_TABLES_H
 
-namespace ns3 {
+namespace ns3
+{
 
 const uint16_t ERROR_TABLE_BCC_SMALL_FRAME_SIZE =
     32; //!< reference size (bytes) of small frames for BCC
 const uint16_t ERROR_TABLE_BCC_LARGE_FRAME_SIZE =
     1458; //!< reference size (bytes) of large frames for BCC
 const uint16_t ERROR_TABLE_LDPC_FRAME_SIZE = 1458; //!< reference size (bytes) for LDPC
-const uint8_t ERROR_TABLE_BCC_MAX_NUM_MCS = 10; //!< maximum number of MCSs for BCC
-const uint8_t ERROR_TABLE_LDPC_MAX_NUM_MCS = 12; //!< maximum number of MCSs for LDPC
+const uint8_t ERROR_TABLE_BCC_MAX_NUM_MCS = 10;    //!< maximum number of MCSs for BCC
+const uint8_t ERROR_TABLE_LDPC_MAX_NUM_MCS = 12;   //!< maximum number of MCSs for LDPC
 
 /// Table of SNR (dB) and PER pairs
 typedef std::vector<std::pair<double /* SNR (dB) */, double /* PER */>> SnrPerTable;
@@ -547,6 +547,6 @@ static const SnrPerTable AwgnErrorTableLdpc1458[ERROR_TABLE_LDPC_MAX_NUM_MCS] = 
     },
 };
 
-} //namespace ns3
+} // namespace ns3
 
 #endif /* ERROR_RATE_TABLES_H */

@@ -21,16 +21,17 @@
 #include "ns3/double.h"
 #include "ns3/uinteger.h"
 
-namespace ns3 {
+namespace ns3
+{
 
-NS_OBJECT_ENSURE_REGISTERED (TcpSocketFactory);
+NS_OBJECT_ENSURE_REGISTERED(TcpSocketFactory);
 
 TypeId
-TcpSocketFactory::GetTypeId ()
+TcpSocketFactory::GetTypeId()
 {
-  static TypeId tid =
-      TypeId ("ns3::TcpSocketFactory").SetParent<SocketFactory> ().SetGroupName ("Internet");
-  return tid;
+    static TypeId tid =
+        TypeId("ns3::TcpSocketFactory").SetParent<SocketFactory>().SetGroupName("Internet");
+    return tid;
 }
 
 } // namespace ns3

@@ -23,7 +23,8 @@
 
 #include "ns3/object.h"
 
-namespace ns3 {
+namespace ns3
+{
 
 /**
  * \ingroup network
@@ -41,27 +42,27 @@ namespace ns3 {
  */
 class QueueLimits : public Object
 {
-public:
-  /**
+  public:
+    /**
      * \brief Get the type ID.
      * \return the object TypeId
      */
-  static TypeId GetTypeId ();
+    static TypeId GetTypeId();
 
-  ~QueueLimits () override;
+    ~QueueLimits() override;
 
-  /**
+    /**
      * \brief Reset queue limits state
      */
-  virtual void Reset () = 0;
+    virtual void Reset() = 0;
 
-  /**
+    /**
      * \brief Record number of completed bytes and recalculate the limit
      * \param count the number of completed bytes
      */
-  virtual void Completed (uint32_t count) = 0;
+    virtual void Completed(uint32_t count) = 0;
 
-  /**
+    /**
      * Available is called from NotifyTransmittedBytes to calculate the
      * number of bytes that can be passed again to the NetDevice.
      * A negative value means that no packets can be passed to the NetDevice.
@@ -69,13 +70,13 @@ public:
      * \brief Returns how many bytes can be queued
      * \return the number of bytes that can be queued
      */
-  virtual int32_t Available () const = 0;
+    virtual int32_t Available() const = 0;
 
-  /**
+    /**
      * \brief Record the number of bytes queued
      * \param count the number of bytes queued
      */
-  virtual void Queued (uint32_t count) = 0;
+    virtual void Queued(uint32_t count) = 0;
 };
 
 } // namespace ns3

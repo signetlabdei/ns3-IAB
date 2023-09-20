@@ -310,6 +310,20 @@ MmWaveIabNetDevice::SetBap (Ptr<Bap> bap)
   m_bap = bap;
 }
 
+void
+MmWaveIabNetDevice::SetIpInterface (Ipv4InterfaceContainer ipInterface)
+{
+  NS_LOG_FUNCTION (this);
+  m_ipInterface = ipInterface;
+}
+
+Ipv4InterfaceContainer
+MmWaveIabNetDevice::GetIpInterface () const
+{
+  NS_LOG_FUNCTION (this);
+  return m_ipInterface;
+}
+
 bool
 MmWaveIabNetDevice::DoSend (Ptr<Packet> packet, const Address &dest, uint16_t protocolNumber)
 {

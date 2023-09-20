@@ -20,22 +20,23 @@
 
 #include "ns3/log.h"
 
-namespace ns3 {
+namespace ns3
+{
 
-NS_LOG_COMPONENT_DEFINE ("SocketFactory");
+NS_LOG_COMPONENT_DEFINE("SocketFactory");
 
-NS_OBJECT_ENSURE_REGISTERED (SocketFactory);
+NS_OBJECT_ENSURE_REGISTERED(SocketFactory);
 
 TypeId
-SocketFactory::GetTypeId ()
+SocketFactory::GetTypeId()
 {
-  static TypeId tid = TypeId ("ns3::SocketFactory").SetParent<Object> ().SetGroupName ("Network");
-  return tid;
+    static TypeId tid = TypeId("ns3::SocketFactory").SetParent<Object>().SetGroupName("Network");
+    return tid;
 }
 
-SocketFactory::SocketFactory ()
+SocketFactory::SocketFactory()
 {
-  NS_LOG_FUNCTION (this);
+    NS_LOG_FUNCTION(this);
 }
 
 } // namespace ns3

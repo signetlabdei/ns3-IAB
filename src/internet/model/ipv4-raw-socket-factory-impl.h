@@ -22,7 +22,8 @@
 
 #include "ns3/ipv4-raw-socket-factory.h"
 
-namespace ns3 {
+namespace ns3
+{
 
 /**
  * \ingroup socket
@@ -32,8 +33,8 @@ namespace ns3 {
  */
 class Ipv4RawSocketFactoryImpl : public Ipv4RawSocketFactory
 {
-public:
-  Ptr<Socket> CreateSocket () override;
+  public:
+    Ptr<Socket> CreateSocket() override;
 };
 
 } // namespace ns3

@@ -1,4 +1,3 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2017 Universita' degli Studi di Napoli Federico II
  *
@@ -21,17 +20,18 @@
 #ifndef NETMAP_NET_DEVICE_HELPER_H
 #define NETMAP_NET_DEVICE_HELPER_H
 
+#include "ns3/attribute.h"
+#include "ns3/fd-net-device-helper.h"
+#include "ns3/fd-net-device.h"
+#include "ns3/net-device-container.h"
+#include "ns3/netmap-net-device.h"
+#include "ns3/node-container.h"
+#include "ns3/object-factory.h"
+
 #include <string>
 
-#include "ns3/attribute.h"
-#include "ns3/fd-net-device.h"
-#include "ns3/fd-net-device-helper.h"
-#include "ns3/object-factory.h"
-#include "ns3/net-device-container.h"
-#include "ns3/node-container.h"
-#include "ns3/netmap-net-device.h"
-
-namespace ns3 {
+namespace ns3
+{
 
 class NetmapNetDevice;
 
@@ -43,54 +43,55 @@ class NetmapNetDevice;
  */
 class NetmapNetDeviceHelper : public FdNetDeviceHelper
 {
-public:
-  NetmapNetDeviceHelper ();
-  virtual ~NetmapNetDeviceHelper ()
-  {
-  }
+  public:
+    NetmapNetDeviceHelper();
 
-  /**
-   * \brief Get the device name of this device.
-   * \returns The device name of this device.
-   */
-  std::string GetDeviceName (void);
+    virtual ~NetmapNetDeviceHelper()
+    {
+    }
 
-  /**
-   * \brief Set the device name of this device.
-   * \param deviceName The device name of this device.
-   */
-  void SetDeviceName (std::string deviceName);
+    /**
+     * \brief Get the device name of this device.
+     * \returns The device name of this device.
+     */
+    std::string GetDeviceName();
 
-protected:
-  /**
-   * \brief This method creates an ns3::FdNetDevice attached to a physical network
-   * interface
-   * \param node The node to install the device in
-   * \returns A container holding the added net device.
-   */
-  Ptr<NetDevice> InstallPriv (Ptr<Node> node) const;
+    /**
+     * \brief Set the device name of this device.
+     * \param deviceName The device name of this device.
+     */
+    void SetDeviceName(std::string deviceName);
 
-  /**
-   * \brief Sets device flags and MTU.
-   * \param device the FdNetDevice
-   */
-  virtual void SetDeviceAttributes (Ptr<FdNetDevice> device) const;
+  protected:
+    /**
+     * \brief This method creates an ns3::FdNetDevice attached to a physical network
+     * interface
+     * \param node The node to install the device in
+     * \returns A container holding the added net device.
+     */
+    Ptr<NetDevice> InstallPriv(Ptr<Node> node) const;
 
-  /**
-   * \brief Call out to a separate process running as suid root in order to get a raw
-   * socket.  We do this to avoid having the entire simulation running as root.
-   * \return the rawSocket number
-   */
-  virtual int CreateFileDescriptor (void) const;
+    /**
+     * \brief Sets device flags and MTU.
+     * \param device the FdNetDevice
+     */
+    virtual void SetDeviceAttributes(Ptr<FdNetDevice> device) const;
 
-  /**
-   * \brief Switch the fd in netmap mode.
-   * \param fd the file descriptor
-   * \param device the NetmapNetDevice
-   */
-  void SwitchInNetmapMode (int fd, Ptr<NetmapNetDevice> device) const;
+    /**
+     * \brief Call out to a separate process running as suid root in order to get a raw
+     * socket.  We do this to avoid having the entire simulation running as root.
+     * \return the rawSocket number
+     */
+    virtual int CreateFileDescriptor() const;
 
-  std::string m_deviceName; //!< The unix/linux name of the underlying device (e.g., eth0)
+    /**
+     * \brief Switch the fd in netmap mode.
+     * \param fd the file descriptor
+     * \param device the NetmapNetDevice
+     */
+    void SwitchInNetmapMode(int fd, Ptr<NetmapNetDevice> device) const;
+
+    std::string m_deviceName; //!< The unix/linux name of the underlying device (e.g., eth0)
 };
 
 } // namespace ns3

@@ -27,7 +27,8 @@
 #include <map>
 #include <ostream>
 
-namespace ns3 {
+namespace ns3
+{
 
 class NetDevice;
 
@@ -38,85 +39,85 @@ class NetDevice;
  */
 class Ipv6Route : public SimpleRefCount<Ipv6Route>
 {
-public:
-  /**
+  public:
+    /**
      * \brief Constructor.
      */
-  Ipv6Route ();
+    Ipv6Route();
 
-  /**
+    /**
      * \brief Destructor.
      */
-  virtual ~Ipv6Route ();
+    virtual ~Ipv6Route();
 
-  /**
+    /**
      * \brief Set destination address.
      * \param dest IPv6 destination address
      */
-  void SetDestination (Ipv6Address dest);
+    void SetDestination(Ipv6Address dest);
 
-  /**
+    /**
      * \brief Get destination address.
      * \return destination address
      */
-  Ipv6Address GetDestination () const;
+    Ipv6Address GetDestination() const;
 
-  /**
+    /**
      * \brief Set source address.
      * \param src IPv6 source address
      */
-  void SetSource (Ipv6Address src);
+    void SetSource(Ipv6Address src);
 
-  /**
+    /**
      * \brief Get source address.
      * \return source address
      */
-  Ipv6Address GetSource () const;
+    Ipv6Address GetSource() const;
 
-  /**
+    /**
      * \brief Set gateway address.
      * \param gw IPv6 gateway address
      */
-  void SetGateway (Ipv6Address gw);
+    void SetGateway(Ipv6Address gw);
 
-  /**
+    /**
      * \brief Get gateway address.
      * \return gateway address
      */
-  Ipv6Address GetGateway () const;
+    Ipv6Address GetGateway() const;
 
-  /**
+    /**
      * \brief Set output device for outgoing packets.
      * \param outputDevice output device
      */
-  void SetOutputDevice (Ptr<NetDevice> outputDevice);
+    void SetOutputDevice(Ptr<NetDevice> outputDevice);
 
-  /**
+    /**
      * \brief Get output device.
      * \return output device
      */
-  Ptr<NetDevice> GetOutputDevice () const;
+    Ptr<NetDevice> GetOutputDevice() const;
 
-private:
-  /**
+  private:
+    /**
      * \brief Destination address.
      */
-  Ipv6Address m_dest;
+    Ipv6Address m_dest;
 
-  /**
+    /**
      * \brief source address.
      */
-  Ipv6Address m_source;
+    Ipv6Address m_source;
 
-  /**
+    /**
      * \brief Gateway address.
      */
-  Ipv6Address m_gateway;
+    Ipv6Address m_gateway;
 
-  /**
+    /**
      * \brief Output device.
      */
-  Ptr<NetDevice> m_outputDevice;
+    Ptr<NetDevice> m_outputDevice;
 };
 
 /**
@@ -126,7 +127,7 @@ private:
  * \param route the Ipv6 route
  * \returns the reference to the output stream
  */
-std::ostream &operator<< (std::ostream &os, const Ipv6Route &route);
+std::ostream& operator<<(std::ostream& os, const Ipv6Route& route);
 
 /**
  * \ingroup ipv6Routing
@@ -135,95 +136,95 @@ std::ostream &operator<< (std::ostream &os, const Ipv6Route &route);
  */
 class Ipv6MulticastRoute : public SimpleRefCount<Ipv6MulticastRoute>
 {
-public:
-  /**
+  public:
+    /**
      * \brief Maximum number of multicast interfaces on a router.
      */
-  static const uint32_t MAX_INTERFACES = 16;
+    static const uint32_t MAX_INTERFACES = 16;
 
-  /**
+    /**
      * \brief Maximum Time-To-Live (TTL).
      */
-  static const uint32_t MAX_TTL = 255;
+    static const uint32_t MAX_TTL = 255;
 
-  /**
+    /**
      * \brief Constructor.
      */
-  Ipv6MulticastRoute ();
+    Ipv6MulticastRoute();
 
-  /**
+    /**
      * \brief Destructor.
      */
-  virtual ~Ipv6MulticastRoute ();
+    virtual ~Ipv6MulticastRoute();
 
-  /**
+    /**
      * \brief Set IPv6 group.
      * \param group Ipv6Address of the multicast group
      */
-  void SetGroup (const Ipv6Address group);
+    void SetGroup(const Ipv6Address group);
 
-  /**
+    /**
      * \brief Get IPv6 group.
      * \return Ipv6Address of the multicast group
      */
-  Ipv6Address GetGroup () const;
+    Ipv6Address GetGroup() const;
 
-  /**
+    /**
      * \brief Set origin address.
      * \param origin Ipv6Address of the origin address
      */
-  void SetOrigin (const Ipv6Address origin);
+    void SetOrigin(const Ipv6Address origin);
 
-  /**
+    /**
      * \brief Get source address.
      * \return Ipv6Address of the origin address
      */
-  Ipv6Address GetOrigin () const;
+    Ipv6Address GetOrigin() const;
 
-  /**
+    /**
      * \brief Set parent for this route.
      * \param iif Parent (input interface) for this route
      */
-  void SetParent (uint32_t iif);
+    void SetParent(uint32_t iif);
 
-  /**
+    /**
      * \brief Get parent for this route.
      * \return Parent (input interface) for this route
      */
-  uint32_t GetParent () const;
+    uint32_t GetParent() const;
 
-  /**
+    /**
      * \brief set output TTL for this route.
      * \param oif Outgoing interface index
      * \param ttl time-to-live for this route
      */
-  void SetOutputTtl (uint32_t oif, uint32_t ttl);
+    void SetOutputTtl(uint32_t oif, uint32_t ttl);
 
-  /**
+    /**
      * \return map of output interface Ids and TTLs for this route
      */
-  std::map<uint32_t, uint32_t> GetOutputTtlMap () const;
+    std::map<uint32_t, uint32_t> GetOutputTtlMap() const;
 
-private:
-  /**
+  private:
+    /**
      * \brief IPv6 group.
      */
-  Ipv6Address m_group;
+    Ipv6Address m_group;
 
-  /**
+    /**
      * \brief IPv6 origin (source).
      */
-  Ipv6Address m_origin;
+    Ipv6Address m_origin;
 
-  /**
+    /**
      * \brief Source interface.
      */
-  uint32_t m_parent;
+    uint32_t m_parent;
 
-  /**
+    /**
      * \brief TTLs.
      */
-  std::map<uint32_t, uint32_t> m_ttls;
+    std::map<uint32_t, uint32_t> m_ttls;
 };
 
 /**
@@ -233,7 +234,7 @@ private:
  * \param route the Ipv6 multicast route
  * \returns the reference to the output stream
  */
-std::ostream &operator<< (std::ostream &os, const Ipv6MulticastRoute &route);
+std::ostream& operator<<(std::ostream& os, const Ipv6MulticastRoute& route);
 
 } /* namespace ns3 */
 

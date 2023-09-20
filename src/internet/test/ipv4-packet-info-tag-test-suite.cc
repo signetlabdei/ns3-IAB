@@ -54,159 +54,175 @@ using namespace ns3;
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief IPv4 PacketInfoTag Test
  */
 class Ipv4PacketInfoTagTest : public TestCase
 {
-public:
-  Ipv4PacketInfoTagTest ();
+  public:
+    Ipv4PacketInfoTagTest();
 
-private:
-  void DoRun () override;
+  private:
+    void DoRun() override;
 
-  /**
+    /**
      * \brief Receive callback.
      * \param socket Receiving socket.
      */
-  void RxCb (Ptr<Socket> socket);
-  /**
+    void RxCb(Ptr<Socket> socket);
+    /**
      * \brief Send data.
      * \param socket Sending socket.
      * \param to Destination address.
      */
-  void DoSendData (Ptr<Socket> socket, std::string to);
+    void DoSendData(Ptr<Socket> socket, std::string to);
 };
 
-Ipv4PacketInfoTagTest::Ipv4PacketInfoTagTest () : TestCase ("Ipv4PacketInfoTagTest")
+Ipv4PacketInfoTagTest::Ipv4PacketInfoTagTest()
+    : TestCase("Ipv4PacketInfoTagTest")
 {
 }
 
 void
-Ipv4PacketInfoTagTest::RxCb (Ptr<Socket> socket)
+Ipv4PacketInfoTagTest::RxCb(Ptr<Socket> socket)
 {
-  uint32_t availableData;
-  Ptr<Packet> m_receivedPacket;
+    uint32_t availableData;
+    Ptr<Packet> m_receivedPacket;
 
-  availableData = socket->GetRxAvailable ();
-  m_receivedPacket = socket->Recv (std::numeric_limits<uint32_t>::max (), 0);
-  NS_TEST_ASSERT_MSG_EQ (availableData, m_receivedPacket->GetSize (), "Did not read expected data");
+    availableData = socket->GetRxAvailable();
+    m_receivedPacket = socket->Recv(std::numeric_limits<uint32_t>::max(), 0);
+    NS_TEST_ASSERT_MSG_EQ(availableData, m_receivedPacket->GetSize(), "Did not read expected data");
 
-  Ipv4PacketInfoTag tag;
-  bool found;
-  found = m_receivedPacket->RemovePacketTag (tag);
-  NS_TEST_ASSERT_MSG_EQ (found, true, "Could not find tag");
+    Ipv4PacketInfoTag tag;
+    bool found;
+    found = m_receivedPacket->RemovePacketTag(tag);
+    NS_TEST_ASSERT_MSG_EQ(found, true, "Could not find tag");
 }
 
 void
-Ipv4PacketInfoTagTest::DoSendData (Ptr<Socket> socket, std::string to)
+Ipv4PacketInfoTagTest::DoSendData(Ptr<Socket> socket, std::string to)
 {
-  Address realTo = InetSocketAddress (Ipv4Address (to.c_str ()), 200);
-  if (DynamicCast<UdpSocket> (socket))
+    Address realTo = InetSocketAddress(Ipv4Address(to.c_str()), 200);
+    if (DynamicCast<UdpSocket>(socket))
     {
-      NS_TEST_EXPECT_MSG_EQ (socket->SendTo (Create<Packet> (123), 0, realTo), 123, "100");
+        NS_TEST_EXPECT_MSG_EQ(socket->SendTo(Create<Packet>(123), 0, realTo), 123, "100");
     }
-  // Should only Ipv4RawSock
-  else
+    // Should only Ipv4RawSock
+    else
     {
-      socket->SendTo (Create<Packet> (123), 0, realTo);
+        socket->SendTo(Create<Packet>(123), 0, realTo);
     }
 }
 
 void
-Ipv4PacketInfoTagTest::DoRun ()
+Ipv4PacketInfoTagTest::DoRun()
 {
-  Ptr<Node> node0 = CreateObject<Node> ();
-  Ptr<Node> node1 = CreateObject<Node> ();
+    Ptr<Node> node0 = CreateObject<Node>();
+    Ptr<Node> node1 = CreateObject<Node>();
 
-  SimpleNetDeviceHelper simpleNetDevHelper;
-  NetDeviceContainer devs = simpleNetDevHelper.Install (NodeContainer (node0, node1));
-  Ptr<SimpleNetDevice> device = DynamicCast<SimpleNetDevice> (devs.Get (0));
-  Ptr<SimpleNetDevice> device2 = DynamicCast<SimpleNetDevice> (devs.Get (1));
+    SimpleNetDeviceHelper simpleNetDevHelper;
+    NetDeviceContainer devs = simpleNetDevHelper.Install(NodeContainer(node0, node1));
+    Ptr<SimpleNetDevice> device = DynamicCast<SimpleNetDevice>(devs.Get(0));
+    Ptr<SimpleNetDevice> device2 = DynamicCast<SimpleNetDevice>(devs.Get(1));
 
-  InternetStackHelper internet;
-  internet.SetIpv6StackInstall (false);
+    InternetStackHelper internet;
+    internet.SetIpv6StackInstall(false);
 
-  // For Node 0
-  node0->AddDevice (device);
-  internet.Install (node0);
-  Ptr<Ipv4> ipv4 = node0->GetObject<Ipv4> ();
+    // For Node 0
+    node0->AddDevice(device);
+    internet.Install(node0);
+    Ptr<Ipv4> ipv4 = node0->GetObject<Ipv4>();
 
-  uint32_t index = ipv4->AddInterface (device);
-  Ipv4InterfaceAddress ifaceAddr1 = Ipv4InterfaceAddress ("10.1.1.1", "255.255.255.0");
-  ipv4->AddAddress (index, ifaceAddr1);
-  ipv4->SetMetric (index, 1);
-  ipv4->SetUp (index);
+    uint32_t index = ipv4->AddInterface(device);
+    Ipv4InterfaceAddress ifaceAddr1 = Ipv4InterfaceAddress("10.1.1.1", "255.255.255.0");
+    ipv4->AddAddress(index, ifaceAddr1);
+    ipv4->SetMetric(index, 1);
+    ipv4->SetUp(index);
 
-  // For Node 1
-  node1->AddDevice (device2);
-  internet.Install (node1);
-  ipv4 = node1->GetObject<Ipv4> ();
+    // For Node 1
+    node1->AddDevice(device2);
+    internet.Install(node1);
+    ipv4 = node1->GetObject<Ipv4>();
 
-  index = ipv4->AddInterface (device2);
-  Ipv4InterfaceAddress ifaceAddr2 = Ipv4InterfaceAddress ("10.1.1.2", "255.255.255.0");
-  ipv4->AddAddress (index, ifaceAddr2);
-  ipv4->SetMetric (index, 1);
-  ipv4->SetUp (index);
+    index = ipv4->AddInterface(device2);
+    Ipv4InterfaceAddress ifaceAddr2 = Ipv4InterfaceAddress("10.1.1.2", "255.255.255.0");
+    ipv4->AddAddress(index, ifaceAddr2);
+    ipv4->SetMetric(index, 1);
+    ipv4->SetUp(index);
 
-  // IPv4 test
-  Ptr<SocketFactory> factory = node0->GetObject<SocketFactory> (UdpSocketFactory::GetTypeId ());
-  Ptr<Socket> socket = factory->CreateSocket ();
-  InetSocketAddress local = InetSocketAddress (Ipv4Address::GetAny (), 200);
-  socket->Bind (local);
-  socket->SetRecvPktInfo (true);
-  socket->SetRecvCallback (MakeCallback (&Ipv4PacketInfoTagTest::RxCb, this));
+    // IPv4 test
+    Ptr<SocketFactory> factory = node0->GetObject<SocketFactory>(UdpSocketFactory::GetTypeId());
+    Ptr<Socket> socket = factory->CreateSocket();
+    InetSocketAddress local = InetSocketAddress(Ipv4Address::GetAny(), 200);
+    socket->Bind(local);
+    socket->SetRecvPktInfo(true);
+    socket->SetRecvCallback(MakeCallback(&Ipv4PacketInfoTagTest::RxCb, this));
 
-  // receive on loopback
-  Simulator::ScheduleWithContext (socket->GetNode ()->GetId (), Seconds (0),
-                                  &Ipv4PacketInfoTagTest::DoSendData, this, socket, "127.0.0.1");
-  Simulator::Run ();
+    // receive on loopback
+    Simulator::ScheduleWithContext(socket->GetNode()->GetId(),
+                                   Seconds(0),
+                                   &Ipv4PacketInfoTagTest::DoSendData,
+                                   this,
+                                   socket,
+                                   "127.0.0.1");
+    Simulator::Run();
 
-  Ptr<SocketFactory> factory2 = node1->GetObject<SocketFactory> (UdpSocketFactory::GetTypeId ());
-  Ptr<Socket> socket2 = factory2->CreateSocket ();
-  Simulator::ScheduleWithContext (socket2->GetNode ()->GetId (), Seconds (0),
-                                  &Ipv4PacketInfoTagTest::DoSendData, this, socket, "10.1.1.1");
-  Simulator::Run ();
+    Ptr<SocketFactory> factory2 = node1->GetObject<SocketFactory>(UdpSocketFactory::GetTypeId());
+    Ptr<Socket> socket2 = factory2->CreateSocket();
+    Simulator::ScheduleWithContext(socket2->GetNode()->GetId(),
+                                   Seconds(0),
+                                   &Ipv4PacketInfoTagTest::DoSendData,
+                                   this,
+                                   socket,
+                                   "10.1.1.1");
+    Simulator::Run();
 
-  // ipv4 w rawsocket
-  factory = node0->GetObject<SocketFactory> (Ipv4RawSocketFactory::GetTypeId ());
-  socket = factory->CreateSocket ();
-  local = InetSocketAddress (Ipv4Address::GetAny (), 0);
-  socket->Bind (local);
-  socket->SetRecvPktInfo (true);
-  socket->SetRecvCallback (MakeCallback (&Ipv4PacketInfoTagTest::RxCb, this));
+    // ipv4 w rawsocket
+    factory = node0->GetObject<SocketFactory>(Ipv4RawSocketFactory::GetTypeId());
+    socket = factory->CreateSocket();
+    local = InetSocketAddress(Ipv4Address::GetAny(), 0);
+    socket->Bind(local);
+    socket->SetRecvPktInfo(true);
+    socket->SetRecvCallback(MakeCallback(&Ipv4PacketInfoTagTest::RxCb, this));
 
-  // receive on loopback
-  Simulator::ScheduleWithContext (socket->GetNode ()->GetId (), Seconds (0),
-                                  &Ipv4PacketInfoTagTest::DoSendData, this, socket, "127.0.0.1");
-  Simulator::Run ();
+    // receive on loopback
+    Simulator::ScheduleWithContext(socket->GetNode()->GetId(),
+                                   Seconds(0),
+                                   &Ipv4PacketInfoTagTest::DoSendData,
+                                   this,
+                                   socket,
+                                   "127.0.0.1");
+    Simulator::Run();
 
-  factory2 = node1->GetObject<SocketFactory> (Ipv4RawSocketFactory::GetTypeId ());
-  socket2 = factory2->CreateSocket ();
-  Simulator::ScheduleWithContext (socket2->GetNode ()->GetId (), Seconds (0),
-                                  &Ipv4PacketInfoTagTest::DoSendData, this, socket, "10.1.1.1");
-  Simulator::Run ();
-  Simulator::Destroy ();
+    factory2 = node1->GetObject<SocketFactory>(Ipv4RawSocketFactory::GetTypeId());
+    socket2 = factory2->CreateSocket();
+    Simulator::ScheduleWithContext(socket2->GetNode()->GetId(),
+                                   Seconds(0),
+                                   &Ipv4PacketInfoTagTest::DoSendData,
+                                   this,
+                                   socket,
+                                   "10.1.1.1");
+    Simulator::Run();
+    Simulator::Destroy();
 }
 
 /**
  * \ingroup internet-test
- * \ingroup tests
  *
  * \brief IPv4 PacketInfoTag TestSuite
  */
 class Ipv4PacketInfoTagTestSuite : public TestSuite
 {
-public:
-  Ipv4PacketInfoTagTestSuite ();
+  public:
+    Ipv4PacketInfoTagTestSuite();
 
-private:
+  private:
 };
 
-Ipv4PacketInfoTagTestSuite::Ipv4PacketInfoTagTestSuite () : TestSuite ("ipv4-packet-info-tag", UNIT)
+Ipv4PacketInfoTagTestSuite::Ipv4PacketInfoTagTestSuite()
+    : TestSuite("ipv4-packet-info-tag", UNIT)
 {
-  AddTestCase (new Ipv4PacketInfoTagTest (), TestCase::QUICK);
+    AddTestCase(new Ipv4PacketInfoTagTest(), TestCase::QUICK);
 }
 
 static Ipv4PacketInfoTagTestSuite g_packetinfotagTests; //!< Static variable for test initialization

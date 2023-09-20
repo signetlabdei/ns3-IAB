@@ -28,7 +28,8 @@
 #include "ns3/socket.h"
 #include "ns3/traced-callback.h"
 
-namespace ns3 {
+namespace ns3
+{
 
 class Node;
 class Packet;
@@ -45,18 +46,18 @@ class Packet;
  */
 class UdpSocket : public Socket
 {
-public:
-  /**
+  public:
+    /**
      * Get the type ID.
      * \brief Get the type ID.
      * \return the object TypeId
      */
-  static TypeId GetTypeId ();
+    static TypeId GetTypeId();
 
-  UdpSocket ();
-  ~UdpSocket () override;
+    UdpSocket();
+    ~UdpSocket() override;
 
-  /**
+    /**
      * \brief Corresponds to socket option MCAST_JOIN_GROUP
      *
      * \param interface interface number, or 0
@@ -80,9 +81,9 @@ public:
      * This enables host multihoming, and the ability to join the same
      * group on different interfaces.
      */
-  virtual int MulticastJoinGroup (uint32_t interface, const Address &groupAddress) = 0;
+    virtual int MulticastJoinGroup(uint32_t interface, const Address& groupAddress) = 0;
 
-  /**
+    /**
      * \brief Corresponds to socket option MCAST_LEAVE_GROUP
      *
      * \param interface interface number, or 0
@@ -100,41 +101,41 @@ public:
      *
      * \attention IGMP is not yet implemented in ns-3
      */
-  virtual int MulticastLeaveGroup (uint32_t interface, const Address &groupAddress) = 0;
+    virtual int MulticastLeaveGroup(uint32_t interface, const Address& groupAddress) = 0;
 
-private:
-  // Indirect the attribute setting and getting through private virtual methods
-  /**
+  private:
+    // Indirect the attribute setting and getting through private virtual methods
+    /**
      * \brief Set the receiving buffer size
      * \param size the buffer size
      */
-  virtual void SetRcvBufSize (uint32_t size) = 0;
-  /**
+    virtual void SetRcvBufSize(uint32_t size) = 0;
+    /**
      * \brief Get the receiving buffer size
      * \returns the buffer size
      */
-  virtual uint32_t GetRcvBufSize () const = 0;
-  /**
+    virtual uint32_t GetRcvBufSize() const = 0;
+    /**
      * \brief Set the IP multicast TTL
      * \param ipTtl the IP multicast TTL
      */
-  virtual void SetIpMulticastTtl (uint8_t ipTtl) = 0;
-  /**
+    virtual void SetIpMulticastTtl(uint8_t ipTtl) = 0;
+    /**
      * \brief Get the IP multicast TTL
      * \returns the IP multicast TTL
      */
-  virtual uint8_t GetIpMulticastTtl () const = 0;
-  /**
+    virtual uint8_t GetIpMulticastTtl() const = 0;
+    /**
      * \brief Set the IP multicast interface
      * \param ipIf the IP multicast interface
      */
-  virtual void SetIpMulticastIf (int32_t ipIf) = 0;
-  /**
+    virtual void SetIpMulticastIf(int32_t ipIf) = 0;
+    /**
      * \brief Get the IP multicast interface
      * \returns the IP multicast interface
      */
-  virtual int32_t GetIpMulticastIf () const = 0;
-  /**
+    virtual int32_t GetIpMulticastIf() const = 0;
+    /**
      * \brief Set the IP multicast loop capability
      *
      * This means that the socket will receive the packets
@@ -143,8 +144,8 @@ private:
      *
      * \param loop the IP multicast loop capability
      */
-  virtual void SetIpMulticastLoop (bool loop) = 0;
-  /**
+    virtual void SetIpMulticastLoop(bool loop) = 0;
+    /**
      * \brief Get the IP multicast loop capability
      *
      * This means that the socket will receive the packets
@@ -153,19 +154,19 @@ private:
      *
      * \returns the IP multicast loop capability
      */
-  virtual bool GetIpMulticastLoop () const = 0;
-  /**
+    virtual bool GetIpMulticastLoop() const = 0;
+    /**
      * \brief Set the MTU discover capability
      *
      * \param discover the MTU discover capability
      */
-  virtual void SetMtuDiscover (bool discover) = 0;
-  /**
+    virtual void SetMtuDiscover(bool discover) = 0;
+    /**
      * \brief Get the MTU discover capability
      *
      * \returns the MTU discover capability
      */
-  virtual bool GetMtuDiscover () const = 0;
+    virtual bool GetMtuDiscover() const = 0;
 };
 
 } // namespace ns3

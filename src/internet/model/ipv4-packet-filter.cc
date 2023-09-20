@@ -30,35 +30,36 @@
 #include "ns3/udp-header.h"
 #include "ns3/uinteger.h"
 
-namespace ns3 {
+namespace ns3
+{
 
-NS_LOG_COMPONENT_DEFINE ("Ipv4PacketFilter");
+NS_LOG_COMPONENT_DEFINE("Ipv4PacketFilter");
 
-NS_OBJECT_ENSURE_REGISTERED (Ipv4PacketFilter);
+NS_OBJECT_ENSURE_REGISTERED(Ipv4PacketFilter);
 
 TypeId
-Ipv4PacketFilter::GetTypeId ()
+Ipv4PacketFilter::GetTypeId()
 {
-  static TypeId tid =
-      TypeId ("ns3::Ipv4PacketFilter").SetParent<PacketFilter> ().SetGroupName ("Internet");
-  return tid;
+    static TypeId tid =
+        TypeId("ns3::Ipv4PacketFilter").SetParent<PacketFilter>().SetGroupName("Internet");
+    return tid;
 }
 
-Ipv4PacketFilter::Ipv4PacketFilter ()
+Ipv4PacketFilter::Ipv4PacketFilter()
 {
-  NS_LOG_FUNCTION (this);
+    NS_LOG_FUNCTION(this);
 }
 
-Ipv4PacketFilter::~Ipv4PacketFilter ()
+Ipv4PacketFilter::~Ipv4PacketFilter()
 {
-  NS_LOG_FUNCTION (this);
+    NS_LOG_FUNCTION(this);
 }
 
 bool
-Ipv4PacketFilter::CheckProtocol (Ptr<QueueDiscItem> item) const
+Ipv4PacketFilter::CheckProtocol(Ptr<QueueDiscItem> item) const
 {
-  NS_LOG_FUNCTION (this << item);
-  return bool (DynamicCast<Ipv4QueueDiscItem> (item));
+    NS_LOG_FUNCTION(this << item);
+    return bool(DynamicCast<Ipv4QueueDiscItem>(item));
 }
 
 // ------------------------------------------------------------------------- //

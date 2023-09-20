@@ -25,9 +25,10 @@
 #include "ns3/log.h"
 #include "ns3/simulation-singleton.h"
 
-namespace ns3 {
+namespace ns3
+{
 
-NS_LOG_COMPONENT_DEFINE ("GlobalRouteManager");
+NS_LOG_COMPONENT_DEFINE("GlobalRouteManager");
 
 // ---------------------------------------------------------------------------
 //
@@ -36,32 +37,32 @@ NS_LOG_COMPONENT_DEFINE ("GlobalRouteManager");
 // ---------------------------------------------------------------------------
 
 void
-GlobalRouteManager::DeleteGlobalRoutes ()
+GlobalRouteManager::DeleteGlobalRoutes()
 {
-  NS_LOG_FUNCTION_NOARGS ();
-  SimulationSingleton<GlobalRouteManagerImpl>::Get ()->DeleteGlobalRoutes ();
+    NS_LOG_FUNCTION_NOARGS();
+    SimulationSingleton<GlobalRouteManagerImpl>::Get()->DeleteGlobalRoutes();
 }
 
 void
-GlobalRouteManager::BuildGlobalRoutingDatabase ()
+GlobalRouteManager::BuildGlobalRoutingDatabase()
 {
-  NS_LOG_FUNCTION_NOARGS ();
-  SimulationSingleton<GlobalRouteManagerImpl>::Get ()->BuildGlobalRoutingDatabase ();
+    NS_LOG_FUNCTION_NOARGS();
+    SimulationSingleton<GlobalRouteManagerImpl>::Get()->BuildGlobalRoutingDatabase();
 }
 
 void
-GlobalRouteManager::InitializeRoutes ()
+GlobalRouteManager::InitializeRoutes()
 {
-  NS_LOG_FUNCTION_NOARGS ();
-  SimulationSingleton<GlobalRouteManagerImpl>::Get ()->InitializeRoutes ();
+    NS_LOG_FUNCTION_NOARGS();
+    SimulationSingleton<GlobalRouteManagerImpl>::Get()->InitializeRoutes();
 }
 
 uint32_t
-GlobalRouteManager::AllocateRouterId ()
+GlobalRouteManager::AllocateRouterId()
 {
-  NS_LOG_FUNCTION_NOARGS ();
-  static uint32_t routerId = 0;
-  return routerId++;
+    NS_LOG_FUNCTION_NOARGS();
+    static uint32_t routerId = 0;
+    return routerId++;
 }
 
 } // namespace ns3

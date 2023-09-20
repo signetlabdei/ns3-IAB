@@ -38,85 +38,86 @@ using namespace ns3;
  */
 class PacketSocketAppsTest : public TestCase
 {
-  uint32_t m_receivedPacketSize; //!< Received packet size
-  uint32_t m_receivedPacketNumber; //!< Number of received packets
+    uint32_t m_receivedPacketSize;   //!< Received packet size
+    uint32_t m_receivedPacketNumber; //!< Number of received packets
 
-public:
-  void DoRun () override;
-  PacketSocketAppsTest ();
+  public:
+    void DoRun() override;
+    PacketSocketAppsTest();
 
-  /**
+    /**
      * Receive a packet
      * \param packet The packet
      * \param from Address of the sender
      */
-  void ReceivePkt (Ptr<const Packet> packet, const Address &from);
+    void ReceivePkt(Ptr<const Packet> packet, const Address& from);
 };
 
-PacketSocketAppsTest::PacketSocketAppsTest () : TestCase ("Packet Socket Apps test")
+PacketSocketAppsTest::PacketSocketAppsTest()
+    : TestCase("Packet Socket Apps test")
 {
-  m_receivedPacketSize = 0;
-  m_receivedPacketNumber = 0;
+    m_receivedPacketSize = 0;
+    m_receivedPacketNumber = 0;
 }
 
 void
-PacketSocketAppsTest::ReceivePkt (Ptr<const Packet> packet, const Address &from)
+PacketSocketAppsTest::ReceivePkt(Ptr<const Packet> packet, const Address& from)
 {
-  if (packet)
+    if (packet)
     {
-      m_receivedPacketSize = packet->GetSize ();
-      m_receivedPacketNumber++;
+        m_receivedPacketSize = packet->GetSize();
+        m_receivedPacketNumber++;
     }
 }
 
 void
-PacketSocketAppsTest::DoRun ()
+PacketSocketAppsTest::DoRun()
 {
-  // Create topology
+    // Create topology
 
-  NodeContainer nodes;
-  nodes.Create (2);
+    NodeContainer nodes;
+    nodes.Create(2);
 
-  PacketSocketHelper packetSocket;
+    PacketSocketHelper packetSocket;
 
-  // give packet socket powers to nodes.
-  packetSocket.Install (nodes);
+    // give packet socket powers to nodes.
+    packetSocket.Install(nodes);
 
-  Ptr<SimpleNetDevice> txDev;
-  txDev = CreateObject<SimpleNetDevice> ();
-  nodes.Get (0)->AddDevice (txDev);
+    Ptr<SimpleNetDevice> txDev;
+    txDev = CreateObject<SimpleNetDevice>();
+    nodes.Get(0)->AddDevice(txDev);
 
-  Ptr<SimpleNetDevice> rxDev;
-  rxDev = CreateObject<SimpleNetDevice> ();
-  nodes.Get (1)->AddDevice (rxDev);
+    Ptr<SimpleNetDevice> rxDev;
+    rxDev = CreateObject<SimpleNetDevice>();
+    nodes.Get(1)->AddDevice(rxDev);
 
-  Ptr<SimpleChannel> channel = CreateObject<SimpleChannel> ();
-  txDev->SetChannel (channel);
-  rxDev->SetChannel (channel);
-  txDev->SetNode (nodes.Get (0));
-  rxDev->SetNode (nodes.Get (1));
+    Ptr<SimpleChannel> channel = CreateObject<SimpleChannel>();
+    txDev->SetChannel(channel);
+    rxDev->SetChannel(channel);
+    txDev->SetNode(nodes.Get(0));
+    rxDev->SetNode(nodes.Get(1));
 
-  PacketSocketAddress socketAddr;
-  socketAddr.SetSingleDevice (txDev->GetIfIndex ());
-  socketAddr.SetPhysicalAddress (rxDev->GetAddress ());
-  socketAddr.SetProtocol (1);
+    PacketSocketAddress socketAddr;
+    socketAddr.SetSingleDevice(txDev->GetIfIndex());
+    socketAddr.SetPhysicalAddress(rxDev->GetAddress());
+    socketAddr.SetProtocol(1);
 
-  Ptr<PacketSocketClient> client = CreateObject<PacketSocketClient> ();
-  client->SetRemote (socketAddr);
-  client->SetAttribute ("PacketSize", UintegerValue (1000));
-  client->SetAttribute ("MaxPackets", UintegerValue (3));
-  nodes.Get (0)->AddApplication (client);
+    Ptr<PacketSocketClient> client = CreateObject<PacketSocketClient>();
+    client->SetRemote(socketAddr);
+    client->SetAttribute("PacketSize", UintegerValue(1000));
+    client->SetAttribute("MaxPackets", UintegerValue(3));
+    nodes.Get(0)->AddApplication(client);
 
-  Ptr<PacketSocketServer> server = CreateObject<PacketSocketServer> ();
-  server->TraceConnectWithoutContext ("Rx", MakeCallback (&PacketSocketAppsTest::ReceivePkt, this));
-  server->SetLocal (socketAddr);
-  nodes.Get (1)->AddApplication (server);
+    Ptr<PacketSocketServer> server = CreateObject<PacketSocketServer>();
+    server->TraceConnectWithoutContext("Rx", MakeCallback(&PacketSocketAppsTest::ReceivePkt, this));
+    server->SetLocal(socketAddr);
+    nodes.Get(1)->AddApplication(server);
 
-  Simulator::Run ();
-  Simulator::Destroy ();
+    Simulator::Run();
+    Simulator::Destroy();
 
-  NS_TEST_EXPECT_MSG_EQ (m_receivedPacketNumber, 3, "Number of packet received");
-  NS_TEST_EXPECT_MSG_EQ (m_receivedPacketSize, 1000, "Size of packet received");
+    NS_TEST_EXPECT_MSG_EQ(m_receivedPacketNumber, 3, "Number of packet received");
+    NS_TEST_EXPECT_MSG_EQ(m_receivedPacketSize, 1000, "Size of packet received");
 }
 
 /**
@@ -127,11 +128,12 @@ PacketSocketAppsTest::DoRun ()
  */
 class PacketSocketAppsTestSuite : public TestSuite
 {
-public:
-  PacketSocketAppsTestSuite () : TestSuite ("packet-socket-apps", UNIT)
-  {
-    AddTestCase (new PacketSocketAppsTest, TestCase::QUICK);
-  }
+  public:
+    PacketSocketAppsTestSuite()
+        : TestSuite("packet-socket-apps", UNIT)
+    {
+        AddTestCase(new PacketSocketAppsTest, TestCase::QUICK);
+    }
 };
 
 static PacketSocketAppsTestSuite

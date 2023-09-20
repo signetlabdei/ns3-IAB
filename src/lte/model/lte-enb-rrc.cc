@@ -5796,7 +5796,7 @@ LteEnbRrc::GetBap () const
 }
 
 void
-LteEnbRrc::SetBapAddressFromImsiCallback (Callback<uint16_t, uint64_t> cb)
+LteEnbRrc::SetBapAddressFromImsiCallback (Callback<std::optional<uint16_t>, uint64_t> cb)
 {
   NS_LOG_FUNCTION (this);
   NS_ASSERT (!cb.IsNull ());

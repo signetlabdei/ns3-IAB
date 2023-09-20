@@ -81,6 +81,7 @@ class LteUeCmacSapUser;
 class LteUeCmacSapProvider;
 class LteDataRadioBearerInfo;
 class LteSignalingRadioBearerInfo;
+class Bap;
 
 /**
  *
@@ -339,6 +340,8 @@ public:
   void SetBap (Ptr<Bap> bap);
 
   Ptr<Bap> GetBap () const;
+
+  void DoReceiveBapSdu (Ptr<Packet> p);
 
   /**
    * TracedCallback signature for imsi, cellId and rnti events.

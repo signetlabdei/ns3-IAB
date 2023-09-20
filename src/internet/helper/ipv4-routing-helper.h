@@ -25,7 +25,8 @@
 #include "ns3/output-stream-wrapper.h"
 #include "ns3/ptr.h"
 
-namespace ns3 {
+namespace ns3
+{
 
 class Ipv4RoutingProtocol;
 class Node;
@@ -43,28 +44,28 @@ class Node;
  */
 class Ipv4RoutingHelper
 {
-public:
-  /*
+  public:
+    /*
      * Destroy an instance of an Ipv4RoutingHelper
      */
-  virtual ~Ipv4RoutingHelper ();
+    virtual ~Ipv4RoutingHelper();
 
-  /**
+    /**
      * \brief virtual constructor
      * \returns pointer to clone of this Ipv4RoutingHelper
      *
      * This method is mainly for internal use by the other helpers;
      * clients are expected to free the dynamic memory allocated by this method
      */
-  virtual Ipv4RoutingHelper *Copy () const = 0;
+    virtual Ipv4RoutingHelper* Copy() const = 0;
 
-  /**
+    /**
      * \param node the node within which the new routing protocol will run
      * \returns a newly-created routing protocol
      */
-  virtual Ptr<Ipv4RoutingProtocol> Create (Ptr<Node> node) const = 0;
+    virtual Ptr<Ipv4RoutingProtocol> Create(Ptr<Node> node) const = 0;
 
-  /**
+    /**
      * \brief prints the routing tables of all nodes at a particular time.
      * \param printTime the time at which the routing table is supposed to be printed.
      * \param stream The output stream object to use
@@ -74,10 +75,11 @@ public:
      * Ipv4RoutingProtocol stored in the Ipv4 object, for all nodes at the
      * specified time; the output format is routing protocol-specific.
      */
-  static void PrintRoutingTableAllAt (Time printTime, Ptr<OutputStreamWrapper> stream,
-                                      Time::Unit unit = Time::S);
+    static void PrintRoutingTableAllAt(Time printTime,
+                                       Ptr<OutputStreamWrapper> stream,
+                                       Time::Unit unit = Time::S);
 
-  /**
+    /**
      * \brief prints the routing tables of all nodes at regular intervals specified by user.
      * \param printInterval the time interval for which the routing table is supposed to be printed.
      * \param stream The output stream object to use
@@ -87,10 +89,11 @@ public:
      * Ipv4RoutingProtocol stored in the Ipv4 object, for all nodes at the
      * specified time interval; the output format is routing protocol-specific.
      */
-  static void PrintRoutingTableAllEvery (Time printInterval, Ptr<OutputStreamWrapper> stream,
-                                         Time::Unit unit = Time::S);
+    static void PrintRoutingTableAllEvery(Time printInterval,
+                                          Ptr<OutputStreamWrapper> stream,
+                                          Time::Unit unit = Time::S);
 
-  /**
+    /**
      * \brief prints the routing tables of a node at a particular time.
      * \param printTime the time at which the routing table is supposed to be printed.
      * \param node The node ptr for which we need the routing table to be printed
@@ -101,10 +104,12 @@ public:
      * Ipv4RoutingProtocol stored in the Ipv4 object, for the selected node
      * at the specified time; the output format is routing protocol-specific.
      */
-  static void PrintRoutingTableAt (Time printTime, Ptr<Node> node, Ptr<OutputStreamWrapper> stream,
-                                   Time::Unit unit = Time::S);
+    static void PrintRoutingTableAt(Time printTime,
+                                    Ptr<Node> node,
+                                    Ptr<OutputStreamWrapper> stream,
+                                    Time::Unit unit = Time::S);
 
-  /**
+    /**
      * \brief prints the routing tables of a node at regular intervals specified by user.
      * \param printInterval the time interval for which the routing table is supposed to be printed.
      * \param node The node ptr for which we need the routing table to be printed
@@ -115,10 +120,12 @@ public:
      * Ipv4RoutingProtocol stored in the Ipv4 object, for the selected node
      * at the specified interval; the output format is routing protocol-specific.
      */
-  static void PrintRoutingTableEvery (Time printInterval, Ptr<Node> node,
-                                      Ptr<OutputStreamWrapper> stream, Time::Unit unit = Time::S);
+    static void PrintRoutingTableEvery(Time printInterval,
+                                       Ptr<Node> node,
+                                       Ptr<OutputStreamWrapper> stream,
+                                       Time::Unit unit = Time::S);
 
-  /**
+    /**
      * \brief prints the neighbor cache of all nodes at a particular time.
      * \param printTime the time at which the neighbor cache is supposed to be printed.
      * \param stream The output stream object to use
@@ -132,10 +139,11 @@ public:
        \endverbatim
      * Note that the MAC address is printed as "type"-"size"-"actual address"
      */
-  static void PrintNeighborCacheAllAt (Time printTime, Ptr<OutputStreamWrapper> stream,
-                                       Time::Unit unit = Time::S);
+    static void PrintNeighborCacheAllAt(Time printTime,
+                                        Ptr<OutputStreamWrapper> stream,
+                                        Time::Unit unit = Time::S);
 
-  /**
+    /**
      * \brief prints the neighbor cache of all nodes at regular intervals specified by user.
      * \param printInterval the time interval for which the neighbor cache is supposed to be
      printed.
@@ -150,10 +158,11 @@ public:
        \endverbatim
      * Note that the MAC address is printed as "type"-"size"-"actual address"
      */
-  static void PrintNeighborCacheAllEvery (Time printInterval, Ptr<OutputStreamWrapper> stream,
-                                          Time::Unit unit = Time::S);
+    static void PrintNeighborCacheAllEvery(Time printInterval,
+                                           Ptr<OutputStreamWrapper> stream,
+                                           Time::Unit unit = Time::S);
 
-  /**
+    /**
      * \brief prints the neighbor cache of a node at a particular time.
      * \param printTime the time at which the neighbor cache is supposed to be printed.
      * \param node The node ptr for which we need the neighbor cache to be printed
@@ -168,10 +177,12 @@ public:
        \endverbatim
      * Note that the MAC address is printed as "type"-"size"-"actual address"
      */
-  static void PrintNeighborCacheAt (Time printTime, Ptr<Node> node, Ptr<OutputStreamWrapper> stream,
-                                    Time::Unit unit = Time::S);
+    static void PrintNeighborCacheAt(Time printTime,
+                                     Ptr<Node> node,
+                                     Ptr<OutputStreamWrapper> stream,
+                                     Time::Unit unit = Time::S);
 
-  /**
+    /**
      * \brief prints the neighbor cache of a node at regular intervals specified by user.
      * \param printInterval the time interval for which the neighbor cache is supposed to be
      printed.
@@ -187,10 +198,12 @@ public:
        \endverbatim
      * Note that the MAC address is printed as "type"-"size"-"actual address"
      */
-  static void PrintNeighborCacheEvery (Time printInterval, Ptr<Node> node,
-                                       Ptr<OutputStreamWrapper> stream, Time::Unit unit = Time::S);
+    static void PrintNeighborCacheEvery(Time printInterval,
+                                        Ptr<Node> node,
+                                        Ptr<OutputStreamWrapper> stream,
+                                        Time::Unit unit = Time::S);
 
-  /**
+    /**
      * \brief Request a specified routing protocol &lt;T&gt; from Ipv4RoutingProtocol protocol
      *
      * If protocol is Ipv4ListRouting, then protocol will be searched in the list,
@@ -199,11 +212,11 @@ public:
      * \param protocol Smart pointer to Ipv4RoutingProtocol object
      * \return a Smart Pointer to the requested protocol (zero if the protocol can't be found)
      */
-  template <class T>
-  static Ptr<T> GetRouting (Ptr<Ipv4RoutingProtocol> protocol);
+    template <class T>
+    static Ptr<T> GetRouting(Ptr<Ipv4RoutingProtocol> protocol);
 
-private:
-  /**
+  private:
+    /**
      * \brief prints the routing tables of a node.
      * \param node The node ptr for which we need the routing table to be printed
      * \param stream The output stream object to use
@@ -213,9 +226,9 @@ private:
      * Ipv4RoutingProtocol stored in the Ipv4 object;
      * the output format is routing protocol-specific.
      */
-  static void Print (Ptr<Node> node, Ptr<OutputStreamWrapper> stream, Time::Unit unit = Time::S);
+    static void Print(Ptr<Node> node, Ptr<OutputStreamWrapper> stream, Time::Unit unit = Time::S);
 
-  /**
+    /**
      * \brief prints the routing tables of a node at regular intervals specified by user.
      * \param printInterval the time interval for which the routing table is supposed to be printed.
      * \param node The node ptr for which we need the routing table to be printed
@@ -226,10 +239,12 @@ private:
      * Ipv4RoutingProtocol stored in the Ipv4 object, for the selected node
      * at the specified interval; the output format is routing protocol-specific.
      */
-  static void PrintEvery (Time printInterval, Ptr<Node> node, Ptr<OutputStreamWrapper> stream,
-                          Time::Unit unit = Time::S);
+    static void PrintEvery(Time printInterval,
+                           Ptr<Node> node,
+                           Ptr<OutputStreamWrapper> stream,
+                           Time::Unit unit = Time::S);
 
-  /**
+    /**
      * \brief prints the neighbor cache of a node.
      * \param node The node ptr for which we need the neighbor cache to be printed
      * \param stream The output stream object to use
@@ -243,10 +258,11 @@ private:
        \endverbatim
      * Note that the MAC address is printed as "type"-"size"-"actual address"
      */
-  static void PrintArpCache (Ptr<Node> node, Ptr<OutputStreamWrapper> stream,
-                             Time::Unit unit = Time::S);
+    static void PrintArpCache(Ptr<Node> node,
+                              Ptr<OutputStreamWrapper> stream,
+                              Time::Unit unit = Time::S);
 
-  /**
+    /**
      * \brief prints the neighbor cache of a node at regular intervals specified by user.
      * \param printInterval the time interval for which the neighbor cache is supposed to be
      printed.
@@ -262,45 +278,38 @@ private:
        \endverbatim
      * Note that the MAC address is printed as "type"-"size"-"actual address"
      */
-  static void PrintArpCacheEvery (Time printInterval, Ptr<Node> node,
-                                  Ptr<OutputStreamWrapper> stream, Time::Unit unit = Time::S);
+    static void PrintArpCacheEvery(Time printInterval,
+                                   Ptr<Node> node,
+                                   Ptr<OutputStreamWrapper> stream,
+                                   Time::Unit unit = Time::S);
 };
 
-/**
- * \brief Request a specified routing protocol &lt;T&gt; from Ipv4RoutingProtocol protocol
- *
- * If protocol is Ipv4ListRouting, then protocol will be searched in the list,
- * otherwise a simple DynamicCast will be performed
- *
- * \param protocol Smart pointer to Ipv4RoutingProtocol object
- * \return a Smart Pointer to the requested protocol (zero if the protocol can't be found)
- */
 template <class T>
 Ptr<T>
-Ipv4RoutingHelper::GetRouting (Ptr<Ipv4RoutingProtocol> protocol)
+Ipv4RoutingHelper::GetRouting(Ptr<Ipv4RoutingProtocol> protocol)
 {
-  Ptr<T> ret = DynamicCast<T> (protocol);
-  if (!ret)
+    Ptr<T> ret = DynamicCast<T>(protocol);
+    if (!ret)
     {
-      // trying to check if protocol is a list routing
-      Ptr<Ipv4ListRouting> lrp = DynamicCast<Ipv4ListRouting> (protocol);
-      if (lrp)
+        // trying to check if protocol is a list routing
+        Ptr<Ipv4ListRouting> lrp = DynamicCast<Ipv4ListRouting>(protocol);
+        if (lrp)
         {
-          for (uint32_t i = 0; i < lrp->GetNRoutingProtocols (); i++)
+            for (uint32_t i = 0; i < lrp->GetNRoutingProtocols(); i++)
             {
-              int16_t priority;
-              ret = GetRouting<T> (lrp->GetRoutingProtocol (
-                  i,
-                  priority)); // potential recursion, if inside ListRouting is ListRouting
-              if (ret)
+                int16_t priority;
+                ret = GetRouting<T>(lrp->GetRoutingProtocol(
+                    i,
+                    priority)); // potential recursion, if inside ListRouting is ListRouting
+                if (ret)
                 {
-                  break;
+                    break;
                 }
             }
         }
     }
 
-  return ret;
+    return ret;
 }
 
 } // namespace ns3

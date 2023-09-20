@@ -25,7 +25,8 @@
 
 #include <list>
 
-namespace ns3 {
+namespace ns3
+{
 
 class Ipv6Option;
 class Node;
@@ -37,69 +38,69 @@ class Node;
  */
 class Ipv6OptionDemux : public Object
 {
-public:
-  /**
+  public:
+    /**
      * \brief The interface ID.
      * \return type ID
      */
-  static TypeId GetTypeId ();
+    static TypeId GetTypeId();
 
-  /**
+    /**
      * \brief Constructor.
      */
-  Ipv6OptionDemux ();
+    Ipv6OptionDemux();
 
-  /**
+    /**
      * \brief Destructor.
      */
-  ~Ipv6OptionDemux () override;
+    ~Ipv6OptionDemux() override;
 
-  /**
+    /**
      * \brief Set the node.
      * \param node the node to set
      */
-  void SetNode (Ptr<Node> node);
+    void SetNode(Ptr<Node> node);
 
-  /**
+    /**
      * \brief Insert a new IPv6 Option.
      * \param option the option to insert
      */
-  void Insert (Ptr<Ipv6Option> option);
+    void Insert(Ptr<Ipv6Option> option);
 
-  /**
+    /**
      * \brief Get the option corresponding to optionNumber.
      * \param optionNumber the option number of the option to retrieve
      * \return a matching IPv6 option
      */
-  Ptr<Ipv6Option> GetOption (int optionNumber);
+    Ptr<Ipv6Option> GetOption(int optionNumber);
 
-  /**
+    /**
      * \brief Remove an option from this demux.
      * \param option pointer on the option to remove
      */
-  void Remove (Ptr<Ipv6Option> option);
+    void Remove(Ptr<Ipv6Option> option);
 
-protected:
-  /**
+  protected:
+    /**
      * \brief Dispose this object.
      */
-  void DoDispose () override;
+    void DoDispose() override;
 
-private:
-  /**
+  private:
+    /**
      * \brief Container of the IPv6 Options types.
      */
-  typedef std::list<Ptr<Ipv6Option>> Ipv6OptionList_t;
+    typedef std::list<Ptr<Ipv6Option>> Ipv6OptionList_t;
 
-  /**
+    /**
      * \brief List of IPv6 Options supported.
      */
-  Ipv6OptionList_t m_options;
+    Ipv6OptionList_t m_options;
 
-  /**
+    /**
      * \brief The node.
      */
-  Ptr<Node> m_node;
+    Ptr<Node> m_node;
 };
 
 } /* namespace ns3 */

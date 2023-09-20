@@ -29,7 +29,8 @@
 
 class WaypointMobilityModelNotifyTest;
 
-namespace ns3 {
+namespace ns3
+{
 
 /**
  * \ingroup mobility
@@ -86,20 +87,20 @@ namespace ns3 {
  */
 class WaypointMobilityModel : public MobilityModel
 {
-public:
-  /**
+  public:
+    /**
      * Register this type with the TypeId system.
      * \return the object TypeId
      */
-  static TypeId GetTypeId ();
+    static TypeId GetTypeId();
 
-  /**
+    /**
      * Create a path with no waypoints at location (0,0,0).
      */
-  WaypointMobilityModel ();
-  ~WaypointMobilityModel () override;
+    WaypointMobilityModel();
+    ~WaypointMobilityModel() override;
 
-  /**
+    /**
      * \param waypoint waypoint to append to the object path.
      *
      * Add a waypoint to the path of the object. The time must
@@ -108,89 +109,89 @@ public:
      * current position with a velocity of zero.
      *
      */
-  void AddWaypoint (const Waypoint &waypoint);
+    void AddWaypoint(const Waypoint& waypoint);
 
-  /**
+    /**
      * Get the waypoint that this object is traveling towards.
      * \returns The waypoint
      */
-  Waypoint GetNextWaypoint () const;
+    Waypoint GetNextWaypoint() const;
 
-  /**
+    /**
      * Get the number of waypoints left for this object, excluding
      * the next one.
      * \returns The number of waypoints left
      */
-  uint32_t WaypointsLeft () const;
+    uint32_t WaypointsLeft() const;
 
-  /**
+    /**
      * Clear any existing waypoints and set the current waypoint
      * time to infinity. Calling this is only an optimization and
      * not required. After calling this function, adding waypoints
      * behaves as it would for a new object.
      */
-  void EndMobility ();
+    void EndMobility();
 
-private:
-  friend class ::WaypointMobilityModelNotifyTest; // To allow Update() calls and access to
-      // m_current
+  private:
+    friend class ::WaypointMobilityModelNotifyTest; // To allow Update() calls and access to
+                                                    // m_current
 
-  /**
+    /**
      * Update the underlying state corresponding to the stored waypoints
      */
-  virtual void Update () const;
-  /**
+    virtual void Update() const;
+    /**
      * \brief The dispose method.
      *
      * Subclasses must override this method.
      */
-  void DoDispose () override;
-  /**
+    void DoDispose() override;
+    /**
      * \brief Get current position.
      * \return A vector with the current position of the node.
      */
-  Vector DoGetPosition () const override;
-  /**
+    Vector DoGetPosition() const override;
+    /**
      * \brief Sets a new position for the node
      * \param position A vector to be added as the new position
      */
-  void DoSetPosition (const Vector &position) override;
-  /**
+    void DoSetPosition(const Vector& position) override;
+    /**
      * \brief Returns the current velocity of a node
      * \return The velocity vector of a node.
      */
-  Vector DoGetVelocity () const override;
+    Vector DoGetVelocity() const override;
 
-protected:
-  /**
+  protected:
+    /**
      * \brief This variable is set to true if there are no waypoints in the std::deque
      */
-  bool m_first;
-  /**
+    bool m_first;
+    /**
      * \brief If true, course change updates are only notified when position
      * is calculated.
      */
-  bool m_lazyNotify;
-  /**
+    bool m_lazyNotify;
+    /**
      * \brief If true, calling SetPosition with no waypoints creates a waypoint
      */
-  bool m_initialPositionIsWaypoint;
-  /**
+    bool m_initialPositionIsWaypoint;
+    /**
      * \brief The double ended queue containing the ns3::Waypoint objects
      */
-  mutable std::deque<Waypoint> m_waypoints;
-  /**
+    mutable std::deque<Waypoint> m_waypoints;
+    /**
      * \brief The ns3::Waypoint currently being used
      */
-  mutable Waypoint m_current;
-  /**
+    mutable Waypoint m_current;
+    /**
      * \brief The next ns3::Waypoint in the deque
      */
-  mutable Waypoint m_next;
-  /**
+    mutable Waypoint m_next;
+    /**
      * \brief The current velocity vector
      */
-  mutable Vector m_velocity;
+    mutable Vector m_velocity;
 };
 
 } // namespace ns3

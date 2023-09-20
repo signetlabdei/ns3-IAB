@@ -29,7 +29,8 @@
 #include <fstream>
 #include <limits>
 
-namespace ns3 {
+namespace ns3
+{
 
 /**
  * A class that wraps a PcapFile as an ns3::Object and provides a higher-layer
@@ -39,30 +40,30 @@ namespace ns3 {
  */
 class PcapFileWrapper : public Object
 {
-public:
-  /**
+  public:
+    /**
      * \brief Get the type ID.
      * \return the object TypeId
      */
-  static TypeId GetTypeId ();
+    static TypeId GetTypeId();
 
-  PcapFileWrapper ();
-  ~PcapFileWrapper () override;
+    PcapFileWrapper();
+    ~PcapFileWrapper() override;
 
-  /**
+    /**
      * \return true if the 'fail' bit is set in the underlying iostream, false otherwise.
      */
-  bool Fail () const;
-  /**
+    bool Fail() const;
+    /**
      * \return true if the 'eof' bit is set in the underlying iostream, false otherwise.
      */
-  bool Eof () const;
-  /**
+    bool Eof() const;
+    /**
      * Clear all state bits of the underlying iostream.
      */
-  void Clear ();
+    void Clear();
 
-  /**
+    /**
      * Create a new pcap file or open an existing pcap file.  Semantics are
      * similar to the stdc++ io stream classes.
      *
@@ -75,14 +76,14 @@ public:
      * \param mode String containing the access mode for the file.
      *
      */
-  void Open (const std::string &filename, std::ios::openmode mode);
+    void Open(const std::string& filename, std::ios::openmode mode);
 
-  /**
+    /**
      * Close the underlying pcap file.
      */
-  void Close ();
+    void Close();
 
-  /**
+    /**
      * Initialize the pcap file associated with this wrapper.  This file must have
      * been previously opened with write permissions.
      *
@@ -105,19 +106,20 @@ public:
      * \warning Calling this method on an existing file will result in the loss
      * any existing data.
      */
-  void Init (uint32_t dataLinkType, uint32_t snapLen = std::numeric_limits<uint32_t>::max (),
-             int32_t tzCorrection = PcapFile::ZONE_DEFAULT);
+    void Init(uint32_t dataLinkType,
+              uint32_t snapLen = std::numeric_limits<uint32_t>::max(),
+              int32_t tzCorrection = PcapFile::ZONE_DEFAULT);
 
-  /**
+    /**
      * \brief Write the next packet to file
      *
      * \param t Packet timestamp as ns3::Time.
      * \param p Packet to write to the pcap file.
      *
      */
-  void Write (Time t, Ptr<const Packet> p);
+    void Write(Time t, Ptr<const Packet> p);
 
-  /**
+    /**
      * \brief Write the provided header along with the packet to the pcap file.
      *
      * It is the case that adding a header to a packet prior to writing it to a
@@ -129,9 +131,9 @@ public:
      * \param p Packet to write to the pcap file.
      *
      */
-  void Write (Time t, const Header &header, Ptr<const Packet> p);
+    void Write(Time t, const Header& header, Ptr<const Packet> p);
 
-  /**
+    /**
      * \brief Write the provided data buffer to the pcap file.
      *
      * \param t Packet timestamp as ns3::Time.
@@ -139,17 +141,17 @@ public:
      * \param length The size of the buffer.
      *
      */
-  void Write (Time t, const uint8_t *buffer, uint32_t length);
+    void Write(Time t, const uint8_t* buffer, uint32_t length);
 
-  /**
+    /**
      * \brief Read the next packet from the file.
      *
      * \param t Reference to packet timestamp as ns3::Time.
      * \returns a pointer to ns3::Packet.
      */
-  Ptr<Packet> Read (Time &t);
+    Ptr<Packet> Read(Time& t);
 
-  /**
+    /**
      * \brief Returns the magic number of the pcap file as defined by the magic_number
      * field in the pcap global header.
      *
@@ -157,9 +159,9 @@ public:
      *
      * \returns magic number
      */
-  uint32_t GetMagic ();
+    uint32_t GetMagic();
 
-  /**
+    /**
      * \brief Returns the major version of the pcap file as defined by the version_major
      * field in the pcap global header.
      *
@@ -167,9 +169,9 @@ public:
      *
      * \returns major version
      */
-  uint16_t GetVersionMajor ();
+    uint16_t GetVersionMajor();
 
-  /**
+    /**
      * \brief Returns the minor version of the pcap file as defined by the version_minor
      * field in the pcap global header.
      *
@@ -177,9 +179,9 @@ public:
      *
      * \returns minor version
      */
-  uint16_t GetVersionMinor ();
+    uint16_t GetVersionMinor();
 
-  /**
+    /**
      * \brief Returns the time zone offset of the pcap file as defined by the thiszone
      * field in the pcap global header.
      *
@@ -187,9 +189,9 @@ public:
      *
      * \returns time zone offset
      */
-  int32_t GetTimeZoneOffset ();
+    int32_t GetTimeZoneOffset();
 
-  /**
+    /**
      * \brief Returns the accuracy of timestamps field of the pcap file as defined
      * by the sigfigs field in the pcap global header.
      *
@@ -197,9 +199,9 @@ public:
      *
      * \returns accuracy of timestamps
      */
-  uint32_t GetSigFigs ();
+    uint32_t GetSigFigs();
 
-  /**
+    /**
      * \brief Returns the max length of saved packets field of the pcap file as
      * defined by the snaplen field in the pcap global header.
      *
@@ -207,9 +209,9 @@ public:
      *
      * \returns max length of saved packets field
      */
-  uint32_t GetSnapLen ();
+    uint32_t GetSnapLen();
 
-  /**
+    /**
      * \brief Returns the data link type field of the pcap file as defined by the
      * network field in the pcap global header.
      *
@@ -217,12 +219,12 @@ public:
      *
      * \returns data link type field
      */
-  uint32_t GetDataLinkType ();
+    uint32_t GetDataLinkType();
 
-private:
-  PcapFile m_file; //!< Pcap file
-  uint32_t m_snapLen; //!< max length of saved packets
-  bool m_nanosecMode; //!< Timestamps in nanosecond mode
+  private:
+    PcapFile m_file;    //!< Pcap file
+    uint32_t m_snapLen; //!< max length of saved packets
+    bool m_nanosecMode; //!< Timestamps in nanosecond mode
 };
 
 } // namespace ns3
