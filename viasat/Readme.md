@@ -23,6 +23,7 @@ All the commands specified in top level [Readme](../Readme.md) can be run in thi
 ns_log_enable.sh
 
 This script launches one instance of a simulation with targeted debug statements.
+Launch this script from the top directory.
 
     source ns_log_enable.sh
 
