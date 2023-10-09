@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 
 NUM_DATA_SYM_PER_SLOT = int(14 - 2)
+HEADER_SIZE = 20
 
 
 def check_errors(campaign, result):
@@ -70,6 +71,46 @@ def get_e2e_avg_system_throughput(campaign, results, tracename, app_run_time):
             continue
 
         app_df = app_df.astype({'packet_size': 'int'})
+        app_df['packet_size'] = app_df['packet_size'] + HEADER_SIZE
+        app_df = app_df.astype({'port_to': 'int'})
+        rx_df = app_df[app_df['rx_tx'] == 'Rx']
+        tx_df = app_df[app_df['rx_tx'] == 'Tx']
+        thr_entry = rx_df['packet_size'].sum(
+        ) / (app_run_time) * 8 / 1e6  # [Bytes -> Mbit/s]
+        src_rate = tx_df['packet_size'].sum(
+        ) / (app_run_time) * 8 / 1e6  # [Bytes -> Mbit/s]
+        thr_avg.append(thr_entry)
+        src_rate_avg.append(src_rate)
+
+    if (empty > 0):
+        print(f"Warning: {empty} empty traces")
+
+    return thr_avg, src_rate_avg
+
+def get_e2e_avg_ue_system_throughput(campaign, results, tracename, app_run_time, portRx):
+    thr_avg = []
+    src_rate_avg = []
+    
+    empty = 0
+    for result in results:
+        if (check_errors(campaign, result) != 0):
+            continue
+
+        result_filename = campaign.db.get_result_files(
+            result['meta']['id'])[tracename]
+        app_df = pd.read_csv(
+            result_filename, sep=' ', lineterminator='\n', skip_blank_lines=True)
+
+        if (app_df.size == 0):
+            thr_avg.append(0)
+            empty = empty + 1
+            continue
+
+        app_df = app_df.astype({'packet_size': 'int'})
+        app_df['packet_size'] = app_df['packet_size'] + HEADER_SIZE
+        app_df = app_df.astype({'port_to': 'int'})
+        app_df = app_df[app_df['port_to'] == portRx]
+
         rx_df = app_df[app_df['rx_tx'] == 'Rx']
         tx_df = app_df[app_df['rx_tx'] == 'Tx']
         thr_entry = rx_df['packet_size'].sum(
@@ -345,6 +386,29 @@ def get_e2e_latency_samples(campaign, results, tracename):
 
     return np.concatenate(lat_samples).ravel()
 
+def get_e2e_latency_samples_ue(campaign, results, tracename, portRx):
+    lat_samples = []
+    empty = 0
+    for result in results:
+        if (check_errors(campaign, result) != 0):
+            continue
+
+        result_filename = campaign.db.get_result_files(
+            result['meta']['id'])[tracename]
+        app_df = pd.read_csv(result_filename, sep=' ',
+                             lineterminator='\n', skip_blank_lines=True)
+
+        if (app_df.size == 0):
+            continue
+
+        rx_df = app_df[app_df['rx_tx'] == 'Rx']
+        rx_df = rx_df[rx_df['port_to'] == portRx]
+        rx_df = rx_df.astype({'delay': 'int'})
+        delays = rx_df['delay'] / 1e6  # [ns -> ms]
+        lat_samples.append(np.array(delays))
+
+    return np.concatenate(lat_samples).ravel()
+
 
 def getTxSinrSamples(cam, results, tracename, ul_or_dl='UL'):
     sinr = []
@@ -367,19 +431,39 @@ def getTxSinrSamples(cam, results, tracename, ul_or_dl='UL'):
 
     return sinr
 
-def getPhyOccupancyVsDepth(campaign, results, phy_tracename, topology_tracename, donor_cid, slot_duration, app_start_sec, sim_duration_dec):
+def getTxSinrSingleUeSamples(cam, results, tracename, ul_or_dl='UL', ueIndex=1):
+    sinr = []
+    for result in results:
+        if (check_errors(cam, result) != 0):
+            continue
+        result_filenames = cam.db.get_result_files(result['meta']['id'])
+        result_filename = result_filenames[tracename]
+        # IAB trace files are often ill-formatted. Identufy culprit and run iab_phy_preprocessing
+        try:
+            rx_df = pd.read_csv(result_filename, sep='\t', lineterminator='\n', skiprows=1,
+                                names=['dlUl', 'time', 'frame', 'subf', 'slot',  'firstSim', 'simNum', 'cid', 'rnti', 'ccId', 'tb', 'mcs',
+                                       'rv', 'sinr', 'corr', 'tbler'])
+        except:
+            print(f'{result_filename} is ill-formatted!')
+        # Str to float
+        rx_df = rx_df[rx_df['dlUl'] == ul_or_dl]
+        rx_df = rx_df[rx_df['rnti'] == ueIndex]
+        rx_df = rx_df[rx_df['cid'] == 1]
+        data = pd.to_numeric(rx_df["sinr"], errors='coerce', downcast="float")
+        sinr.extend(data)
+
+    return sinr
+
+def getPhyOccupancyVsDepth(campaign, results, phy_tracename, slot_duration, app_start_sec, sim_duration_dec):
 
     out_df = pd.DataFrame(columns=['depth', 'metric'])
     max_num_sym = ((sim_duration_dec - app_start_sec )/slot_duration) * 1000 * NUM_DATA_SYM_PER_SLOT
 
     for result in results:
-        if (check_errors(campaign, result) != 0):
-            continue
+        # if (check_errors(campaign, result) != 0):
+        #     continue
 
         run_df = pd.DataFrame(columns=['depth', 'metric'])
-
-        cell_id_depth_dict = get_cell_id_to_iab_depth_mapping(
-        campaign, result, topology_tracename, donor_cid)
 
         result_filenames = campaign.db.get_result_files(result['meta']['id'])
         result_filename = result_filenames[phy_tracename]
@@ -394,16 +478,80 @@ def getPhyOccupancyVsDepth(campaign, results, phy_tracename, topology_tracename,
         phy_df = phy_df.astype({'simNum': 'int'})
         phy_df = phy_df.loc[phy_df['time'] > app_start_sec]
 
+        print (set(phy_df['cid']))
         for cid in set(phy_df['cid']):
             cid_df = phy_df.loc[phy_df['cid'] == cid]
             num_tx_sim = cid_df['simNum'].sum ()
             occ = num_tx_sim / max_num_sym
 
-            df_entry = pd.DataFrame([[cell_id_depth_dict[cid], occ]],
-                                     columns=['depth', 'metric'])
-            run_df = pd.concat([run_df, df_entry])
-
         out_df = pd.concat(
             [out_df, run_df.groupby('depth').mean().reset_index()])
 
     return out_df.groupby('depth').mean().reset_index()
+
+def get_e2e_avg_phy_occupancy(campaign, results, phy_tracename, slot_duration, app_start_sec, sim_duration_dec):
+
+    occ_avg = []
+    max_num_sym = ((sim_duration_dec - app_start_sec )/slot_duration) * 1000 * NUM_DATA_SYM_PER_SLOT
+
+    for result in results:
+        # if (check_errors(campaign, result) != 0):
+        #     continue
+
+        result_filenames = campaign.db.get_result_files(result['meta']['id'])
+        result_filename = result_filenames[phy_tracename]
+
+        try:
+            phy_df = pd.read_csv(result_filename, sep='\t', lineterminator='\n', skiprows=1,
+                                names=['dlUl', 'time', 'frame', 'subf', 'slot',  'firstSim', 'simNum', 'cid', 'rnti', 'ccId', 'tb', 'mcs',
+                                       'rv', 'sinr', 'corr', 'tbler'])
+        except:
+            print(f'{result_filename} is ill-formatted!')
+
+        phy_df = phy_df.astype({'simNum': 'int'})
+        phy_df = phy_df.loc[phy_df['time'] > app_start_sec]
+        
+        occ = 0
+
+        print (set(phy_df['cid']))
+        for cid in set(phy_df['cid']):
+            cid_df = phy_df.loc[phy_df['cid'] == cid]
+            num_tx_sim = cid_df['simNum'].sum ()
+            occ += num_tx_sim / max_num_sym
+
+        occ_avg.append(occ)
+    return sum(occ_avg) / len(occ_avg)
+
+
+def get_e2e_ue_phy_occupancy(campaign, results, phy_tracename, slot_duration, app_start_sec, sim_duration_dec):
+
+    occ_list = []
+    max_num_sym = ((sim_duration_dec - app_start_sec )/slot_duration) * 1000 * NUM_DATA_SYM_PER_SLOT
+
+    for result in results:
+        # if (check_errors(campaign, result) != 0):
+        #     continue
+
+        result_filenames = campaign.db.get_result_files(result['meta']['id'])
+        result_filename = result_filenames[phy_tracename]
+
+        try:
+            phy_df = pd.read_csv(result_filename, sep='\t', lineterminator='\n', skiprows=1,
+                                names=['dlUl', 'time', 'frame', 'subf', 'slot',  'firstSim', 'simNum', 'cid', 'rnti', 'ccId', 'tb', 'mcs',
+                                       'rv', 'sinr', 'corr', 'tbler'])
+        except:
+            print(f'{result_filename} is ill-formatted!')
+
+        phy_df = phy_df.astype({'simNum': 'int'})
+        phy_df = phy_df.loc[phy_df['time'] > app_start_sec]
+
+        occ = 0
+
+        for cid in set(phy_df['cid']):
+            cid_df = phy_df.loc[phy_df['cid'] == cid]
+            num_tx_sim = cid_df['simNum'].sum ()
+            occ += num_tx_sim / max_num_sym
+
+        occ_list.append(occ)
+    return occ_list
+
