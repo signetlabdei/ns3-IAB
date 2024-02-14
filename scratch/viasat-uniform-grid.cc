@@ -31,8 +31,8 @@ double powerTx = 26;
 double bw = 400e6;
 double fc = 26e9;
 unsigned int rlcBufferSize = 25 * 1024 * 1024;
-std::string cbDir = "/home/rstudio/inmarsat-iab-releases/src/mmwave/model/Codebooks/";
-std::string nRowsCols = "8,8";
+std::string cbDir = "/home/pagmatt/Documents/Repos/release-inmarsat-iab/src/mmwave/model/Codebooks/";
+std::string nRowsCols = "1,1";
 // node positions string i.e. 'simname,x,y,z' note without spaces between comma!
 std::string nodePosition = "test,3695.51813,1530.733729,10"; 
 
@@ -182,7 +182,7 @@ main (int argc, char *argv[])
   cmd.AddValue ("slotFormat", "The pattern of the slots format (d/u/s)", slotFormat);
   cmd.AddValue ("rlcBufferSize", "The pattern of the slots format (d/u/s)", rlcBufferSize);
   cmd.AddValue ("powerTx", "The transmission power [dBm]", powerTx);
-  cmd.AddValue ("nodePosition", "Vector consisting of 'sim name' and x,y,z position of nodes [m]", nodePosition);
+  cmd.AddValue ("nodePosition", "Vector consisting of 'x,y,z position of nodes [m]", nodePosition);
   cmd.Parse (argc, argv);
   
   Config::SetDefault ("ns3::MmWaveHelper::UseIdealRrc", BooleanValue (useIdealRrc));
@@ -193,7 +193,7 @@ main (int argc, char *argv[])
   Config::SetDefault ("ns3::TwoRayPropagationLossModel::RainRate", DoubleValue (rainRate));
   Config::SetDefault ("ns3::TwoRayPropagationLossModel::Frequency", DoubleValue (fc));
 
-  Config::SetDefault ("ns3::PhasedArrayModel::AntennaElement", PointerValue (CreateObject<ThreeGppAntennaModel> ()));
+  Config::SetDefault ("ns3::PhasedArrayModel::AntennaElement", PointerValue (CreateObject<IsotropicAntennaModel> ()));
   Config::SetDefault ("ns3::ThreeGppPropagationLossModel::ShadowingEnabled", BooleanValue (true));
   Config::SetDefault ("ns3::MmWaveFlexTtiMacScheduler::NumSymResvForChildrenDu", UintegerValue (numSymResvForOddIabs));
 
@@ -321,12 +321,12 @@ main (int argc, char *argv[])
 
   mmwaveHelper->AttachToClosestEnb (ueMmWaveDevs, enbMmWaveDev);
 
-  unsigned int ccId = 0;
-  for (unsigned int i = 0; i < ueNodes.GetN (); i++)
-    {
-      Ptr<MmWaveUeNetDevice> ueDevTest = DynamicCast<MmWaveUeNetDevice> (ueMmWaveDevs.Get (i));
-      ueDevTest->GetAntenna (ccId)->SetAttribute ("BearingAngle", DoubleValue (-M_PI / 2));
-    }
+  // unsigned int ccId = 0;
+  // for (unsigned int i = 0; i < ueNodes.GetN (); i++)
+  //   {
+  //     Ptr<MmWaveUeNetDevice> ueDevTest = DynamicCast<MmWaveUeNetDevice> (ueMmWaveDevs.Get (i));
+  //     ueDevTest->GetAntenna (ccId)->SetAttribute ("BearingAngle", DoubleValue (-M_PI / 2));
+  //   }
 
   // Base ports
   uint16_t dlDataSensorPort = 1235; // base port for the DL data stream from the sensors

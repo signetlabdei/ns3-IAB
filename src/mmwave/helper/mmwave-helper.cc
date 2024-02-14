@@ -3871,11 +3871,11 @@ MmWaveHelper::EnableTraces (void)
 {
   EnableDlPhyTrace ();
   EnableUlPhyTrace ();
-  EnableEnbSchedTrace ();
+  //EnableEnbSchedTrace ();
   //EnableTransportBlockTrace (); //the callback does nothing
-  EnableRlcTraces ();
-  EnablePdcpTraces ();
-  EnableMcTraces ();
+  //EnableRlcTraces ();
+  //EnablePdcpTraces ();
+  //EnableMcTraces ();
 }
 
 void
