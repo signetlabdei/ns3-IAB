@@ -454,6 +454,25 @@ def getTxSinrSingleUeSamples(cam, results, tracename, ul_or_dl='UL', ueIndex=1):
 
     return sinr
 
+def getAntennaGainSamples(cam, results, tracename):
+    gain = []
+    for result in results:
+        if (check_errors(cam, result) != 0):
+            continue
+        result_filenames = cam.db.get_result_files(result['meta']['id'])
+        result_filename = result_filenames[tracename]
+        # IAB trace files are often ill-formatted. Identufy culprit and run iab_phy_preprocessing
+        try:
+            rx_df = pd.read_csv(result_filename, sep=' ', lineterminator='\n', skiprows=1,
+                                names=['antenna','gain'])
+        except:
+            print(f'{result_filename} is ill-formatted!')
+        # Str to float
+        data = pd.to_numeric(rx_df["gain"], errors='coerce', downcast="float")
+        gain.extend(data)
+
+    return gain
+
 def getPhyOccupancyVsDepth(campaign, results, phy_tracename, slot_duration, app_start_sec, sim_duration_dec):
 
     out_df = pd.DataFrame(columns=['depth', 'metric'])

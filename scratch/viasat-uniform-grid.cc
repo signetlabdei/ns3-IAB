@@ -11,6 +11,8 @@
 #include "ns3/mmwave-iab-net-device.h"
 #include "ns3/isotropic-antenna-model.h"
 #include "ns3/three-gpp-antenna-model.h"
+#include "ns3/multi-model-spectrum-channel.h"
+#include "ns3/uniform-planar-array.h"
 #include <sstream>
 #include <string>
 #include <vector>
@@ -31,10 +33,11 @@ double powerTx = 26;
 double bw = 400e6;
 double fc = 26e9;
 unsigned int rlcBufferSize = 25 * 1024 * 1024;
-std::string cbDir = "/home/pagmatt/Documents/Repos/release-inmarsat-iab/src/mmwave/model/Codebooks/";
+std::string cbDir = "/home/traspadini/Projects/inmarsat-iab-releases/src/mmwave/model/Codebooks/";
 std::string nRowsCols = "1,1";
 // node positions string i.e. 'simname,x,y,z' note without spaces between comma!
-std::string nodePosition = "test,3695.51813,1530.733729,10"; 
+std::string nodePosition = "test,3695.51813,1530.733729,10";
+Ptr<OutputStreamWrapper> gainStream;
 
 NS_LOG_COMPONENT_DEFINE ("viasat_uniform_grid");
 
@@ -81,6 +84,11 @@ PrintNodeListToFile (Ptr<OutputStreamWrapper> outStream)
             }
         }
     }
+}
+
+void SaveAntennaGainTrace (double antennaId, double antennaGain)
+{
+  *gainStream->GetStream () << antennaId << " " << antennaGain << std::endl;
 }
 
 unsigned int
@@ -193,8 +201,8 @@ main (int argc, char *argv[])
   Config::SetDefault ("ns3::TwoRayPropagationLossModel::RainRate", DoubleValue (rainRate));
   Config::SetDefault ("ns3::TwoRayPropagationLossModel::Frequency", DoubleValue (fc));
 
-  Config::SetDefault ("ns3::PhasedArrayModel::AntennaElement", PointerValue (CreateObject<IsotropicAntennaModel> ()));
-  Config::SetDefault ("ns3::ThreeGppPropagationLossModel::ShadowingEnabled", BooleanValue (true));
+  Config::SetDefault ("ns3::PhasedArrayModel::AntennaElement", PointerValue (CreateObject<ThreeGppAntennaModel> ()));
+  Config::SetDefault ("ns3::ThreeGppPropagationLossModel::ShadowingEnabled", BooleanValue (false));
   Config::SetDefault ("ns3::MmWaveFlexTtiMacScheduler::NumSymResvForChildrenDu", UintegerValue (numSymResvForOddIabs));
 
   Config::SetDefault ("ns3::MmWaveEnbPhy::TxPower", DoubleValue (powerTx));
@@ -242,6 +250,8 @@ main (int argc, char *argv[])
   
   mmwaveHelper->SetUeBeamformingCodebookAttribute ("CodebookFilename", StringValue (cbPath));
   mmwaveHelper->SetEnbBeamformingCodebookAttribute ("CodebookFilename", StringValue (cbPath));
+
+  // mmwaveHelper->SetEnbPhasedArrayModelAttribute("BearingAngle", DoubleValue (-M_PI / 2));
   
   // extract name,x,y,z from nodePosition string
   std::stringstream nodePositionsStream;
@@ -319,19 +329,28 @@ main (int argc, char *argv[])
       ueStaticRouting->SetDefaultRoute (epcHelper->GetUeDefaultGatewayAddress (), 1);
     }
 
-  mmwaveHelper->AttachToClosestEnb (ueMmWaveDevs, enbMmWaveDev);
+  unsigned int ccId = 0;
+  for (unsigned int i = 0; i < ueNodes.GetN (); i++)
+    {
+      Ptr<MmWaveUeNetDevice> ueDevTest = DynamicCast<MmWaveUeNetDevice> (ueMmWaveDevs.Get (i));
+      // ueDevTest->GetAntenna (ccId)->SetAttribute ("BearingAngle", DoubleValue (-M_PI / 2));
+      auto antenna = ueDevTest->GetAntenna (ccId);
+      auto upa = DynamicCast<UniformPlanarArray> (antenna);
+      // auto sprectrumChannel = ueDevTest->GetPhy ()->GetDlSpectrumPhy ()->GetSpectrumChannel ();
+      // auto spectrumModel = DynamicCast<MultiModelSpectrumChannel> (sprectrumChannel);
+      upa->SetTxGainCallback (MakeCallback (&SaveAntennaGainTrace));
+    }
 
-  // unsigned int ccId = 0;
-  // for (unsigned int i = 0; i < ueNodes.GetN (); i++)
-  //   {
-  //     Ptr<MmWaveUeNetDevice> ueDevTest = DynamicCast<MmWaveUeNetDevice> (ueMmWaveDevs.Get (i));
-  //     ueDevTest->GetAntenna (ccId)->SetAttribute ("BearingAngle", DoubleValue (-M_PI / 2));
-  //   }
+  AsciiTraceHelper asciiTraceHelper;
+
+  gainStream = asciiTraceHelper.CreateFileStream ("antenna-gain.txt");
+  *gainStream->GetStream () << "angle gain\n";
+  
+  mmwaveHelper->AttachToClosestEnb (ueMmWaveDevs, enbMmWaveDev);
 
   // Base ports
   uint16_t dlDataSensorPort = 1235; // base port for the DL data stream from the sensors
   uint16_t ulDataSensorPort = 1435; // base port for the UL data stream from the sensors
-  AsciiTraceHelper asciiTraceHelper;
 
   // Install DL data applications on the IAB node
   AppSetupParams dlAppParams;

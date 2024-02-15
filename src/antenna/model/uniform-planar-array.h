@@ -83,6 +83,9 @@ class UniformPlanarArray : public PhasedArrayModel
      */
     size_t GetNumberOfElements() const override;
 
+    void SetTxGainCallback (Callback<void, double, double> cb);
+
+
   private:
     /**
      * Set the number of columns of the phased array
@@ -177,6 +180,7 @@ class UniformPlanarArray : public PhasedArrayModel
     double m_polSlant{0.0};    //!< the polarization slant angle in radians
     double m_cosPolSlant{1.0}; //!< the cosine of polarization slant angle
     double m_sinPolSlant{0.0}; //!< the sine polarization slant angle
+    Callback<void, double, double> m_txGainCallback = MakeNullCallback<void, double, double>();
 };
 
 } /* namespace ns3 */

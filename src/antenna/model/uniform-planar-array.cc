@@ -185,6 +185,13 @@ UniformPlanarArray::GetAntennaVerticalSpacing() const
     return m_disV;
 }
 
+void
+UniformPlanarArray::SetTxGainCallback (Callback<void, double, double> cb)
+{
+  NS_LOG_FUNCTION (this);
+  m_txGainCallback = cb;
+}
+
 std::pair<double, double>
 UniformPlanarArray::GetElementFieldPattern(Angles a) const
 {
@@ -208,6 +215,10 @@ UniformPlanarArray::GetElementFieldPattern(Angles a) const
     // NOTE: the slant angle (assumed to be 0) differs from the polarization slant angle
     // (m_polSlant, given by the attribute), in 3GPP TR 38.901
     double aPrimeDb = m_antennaElement->GetGainDb(aPrime);
+    if (!m_txGainCallback.IsNull ())
+      {
+        m_txGainCallback (m_alpha, aPrimeDb);
+      }
     double fieldThetaPrime = pow(10, aPrimeDb / 20) * m_cosPolSlant; // convert to linear magnitude
     double fieldPhiPrime = pow(10, aPrimeDb / 20) * m_sinPolSlant;   // convert to linear magnitude
 

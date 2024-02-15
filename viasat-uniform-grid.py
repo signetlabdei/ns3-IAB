@@ -3,17 +3,16 @@ import os
 import copy
 import csv
 import numpy as np
-from metrics_common import getTxSinrSamples
+from metrics_common import getAntennaGainSamples
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
 ns_path = './'
 ns_script = 'viasat-uniform-grid'
-test_name = 'pos_x_ue_pos_x_enb_1_x_1_ant'
-ns_res_path = f'./results_viasat_uniform_grid_{test_name}'
+ns_res_path = './results_viasat_uniform_grid_south'
 nRowsCols = ['1,1']
-dataRates = ['50Mbps']
+dataRates = ['50Kbps']
 rainRates = [0]
 slotFormats = ['dddsu']
 symbCtrl = [2238]
@@ -33,7 +32,7 @@ nodePositions = [item for sublist in nodePositions for item in sublist]
 campaign = sem.CampaignManager.new(ns_path, ns_script, ns_res_path, optimized=True, overwrite=False,
                                    runner_type='ParallelRunner', check_repo=False, skip_configuration=True)
 
-runs = 30
+runs = 1
 params_grid = {
     'RngRun': list(range(runs)),
     'nRowsCols': nRowsCols,
@@ -41,7 +40,7 @@ params_grid = {
     "numSymResvForOddIabs": 0,
     "numSymResvCtrl": symbCtrl,
     "simTime": simTime,          # [s]
-    "ipi": 50,              # [us]
+    "ipi": 50000,              # [us]
     "appStartMs": 100,      # [ms]
     "dataSensorRate": dataRates,
     "fc": 26e9,             # [Hz]
@@ -93,8 +92,7 @@ for position in nodePositions:
     params_grid.update(nodePosition=position)
     results = campaign.db.get_results(params_grid)
     pos_split = position.split(",")
-    sinr_mean = np.mean(np.array(getTxSinrSamples(campaign, results, 'RxPacketTrace.txt',
-                                         ul_or_dl='DL')))
+    sinr_mean = np.mean(np.array(getAntennaGainSamples(campaign, results, 'antenna-gain.txt')))
     data[idx, :] = [pos_split[1], pos_split[2], sinr_mean]
     idx = idx + 1
 
@@ -102,7 +100,7 @@ df = pd.DataFrame(data, columns=['X[m]','Y[m]','sinr'])
 piv = pd.pivot_table(df, values="sinr", index=["Y[m]"], columns=["X[m]"])
 sns.heatmap(piv)
 plt.tight_layout()
-plt.savefig(f'{test_name}.png')    
+plt.savefig(f'gain_test.png')    
                                         
     
 
