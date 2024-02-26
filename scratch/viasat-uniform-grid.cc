@@ -11,6 +11,7 @@
 #include "ns3/mmwave-iab-net-device.h"
 #include "ns3/isotropic-antenna-model.h"
 #include "ns3/three-gpp-antenna-model.h"
+#include "ns3/cosine-antenna-model.h"
 #include "ns3/multi-model-spectrum-channel.h"
 #include "ns3/uniform-planar-array.h"
 #include <sstream>
@@ -36,7 +37,7 @@ unsigned int rlcBufferSize = 25 * 1024 * 1024;
 std::string cbDir = "/home/traspadini/Projects/inmarsat-iab-releases/src/mmwave/model/Codebooks/";
 std::string nRowsCols = "1,1";
 // node positions string i.e. 'simname,x,y,z' note without spaces between comma!
-std::string nodePosition = "test,3695.51813,1530.733729,10";
+std::string nodePosition = "test,500,0,10";
 Ptr<OutputStreamWrapper> gainStream;
 
 NS_LOG_COMPONENT_DEFINE ("viasat_uniform_grid");
@@ -86,7 +87,7 @@ PrintNodeListToFile (Ptr<OutputStreamWrapper> outStream)
     }
 }
 
-void SaveAntennaGainTrace (double antennaId, double antennaGain)
+void SaveAntennaGainTrace (uint32_t antennaId, double antennaGain)
 {
   *gainStream->GetStream () << antennaId << " " << antennaGain << std::endl;
 }
@@ -191,6 +192,7 @@ main (int argc, char *argv[])
   cmd.AddValue ("rlcBufferSize", "The pattern of the slots format (d/u/s)", rlcBufferSize);
   cmd.AddValue ("powerTx", "The transmission power [dBm]", powerTx);
   cmd.AddValue ("nodePosition", "Vector consisting of 'x,y,z position of nodes [m]", nodePosition);
+  cmd.AddValue ("cbDir", "CB dir", cbDir);
   cmd.Parse (argc, argv);
   
   Config::SetDefault ("ns3::MmWaveHelper::UseIdealRrc", BooleanValue (useIdealRrc));
@@ -200,6 +202,7 @@ main (int argc, char *argv[])
 
   Config::SetDefault ("ns3::TwoRayPropagationLossModel::RainRate", DoubleValue (rainRate));
   Config::SetDefault ("ns3::TwoRayPropagationLossModel::Frequency", DoubleValue (fc));
+  Config::SetDefault ("ns3::ThreeGppChannelModel::Scenario", StringValue("RMa"));
 
   Config::SetDefault ("ns3::PhasedArrayModel::AntennaElement", PointerValue (CreateObject<ThreeGppAntennaModel> ()));
   Config::SetDefault ("ns3::ThreeGppPropagationLossModel::ShadowingEnabled", BooleanValue (false));
@@ -227,7 +230,7 @@ main (int argc, char *argv[])
   Ptr<MmWavePointToPointEpcHelper> epcHelper = CreateObject<MmWavePointToPointEpcHelper> ();
   mmwaveHelper->SetEpcHelper (epcHelper);
   mmwaveHelper->SetHarqEnabled (true);
-  mmwaveHelper->SetBeamformingModelType ("ns3::MmWaveCodebookBeamforming");
+  //mmwaveHelper->SetBeamformingModelType ("ns3::MmWaveCodebookBeamforming");
   
   // extract antenna array count nrows and ncolumns
   std::stringstream nRowsColsStream;
@@ -250,8 +253,6 @@ main (int argc, char *argv[])
   
   mmwaveHelper->SetUeBeamformingCodebookAttribute ("CodebookFilename", StringValue (cbPath));
   mmwaveHelper->SetEnbBeamformingCodebookAttribute ("CodebookFilename", StringValue (cbPath));
-
-  // mmwaveHelper->SetEnbPhasedArrayModelAttribute("BearingAngle", DoubleValue (-M_PI / 2));
   
   // extract name,x,y,z from nodePosition string
   std::stringstream nodePositionsStream;
@@ -298,17 +299,19 @@ main (int argc, char *argv[])
 
   // Install Mobility Model
   MobilityHelper ueMobility;
+  MobilityHelper enbMobility;
   Ptr<ListPositionAllocator> uePositionAlloc = CreateObject<ListPositionAllocator> ();
+  Ptr<ListPositionAllocator> enbPositionAlloc = CreateObject<ListPositionAllocator> ();
 
-  uePositionAlloc->Add(Vector(std::stoi(namexyz[1]),std::stoi(namexyz[2]),std::stoi(namexyz[3])));
+  Vector enbPosVec = Vector (0.0, 0.0, 5.0);
+  Vector uePosVec = Vector(std::stoi(namexyz[1]),std::stoi(namexyz[2]), 15.0);
+
+  enbPositionAlloc->Add(enbPosVec);
+  uePositionAlloc->Add(uePosVec);
 
   ueMobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
   ueMobility.SetPositionAllocator (uePositionAlloc);
   ueMobility.Install (ueNodes);
-
-  Ptr<ListPositionAllocator> enbPositionAlloc = CreateObject<ListPositionAllocator> ();
-  enbPositionAlloc->Add (Vector (0.0, 0.0, 5.0));
-  MobilityHelper enbMobility;
   enbMobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
   enbMobility.SetPositionAllocator (enbPositionAlloc);
   enbMobility.Install (enbNode);
@@ -329,17 +332,33 @@ main (int argc, char *argv[])
       ueStaticRouting->SetDefaultRoute (epcHelper->GetUeDefaultGatewayAddress (), 1);
     }
 
+  // Angles relAngEnbUe = Angles(enbPosVec, uePosVec);
+  // Angles relAngUeEnb = Angles(uePosVec, enbPosVec);
+ // NS_LOG_UNCOND("Relative position: gNB, UE: " << relAngEnbUe.GetAzimuth());
+ // NS_LOG_UNCOND("Relative position: UE, gNB: " << relAngUeEnb.GetAzimuth());
+
   unsigned int ccId = 0;
   for (unsigned int i = 0; i < ueNodes.GetN (); i++)
     {
       Ptr<MmWaveUeNetDevice> ueDevTest = DynamicCast<MmWaveUeNetDevice> (ueMmWaveDevs.Get (i));
-      // ueDevTest->GetAntenna (ccId)->SetAttribute ("BearingAngle", DoubleValue (-M_PI / 2));
+      // ueDevTest->GetAntenna (ccId)->SetAttribute ("BearingAngle", DoubleValue (relAngEnbUe.GetAzimuth()));
       auto antenna = ueDevTest->GetAntenna (ccId);
       auto upa = DynamicCast<UniformPlanarArray> (antenna);
       // auto sprectrumChannel = ueDevTest->GetPhy ()->GetDlSpectrumPhy ()->GetSpectrumChannel ();
       // auto spectrumModel = DynamicCast<MultiModelSpectrumChannel> (sprectrumChannel);
       upa->SetTxGainCallback (MakeCallback (&SaveAntennaGainTrace));
     }
+
+  for (unsigned int i = 0; i < enbNode.GetN (); i++)
+  {
+    Ptr<MmWaveEnbNetDevice> enb = DynamicCast<MmWaveEnbNetDevice> (enbMmWaveDev.Get (i));
+    // enb->GetAntenna (ccId)->SetAttribute ("BearingAngle", DoubleValue (relAngUeEnb.GetAzimuth()));
+    auto antenna = enb->GetAntenna (ccId);
+    auto upa = DynamicCast<UniformPlanarArray> (antenna);
+    // auto sprectrumChannel = ueDevTest->GetPhy ()->GetDlSpectrumPhy ()->GetSpectrumChannel ();
+    // auto spectrumModel = DynamicCast<MultiModelSpectrumChannel> (sprectrumChannel);
+    upa->SetTxGainCallback (MakeCallback (&SaveAntennaGainTrace));
+  }
 
   AsciiTraceHelper asciiTraceHelper;
 
