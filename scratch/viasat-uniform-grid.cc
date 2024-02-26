@@ -332,32 +332,19 @@ main (int argc, char *argv[])
       ueStaticRouting->SetDefaultRoute (epcHelper->GetUeDefaultGatewayAddress (), 1);
     }
 
-  // Angles relAngEnbUe = Angles(enbPosVec, uePosVec);
-  // Angles relAngUeEnb = Angles(uePosVec, enbPosVec);
- // NS_LOG_UNCOND("Relative position: gNB, UE: " << relAngEnbUe.GetAzimuth());
- // NS_LOG_UNCOND("Relative position: UE, gNB: " << relAngUeEnb.GetAzimuth());
-
+  Angles relAngEnbUe = Angles(enbPosVec, uePosVec);
+  Angles relAngUeEnb = Angles(uePosVec, enbPosVec);
   unsigned int ccId = 0;
   for (unsigned int i = 0; i < ueNodes.GetN (); i++)
     {
-      Ptr<MmWaveUeNetDevice> ueDevTest = DynamicCast<MmWaveUeNetDevice> (ueMmWaveDevs.Get (i));
-      // ueDevTest->GetAntenna (ccId)->SetAttribute ("BearingAngle", DoubleValue (relAngEnbUe.GetAzimuth()));
-      auto antenna = ueDevTest->GetAntenna (ccId);
-      auto upa = DynamicCast<UniformPlanarArray> (antenna);
-      // auto sprectrumChannel = ueDevTest->GetPhy ()->GetDlSpectrumPhy ()->GetSpectrumChannel ();
-      // auto spectrumModel = DynamicCast<MultiModelSpectrumChannel> (sprectrumChannel);
-      upa->SetTxGainCallback (MakeCallback (&SaveAntennaGainTrace));
+      Ptr<MmWaveUeNetDevice> ue = DynamicCast<MmWaveUeNetDevice> (ueMmWaveDevs.Get (i));
+      ue->GetAntenna (ccId)->SetAttribute ("BearingAngle", DoubleValue (relAngEnbUe.GetAzimuth()));
     }
 
   for (unsigned int i = 0; i < enbNode.GetN (); i++)
   {
     Ptr<MmWaveEnbNetDevice> enb = DynamicCast<MmWaveEnbNetDevice> (enbMmWaveDev.Get (i));
-    // enb->GetAntenna (ccId)->SetAttribute ("BearingAngle", DoubleValue (relAngUeEnb.GetAzimuth()));
-    auto antenna = enb->GetAntenna (ccId);
-    auto upa = DynamicCast<UniformPlanarArray> (antenna);
-    // auto sprectrumChannel = ueDevTest->GetPhy ()->GetDlSpectrumPhy ()->GetSpectrumChannel ();
-    // auto spectrumModel = DynamicCast<MultiModelSpectrumChannel> (sprectrumChannel);
-    upa->SetTxGainCallback (MakeCallback (&SaveAntennaGainTrace));
+    enb->GetAntenna (ccId)->SetAttribute ("BearingAngle", DoubleValue (relAngUeEnb.GetAzimuth()));
   }
 
   AsciiTraceHelper asciiTraceHelper;
