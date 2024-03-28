@@ -30,6 +30,7 @@
 #include <ns3/log.h>
 #include "mmwave-chunk-processor.h"
 #include <stdio.h>
+#include <sstream> 
 
 NS_LOG_COMPONENT_DEFINE ("mmWaveInterference");
 
@@ -52,7 +53,7 @@ void
 mmWaveInterference::DoDispose ()
 {
   NS_LOG_FUNCTION (this);
-  m_PowerChunkProcessorList.clear ();
+  m_powerChunkProcessorList.clear ();
   m_sinrChunkProcessorList.clear ();
   m_rxSignal = 0;
   m_allSignals = 0;
@@ -78,14 +79,20 @@ mmWaveInterference::StartRx (Ptr<const SpectrumValue> rxPsd)
       m_lastChangeTime = Now ();
       m_receiving = true;
       for (std::list<Ptr<mmWaveChunkProcessor>>::const_iterator it =
-               m_PowerChunkProcessorList.begin ();
-           it != m_PowerChunkProcessorList.end (); ++it)
+               m_powerChunkProcessorList.begin ();
+           it != m_powerChunkProcessorList.end (); ++it)
         {
           (*it)->Start ();
         }
       for (std::list<Ptr<mmWaveChunkProcessor>>::const_iterator it =
                m_sinrChunkProcessorList.begin ();
            it != m_sinrChunkProcessorList.end (); ++it)
+        {
+          (*it)->Start ();
+        }
+      for (std::list<Ptr<mmWaveChunkProcessor>>::const_iterator it =
+               m_snrChunkProcessorList.begin ();
+           it != m_snrChunkProcessorList.end (); ++it)
         {
           (*it)->Start ();
         }
@@ -114,14 +121,20 @@ mmWaveInterference::EndRx ()
       ConditionallyEvaluateChunk ();
       m_receiving = false;
       for (std::list<Ptr<mmWaveChunkProcessor>>::const_iterator it =
-               m_PowerChunkProcessorList.begin ();
-           it != m_PowerChunkProcessorList.end (); ++it)
+               m_powerChunkProcessorList.begin ();
+           it != m_powerChunkProcessorList.end (); ++it)
         {
           (*it)->End ();
         }
       for (std::list<Ptr<mmWaveChunkProcessor>>::const_iterator it =
                m_sinrChunkProcessorList.begin ();
            it != m_sinrChunkProcessorList.end (); ++it)
+        {
+          (*it)->End ();
+        }
+      for (std::list<Ptr<mmWaveChunkProcessor>>::const_iterator it =
+               m_snrChunkProcessorList.begin ();
+           it != m_snrChunkProcessorList.end (); ++it)
         {
           (*it)->End ();
         }
@@ -183,14 +196,30 @@ mmWaveInterference::ConditionallyEvaluateChunk ()
     {
       NS_LOG_LOGIC (this << " signal = " << *m_rxSignal << " allSignals = " << *m_allSignals
                          << " noise = " << *m_noise);
-      SpectrumValue interf = (*m_allSignals) - (*m_rxSignal) + (*m_noise);
-      SpectrumValue sinr = (*m_rxSignal) / interf;
+      SpectrumValue interfPlusNoise = (*m_allSignals) - (*m_rxSignal) + (*m_noise);
+      SpectrumValue snr = (*m_rxSignal) / (*m_noise);
+      SpectrumValue sinr = (*m_rxSignal) / interfPlusNoise;
+
+      // SNR vs SINR sanity check
+      SpectrumValue interPlusNoiseVsNoiseDelta = interfPlusNoise - (*m_noise);
+      std::stringstream assertLog;
+      assertLog << "Noise + interf has lower power than noise only (delta = " << Sum(interPlusNoiseVsNoiseDelta) 
+                << ") \nm_noise " << (*m_noise) 
+                << "\ninterfPlusNoise " << interfPlusNoise
+                << "\ndelta " << interPlusNoiseVsNoiseDelta;
+      NS_ASSERT_MSG(Sum(interPlusNoiseVsNoiseDelta) >= -1e-25,  assertLog.str());
+    
       Time duration = Now () - m_lastChangeTime;
       for (std::list<Ptr<mmWaveChunkProcessor>>::const_iterator it =
-               m_PowerChunkProcessorList.begin ();
-           it != m_PowerChunkProcessorList.end (); ++it)
+               m_powerChunkProcessorList.begin ();
+           it != m_powerChunkProcessorList.end (); ++it)
         {
           (*it)->EvaluateChunk (*m_rxSignal, duration);
+        }
+      for (auto it = m_snrChunkProcessorList.begin ();
+           it != m_snrChunkProcessorList.end (); ++it)
+        {
+          (*it)->EvaluateChunk (snr, duration);
         }
       for (std::list<Ptr<mmWaveChunkProcessor>>::const_iterator it =
                m_sinrChunkProcessorList.begin ();
@@ -221,7 +250,14 @@ void
 mmWaveInterference::AddPowerChunkProcessor (Ptr<mmWaveChunkProcessor> p)
 {
   NS_LOG_FUNCTION (this << p);
-  m_PowerChunkProcessorList.push_back (p);
+  m_powerChunkProcessorList.push_back (p);
+}
+
+void
+mmWaveInterference::AddSnrChunkProcessor (Ptr<mmWaveChunkProcessor> p)
+{
+  NS_LOG_FUNCTION (this << p);
+  m_snrChunkProcessorList.push_back (p);
 }
 
 void

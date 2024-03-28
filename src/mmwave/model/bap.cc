@@ -305,17 +305,20 @@ void
 Bap::TransmitBapSduViaNonPduInterface (Ptr<Packet> p, uint16_t destBapAddress)
 {
   NS_LOG_FUNCTION (this);
+  NS_LOG_DEBUG("Trasmitting packet via non-SDU interface to BAP " << destBapAddress);
 
   uint16_t pathId;
 
   if (m_epcEnbApplication) // If this is a Donor
   {
     pathId = m_epcEnbApplication->GetPathId (m_localAddress, destBapAddress);
+    NS_LOG_DEBUG("At the donor, retrieved path ID " << pathId);
   }
   else
   {
     destBapAddress = m_donorBapAddressCallback (m_imsi);
     pathId = m_pathIdCallback (m_localAddress, destBapAddress);
+    NS_LOG_DEBUG("At an IAB node, retrieved path ID " << pathId);
   }
 
   BapHeader bapHeader;

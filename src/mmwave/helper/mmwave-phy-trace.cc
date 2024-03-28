@@ -238,7 +238,7 @@ MmWavePhyTrace::RxPacketTraceUeCallback (Ptr<MmWavePhyTrace> phyStats, std::stri
       m_rxPacketTraceFile.open (m_rxPacketTraceFilename.c_str ());
       m_rxPacketTraceFile << "DL/"
                              "UL\ttime\tframe\tsubF\tslot\t1stSym\tsymbol#"
-                             "\tcellId\trnti\tccId\ttbSize\tmcs\trv\tSINR(dB)\tcorrupt\tTBler"
+                             "\tcellId\trnti\tccId\ttbSize\tmcs\trv\tSINR(dB)\tSNR(dB)\tcorrupt\tTBler"
                           << std::endl;
       if (!m_rxPacketTraceFile.is_open ())
         {
@@ -250,8 +250,9 @@ MmWavePhyTrace::RxPacketTraceUeCallback (Ptr<MmWavePhyTrace> phyStats, std::stri
                       << +params.m_symStart << "\t" << +params.m_numSym << "\t" << params.m_cellId
                       << "\t" << params.m_rnti << "\t" << +params.m_ccId << "\t" << params.m_tbSize
                       << "\t" << +params.m_mcs << "\t" << +params.m_rv << "\t"
-                      << 10 * std::log10 (params.m_sinr) << "\t" << params.m_corrupt << "\t"
-                      << params.m_tbler << std::endl;
+                      << 10 * std::log10 (params.m_sinr) << "\t" 
+                      << 10 * std::log10 (params.m_snrAvg) << "\t" 
+                      << params.m_corrupt << "\t" << params.m_tbler << std::endl;
 
   if (params.m_corrupt)
     {
@@ -260,8 +261,9 @@ MmWavePhyTrace::RxPacketTraceUeCallback (Ptr<MmWavePhyTrace> phyStats, std::stri
                     << "\t" << +params.m_symStart << "\t" << +params.m_numSym << "\t"
                     << params.m_rnti << "\t" << +params.m_ccId << "\t" << params.m_tbSize << "\t"
                     << +params.m_mcs << "\t" << +params.m_rv << "\t"
-                    << 10 * std::log10 (params.m_sinr) << "\t" << params.m_tbler << "\t"
-                    << params.m_corrupt);
+                    << 10 * std::log10 (params.m_sinr) << "\t" 
+                    << 10 * std::log10 (params.m_snrAvg) 
+                    << "\t" << params.m_tbler << "\t" << params.m_corrupt);
     }
 }
 void
@@ -273,7 +275,7 @@ MmWavePhyTrace::RxPacketTraceEnbCallback (Ptr<MmWavePhyTrace> phyStats, std::str
       m_rxPacketTraceFile.open (m_rxPacketTraceFilename.c_str ());
       m_rxPacketTraceFile << "DL/"
                              "UL\ttime\tframe\tsubF\tslot\t1stSym\tsymbol#"
-                             "\tcellId\trnti\tccId\ttbSize\tmcs\trv\tSINR(dB)\tcorrupt\tTBler"
+                             "\tcellId\trnti\tccId\ttbSize\tmcs\trv\tSINR(dB)\tSNR(dB)\tcorrupt\tTBler"
                           << std::endl;
       if (!m_rxPacketTraceFile.is_open ())
         {
@@ -285,8 +287,9 @@ MmWavePhyTrace::RxPacketTraceEnbCallback (Ptr<MmWavePhyTrace> phyStats, std::str
                       << +params.m_symStart << "\t" << +params.m_numSym << "\t" << params.m_cellId
                       << "\t" << params.m_rnti << "\t" << +params.m_ccId << "\t" << params.m_tbSize
                       << "\t" << +params.m_mcs << "\t" << +params.m_rv << "\t"
-                      << 10 * std::log10 (params.m_sinr) << " \t" << params.m_corrupt << "\t"
-                      << params.m_tbler << std::endl;
+                      << 10 * std::log10 (params.m_sinr) << "\t"
+                      << 10 * std::log10 (params.m_snrAvg) <<  "\t" 
+                      << params.m_corrupt << "\t" << params.m_tbler << std::endl;
 
   if (params.m_corrupt)
     {
@@ -295,7 +298,9 @@ MmWavePhyTrace::RxPacketTraceEnbCallback (Ptr<MmWavePhyTrace> phyStats, std::str
                     << "\t" << +params.m_symStart << "\t" << +params.m_numSym << "\t"
                     << params.m_rnti << "\t" << +params.m_ccId << "\t" << params.m_tbSize << "\t"
                     << +params.m_mcs << "\t" << +params.m_rv << "\t"
-                    << 10 * std::log10 (params.m_sinr) << "\t" << params.m_tbler << "\t"
+                    << 10 * std::log10 (params.m_sinr) << "\t"
+                    << 10 * std::log10 (params.m_snrAvg) << "\t" 
+                    << params.m_tbler << "\t"
                     << params.m_corrupt << "\t" << params.m_sinrMin);
     }
 }

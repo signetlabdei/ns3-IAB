@@ -229,6 +229,8 @@ EpcEnbApplication::DoInitialContextSetupRequest (
        erabIt != erabToBeSetupList.end (); ++erabIt)
     {
       // request the RRC to setup a radio bearer
+      NS_LOG_DEBUG("From EpcEnbApplication add bearer " << erabIt->erabId
+                    << " teid " << erabIt->sgwTeid << " for IMSI " << mmeUeS1Id);
       uint64_t imsi = mmeUeS1Id;
       std::map<uint64_t, uint16_t>::iterator imsiIt = m_imsiRntiMap.find (imsi);
       NS_ASSERT_MSG (imsiIt != m_imsiRntiMap.end (), "unknown IMSI");
@@ -321,24 +323,31 @@ EpcEnbApplication::RecvFromS1uSocket (Ptr<Socket> socket)
   //packet->RemovePacketTag (tag);
 
   std::map<uint32_t, EpsFlowId_t>::iterator it = m_teidRbidMap.find (teid);
-  if (it != m_teidRbidMap.end())
-  {
-    auto bapAddressIabNode = GetBapAddressFromImsi (m_imsiRntiMap.find(it->second.m_rnti)->first);
-    if (bapAddressIabNode)
-      {
-        auto donorDevice = DynamicCast<mmwave::MmWaveEnbNetDevice> (GetNode()->GetDevice(0));
-        donorDevice->GetBap ()-> TransmitBapSduViaNonPduInterface (packet, bapAddressIabNode.value());
-      }
-      else
-      {
-          m_rxS1uSocketPktTrace(packet->Copy());
-          SendToLteSocket(packet, it->second.m_rnti, it->second.m_bid);
-      }
-  }
+
+  std::optional<uint16_t> bapAddrTerminatingIabNode = std::nullopt; 
+  if (!m_getBapAddressWhereBearerTerminatesCallback.IsNull())
+    {
+      bapAddrTerminatingIabNode = 
+        m_getBapAddressWhereBearerTerminatesCallback(m_cellId, teid);
+    }
+
+  if (bapAddrTerminatingIabNode.has_value()) // Non-PDU traffic whose bearer terminates either 
+                                               // at this (if donor) or at a child IAB-node
+    {
+      NS_LOG_DEBUG("Forwarding to BAP, dst address " << bapAddrTerminatingIabNode.value());
+      auto donorDevice = DynamicCast<mmwave::MmWaveEnbNetDevice> (GetNode()->GetDevice(0));
+      donorDevice->GetBap ()-> TransmitBapSduViaNonPduInterface (packet, bapAddrTerminatingIabNode.value());
+    }
+  else if (it != m_teidRbidMap.end()) // PDU-traffic
+    {
+      NS_LOG_DEBUG("Forwarding to LTE socket");
+      m_rxS1uSocketPktTrace(packet->Copy());
+      SendToLteSocket(packet, it->second.m_rnti, it->second.m_bid);
+    }
   else
     {
+      NS_LOG_WARN ("UE context not found, discarding packet when receiving from s1uSocket");
       packet = 0;
-      NS_LOG_DEBUG ("UE context not found, discarding packet when receiving from s1uSocket");
     }
 }
 
@@ -652,6 +661,14 @@ EpcEnbApplication::GetBapAddressFromCellId (uint16_t cellId) const
         }
     }
   NS_ABORT_MSG ("Cell ID not found");
+}
+
+void 
+EpcEnbApplication::SetBapAddressWhereBearerTerminatesCallback (
+  Callback<std::optional<uint16_t>, uint16_t, uint64_t> cb)
+{
+  NS_ASSERT(!cb.IsNull());
+  m_getBapAddressWhereBearerTerminatesCallback = cb;
 }
 
 } // namespace ns3

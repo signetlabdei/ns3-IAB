@@ -35,6 +35,7 @@
 #include "mmwave-mac-pdu-tag.h"
 #include "mmwave-spectrum-value-helper.h"
 #include <cmath>
+#include <algorithm>
 
 namespace ns3 {
 
@@ -297,10 +298,15 @@ MmWaveFlexTtiMacScheduler::GetTypeId (void)
                         StringValue(""),
                         MakeStringAccessor(&MmWaveFlexTtiMacScheduler::m_slotsFormat),
                         MakeStringChecker())
-          .AddAttribute("NumSymReservedCtrl",
-                        "The number of OFDM symbols reserved for the control",
+          .AddAttribute("NumSymReservedUlCtrl",
+                        "The number of OFDM symbols reserved for UL control",
                         UintegerValue(0),
-                        MakeUintegerAccessor(&MmWaveFlexTtiMacScheduler::m_resvCtrlSymbols),
+                        MakeUintegerAccessor(&MmWaveFlexTtiMacScheduler::m_resvUlCtrlSymbols),
+                        MakeUintegerChecker<uint16_t>())
+          .AddAttribute("NumSymReservedDlCtrl",
+                        "The number of OFDM symbols reserved for DL control",
+                        UintegerValue(0),
+                        MakeUintegerAccessor(&MmWaveFlexTtiMacScheduler::m_resvDlCtrlSymbols),
                         MakeUintegerChecker<uint16_t>())
           .AddAttribute("FramePeriodCtrlSymbols",
                         "The period of the frames with given OFDM symbols reserved for the control",
@@ -338,11 +344,14 @@ void
 MmWaveFlexTtiMacScheduler::ConfigureCommonParameters (Ptr<MmWavePhyMacCommon> config)
 {
   m_phyMacConfig = config;
+  SetSlotFormat();
+
   m_amc = CreateObject<MmWaveAmc> (m_phyMacConfig);
   m_numHarqProcess = m_phyMacConfig->GetNumHarqProcess ();
   m_harqTimeout = m_phyMacConfig->GetHarqTimeout ();
   m_numDataSymbols = m_phyMacConfig->GetSymbPerSlot () - m_phyMacConfig->GetDlCtrlSymbols () -
                      m_phyMacConfig->GetUlCtrlSymbols ();
+  
 }
 
 void
@@ -729,29 +738,11 @@ MmWaveFlexTtiMacScheduler::DoSchedTriggerReq (
   uint32_t frameNum = params.m_snfSf.m_frameNum;
   uint8_t sfNum = params.m_snfSf.m_sfNum;
   uint8_t slotNum = params.m_snfSf.m_slotNum;
-
-  uint32_t numTotalSlotsInAControlPeriod = m_phyMacConfig->GetSubframesPerFrame() *
-                            m_phyMacConfig->GetSlotsPerSubframe() * m_numFramesControlSymPeriod;
-
   uint8_t slotIndex =
       (frameNum % m_numFramesControlSymPeriod) * m_phyMacConfig->GetSubframesPerFrame() * m_phyMacConfig->GetSlotsPerSubframe() +
       sfNum * m_phyMacConfig->GetSlotsPerSubframe() + slotNum;
 
-  int additionalResvCtrlSymbols = m_resvCtrlSymbols - numTotalSlotsInAControlPeriod * 2; // the first and last symbol of each slot are reserved for control
-
-  if (additionalResvCtrlSymbols < 0)
-  {
-    additionalResvCtrlSymbols = 0;
-  }
-
-  int resvCtrl = additionalResvCtrlSymbols / numTotalSlotsInAControlPeriod;
-  int ctrlSlotIndex = additionalResvCtrlSymbols - resvCtrl * numTotalSlotsInAControlPeriod;
-
-  if (slotIndex < ctrlSlotIndex)
-    {
-      resvCtrl++;
-    }
-
+  
   NS_LOG_DEBUG ("Creating scheduling allocation info for: frame "
                 << frameNum << " subframe " << +sfNum << " slot " << +slotNum);
 
@@ -759,8 +750,10 @@ MmWaveFlexTtiMacScheduler::DoSchedTriggerReq (
   ret.m_sfnSf = params.m_snfSf;
   ret.m_slotAllocInfo.m_sfnSf = ret.m_sfnSf;
 
-  resvCtrl += m_phyMacConfig->GetDlCtrlSymbols () + m_phyMacConfig->GetUlCtrlSymbols ();
-  int symAvail = m_phyMacConfig->GetSymbPerSlot () - resvCtrl - m_resvChildrenDu;
+  int symAvail = m_phyMacConfig->GetSymbPerSlot () - m_phyMacConfig->GetDlCtrlSymbols () - m_phyMacConfig->GetUlCtrlSymbols();
+
+  NS_ASSERT(symAvail > m_resvChildrenDu);
+
   uint8_t ttiIdx = 1;
   uint8_t symDlIdx = m_phyMacConfig->GetDlCtrlSymbols ();
   ; // symbols reserved for control at beginning of subframe
@@ -771,46 +764,70 @@ MmWaveFlexTtiMacScheduler::DoSchedTriggerReq (
     }
   if (iabDepth % 2 == 1) // odd depth IAB layer
     {
-      symDlIdx += m_resvChildrenDu;
+      symDlIdx += symAvail - m_resvChildrenDu;
+      symAvail = m_resvChildrenDu;
+    }
+  else
+   {
+      symAvail -= m_resvChildrenDu;
     }
 
   if (m_slotsFormat != "")
   {
-    uint8_t slotIndex = m_indexSlot % m_slotsFormat.length();
+    uint8_t slotIndexInTheFormat = slotIndex % m_slotsFormat.length();
+    char slotType = m_slotsFormat.at(slotIndexInTheFormat);
 
-    char slotType = m_slotsFormat.at(slotIndex);
     switch (slotType)
     {
       case 'd': //Downlink slot
-      NS_LOG_DEBUG("DL slot");
-      m_resvDl = symAvail;
-      break;
+      {
+        NS_LOG_DEBUG("DL slot");
+        if (m_indexDlSlot < m_dlCtrlSlotIndex)
+        {
+          symAvail -= 1;
+        }
+        symAvail -= m_additionalDlCtrlSymbols;
+        m_resvDl = symAvail;
+        m_resvSwitch = 0;
+        m_indexDlSlot ++;
+        break;
+      }
 
       case 'u': //Uplink slot
-      NS_LOG_DEBUG("UL slot");
-      m_resvDl = 0;
-      m_resvSwitch = 0;
-      break;
-
-      case 's': //Switching Slot
-      NS_LOG_DEBUG("SW slot");
-      m_resvDl = 0;
-      if (symAvail>4)
       {
-        m_resvSwitch = symAvail-4;
-      }
-      else
-      {
+        NS_LOG_DEBUG("UL slot");
+        if (m_indexUlSlot < m_ulCtrlSlotIndex)
+        {
+          symAvail-= 1;
+        }
+        symAvail -= m_additionalUlCtrlSymbols;
+        m_resvDl = 0;
         m_resvSwitch = 0;
+        m_indexUlSlot ++;
+        break;
       }
-      break;
+      
+      case 's': //Switching slot
+      {
+        NS_LOG_DEBUG("SW slot");
+        m_resvDl = 0;
+        if (symAvail>4)
+        {
+          m_resvSwitch = symAvail-4;
+        }
+        else
+        {
+          m_resvSwitch = 0;
+        }
+        break;
+      }
 
       default:
       NS_FATAL_ERROR("Incorrect slot format");
-    }
-    m_indexSlot++;
-  }
 
+    }
+  }
+  
   uint8_t symDlAvail = m_resvDl;
   uint8_t symUlIdx = symDlIdx + m_resvDl + m_resvSwitch;
   uint8_t resvUl = symAvail - symDlAvail - m_resvSwitch;
@@ -1831,6 +1848,44 @@ MmWaveFlexTtiMacScheduler::DoSchedUlMacCtrlInfoReq (
     }
 
   return;
+}
+
+void
+MmWaveFlexTtiMacScheduler::SetSlotFormat ()
+{
+  if (!m_slotsFormat.empty())
+  {
+    uint32_t numTotalSlotsInAControlPeriod = m_phyMacConfig->GetSubframesPerFrame() *
+                              m_phyMacConfig->GetSlotsPerSubframe() * m_numFramesControlSymPeriod;
+    uint8_t numDlInSlotFormat = std::count_if(m_slotsFormat.begin(), m_slotsFormat.end(), []( char c ){return c =='d';});
+    uint8_t numUlInSlotFormat = std::count_if(m_slotsFormat.begin(), m_slotsFormat.end(), []( char c ){return c =='u';});
+
+    int numTotalDlSlotsInACtrlPeriod = numDlInSlotFormat * numTotalSlotsInAControlPeriod / m_slotsFormat.length();
+    NS_ASSERT_MSG(numTotalDlSlotsInACtrlPeriod > 0, "There must be at least one DL slot in the slot format");
+    m_additionalResvDlCtrlSymbols = m_resvDlCtrlSymbols - numTotalDlSlotsInACtrlPeriod * 2; // the first and last symbol of each slot are reserved for control
+    if (m_additionalResvDlCtrlSymbols < 0)
+    {
+      m_additionalResvDlCtrlSymbols = 0;
+    }
+    m_additionalDlCtrlSymbols = m_additionalResvDlCtrlSymbols / numTotalDlSlotsInACtrlPeriod;
+    m_dlCtrlSlotIndex = m_additionalResvDlCtrlSymbols - m_additionalDlCtrlSymbols * numTotalDlSlotsInACtrlPeriod; // slots with index < dlCtrlSlotIndex have additionalDlCtrlSymbols + 1 symbols reserved for control
+
+    int numTotalUlSlotsInACtrlPeriod = numUlInSlotFormat * numTotalSlotsInAControlPeriod / m_slotsFormat.length();
+    NS_ASSERT_MSG(numTotalUlSlotsInACtrlPeriod > 0, "There must be at least one UL slot in the slot format");
+    m_additionalResvUlCtrlSymbols = m_resvUlCtrlSymbols - numTotalUlSlotsInACtrlPeriod * 2; // the first and last symbol of each slot are reserved for control
+    if (m_additionalResvUlCtrlSymbols < 0)
+    {
+      m_additionalResvUlCtrlSymbols = 0;
+    }
+    m_additionalUlCtrlSymbols = m_additionalResvUlCtrlSymbols / numTotalUlSlotsInACtrlPeriod;
+    m_ulCtrlSlotIndex = m_additionalResvUlCtrlSymbols - m_additionalUlCtrlSymbols * numTotalUlSlotsInACtrlPeriod;
+
+    int symAvail = m_phyMacConfig->GetSymbPerSlot () - m_phyMacConfig->GetDlCtrlSymbols () - m_phyMacConfig->GetUlCtrlSymbols();
+    int resvParentDu = symAvail - m_resvChildrenDu;
+    NS_ASSERT_MSG(m_additionalDlCtrlSymbols < std::min(int(m_resvChildrenDu), resvParentDu), "The number of DL control symbols exceeds the number of available symbols");
+    NS_ASSERT_MSG(m_additionalUlCtrlSymbols < std::min(int(m_resvChildrenDu), resvParentDu), "The number of UL control symbols exceeds the number of available symbols");
+
+  }
 }
 
 void

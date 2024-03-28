@@ -906,6 +906,11 @@ MmWaveHelper::InstallSingleMcUeDevice (Ptr<Node> n)
       pData->AddCallback (MakeCallback (&MmWaveUePhy::GenerateDlCqiReport, phy));
       pData->AddCallback (MakeCallback (&MmWaveSpectrumPhy::UpdateSinrPerceived, dlPhy));
       dlPhy->AddDataSinrChunkProcessor (pData);
+
+      Ptr<mmWaveChunkProcessor> interfData = Create<mmWaveChunkProcessor> ();
+      interfData->AddCallback (MakeCallback (&MmWaveSpectrumPhy::UpdateSnrPerceived, dlPhy));
+      dlPhy->AddDataSnrChunkProcessor (interfData);
+
       if (m_harqEnabled)
         {
           //In lte-helper this is done in the last for cycle
@@ -1538,6 +1543,10 @@ MmWaveHelper::InstallSingleUeDevice (Ptr<Node> n)
       pData->AddCallback (MakeCallback (&MmWaveUePhy::GenerateDlCqiReport, phy));
       pData->AddCallback (MakeCallback (&MmWaveSpectrumPhy::UpdateSinrPerceived, dlPhy));
       dlPhy->AddDataSinrChunkProcessor (pData);
+
+      Ptr<mmWaveChunkProcessor> interfData = Create<mmWaveChunkProcessor> ();
+      interfData->AddCallback (MakeCallback (&MmWaveSpectrumPhy::UpdateSnrPerceived, dlPhy));
+      dlPhy->AddDataSnrChunkProcessor (interfData);
       if (m_harqEnabled)
         {
           //In lte-helper this is done in the last for cycle
@@ -1783,6 +1792,10 @@ MmWaveHelper::InstallSingleEnbDevice (Ptr<Node> n)
         }
       dlPhy->AddDataSinrChunkProcessor (pData);
 
+      Ptr<mmWaveChunkProcessor> interfData = Create<mmWaveChunkProcessor> ();
+      interfData->AddCallback (MakeCallback (&MmWaveSpectrumPhy::UpdateSnrPerceived, dlPhy));
+      dlPhy->AddDataSnrChunkProcessor (interfData);
+
       phy->SetConfigurationParameters (ccEnb->GetConfigurationParameters ());
 
       ulPhy->SetChannel (m_channel.at (it->first));
@@ -1869,6 +1882,7 @@ MmWaveHelper::InstallSingleEnbDevice (Ptr<Node> n)
 
       NS_LOG_DEBUG ("Create the mac");
       Ptr<MmWaveEnbMac> mac = CreateObject<MmWaveEnbMac> ();
+      mac->SetCellId(ccEnb->GetCellId ());
       mac->SetConfigurationParameters (ccEnb->GetConfigurationParameters ());
       Ptr<MmWaveMacScheduler> sched = m_schedulerFactory.Create<MmWaveMacScheduler> ();
 
@@ -1974,7 +1988,7 @@ MmWaveHelper::InstallSingleEnbDevice (Ptr<Node> n)
           else
             {
               rrc->SetAttribute ("EpsBearerToRlcMapping",
-                                 EnumValue (LteEnbRrc::RLC_UM_LOWLAT_ALWAYS));
+                                 EnumValue (LteEnbRrc::RLC_UM_ALWAYS));
             }
         }
     }
@@ -2202,17 +2216,27 @@ MmWaveHelper::InstallSingleIabDevice (Ptr<Node> n)
       mtPhy->SetHarqPhyModule (mtHarq);
 
       Ptr<mmWaveChunkProcessor> pDuData = Create<mmWaveChunkProcessor> ();
+      Ptr<mmWaveChunkProcessor> interfDuData = Create<mmWaveChunkProcessor> ();
       if (!m_snrTest)
         {
           pDuData->AddCallback (MakeCallback (&MmWaveEnbPhy::GenerateDataCqiReport, duPhy));
           pDuData->AddCallback (MakeCallback (&MmWaveSpectrumPhy::UpdateSinrPerceived, dlDuPhy));
+          interfDuData->AddCallback (MakeCallback (&MmWaveSpectrumPhy::UpdateSnrPerceived, dlDuPhy));
+          ;
         }
       dlDuPhy->AddDataSinrChunkProcessor (pDuData);
+      dlDuPhy->AddDataSnrChunkProcessor (interfDuData);
+
 
       Ptr<mmWaveChunkProcessor> pMtData = Create<mmWaveChunkProcessor> ();
       pMtData->AddCallback (MakeCallback (&MmWaveUePhy::GenerateDlCqiReport, mtPhy));
       pMtData->AddCallback (MakeCallback (&MmWaveSpectrumPhy::UpdateSinrPerceived, dlMtPhy));
       dlMtPhy->AddDataSinrChunkProcessor (pMtData);
+
+      Ptr<mmWaveChunkProcessor> interfMtData = Create<mmWaveChunkProcessor> ();
+      interfMtData->AddCallback (MakeCallback (&MmWaveSpectrumPhy::UpdateSnrPerceived, dlMtPhy));
+      dlMtPhy->AddDataSnrChunkProcessor (interfMtData);
+
       if (m_harqEnabled)
         {
           //In lte-helper this is done in the last for cycle
@@ -2483,7 +2507,7 @@ MmWaveHelper::InstallSingleIabDevice (Ptr<Node> n)
           else
             {
               duRrc->SetAttribute ("EpsBearerToRlcMapping",
-                                   EnumValue (LteEnbRrc::RLC_UM_LOWLAT_ALWAYS));
+                                   EnumValue (LteEnbRrc::RLC_UM_ALWAYS));
             }
         }
     }
@@ -3177,6 +3201,12 @@ MmWaveHelper::AttachIabTotIabWithIndex (NetDeviceContainer iabDevices, uint32_t 
         {
           p2pEpcHelper->GetNonConstEpcSgwPgwApplication ()->SetIabNodeDonorCellId (
               childIabDev->GetCellId (), donorEnbDev->GetCellId ());
+          // Set callback for retrieving terminating bearer IDs <--> terminating
+          // IAB node BAP address association
+          auto pgwSgwApp = p2pEpcHelper->GetEpcSgwPgwApplication ();
+          donorEnbApp->SetBapAddressWhereBearerTerminatesCallback(
+            MakeCallback (&EpcSgwPgwApplication::GetBapAddressWhereBearerTerminates, 
+              pgwSgwApp));
         }
 
       childIabDev->GetMtRrc ()->SetBapEnb (parentIabDev->GetBap ());
@@ -3303,6 +3333,13 @@ MmWaveHelper::AttachIabTotDonorWithIndex (Ptr<NetDevice> iabDevice, NetDeviceCon
           p2pEpcHelper->GetNonConstEpcSgwPgwApplication ()->SetIabNodeDonorCellId (
               childIabDev->GetCellId (),
               targetDevice->GetObject<MmWaveEnbNetDevice> ()->GetCellId ());
+              
+          // Set callback for retrieving terminating bearer IDs <--> terminating
+          // IAB node BAP address association
+          auto pgwSgwApp = p2pEpcHelper->GetEpcSgwPgwApplication ();
+          donorEnbApp->SetBapAddressWhereBearerTerminatesCallback(
+            MakeCallback (&EpcSgwPgwApplication::GetBapAddressWhereBearerTerminates, 
+              pgwSgwApp));
         }
       childIabDev->GetMtRrc ()->SetBapEnb (targetEnbDevice->GetBap ());
       childIabDev->GetMtRrc ()->SetBapAddressFromCellIdCallback (

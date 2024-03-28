@@ -1,6 +1,7 @@
 /* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
-*   Copyright (c) 2022 University of Padova, Dep. of Information Engineering, SIGNET lab.
+*   Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
+*   Copyright (c) 2015, NYU WIRELESS, Tandon School of Engineering, New York University
 *
 *   This program is free software; you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License version 2 as
@@ -15,8 +16,13 @@
 *   along with this program; if not, write to the Free Software
 *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *
-*   Authors: Matteo Pagin <paginmatte@dei.unipd.it>
-*            Alessandro Traspadini <traspadini@dei.unipd.it>
+*   Author: Marco Miozzo <marco.miozzo@cttc.es>
+*           Nicola Baldo  <nbaldo@cttc.es>
+*
+*   Modified by: Marco Mezzavilla < mezzavilla@nyu.edu>
+*                         Sourjya Dutta <sdutta@nyu.edu>
+*                         Russell Ford <russell.ford@nyu.edu>
+*                         Menglei Zhang <menglei@nyu.edu>
 */
 
 #include "ns3/epc-helper.h"
@@ -37,25 +43,42 @@
 using namespace ns3;
 using namespace mmwave;
 
-double simTimeSeconds = 10;
+double simTimeSeconds = 0.5;
 bool useIdealRrc = false;
-double ipi = 20.0;
-double appStartMs = 100.0;
-unsigned int numSymResvForOddIabs = 0;
-unsigned int numSymResvCtrl = 2238;
-double rainRate = 10;
-std::string dlDataSensorRate = "75Mbps";
 std::string slotFormat = "dddsu";
+unsigned int numSymResvDlCtrl = 1000;
+unsigned int numSymResvUlCtrl = 1000;
+double rainRate = 10;
+double ipi = 25.0;
+double appStartMs = 100.0;
+unsigned int numSymResvForOddIabs = 6;
+unsigned int numSymResvForDl = 3;
+std::string dataSensorRate = "1Mbps";
 double powerTx = 30;
 double bw = 400e6;
 double fc = 26e9;
-unsigned int configurationPhy = 0;
-unsigned int ueAntennaNum = 64;
-unsigned int nAntColumn = 8;
-unsigned int nAntRow = 8;
 unsigned int rlcBufferSize = 25 * 1024 * 1024;
+double scenScale = 1.0;
+uint32_t numIab = 2;
+uint32_t numReceivingIab = 1;
+uint8_t m_receivedPacketCounter = 0;
+unsigned int expectedPackets = std::ceil ((simTimeSeconds * 1e3 - appStartMs) / ipi) * numReceivingIab;
 
-NS_LOG_COMPONENT_DEFINE ("IabInmarsatScenario2");
+
+NS_LOG_COMPONENT_DEFINE ("IabDlFlowDepth2Test");
+
+static void
+AppReceptionCallback (uint32_t packetSize)
+{
+  m_receivedPacketCounter++;
+}
+
+static void
+CheckAppReceptionCallback ()
+{
+  NS_ABORT_MSG_IF (m_receivedPacketCounter != expectedPackets , 
+                  "Received "<< (uint32_t) m_receivedPacketCounter<<" packets, expected " << expectedPackets);
+}
 
 struct AppSetupParams
 {
@@ -106,7 +129,10 @@ unsigned int
 PacketByteSizeFromBitrateAndIpi (DataRate rate, Time IPI)
 {
   double size = rate.GetBitRate () * IPI.GetSeconds ();
-  return std::ceil (size / 8);
+  unsigned int roundedSize = std::ceil (size / 8);
+  // NS_LOG_UNCOND("Rate " << rate << " ipi " << IPI << 
+  //               " rounded packet size " << roundedSize);
+  return roundedSize;
 }
 
 void 
@@ -126,30 +152,16 @@ PrintIabTopologyInformation (Ptr<OutputStreamWrapper> stream, Ptr<EpcEnbApplicat
     *stream->GetStream () << childCellId << " " << childImsi << " "
                           << parentCellId << " " << parentImsi << std::endl;
   }
-
 }
 
 static void
 RxSinkHeader (Ptr<OutputStreamWrapper> stream, Ptr<const Packet> packet, const Address &from,
               const Address &to, const SeqTsSizeHeader &header)
 {
-  *stream->GetStream () << "Rx " << Simulator::Now ().GetNanoSeconds () << " "
-                        << packet->GetSize () << " "
-                        << InetSocketAddress::ConvertFrom (to).GetPort () << " "
-                        << InetSocketAddress::ConvertFrom (from).GetPort () << " "
-                        << (Simulator::Now () - header.GetTs ()).GetNanoSeconds () << "\n";
+  AppReceptionCallback (packet->GetSize ());
 }
 
-static void
-TxSinkHeader (Ptr<OutputStreamWrapper> stream, Ptr<const Packet> packet, const Address &from,
-              const Address &to, const SeqTsSizeHeader &header)
-{
-  *stream->GetStream () << "Tx " << Simulator::Now ().GetNanoSeconds () << " "
-                        << packet->GetSize () << " "
-                        << InetSocketAddress::ConvertFrom (to).GetPort () << " "
-                        << InetSocketAddress::ConvertFrom (from).GetPort () << " "
-                        << (Simulator::Now () - header.GetTs ()).GetNanoSeconds () << "\n";
-}
+
 
 void
 InstallUdpApplication (Ptr<OutputStreamWrapper> traceStream, Ptr<Node> srcNode,
@@ -160,10 +172,8 @@ InstallUdpApplication (Ptr<OutputStreamWrapper> traceStream, Ptr<Node> srcNode,
   client.SetAttribute ("Interval", TimeValue (params.IPI));
   client.SetAttribute ("PacketSize",
                        UintegerValue (PacketByteSizeFromBitrateAndIpi (params.rate, params.IPI)));
-  client.SetAttribute ("MaxPackets", UintegerValue (std::numeric_limits<uint32_t>::max ()));
+  client.SetAttribute ("MaxPackets", UintegerValue (UINT32_MAX));
   app.Add (client.Install (srcNode));
-  app.Get (0)->TraceConnectWithoutContext ("TxWithSeqTsSize",
-                                           MakeBoundCallback (TxSinkHeader, traceStream));
   app.Start (params.startTime);
   app.Stop (params.endTime);
 }
@@ -185,71 +195,52 @@ InstallUdpPacketSink (Ptr<OutputStreamWrapper> traceStream, Ipv4Address srcAddre
 int
 main (int argc, char *argv[])
 {
-  std::string ueCbPath = "src/mmwave/model/Codebooks/8x8.txt";
-  std::string enbCbPath = "src/mmwave/model/Codebooks/8x8.txt";
+  LogComponentEnableAll(LOG_PREFIX_TIME);
+  LogComponentEnableAll(LOG_PREFIX_FUNC);
 
   // Command line arguments
   CommandLine cmd;
   cmd.AddValue("bw", "the system bandwidth", bw);
   cmd.AddValue("fc", "the system carrier frequency", fc);
-  cmd.AddValue ("iabCbPath", "The full path to the IAB codebook", ueCbPath);
-  cmd.AddValue ("enbCbPath", "The full path to the eNB codebook", enbCbPath);
   cmd.AddValue ("useIdealRrc", "Whether to us ea simplified RRC model", useIdealRrc);
   cmd.AddValue ("numSymResvForOddIabs", "How many symbols to reserve for odd layer IAB nodes",
                 numSymResvForOddIabs);
-  cmd.AddValue ("numSymResvCtrl", "How many symbols to reserve for control messages",
-                numSymResvCtrl);
+  cmd.AddValue ("numSymResvDlCtrl", "How many symbols to reserve for DL control messages",
+                numSymResvDlCtrl);
+  cmd.AddValue ("numSymResvUlCtrl", "How many symbols to reserve for UL control messages",
+                numSymResvUlCtrl);
+
   cmd.AddValue ("simTime", "The simulation time [s]", simTimeSeconds);
   cmd.AddValue ("ipi", "The inter-packet interval time [ms]", ipi);
   cmd.AddValue ("appStartMs", "The application start time [ms]", appStartMs);
-  cmd.AddValue ("dataSensorRate", "The downlink data rate of the applications", dlDataSensorRate);
+  cmd.AddValue ("dataSensorRate", "The downlink data rate of the applications", dataSensorRate);
   cmd.AddValue ("rainRate", "The rain rate for the propagation model [mm/h]", rainRate);
   cmd.AddValue ("slotFormat", "The pattern of the slots format (d/u/s)", slotFormat);
   cmd.AddValue ("rlcBufferSize", "The pattern of the slots format (d/u/s)", rlcBufferSize);
-  cmd.AddValue ("ueAntennaNum", "The number of antennas at the UE", ueAntennaNum);
-  cmd.AddValue ("powerTx", "The transmission power [dBm]", powerTx);
-  cmd.AddValue ("configurationPhy", "The configuration of the PHY (0: 4x6, 1: 8x8)", configurationPhy);
+  cmd.AddValue ("scenScale", "Overall scale of the simulation scenario", scenScale);
   cmd.Parse (argc, argv);
-
-  if (configurationPhy==0)
-  {
-    powerTx = 26;
-    ueAntennaNum = 24;
-    nAntColumn = 6;
-    nAntRow = 4;
-    ueCbPath.erase(ueCbPath.end()-7, ueCbPath.end());
-    ueCbPath.append("4x6.txt");
-    enbCbPath.erase(enbCbPath.end()-7, enbCbPath.end());
-    enbCbPath.append("4x6.txt");
-  }
-  else
-  {
-    powerTx = 36;
-    ueAntennaNum = 64;
-    nAntColumn = 8;
-    nAntRow = 8;
-  }
+  cmd.Parse (argc, argv);
 
   Config::SetDefault ("ns3::MmWaveHelper::UseIdealRrc", BooleanValue (useIdealRrc));
 
   Config::SetDefault ("ns3::MmWaveFlexTtiMacScheduler::SlotsFormat",
                       StringValue(slotFormat));
-  Config::SetDefault ("ns3::MmWaveFlexTtiMacScheduler::NumSymReservedCtrl",
-                      UintegerValue (numSymResvCtrl));
+  Config::SetDefault ("ns3::MmWaveFlexTtiMacScheduler::NumSymReservedDlCtrl",
+                      UintegerValue (numSymResvDlCtrl));
+  Config::SetDefault ("ns3::MmWaveFlexTtiMacScheduler::NumSymReservedUlCtrl",
+                      UintegerValue (numSymResvUlCtrl));
+
   Config::SetDefault ("ns3::MmWavePhyMacCommon::Numerology",
                       EnumValue(3));
-
-  Config::SetDefault ("ns3::TwoRayPropagationLossModel::RainRate", DoubleValue (rainRate));
-  Config::SetDefault("ns3::TwoRayPropagationLossModel::Frequency", DoubleValue (fc));
-
   Config::SetDefault ("ns3::PhasedArrayModel::AntennaElement",
                       PointerValue (CreateObject<ThreeGppAntennaModel> ()));
-  Config::SetDefault ("ns3::ThreeGppPropagationLossModel::ShadowingEnabled", BooleanValue (true));
+  Config::SetDefault ("ns3::ThreeGppPropagationLossModel::ShadowingEnabled", BooleanValue (false));
   Config::SetDefault ("ns3::MmWaveFlexTtiMacScheduler::NumSymResvForChildrenDu",
                       UintegerValue (numSymResvForOddIabs));
+  Config::SetDefault ("ns3::MmWaveFlexTtiMacScheduler::NumSymResvForDl",
+                      UintegerValue (numSymResvForDl));
 
-  Config::SetDefault ("ns3::MmWaveEnbPhy::TxPower", DoubleValue (powerTx));
-  Config::SetDefault ("ns3::MmWaveUePhy::TxPower", DoubleValue (powerTx));
+
 
   // Enable additional APP-level headers to retrieve delay
   Config::SetDefault ("ns3::UdpClient::EnableSeqTsSizeHeader", BooleanValue (true));
@@ -263,34 +254,23 @@ main (int argc, char *argv[])
   Config::SetDefault ("ns3::LteRlcUm::MaxTxBufferSize", UintegerValue (rlcBufferSize));
 
   Ptr<MmWaveHelper> mmwaveHelper = CreateObject<MmWaveHelper> ();
+
+  Config::SetDefault ("ns3::TwoRayPropagationLossModel::RainRate", DoubleValue (rainRate));
+  Config::SetDefault("ns3::TwoRayPropagationLossModel::Frequency", DoubleValue (fc));
+  mmwaveHelper->SetPathlossModelType ("ns3::TwoRayPropagationLossModel");
   mmwaveHelper->SetChannelConditionModelType ("ns3::AlwaysLosChannelConditionModel");
 
-  mmwaveHelper->SetPathlossModelType ("ns3::TwoRayPropagationLossModel");
+  Config::SetDefault ("ns3::MmWaveEnbPhy::TxPower", DoubleValue (powerTx));
+  Config::SetDefault ("ns3::MmWaveUePhy::TxPower", DoubleValue (powerTx));
 
   Ptr<MmWavePointToPointEpcHelper> epcHelper = CreateObject<MmWavePointToPointEpcHelper> ();
   mmwaveHelper->SetEpcHelper (epcHelper);
   mmwaveHelper->SetHarqEnabled (true);
-  mmwaveHelper->SetBeamformingModelType ("ns3::MmWaveCodebookBeamforming");
-  
-  mmwaveHelper->SetUePhasedArrayModelAttribute ("NumColumns",
-                                                UintegerValue (nAntColumn));
-  mmwaveHelper->SetUePhasedArrayModelAttribute ("NumRows",
-                                                UintegerValue (nAntRow));
 
-  mmwaveHelper->SetEnbPhasedArrayModelAttribute ("NumColumns",
-                                                UintegerValue (nAntColumn));
-  mmwaveHelper->SetEnbPhasedArrayModelAttribute ("NumRows",
-                                                UintegerValue (nAntRow));
-
-  mmwaveHelper->SetUeBeamformingCodebookAttribute ("CodebookFilename", StringValue (ueCbPath));
-  mmwaveHelper->SetEnbBeamformingCodebookAttribute ("CodebookFilename", StringValue (enbCbPath));
-
-  uint32_t numUe = 5;
-
-  NodeContainer ueNodes;
+  NodeContainer iabNodes;
   NodeContainer enbNode;
 
-  ueNodes.Create (numUe);
+  iabNodes.Create (numIab);
   enbNode.Create (1);
 
   Ptr<Node> pgw = epcHelper->GetPgwNode ();
@@ -318,18 +298,18 @@ main (int argc, char *argv[])
   remoteHostStaticRouting->AddNetworkRouteTo (Ipv4Address ("7.0.0.0"), Ipv4Mask ("255.0.0.0"), 1);
 
   // Install Mobility Model
-  MobilityHelper ueMobility;
-  Ptr<ListPositionAllocator> uePositionAlloc = CreateObject<ListPositionAllocator> ();
+  MobilityHelper iabmobility;
+  Ptr<ListPositionAllocator> iabPositionAlloc = CreateObject<ListPositionAllocator> ();
+  // Layer 1
+  iabPositionAlloc->Add (Vector (-600*scenScale, 375*scenScale, 5.0));
+  // iabPositionAlloc->Add (Vector (-375*scenScale, 600*scenScale, 5.0));
+  // Layer 2
+  iabPositionAlloc->Add (Vector (-975*scenScale, 675*scenScale, 5.0));
+  // iabPositionAlloc->Add (Vector (-525*scenScale, 875*scenScale, 5.0));
 
-  uePositionAlloc->Add (Vector (500.0, 50.0, 5.0));
-  uePositionAlloc->Add (Vector (1000.0, 250.0, 5.0));
-  uePositionAlloc->Add (Vector (2500.0, 500.0, 5.0));
-  uePositionAlloc->Add (Vector (3500.0, 750.0, 5.0));
-  uePositionAlloc->Add (Vector (4750.0, 1250.0, 5.0));
-
-  ueMobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
-  ueMobility.SetPositionAllocator (uePositionAlloc);
-  ueMobility.Install (ueNodes);
+  iabmobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
+  iabmobility.SetPositionAllocator (iabPositionAlloc);
+  iabmobility.Install (iabNodes);
 
   Ptr<ListPositionAllocator> enbPositionAlloc = CreateObject<ListPositionAllocator> ();
   enbPositionAlloc->Add (Vector (0.0, 0.0, 5.0));
@@ -339,83 +319,102 @@ main (int argc, char *argv[])
   enbMobility.Install (enbNode);
 
   // Install Devices to the nodes
-  NetDeviceContainer ueMmWaveDevs = mmwaveHelper->InstallUeDevice (ueNodes);
+  mmwaveHelper->SetEnbPhasedArrayModelAttribute("BearingAngle", DoubleValue (M_PI / 2));
+  NetDeviceContainer iabMmWaveDev = mmwaveHelper->InstallIabDevice (iabNodes);
   NetDeviceContainer enbMmWaveDev = mmwaveHelper->InstallEnbDevice (enbNode);
 
-  internet.Install (ueNodes);
-  Ipv4InterfaceContainer ueIpIface;
-  ueIpIface = epcHelper->AssignUeIpv4Address (ueMmWaveDevs);
-  for (uint32_t u = 0; u < ueNodes.GetN (); ++u)
-    {
-      Ptr<Node> ueNode = ueNodes.Get (u);
-      // Set the default gateway for the UE
-      Ptr<Ipv4StaticRouting> ueStaticRouting =
-          ipv4RoutingHelper.GetStaticRouting (ueNode->GetObject<Ipv4> ());
-      ueStaticRouting->SetDefaultRoute (epcHelper->GetUeDefaultGatewayAddress (), 1);
-    }
-
-  mmwaveHelper->AttachToClosestEnb (ueMmWaveDevs, enbMmWaveDev);
-
   unsigned int ccId = 0;
-  for (unsigned int i = 0; i < ueNodes.GetN (); i++)
+  for (unsigned int i = 0; i < iabNodes.GetN (); i++)
     {
-      Ptr<MmWaveUeNetDevice> ueDevTest = DynamicCast<MmWaveUeNetDevice> (ueMmWaveDevs.Get (i));
-      ueDevTest->GetAntenna (ccId)->SetAttribute ("BearingAngle", DoubleValue (-M_PI / 2));
+      Ptr<MmWaveIabNetDevice> iabDevTest = DynamicCast<MmWaveIabNetDevice> (iabMmWaveDev.Get (i));
+      // NS_LOG_UNCOND("IAB device " << i << " has " << " BAP ADDRESS " << iabDevTest->GetBap ()->GetLocalAddress ()
+      //                             << " IMSI " << iabDevTest->GetImsi());
+      iabDevTest->GetMtAntenna (ccId)->SetAttribute ("BearingAngle", DoubleValue (-M_PI / 2));
+      iabDevTest->GetDuAntenna (ccId)->SetAttribute ("BearingAngle", DoubleValue (+M_PI / 2));
     }
+  // NS_LOG_UNCOND("DONOR device " << " has BAP ADDRESS " << 
+  //               enbMmWaveDev.Get (0)->GetObject<MmWaveEnbNetDevice> ()->GetBap ()->GetLocalAddress ());
+
+  Ipv4InterfaceContainer iabIpIface;
+  for (unsigned int i = 0; i < iabNodes.GetN (); i++)
+    {
+      Ptr<MmWaveIabNetDevice> iabDevice = iabMmWaveDev.Get (i)->GetObject<MmWaveIabNetDevice> ();
+      iabIpIface.Add (iabDevice->GetIpInterface ());
+      Ptr<Ipv4StaticRouting> iabStaticRouting =
+          ipv4RoutingHelper.GetStaticRouting (iabNodes.Get (i)->GetObject<Ipv4> ());
+      iabStaticRouting->SetDefaultRoute (epcHelper->GetUeDefaultGatewayAddress (), 1);
+    }
+
+  mmwaveHelper->AttachIabTotDonorWithIndex (iabMmWaveDev.Get (0), enbMmWaveDev, 0);
+  // mmwaveHelper->AttachIabTotDonorWithIndex (iabMmWaveDev.Get (1), enbMmWaveDev, 0);
+  mmwaveHelper->AttachIabTotIabWithIndex (iabMmWaveDev, 1, 0, enbMmWaveDev, 0);
+  // mmwaveHelper->AttachIabTotIabWithIndex (iabMmWaveDev, 3, 1, enbMmWaveDev, 0);
 
   // Base ports
-  uint16_t dlDataSensorPort = 1235; // base port for the DL data stream from the sensors
-  uint16_t ulDataSensorPort = 1435; // base port for the UL data stream from the sensors
+  uint16_t dlDataSensorPort = 1135;
+//   uint16_t ulDataSensorPort = 1235; // base port for the UL data stream from the sensors
   AsciiTraceHelper asciiTraceHelper;
 
-  // Install DL data applications on the IAB node
+  // Install DL data applications on the 2nd layer IAB node
   AppSetupParams dlAppParams;
   dlAppParams.basePort = dlDataSensorPort;
   dlAppParams.startTime = MilliSeconds (appStartMs);
   dlAppParams.endTime = Seconds (simTimeSeconds); // Some cooldown time
-  dlAppParams.IPI = MicroSeconds (ipi);
-  dlAppParams.rate = DataRate (dlDataSensorRate);
+  dlAppParams.IPI = MilliSeconds (ipi);
+  dlAppParams.rate = DataRate (dataSensorRate);
   dlAppParams.simTime = Seconds (simTimeSeconds);
   dlAppParams.sendSize = 512;
   Ptr<OutputStreamWrapper> dlNodeAppStream =
       asciiTraceHelper.CreateFileStream ("DL-app-trace-node.txt");
   *dlNodeAppStream->GetStream () << "rx_tx time packet_size port_to port_from delay\n";
 
-  for (unsigned int i = 0; i < ueNodes.GetN (); i++)
-    {
-      InstallUdpApplication (dlNodeAppStream, remoteHost, ueIpIface.GetAddress (i),
-                         dlAppParams);
-      InstallUdpPacketSink (dlNodeAppStream, ueIpIface.GetAddress (i), ueNodes.Get (i),
-                        dlAppParams);
-      dlAppParams.basePort++;
-    }
+  InstallUdpApplication (dlNodeAppStream, remoteHost, iabIpIface.GetAddress (1),
+                      dlAppParams);
+  InstallUdpPacketSink (dlNodeAppStream, iabIpIface.GetAddress (1), iabNodes.Get (1),
+                    dlAppParams);
+  dlAppParams.basePort++;
 
-  DataRate ulDataSensorRate = DataRate (dlDataSensorRate);
-  ulDataSensorRate = ulDataSensorRate * 0.1;
-  
-  // Install UL data applications on the IAB node
-  AppSetupParams ulAppParams;
-  ulAppParams.basePort = ulDataSensorPort;
-  ulAppParams.startTime = MilliSeconds (appStartMs);
-  ulAppParams.endTime = Seconds (simTimeSeconds); // Some cooldown time
-  ulAppParams.IPI = MicroSeconds (ipi);
-  ulAppParams.rate = ulDataSensorRate;
-  ulAppParams.simTime = Seconds (simTimeSeconds);
-  ulAppParams.sendSize = 512;
-  Ptr<OutputStreamWrapper> ulNodeAppStream =
-      asciiTraceHelper.CreateFileStream ("UL-app-trace-node.txt");
-  *ulNodeAppStream->GetStream () << "rx_tx time packet_size port_to port_from delay\n";
-  
-  for (unsigned int i = 0; i < ueNodes.GetN (); i++)
-    {
-      InstallUdpApplication (ulNodeAppStream, ueNodes.Get (i), internetIpIfaces.GetAddress (1),
-                             ulAppParams);
-      InstallUdpPacketSink (ulNodeAppStream, internetIpIfaces.GetAddress (1), remoteHost,
-                            ulAppParams);
-      ulAppParams.basePort++;
-    }
+  DataRate ulDataSensorRate = DataRate (dataSensorRate);
+  ulDataSensorRate = ulDataSensorRate * 0.2;
+
+   // Sanity check: packets must be bigger than the SeqTs header
+  SeqTsSizeHeader header;
+  auto packetSize = PacketByteSizeFromBitrateAndIpi(DataRate (ulDataSensorRate), MilliSeconds (ipi));
+  NS_ABORT_MSG_IF (packetSize < header.GetSerializedSize () + 1, "The packet size is too small: either increase IPI or data rate");
+
+//   // Install UL data applications on the IAB nodes
+//   AppSetupParams ulAppParams;
+//   ulAppParams.basePort = ulDataSensorPort;
+//   ulAppParams.startTime = MilliSeconds (appStartMs);
+//   ulAppParams.endTime = Seconds (simTimeSeconds); // Some cooldown time
+//   ulAppParams.IPI = MicroSeconds (ipi);
+//   ulAppParams.rate = DataRate (ulDataSensorRate);
+//   ulAppParams.simTime = Seconds (simTimeSeconds);
+//   ulAppParams.sendSize = 512;
+//   Ptr<OutputStreamWrapper> ulNodeAppStream =
+//       asciiTraceHelper.CreateFileStream ("UL-app-trace-node.txt");
+//   *ulNodeAppStream->GetStream () << "rx_tx time packet_size port_to port_from delay\n";
+
+//   for (unsigned int i = 0; i < iabNodes.GetN (); i++)
+//     {
+//       InstallUdpApplication (ulNodeAppStream, iabNodes.Get (i), internetIpIfaces.GetAddress (1),
+//                              ulAppParams);
+//       InstallUdpPacketSink (ulNodeAppStream, internetIpIfaces.GetAddress (1), remoteHost,
+//                             ulAppParams);
+//       ulAppParams.basePort++;
+//     }
 
   mmwaveHelper->EnableTraces ();
+
+  // Trace the IAB topology
+  auto donorApp = enbNode.Get (0)->GetApplication (0)->GetObject<EpcEnbApplication> ();
+  Ptr<OutputStreamWrapper> iabTopologyStream =
+      asciiTraceHelper.CreateFileStream ("IAB-topology.txt");
+
+  Ptr<OutputStreamWrapper> scenTopologyStream =
+      asciiTraceHelper.CreateFileStream ("scenario-topology.txt");
+
+  Simulator::Schedule (Seconds (simTimeSeconds - 0.01), &CheckAppReceptionCallback);
 
   Simulator::Stop (Seconds (simTimeSeconds));
   Simulator::Run ();

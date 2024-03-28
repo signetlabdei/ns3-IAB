@@ -136,6 +136,8 @@ TwoRayPropagationLossModel::DoCalcRxPower(double txPowerDbm,
 
     // compute the 2D distance between a and b
     double distance2d = Calculate2dDistance(a->GetPosition(), b->GetPosition());
+    NS_LOG_DEBUG("Computing distance between nodes at positions: " <<
+                 a->GetPosition() << " " << b->GetPosition());
 
     // compute the 3D distance between a and b
     double distance3d = CalculateDistance(a->GetPosition(), b->GetPosition());

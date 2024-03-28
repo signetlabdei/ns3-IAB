@@ -51,13 +51,15 @@ public:
   void AddSignal (Ptr<const SpectrumValue> spd, const Time duration);
   void SetNoisePowerSpectralDensity (Ptr<const SpectrumValue> noisePsd);
   void AddPowerChunkProcessor (Ptr<mmWaveChunkProcessor> p);
+  void AddSnrChunkProcessor (Ptr<mmWaveChunkProcessor> p);
   void AddSinrChunkProcessor (Ptr<mmWaveChunkProcessor> p);
 
 private:
   void ConditionallyEvaluateChunk ();
   void DoAddSignal (Ptr<const SpectrumValue> spd);
   void DoSubtractSignal (Ptr<const SpectrumValue> spd, uint32_t signalId);
-  std::list<Ptr<mmWaveChunkProcessor>> m_PowerChunkProcessorList;
+  std::list<Ptr<mmWaveChunkProcessor>> m_powerChunkProcessorList;
+  std::list<Ptr<mmWaveChunkProcessor>> m_snrChunkProcessorList;
   std::list<Ptr<mmWaveChunkProcessor>> m_sinrChunkProcessorList;
 
   bool m_receiving;

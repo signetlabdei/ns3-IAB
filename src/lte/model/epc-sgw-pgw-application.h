@@ -22,6 +22,8 @@
 #ifndef EPC_SGW_PGW_APPLICATION_H
 #define EPC_SGW_PGW_APPLICATION_H
 
+#include <optional>
+
 #include <ns3/address.h>
 #include <ns3/socket.h>
 #include <ns3/virtual-net-device.h>
@@ -136,7 +138,7 @@ public:
    * \param sgwAddr the address of the SGW
    */
   void AddEnb (uint16_t cellId, Ipv4Address enbAddr, Ipv4Address sgwAddr,
-               uint16_t bapAddr = UINT16_MAX, bool isIabNode = false);
+               uint16_t bapAddr = UINT16_MAX, bool isIabNode = false, uint64_t imsi = UINT64_MAX);
 
   void SetIabNodeDonorCellId (uint16_t iabNodeCellId, uint16_t donorCellId);
 
@@ -179,6 +181,19 @@ public:
    * \param [in] packet The data packet sent from the internet.
    */
   typedef void (*RxTracedCallback) (Ptr<Packet> packet);
+
+  /**
+   * 
+   * Retrieves the BAP address of the IAB node where the 
+   * specified bearer terminates.
+   * Returns valid value only whenever the bearer is not 
+   * associated to non-PDU traffic.
+   * To be passed as callback to EpcEnbApplications
+   *
+   * \param [in] cellid The target cell ID.
+   * \param [in] bid The target bearer ID.
+   */
+  std::optional<uint16_t> GetBapAddressWhereBearerTerminates (uint16_t cellid, uint64_t bid) const;
 
 private:
   // S11 SAP SGW methods
@@ -391,10 +406,15 @@ private:
     Ipv4Address sgwAddr; ///< SGW IPV4 address
     uint16_t bapAddr{__UINT16_MAX__}; ///< BAP address, initialized to invalid value
     bool isIabNode{false}; ///< Whether the eNB is an IAB-node
-    uint16_t donorCellId{0}; ///< the cell ID of the target donor.  Valid only for IAB nodes
+    uint16_t donorCellId{0}; ///< the cell ID of the target donor. Valid only for IAB nodes
+    uint64_t imsi{UINT64_MAX}; ///< the IMSI. Valid only for IAB nodes
   };
 
   std::map<uint16_t, EnbInfo> m_enbInfoByCellId; ///< eNB info by cell ID
+
+   ///< Maps each donor cell ID and bearer ID to the IAB nodes it terminates at. 
+   ///< Valid only for IAB nodes (and non-PDU traffic?)
+  std::map<std::pair<uint16_t, uint32_t>, uint64_t> m_terminatingBearerIdToImsiMap;
 
   /**
    * \brief Callback to trace RX (reception) data packets at Tun Net Device from internet.

@@ -321,6 +321,7 @@ struct RxPacketTraceParams
   uint8_t m_rv; //!< the number of retransmissions
   double m_sinr; //!< the average SINR over all the subchannels
   double m_sinrMin; //!< the minimum SINR value over all the subchannels
+  double m_snrAvg; //!< the average interference over all the subchannels
   double m_tbler; //!< the transport block error rate
   bool m_corrupt; //!< if true the TB has failed
 };

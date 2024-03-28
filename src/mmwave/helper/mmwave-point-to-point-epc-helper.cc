@@ -416,16 +416,18 @@ MmWavePointToPointEpcHelper::AddDu (Ptr<Node> enb, Ptr<NetDevice> lteEnbNetDevic
              lteEnbDev); // this case is needed for MC devices
 
   uint16_t bapAddress{UINT16_MAX};
+  uint64_t imsi{UINT64_MAX};
   if (isIabNode)
     {
       bapAddress = mmwIabDev->GetBap ()->GetLocalAddress ();
+      imsi = mmwIabDev->GetImsi();
     }
   else if (!isIabNode && mmwDonorDev)
     {
       bapAddress = mmwDonorDev->GetBap ()->GetLocalAddress ();
     }
 
-  m_sgwPgwApp->AddEnb (cellId, enbAddress, sgwAddress, bapAddress, isIabNode);
+  m_sgwPgwApp->AddEnb (cellId, enbAddress, sgwAddress, bapAddress, isIabNode, imsi);
 }
 
 void

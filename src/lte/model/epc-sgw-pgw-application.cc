@@ -95,6 +95,9 @@ EpcSgwPgwApplication::UeInfo::GetDonorAddress ()
 void
 EpcSgwPgwApplication::UeInfo::SetDonorAddress (Ipv4Address donorAddr)
 {
+  // Since IAB handover is not currently supported, the donor Ipv4 address is updated with the
+  // address of the serving DU in case of a path change request (handover). This requires the UE
+  // to be directly connected to the donor during the handover.
   m_donorAddr = donorAddr;
 }
 
@@ -107,6 +110,9 @@ EpcSgwPgwApplication::UeInfo::GetServingDuBapAddress () const
 void
 EpcSgwPgwApplication::UeInfo::SetServingDuBapAddress (uint16_t bapAddr)
 {
+  // Since IAB handover is not currently supported, the donor BAP address is updated with the
+  // address of the serving DU in case of a path change request (handover). This requires the UE
+  // to be directly connected to the donor during the handover.
   m_servingDuBapAddr = bapAddr;
 }
 
@@ -216,7 +222,7 @@ EpcSgwPgwApplication::RecvFromTunDevice (Ptr<Packet> packet, const Address &sour
         }
       else
         {
-          Ipv4Address enbAddr = it->second->GetServingDuAddress ();
+          Ipv4Address enbAddr = it->second->GetDonorAddress ();
           uint32_t teid = it->second->Classify (packet, protocolNumber);
           if (teid == 0)
             {
@@ -316,7 +322,6 @@ void
 EpcSgwPgwApplication::SendToS1uSocket (Ptr<Packet> packet, Ipv4Address enbAddr, uint32_t teid)
 {
   NS_LOG_FUNCTION (this << packet << enbAddr << teid);
-
   GtpuHeader gtpu;
   gtpu.SetTeid (teid);
   // From 3GPP TS 29.281 v10.0.0 Section 5.1
@@ -341,9 +346,11 @@ EpcSgwPgwApplication::GetS11SapSgw ()
 
 void
 EpcSgwPgwApplication::AddEnb (uint16_t cellId, Ipv4Address enbAddr, Ipv4Address sgwAddr,
-                              uint16_t bapAddr, bool isIabNode)
+                              uint16_t bapAddr, bool isIabNode, uint64_t imsi)
 {
   NS_LOG_FUNCTION (this << cellId << enbAddr << sgwAddr);
+  NS_ASSERT((isIabNode && imsi != UINT64_MAX) ||
+            (!isIabNode && imsi == UINT64_MAX));
 
   EnbInfo enbInfo;
   enbInfo.enbAddr = enbAddr;
@@ -351,6 +358,7 @@ EpcSgwPgwApplication::AddEnb (uint16_t cellId, Ipv4Address enbAddr, Ipv4Address 
   enbInfo.bapAddr = bapAddr;
   enbInfo.isIabNode = isIabNode;
   enbInfo.donorCellId = 0; // this will be once the attachment towards a donor has been performed
+  enbInfo.imsi = imsi;
 
   m_enbInfoByCellId[cellId] = enbInfo;
 }
@@ -399,6 +407,7 @@ EpcSgwPgwApplication::DoCreateSessionRequest (EpcS11SapSgw::CreateSessionRequest
   std::map<uint64_t, Ptr<UeInfo>>::iterator ueit = m_ueInfoByImsiMap.find (req.imsi);
   NS_ASSERT_MSG (ueit != m_ueInfoByImsiMap.end (), "unknown IMSI " << req.imsi);
   uint16_t cellId = req.uli.gci;
+  uint16_t cellIdPairEntry = cellId;
   auto enbit = m_enbInfoByCellId.find (cellId);
   NS_ASSERT_MSG (enbit != m_enbInfoByCellId.end (), "unknown CellId " << cellId);
 
@@ -410,6 +419,7 @@ EpcSgwPgwApplication::DoCreateSessionRequest (EpcS11SapSgw::CreateSessionRequest
   if (enbit->second.isIabNode)
     {
       uint16_t donorCellId = enbit->second.donorCellId;
+      cellIdPairEntry = donorCellId;
       enbit = m_enbInfoByCellId.find (donorCellId);
       NS_ASSERT_MSG (enbit != m_enbInfoByCellId.end (), "unknown donor CellId " << cellId);
       donorAddr = enbit->second.enbAddr;
@@ -435,6 +445,13 @@ EpcSgwPgwApplication::DoCreateSessionRequest (EpcS11SapSgw::CreateSessionRequest
       uint32_t teid = ++m_teidCount;
       ueit->second->AddBearer (bit->tft, bit->epsBearerId, teid);
 
+      // Store bearer ID in the DUs info as well
+      NS_ASSERT_MSG (m_terminatingBearerIdToImsiMap.find(
+                      std::make_pair(cellIdPairEntry, bit->epsBearerId)) == 
+                      m_terminatingBearerIdToImsiMap.end(), 
+                      "We are adding the bearer now, should not be there already!");
+      m_terminatingBearerIdToImsiMap[std::make_pair
+                                        (cellIdPairEntry, bit->epsBearerId)] = req.imsi;
       EpcS11SapMme::BearerContextCreated bearerContext;
       bearerContext.sgwFteid.teid = teid;
       bearerContext.sgwFteid.address = enbit->second.sgwAddr;
@@ -460,6 +477,10 @@ EpcSgwPgwApplication::DoModifyBearerRequest (EpcS11SapSgw::ModifyBearerRequestMe
   uint16_t bapAddr = enbit->second.bapAddr;
   ueit->second->SetServingDuAddress (enbAddr);
   ueit->second->SetServingDuBapAddress (bapAddr);
+
+  // Update the donor address. This assumes that the UE is connected directly to the donor in case of path switch request (handover).
+  ueit->second->SetDonorAddress (enbAddr);
+  ueit->second->SetDonorBapAddress (bapAddr);
 
   // no actual bearer modification: for now we just support the minimum needed for path switch request (handover)
   EpcS11SapMme::ModifyBearerResponseMessage res;
@@ -524,6 +545,32 @@ EpcSgwPgwApplication::GetDonorBapAddress (uint64_t imsi) const
   Ptr<UeInfo> ueInfo = m_ueInfoByImsiMap.find (imsi)->second;
 
   return ueInfo->GetDonorBapAddress ();
+}
+
+std::optional<uint16_t>
+EpcSgwPgwApplication::GetBapAddressWhereBearerTerminates (uint16_t cellid, uint64_t bid) const
+{
+  auto key = std::make_pair(cellid, bid);
+  NS_ASSERT (m_terminatingBearerIdToImsiMap.find(key) != 
+            m_terminatingBearerIdToImsiMap.end());
+
+  // Find corresponding IMSI. This refers to the IMSI of the UE endpoint,
+  // whenever this is PDU traffic, and to the terminating IAB node MT's IMSI
+  // whenever it refers to non-PDU traffic.
+  uint32_t imsiTerminatingNode = m_terminatingBearerIdToImsiMap.at(key);
+
+  // Find corresponding BAP address, if it is indeed non-PDU traffic and 
+  // the bearer terminates at an IAB node.
+  for(auto enb : m_enbInfoByCellId)
+  {
+    if (enb.second.imsi == imsiTerminatingNode)
+    {
+      return enb.second.bapAddr;
+    }
+  }
+
+  // PDU traffic
+  return std::nullopt;
 }
 
 } // namespace ns3

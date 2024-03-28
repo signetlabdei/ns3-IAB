@@ -186,6 +186,10 @@ main (int argc, char *argv[])
 
   Config::SetDefault ("ns3::MmWaveHelper::UseIdealRrc", BooleanValue (useIdealRrc));
   Config::SetDefault ("ns3::ThreeGppPropagationLossModel::ShadowingEnabled", BooleanValue (false));
+  Config::SetDefault ("ns3::MmWaveFlexTtiMacScheduler::NumSymResvForChildrenDu",
+                      UintegerValue (6));
+  Config::SetDefault ("ns3::MmWaveFlexTtiMacScheduler::NumSymResvForDl",
+                      UintegerValue (3));
 
   Ptr<MmWaveHelper> mmwaveHelper = CreateObject<MmWaveHelper> ();
   mmwaveHelper->SetChannelConditionModelType ("ns3::AlwaysLosChannelConditionModel");

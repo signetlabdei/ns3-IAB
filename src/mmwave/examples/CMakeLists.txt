@@ -28,7 +28,8 @@ set(base_examples
     iab-3-nodes-test
     iab-inmarsat-scenario-1
     iab-scheduling-flexible-slot-test
-    iab-dl-flow-test
+    iab-dl-flow-depth-1-test
+    iab-dl-flow-depth-2-test
 )
 
 foreach(

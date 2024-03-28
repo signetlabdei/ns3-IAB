@@ -589,9 +589,10 @@ MmWaveSpectrumPhy::EndRxData ()
   auto itTb = m_transportBlocks.begin ();
   while (itTb != m_transportBlocks.end ())
     {
-      // compute the average SINR
+      // compute the average SINR and the interference power
       itTb->second.m_sinrAvg =
           Sum (m_sinrPerceived) / (m_sinrPerceived.GetSpectrumModel ()->GetNumBands ());
+      itTb->second.m_snrAvg = Sum (m_snrPerceived) / (m_snrPerceived.GetSpectrumModel ()->GetNumBands ());
       itTb->second.m_sinrMin = MmWaveSpectrumPhy::Min (m_sinrPerceived);
       NS_LOG_DEBUG ("m_sinrPerceived="
                     << m_sinrPerceived << ", sinrMin=" << itTb->second.m_sinrMin
@@ -692,6 +693,7 @@ MmWaveSpectrumPhy::EndRxData ()
               traceParams.m_rv = itTb->second.m_expected.m_rv;
               traceParams.m_sinr = itTb->second.m_sinrAvg;
               traceParams.m_sinrMin = itTb->second.m_sinrMin;
+              traceParams.m_snrAvg = itTb->second.m_snrAvg;
               traceParams.m_tbler = itTb->second.m_outputOfEM->m_tbler;
               traceParams.m_corrupt = itTb->second.m_isCorrupted;
               traceParams.m_symStart = itTb->second.m_expected.m_symStart;
@@ -993,10 +995,23 @@ MmWaveSpectrumPhy::AddDataSinrChunkProcessor (Ptr<mmWaveChunkProcessor> p)
 }
 
 void
+MmWaveSpectrumPhy::AddDataSnrChunkProcessor (Ptr<mmWaveChunkProcessor> p)
+{
+  m_interferenceData->AddSnrChunkProcessor (p);
+}
+
+void
 MmWaveSpectrumPhy::UpdateSinrPerceived (const SpectrumValue &sinr)
 {
   NS_LOG_FUNCTION (this << sinr);
   m_sinrPerceived = sinr;
+}
+
+void
+MmWaveSpectrumPhy::UpdateSnrPerceived (const SpectrumValue &interference)
+{
+  NS_LOG_FUNCTION (this << interference);
+  m_snrPerceived = interference;
 }
 
 void

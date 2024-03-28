@@ -332,6 +332,7 @@ MmWaveIabNetDevice::DoSend (Ptr<Packet> packet, const Address &dest, uint16_t pr
                        protocolNumber != Ipv6L3Protocol::PROT_NUMBER,
                    "unsupported protocol " << protocolNumber << ", only IPv4/IPv6 is supported");
 
+  NS_LOG_DEBUG("Sending packet via non-SDU interface");
   m_bap->TransmitBapSduViaNonPduInterface (packet);
 
   return true;

@@ -185,6 +185,16 @@ public:
   uint16_t GetBapAddressFromCellId (uint16_t cellId) const;
 
   /**
+   * Sets the callback to an instance of 
+   * EpcSgwPgwApplication::GetBapAddressWhereBearerTerminates, which, given on 
+   * input the bearer ID of a bearer terminating at an IAB node, returns the 
+   * BAP address of the latter.
+   *
+   * \param cb the corresponding callback
+   */
+  void SetBapAddressWhereBearerTerminatesCallback (Callback<std::optional<uint16_t>, uint16_t, uint64_t> cb);
+
+  /**
    * TracedCallback signature for data Packet reception event.
    *
    * \param [in] packet The data packet sent from the internet.
@@ -337,6 +347,15 @@ private:
    * which make up such path.
    */
   std::map<uint16_t, std::list<uint16_t>> m_bapPathIdPathMap;
+
+  /**
+   * Callback to an instance of 
+   * EpcSgwPgwApplication::GetBapAddressWhereBearerTerminates, which, given on 
+   * input the bearer ID of a bearer terminating at an IAB node, returns the 
+   * BAP address of the latter.
+   */
+  Callback<std::optional<uint16_t>, uint16_t, uint64_t> m_getBapAddressWhereBearerTerminatesCallback 
+    {MakeNullCallback<std::optional<uint16_t>, uint16_t, uint64_t> ()};
 };
 
 } //namespace ns3

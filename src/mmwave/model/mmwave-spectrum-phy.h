@@ -113,6 +113,7 @@ struct TransportBlockInfo
   Ptr<MmWaveErrorModelOutput> m_outputOfEM; //!< Output of the Error Model (depends on the EM type)
   double m_sinrAvg{0.0}; //!< AVG SINR (only for the RB used to transmit the TB)
   double m_sinrMin{0.0}; //!< MIN SINR (only between the RB used to transmit the TB)
+  double m_snrAvg{0.0}; //!< AVG SNR (only for the RB used to transmit the TB)
 };
 
 typedef std::unordered_map<uint16_t, TransportBlockInfo>
@@ -230,9 +231,11 @@ public:
   void SetPhyUlHarqFeedbackCallback (MmWavePhyUlHarqFeedbackCallback c);
 
   void AddDataPowerChunkProcessor (Ptr<mmWaveChunkProcessor> p);
+  void AddDataSnrChunkProcessor (Ptr<mmWaveChunkProcessor> p);
   void AddDataSinrChunkProcessor (Ptr<mmWaveChunkProcessor> p);
 
   void UpdateSinrPerceived (const SpectrumValue &sinr);
+  void UpdateSnrPerceived (const SpectrumValue &snr);
 
   /**
    * Add the transport block that the spectrum should expect to receive.
@@ -301,6 +304,7 @@ private:
   TracedCallback<RxPacketTraceParams> m_rxPacketTraceUe;
 
   SpectrumValue m_sinrPerceived;
+  SpectrumValue m_snrPerceived;
 
   TbInfoMap_t m_transportBlocks;
 

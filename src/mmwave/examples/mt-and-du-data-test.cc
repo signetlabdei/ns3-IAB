@@ -147,6 +147,10 @@ main (int argc, char *argv[])
   LogComponentEnableAll (LOG_PREFIX_ALL);
 
   Config::SetDefault ("ns3::MmWaveHelper::UseIdealRrc", BooleanValue (useIdealRrc));
+  Config::SetDefault ("ns3::MmWaveFlexTtiMacScheduler::NumSymResvForChildrenDu",
+                      UintegerValue (6));
+  Config::SetDefault ("ns3::MmWaveFlexTtiMacScheduler::NumSymResvForDl",
+                      UintegerValue (3));
 
   Ptr<MmWaveHelper> mmwaveHelper = CreateObject<MmWaveHelper> ();
   Ptr<MmWavePointToPointEpcHelper> epcHelper = CreateObject<MmWavePointToPointEpcHelper> ();
