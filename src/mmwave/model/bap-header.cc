@@ -1,6 +1,5 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2022 University of Padova, Dep. of Information Engineering, SIGNET lab.
+ * Copyright (c) 2005 INRIA
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -15,8 +14,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *   Authors: Matteo Pagin <paginmatte@dei.unipd.it>
- *            Alessandro Traspadini <traspadini@dei.unipd.it>
+ * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
 
 #include "bap-header.h"

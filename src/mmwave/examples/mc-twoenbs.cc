@@ -313,6 +313,8 @@ static ns3::GlobalValue g_lteUplink ("lteUplink", "If true, always use LTE for u
 int
 main (int argc, char *argv[])
 {
+  LogComponentEnable("MmWavePointToPointEpcHelper", LOG_LEVEL_FUNCTION);
+
   bool harqEnabled = true;
   bool fixedTti = false;
 

@@ -258,7 +258,7 @@ main (int argc, char *argv[])
 
   // get the loss model for the default CC
   Ptr<MmWavePropagationLossModel> lossModel =
-      mmwHelper->GetPathLossModel (0)->GetObject<MmWavePropagationLossModel> ();
+      mmwHelper->GetDefaultPlm ()->GetObject<MmWavePropagationLossModel> ();
   NS_LOG_UNCOND ("lossModel " << lossModel);
   NS_ASSERT_MSG (lossModel, "Unable to find the correct loss model");
   Simulator::Schedule (MilliSeconds (0), &updateLoss, lossMin, lossModel);

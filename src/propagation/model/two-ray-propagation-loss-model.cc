@@ -162,15 +162,18 @@ TwoRayPropagationLossModel::GetLoss(Ptr<ChannelCondition> cond,
     // channel condition is assumed to be always LOS
 
     double lambda = M_C / m_frequency;
-    double R = -1; // reflection coefficient
+    double R = -1; // reflection coefficient 
     double distSq =  distance2d * distance2d;
     double deltaD = sqrt(std::pow(hUt + hBs, 2) + distSq) - sqrt(std::pow(hUt - hBs, 2) + distSq);
 
     // Eq. 5 from "Novel Maritime Channel Models for Millimeter Radiowaves"
     std::complex<double> complexTerm = 1.0 + R * exp (std::complex<double> (0, 1) * m_alpha * 2.0 * M_PI * deltaD / lambda);
     double loss = -20 * log10 (sqrt(std::norm(complexTerm)) * lambda / (4 * M_PI * distance3d));
-
+    NS_LOG_DEBUG("PL of the link of dist " << std::sqrt(distSq) << " m is " << loss << " dB without rain attenuation");
+    
     loss += GetRainAttenuation (distance3d);
+    NS_LOG_DEBUG("PL of the link of dist " << std::sqrt(distSq) << " m is " << loss << " with rain attenuation dB");
+
     return loss;
 }
 
@@ -262,7 +265,7 @@ TwoRayPropagationLossModel::GetRainAttenuation(double distance) const
 {
     double alpha = 0;
     double k = 0;
-
+    
     // Eq. 2 from ITU-R P.838.3
     for (auto elem : alpha_v)
     {

@@ -353,6 +353,9 @@ void
 MmWaveUePhy::RegisterOtherEnb (uint16_t cellId, Ptr<MmWavePhyMacCommon> config,
                                Ptr<MmWaveEnbNetDevice> enbNetDevice)
 {
+  NS_LOG_FUNCTION(this);
+  NS_LOG_DEBUG("Registering cell id " << cellId);
+
   NS_ASSERT_MSG (m_registeredEnb.find (cellId) == m_registeredEnb.end (), "Enb already registered");
   std::pair<Ptr<MmWavePhyMacCommon>, Ptr<MmWaveEnbNetDevice>> pair (config, enbNetDevice);
   m_registeredEnb[cellId] = pair;

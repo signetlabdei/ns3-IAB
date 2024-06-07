@@ -336,6 +336,7 @@ private:
   bool m_fixedTti; // one slot per TTI
   uint8_t m_symPerSlot; // symbols per slot
 
+  bool m_useTdmIabDuAndMt; // allocate orthogonal OFDM symbols between odd and even IAB DU layers
   uint8_t m_resvChildrenDu; // number of OFDM slots reserved for odd depth IAB layers
   uint8_t m_resvDl; // number of OFDM symbols reserved for DL
   uint8_t m_resvSwitch; // number of OFDM symbols reserved for switching

@@ -22,9 +22,16 @@
 #ifndef LTE_TEST_UPLINK_POWER_CONTROL_H
 #define LTE_TEST_UPLINK_POWER_CONTROL_H
 
+#include "lte-ffr-simple.h"
+#include "ns3/spectrum-test.h"
 #include "ns3/spectrum-value.h"
 #include "ns3/spectrum-test.h"
 #include "ns3/test.h"
+#include <ns3/lte-ue-power-control.h>
+#include <ns3/lte-common.h>
+#include <ns3/lte-rlc-um.h>
+#include <ns3/nstime.h>
+#include <ns3/mobility-model.h>
 
 using namespace ns3;
 

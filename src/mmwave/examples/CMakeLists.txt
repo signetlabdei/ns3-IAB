@@ -30,6 +30,9 @@ set(base_examples
     iab-scheduling-flexible-slot-test
     iab-dl-flow-depth-1-test
     iab-dl-flow-depth-2-test
+    iab-multiple-ccs-fdm-test
+    iab-paper-scenario-fdm
+
 )
 
 foreach(
@@ -39,8 +42,8 @@ foreach(
   build_lib_example(
     NAME ${example}
     SOURCE_FILES ${example}.cc
-    LIBRARIES_TO_LINK
-      ${libmmwave}
+    LIBRARIES_TO_LINK 
+      ${libmmwave} 
       ${libantenna}
       ${libspectrum}
   )

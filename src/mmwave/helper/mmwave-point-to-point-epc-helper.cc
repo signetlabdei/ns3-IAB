@@ -241,8 +241,7 @@ void
 MmWavePointToPointEpcHelper::AddDu (Ptr<Node> enb, Ptr<NetDevice> lteEnbNetDevice, uint16_t cellId,
                                     bool isIabNode)
 {
-  NS_LOG_FUNCTION (this << enb << lteEnbNetDevice << cellId);
-
+  NS_LOG_FUNCTION (this << " " << enb << " " << lteEnbNetDevice << " cell id " << cellId);
   NS_ASSERT (enb == lteEnbNetDevice->GetNode ());
 
   // add an IPv4 stack to the previously created eNB

@@ -35,6 +35,7 @@
 #ifndef MMWAVE_HELPER_H
 #define MMWAVE_HELPER_H
 
+#include <optional>
 #include <ns3/config.h>
 #include <ns3/simulator.h>
 #include <ns3/names.h>
@@ -101,17 +102,34 @@ public:
   static TypeId GetTypeId (void);
   virtual void DoDispose (void);
 
-  NetDeviceContainer InstallUeDevice (NodeContainer c);
-  NetDeviceContainer InstallMcUeDevice (NodeContainer c);
-  NetDeviceContainer InstallInterRatHoCapableUeDevice (NodeContainer c);
-  NetDeviceContainer InstallEnbDevice (NodeContainer c);
-  NetDeviceContainer InstallLteEnbDevice (NodeContainer c);
-  NetDeviceContainer InstallIabDevice (NodeContainer c);
-  void SetChannelConditionModelType (std::string type);
-  void SetPathlossModelType (std::string type);
-  void SetChannelModelType (std::string type);
-  void SetUePhasedArrayModelType (std::string type);
-  void SetEnbPhasedArrayModelType (std::string type);
+    struct IabMtDuCcIdInfo
+    {
+        // TODO: Need vector here when using CA ?
+        uint8_t m_duCcId;         // The CC ID for the MT
+        uint8_t m_mtCcId;         // The CC ID for the DU
+    };
+
+    NetDeviceContainer InstallUeDevice(NodeContainer c);
+    NetDeviceContainer InstallMcUeDevice(NodeContainer c);
+    NetDeviceContainer InstallInterRatHoCapableUeDevice(NodeContainer c);
+    NetDeviceContainer InstallEnbDevice(NodeContainer c);
+    NetDeviceContainer InstallLteEnbDevice(NodeContainer c);
+    NetDeviceContainer InstallIabDevice(NodeContainer c);
+    Ptr<NetDevice> InstallSingleIabDevice(Ptr<Node> n, std::optional<IabMtDuCcIdInfo> ccIdInfo = std::nullopt);
+    Ptr<NetDevice> InstallSingleUeDevice(Ptr<Node> n, std::optional<std::uint8_t> ccId = std::nullopt);
+    Ptr<NetDevice> InstallSingleEnbDevice(Ptr<Node> n, std::optional<std::uint8_t> ccId = std::nullopt);
+    void SetChannelConditionModelType(std::string type);
+    void SetPathlossModelType(std::string type);
+    void SetChannelModelType(std::string type);
+    void SetUePhasedArrayModelType(std::string type);
+    void SetEnbPhasedArrayModelType(std::string type);
+
+  /**
+   * Return the only PLM, whenever a single carrier component is used
+   */
+  Ptr<PropagationLossModel> GetDefaultPlm();
+  Ptr<PropagationLossModel> GetPlmFromCarrierComponent(const Ptr<MmWaveComponentCarrier> cc);
+  Ptr<SpectrumChannel> GetSpChFromCarrierComponent(const Ptr<MmWaveComponentCarrier> cc);
 
   /**
    * Set an attribute to the PhasedArrayModel for the UEs
@@ -419,10 +437,7 @@ private:
   void MmWaveChannelModelInitialization ();
   void LteChannelModelInitialization ();
 
-  Ptr<NetDevice> InstallSingleUeDevice (Ptr<Node> n);
   Ptr<NetDevice> InstallSingleMcUeDevice (Ptr<Node> n);
-  Ptr<NetDevice> InstallSingleEnbDevice (Ptr<Node> n);
-  Ptr<NetDevice> InstallSingleIabDevice (Ptr<Node> n);
   Ptr<NetDevice> InstallSingleLteEnbDevice (Ptr<Node> n);
   Ptr<NetDevice> InstallSingleInterRatHoCapableUeDevice (Ptr<Node> n);
 
@@ -433,26 +448,26 @@ private:
   void AttachIrToClosestEnb (Ptr<NetDevice> ueDevice, NetDeviceContainer mmWaveEnbDevices,
                              NetDeviceContainer lteEnbDevices);
 
-  //void EnableDlPhyTrace ();
-  //void EnableUlPhyTrace ();
-  void EnableEnbPacketCountTrace ();
-  void EnableUePacketCountTrace ();
-  void EnableTransportBlockTrace ();
-  //void EnableRlcTraces (void);
-  Ptr<MmWaveBearerStatsCalculator> GetRlcStats (void);
-  //void EnablePdcpTraces (void);
-  Ptr<MmWaveBearerStatsCalculator> GetPdcpStats (void);
-  //void EnableMcTraces (void);
-  Ptr<McStatsCalculator> GetMcStats (void);
+  // void EnableDlPhyTrace ();
+  // void EnableUlPhyTrace ();
+  void EnableEnbPacketCountTrace();
+  void EnableUePacketCountTrace();
+  void EnableTransportBlockTrace();
+  // void EnableRlcTraces (void);
+  Ptr<MmWaveBearerStatsCalculator> GetRlcStats(void);
+  // void EnablePdcpTraces (void);
+  Ptr<MmWaveBearerStatsCalculator> GetPdcpStats(void);
+  // void EnableMcTraces (void);
+  Ptr<McStatsCalculator> GetMcStats(void);
 
-  std::map<uint8_t, Ptr<SpectrumChannel>> m_channel; // mmWave TDD channel
+  std::map<double, Ptr<SpectrumChannel>> m_channel; // Pairs carrier frequency and SpectrumChannel instance
   Ptr<SpectrumChannel> m_downlinkChannel; /// The downlink LTE channel used in the simulation.
   Ptr<SpectrumChannel> m_uplinkChannel; /// The uplink LTE channel used in the simulation.
 
   std::string
       m_channelConditionModelType; //!< the type of the channel condition model to be used (empty string means no channel condition model)
 
-  std::map<uint8_t, Ptr<Object>> m_pathlossModel;
+  std::map<double, Ptr<Object>> m_pathlossModel; // Pairs carrier frequency and path loss model instance
   std::string m_pathlossModelType;
   Ptr<Object> m_downlinkPathlossModel; /// The path loss model used in the LTE downlink channel.
   Ptr<Object> m_uplinkPathlossModel; /// The path loss model used in the LTE uplink channel.
@@ -548,6 +563,8 @@ private:
 */
   bool m_useCa;
 
+  bool m_useMultiplePrimaryCarriers {false};
+
   /**
 * This contains all the informations about each LTE component carrier
 */
@@ -555,6 +572,7 @@ private:
 
   /**
 * This contains all the informations about each mmWave component carrier
+* Used for Carrier Aggregation.
 */
   std::map<uint8_t, MmWaveComponentCarrier> m_componentCarrierPhyParams;
 

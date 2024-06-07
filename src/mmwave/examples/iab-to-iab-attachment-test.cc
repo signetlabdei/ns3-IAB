@@ -15,8 +15,7 @@
 *   along with this program; if not, write to the Free Software
 *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *
-*   Authors: Matteo Pagin <paginmatte@dei.unipd.it>
-*            Alessandro Traspadini <traspadini@dei.unipd.it>
+*   Authors: Matteo Pagin, Alessandro Traspadini
 */
 
 #include "ns3/epc-helper.h"
@@ -240,7 +239,7 @@ main (int argc, char *argv[])
   iabPositionAlloc->Add (Vector (30.0, 10.0, 0.0));
   iabPositionAlloc->Add (Vector (20.0, -10.0, 0.0));
   iabPositionAlloc->Add (Vector (10.0, 10.0, 0.0));
-
+    
   iabmobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
   iabmobility.SetPositionAllocator (iabPositionAlloc);
   iabmobility.Install (iabNodes);

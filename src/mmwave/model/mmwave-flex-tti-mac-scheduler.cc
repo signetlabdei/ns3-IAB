@@ -278,6 +278,11 @@ MmWaveFlexTtiMacScheduler::GetTypeId (void)
                         UintegerValue(6),
                         MakeUintegerAccessor(&MmWaveFlexTtiMacScheduler::m_symPerSlot),
                         MakeUintegerChecker<uint8_t>())
+          .AddAttribute("UseTdmBetweenDuAndMtInterfaces",
+                        "Allocate orthogonal OFDM symbols between odd and even IAB DU layers",
+                        BooleanValue(true),
+                        MakeBooleanAccessor(&MmWaveFlexTtiMacScheduler::m_useTdmIabDuAndMt),
+                        MakeBooleanChecker())
           .AddAttribute("NumSymResvForChildrenDu",
                         "The number of OFDM symbols reserved for the DU of odd depth IAB layers",
                         UintegerValue(0),
@@ -758,19 +763,20 @@ MmWaveFlexTtiMacScheduler::DoSchedTriggerReq (
   uint8_t symDlIdx = m_phyMacConfig->GetDlCtrlSymbols ();
   ; // symbols reserved for control at beginning of subframe
   uint32_t iabDepth = 0;
-  if (!m_getDepthCallback.IsNull ())
+  if (!m_getDepthCallback.IsNull () && m_useTdmIabDuAndMt)
     {
       iabDepth = m_getDepthCallback (m_cellId);
+      if (iabDepth % 2 == 1) // odd depth IAB layer
+      {
+        symDlIdx += symAvail - m_resvChildrenDu;
+        symAvail = m_resvChildrenDu;
+      }
+      else
+      {
+        symAvail -= m_resvChildrenDu;
+      }
     }
-  if (iabDepth % 2 == 1) // odd depth IAB layer
-    {
-      symDlIdx += symAvail - m_resvChildrenDu;
-      symAvail = m_resvChildrenDu;
-    }
-  else
-   {
-      symAvail -= m_resvChildrenDu;
-    }
+
 
   if (m_slotsFormat != "")
   {
@@ -1880,10 +1886,13 @@ MmWaveFlexTtiMacScheduler::SetSlotFormat ()
     m_additionalUlCtrlSymbols = m_additionalResvUlCtrlSymbols / numTotalUlSlotsInACtrlPeriod;
     m_ulCtrlSlotIndex = m_additionalResvUlCtrlSymbols - m_additionalUlCtrlSymbols * numTotalUlSlotsInACtrlPeriod;
 
-    int symAvail = m_phyMacConfig->GetSymbPerSlot () - m_phyMacConfig->GetDlCtrlSymbols () - m_phyMacConfig->GetUlCtrlSymbols();
-    int resvParentDu = symAvail - m_resvChildrenDu;
-    NS_ASSERT_MSG(m_additionalDlCtrlSymbols < std::min(int(m_resvChildrenDu), resvParentDu), "The number of DL control symbols exceeds the number of available symbols");
-    NS_ASSERT_MSG(m_additionalUlCtrlSymbols < std::min(int(m_resvChildrenDu), resvParentDu), "The number of UL control symbols exceeds the number of available symbols");
+    if (m_useTdmIabDuAndMt)
+    {
+      int symAvail = m_phyMacConfig->GetSymbPerSlot () - m_phyMacConfig->GetDlCtrlSymbols () - m_phyMacConfig->GetUlCtrlSymbols();
+      int resvParentDu = symAvail - m_resvChildrenDu;
+      NS_ASSERT_MSG(m_additionalDlCtrlSymbols < std::min(int(m_resvChildrenDu), resvParentDu), "The number of DL control symbols exceeds the number of available symbols");
+      NS_ASSERT_MSG(m_additionalUlCtrlSymbols < std::min(int(m_resvChildrenDu), resvParentDu), "The number of UL control symbols exceeds the number of available symbols");
+    }
 
   }
 }

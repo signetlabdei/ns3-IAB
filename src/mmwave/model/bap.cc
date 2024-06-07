@@ -1,6 +1,6 @@
 /* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2022 University of Padova, Dep. of Information Engineering, SIGNET lab.
+ * Copyright (c) 2011-2012 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -15,8 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *   Authors: Matteo Pagin <paginmatte@dei.unipd.it>
- *            Alessandro Traspadini <traspadini@dei.unipd.it>
+ * Author: Manuel Requena <manuel.requena@cttc.es>
  */
 
 #include <ns3/log.h>
@@ -213,7 +212,7 @@ Bap::DoTransmitBapPdu (Ptr<Packet> p, uint16_t destBapAddress, uint16_t pathId)
     std::tie(nextHopAddress, mode) = m_nextHopAddressCallback (m_localAddress, destBapAddress, pathId);
   }
 
-
+  
   NS_ASSERT (m_bapAddressRlcMap.find (nextHopAddress) !=
              m_bapAddressRlcMap.end ());
   LteRlcSapProvider *rlcSapProvider = m_bapAddressRlcMap.find (nextHopAddress)->second;
@@ -303,12 +302,11 @@ Bap::SetInnerPdcp (Ptr<InnerPdcp> innerPdcp)
 
 void
 Bap::TransmitBapSduViaNonPduInterface (Ptr<Packet> p, uint16_t destBapAddress)
-{
+{ 
   NS_LOG_FUNCTION (this);
   NS_LOG_DEBUG("Trasmitting packet via non-SDU interface to BAP " << destBapAddress);
 
   uint16_t pathId;
-
   if (m_epcEnbApplication) // If this is a Donor
   {
     pathId = m_epcEnbApplication->GetPathId (m_localAddress, destBapAddress);
@@ -316,7 +314,7 @@ Bap::TransmitBapSduViaNonPduInterface (Ptr<Packet> p, uint16_t destBapAddress)
   }
   else
   {
-    destBapAddress = m_donorBapAddressCallback (m_imsi);
+    destBapAddress = m_donorBapAddressCallback (m_imsi);    
     pathId = m_pathIdCallback (m_localAddress, destBapAddress);
     NS_LOG_DEBUG("At an IAB node, retrieved path ID " << pathId);
   }

@@ -74,7 +74,7 @@ AppReceptionCallback (uint32_t packetSize)
 static void
 CheckAppReceptionCallback ()
 {
-  NS_ABORT_MSG_IF (m_receivedPacketCounter != expectedPackets ,
+  NS_ABORT_MSG_IF (m_receivedPacketCounter != expectedPackets , 
                   "Received "<< (uint32_t) m_receivedPacketCounter<<" packets, expected " << expectedPackets);
 }
 
@@ -102,7 +102,7 @@ InstallUdpApplication (Ptr<OutputStreamWrapper> traceStream, Ptr<Node> srcNode,
   client.SetAttribute ("PacketSize",
                        UintegerValue (PacketByteSizeFromBitrateAndIpi (params.rate, params.IPI)));
   client.SetAttribute ("MaxPackets", UintegerValue (std::numeric_limits<uint32_t>::max ()));
-  app.Add (client.Install (srcNode));
+  app.Add (client.Install (srcNode)); 
   app.Start (params.startTime);
   app.Stop (params.endTime);
 }

@@ -24,7 +24,9 @@
 
 #include "ns3/simulator.h"
 #include "ns3/test.h"
-#include "fcntl.h"
+#include <ns3/lte-common.h>
+#include <ns3/lte-rlc-um.h>
+#include <ns3/nstime.h>
 
 using namespace ns3;
 

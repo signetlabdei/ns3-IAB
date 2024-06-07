@@ -37,7 +37,8 @@ cpp_examples = [
     ("iab-inmarsat-scenario-1", "True", "True"),
     ("iab-scheduling-flexible-slot-test", "True", "True"),
     ("iab-dl-flow-depth-1-test", "True", "True"),
-    ("iab-dl-flow-depth-2-test", "True", "True")
+    ("iab-dl-flow-depth-2-test", "True", "True"),
+    ("iab-paper-scenario-fdm", "True", "True")
 ]
 
 # A list of Python examples to run in order to ensure that they remain

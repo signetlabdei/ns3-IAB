@@ -15,8 +15,7 @@
 *   along with this program; if not, write to the Free Software
 *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *
-*   Authors: Matteo Pagin <paginmatte@dei.unipd.it>
-*            Alessandro Traspadini <traspadini@dei.unipd.it>
+*   Authors: Matteo Pagin, Alessandro Traspadini
 */
 
 #include <ns3/llc-snap-header.h>
