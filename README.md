@@ -111,24 +111,24 @@ Attaches a UE to the closest IAB-node in `iabDevices`, based on node positions a
 
 ### Examples
 
-**Single-hop** (UE — IAB-Node — Donor):
+**Single-hop** :
+
+`UE` → `IAB-Node 0` → `Donor` → `Core Network`
 
 ```cpp
 mmwaveHelper->AttachIabTotDonorWithIndex(iabMmWaveDev.Get(0), enbMmWaveDev, 0);
 mmwaveHelper->AttachToClosestIab(ueDev, iabMmWaveDev);
 ```
 
-`UE` → `IAB-Node 0` → `Donor` → `Core Network`
+**Multi-hop**:
 
-**Multi-hop** (UE — IAB-Node — IAB-Node — Donor):
+`UE` → `IAB-Node 1` → `IAB-Node 0` → `Donor` → `Core Network`
 
 ```cpp
 mmwaveHelper->AttachIabTotDonorWithIndex(iabMmWaveDev.Get(0), enbMmWaveDev, 0); // depth 1
 mmwaveHelper->AttachIabTotIabWithIndex(iabMmWaveDev, 1, 0, enbMmWaveDev, 0);    // depth 2
 mmwaveHelper->AttachToClosestIab(ueDev, iabMmWaveDev);
 ```
-
-`UE` → `IAB-Node 1` → `IAB-Node 0` → `Donor` → `Core Network`
 
 ---
 
