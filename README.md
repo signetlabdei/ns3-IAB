@@ -118,9 +118,7 @@ mmwaveHelper->AttachIabTotDonorWithIndex(iabMmWaveDev.Get(0), enbMmWaveDev, 0);
 mmwaveHelper->AttachToClosestIab(ueDev, iabMmWaveDev);
 ```
 
-```
-UE ── IAB-Node 0 ── Donor ── Core Network
-```
+`UE` → `IAB-Node 0` → `Donor` → `Core Network`
 
 **Multi-hop** (UE — IAB-Node — IAB-Node — Donor):
 
@@ -130,9 +128,7 @@ mmwaveHelper->AttachIabTotIabWithIndex(iabMmWaveDev, 1, 0, enbMmWaveDev, 0);    
 mmwaveHelper->AttachToClosestIab(ueDev, iabMmWaveDev);
 ```
 
-```
-UE ── IAB-Node 1 ── IAB-Node 0 ── Donor ── Core Network
-```
+`UE` → `IAB-Node 1` → `IAB-Node 0` → `Donor` → `Core Network`
 
 ---
 
