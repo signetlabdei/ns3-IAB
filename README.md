@@ -1,94 +1,147 @@
-# ns-3 IAB Simulator: a brief User Guide
+# inmarsat-iab-releases
+
+An open-source, full-stack ns-3 simulation framework for **5G NR Integrated Access and Backhaul (IAB) networks**, aligned with 3GPP Release 16 and extended for **remote maritime connectivity** scenarios.
+
+Built on top of the [ns3-mmwave](https://github.com/nyuwireless-unipd/ns3-mmwave) framework.
+
+> **Associated paper:**
+> A. Traspadini, M. Pagin, R. Ihamouine, R. Lucas, A. Noren, M. Zorzi, M. Giordani, *"End-to-End Simulation of 5G NR Integrated Access and Backhaul Networks for Remote Maritime Connectivity"*, submitted to IEEE Transactions on Communications.
+---
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Features](#features)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Topology Configuration](#topology-configuration)
+- [Citation](#citation)
+
+---
+
+## Overview
+
+`inmarsat-iab-releases` implements the complete 5G NR IAB protocol stack as defined in 3GPP Release 16, from the physical layer up to the Backhaul Adaptation Protocol (BAP). It supports flexible configuration of network topology, slot structure, multiplexing schemes, and channel conditions.
+
+The framework models two types of network nodes:
+
+- **IAB-donors** are full-blown base stations with a wired fiber backhaul to the 5G core. They anchor the topology and serve as the gateway for all traffic entering or leaving the IAB network.
+- **IAB-nodes** are fiber-free wireless relays, each split into a **Distributed Unit (DU)** — which handles access-link connectivity toward downstream UEs and child IAB-nodes — and a **Mobile Terminal (MT)** — which maintains the wireless backhaul link toward an upstream IAB-node or IAB-donor. This dual-interface design allows each IAB-node to simultaneously provide access and relay backhaul traffic across multi-hop chains.
+
+Spanning tree topologies are supported, with no upper limit on the number of hops.
+
+---
+
+## Features
+
+### Protocol Stack
+- **BAP layer** with header encoding, routing table management, and per-hop forwarding logic for multi-hop packet delivery.
+- **PDU session traffic** (UE-anchored), using inner PDCP/GTP-U tunneling over the IAB backhaul.
+- **Non-PDU LAN traffic** (IAB-node-anchored), routed across the backhaul via BAP-only forwarding, bypassing the SDAP and PDCP layers. A reserved bit in the BAP header distinguishes this traffic from standard PDU flows.
+
+### Radio Resource Management
+- Configurable **TDD slot formats** with downlink (DL), uplink (UL), and switching (SW) slot types, and adjustable control symbol overhead.
+- **Time Division Multiplexing (TDM)** between MT and DU interfaces, with per-layer OFDM symbol allocation to prevent bottleneck effects in multi-hop chains.
+- **Frequency Division Multiplexing (FDM)** via carrier aggregation, enabling simultaneous MT and DU operation over orthogonal frequency bands.
+
+### Channel Modeling
+- **Modified 2-ray propagation model** for mmWave maritime and coastal environments, capturing sea-surface reflections and frequency-dependent path loss.
+- **Rain attenuation model** following ITU-R P.838-3, with a configurable rain rate to evaluate performance across varying weather conditions.
+
+---
 
 ## Prerequisites
 
-First of all, the simulator requires all the prerequisites which are needed for the baseline ns-3 simulator to be installed.
-This can be achieved by running (assuming an Ubuntu-based Linux distribution):
+Install the baseline ns-3 dependencies (Ubuntu):
 
 ```bash
 sudo apt install g++ python3 python3-dev pkg-config sqlite3 cmake
 ```
 
-If you wish to run a batch of simulations with multiple parameters (which is usually the case), the [SEM execution manager](https://github.com/signetlabdei/sem), `Numpy` and `Matplotlib` are required as well.
-They can be installed via:
+For batch simulation campaigns, also install the [SEM execution manager](https://github.com/signetlabdei/sem) along with `NumPy` and `Matplotlib`:
 
 ```bash
 python3 -m pip install sem numpy matplotlib
 ```
 
-## How to reproduce the Deliverable's simulations
+---
 
-The simulator folder contains the simulation script which was used to obtain the results presented in the deliverable, with the corresponding parsing and plotting utilities.
+## Installation
 
-### Re-running the simulations
-
-To run any of the available scripts, first open a terminal window from the root of the simulator folder and configure ns-3 with:
+This module is self-contained. Simply clone the repository and build:
 
 ```bash
-./ns3 configure --build-profile=optimized --enable-modules=mmwave
-```
-
-and build via:
-
-```bash
+git clone https://github.com/signetlabdei/inmarsat-iab-releases.git
+cd inmarsat-iab-releases
+./ns3 configure --build-profile=optimized --enable-tests --enable-examples --enable-modules=mmwave,internet-apps
 ./ns3
 ```
 
-Then, run 
+---
 
-```bash
-python3 sem-run-simulations.py
-``` 
+## Topology Configuration
 
-A progress-bar showing how many simulations are left and an ETA should pop up. 
-Please note that it is possible to stop a simulation campaign (CTRL + C) and resume it by launching again the simulation script. However, the simulation runs which were not terminated already will be re-started from scratch.
+IAB topologies are defined using the `MmWaveHelper` class, which exposes three methods to attach IAB nodes and establish parent-child backhaul relationships.
 
-### Parsing the results
+### `AttachIabTotDonorWithIndex`
 
-Once the simulations are finished, the results can be parsed by running:
+```cpp
+mmwaveHelper->AttachIabTotDonorWithIndex(iabNode, donorDevContainer, donorIndex);
+```
 
-```bash
-python3 sem-parse-results.py
-``` 
+Attaches an IAB-node directly to an IAB-donor (depth 1). `donorIndex` selects the target donor from `donorDevContainer` when multiple donors are present.
 
-This will parse the simulation results and will generate a predetermined set of plots (along the lines of the ones shown during our periodic meetings) in the folder `Scenario1Plots/`.
+### `AttachIabTotIabWithIndex`
 
-## How to run and parse simulations with different parameters
+```cpp
+mmwaveHelper->AttachIabTotIabWithIndex(iabDevContainer, childIndex, parentIndex, donorDevContainer, donorIndex);
+```
 
-This last section will show how to run the pre-configured simulation scripts with different parameters. The above scripts will be considered as a reference.
+Attaches an IAB-node to another IAB-node, creating a multi-hop backhaul link. `childIndex` and `parentIndex` identify the two nodes within `iabDevContainer`; `donorIndex` identifies the IAB-donor that roots the subtree.
 
-### Setting different parameters
+### `AttachToClosestIab`
 
-Simulations should be run using the execution manager [SEM](https://github.com/signetlabdei/sem). This library manages the parallel execution of the simulations and associates each simulation run to its input parameters. Accordingly, the simulation parameters shall be set in the `sem-run-simulations` script, where the SEM simulation campaign is created. Here, we exposed a set of parameters which can be easily configured.
-Parameters common to all simulation runs are set in a Python `Dict` that maps the parameter names to their value. By default, SEM will run `runs` simulations for *every combination* of the provided parameters. For instance, with the following list of parameters:
-```python
-runs = 10
-params = {
-  'bw' : [200e6, 400e6],
-  'fc'  : [26e9; 60e9],   
+```cpp
+mmwaveHelper->AttachToClosestIab(ueDevice, iabDevices);
+```
+
+Attaches a UE to the closest IAB-node in `iabDevices`, based on node positions at the time of the call.
+
+---
+
+### Examples
+
+**Single-hop** :
+
+`UE` → `IAB-Node 0` → `Donor` → `Core Network`
+
+```cpp
+mmwaveHelper->AttachIabTotDonorWithIndex(iabMmWaveDev.Get(0), enbMmWaveDev, 0);
+mmwaveHelper->AttachToClosestIab(ueDev, iabMmWaveDev);
+```
+
+**Multi-hop**:
+
+`UE` → `IAB-Node 1` → `IAB-Node 0` → `Donor` → `Core Network`
+
+```cpp
+mmwaveHelper->AttachIabTotDonorWithIndex(iabMmWaveDev.Get(0), enbMmWaveDev, 0); // depth 1
+mmwaveHelper->AttachIabTotIabWithIndex(iabMmWaveDev, 1, 0, enbMmWaveDev, 0);    // depth 2
+mmwaveHelper->AttachToClosestIab(ueDev, iabMmWaveDev);
+```
+
+---
+
+## Citation
+
+If you use this simulator in your research, please cite:
+
+```bibtex
+@article{traspadini2025iab,
+  title   = {End-to-End Simulation of {5G} {NR} Integrated Access and Backhaul Networks for Remote Maritime Connectivity},
+  author  = {Traspadini, Alessandro and Pagin, Matteo and Ihamouine, Rapha{\"e}l and Lucas, Rupert and Noren, Andrew and Zorzi, Michele and Giordani, Marco},
+  journal = {IEEE Transactions on Communications},
+  year    = {2025},
+  note    = {Submitted}
 }
 ```
-SEM will run *40 simulations in total*, 10 for each combination of the system bandwidth `bw` and carrier frequency `fc`.
-Therefore, if you wish to run simulations comparing multiple values of a parameter, set them here only if you wish to run also *all the combinations* of this parameter for *all the combinations* of the other ones.
-
-On the other hand, the number and position of the nodes need to be manually changed in the `iab-inmarsat-scenario-1.cc` simulation script file. Changing these parameters will also require modifying the script which parses the results, as we currently do not support doing this automatically.
-
-### Parsing the results obtained with different parameters
-
-The script `sem-parse-results.py` illustrates how to parse and analyze the simulation results. If you wish to generate the same plots as per-configured, i.e., the same x-axis parameter and y-axis metric, just with different parameters (for instance, additional source rates), it is enough to modify the corresponding parameters in the above scripts.
-
-On the other hand, if you wish to change the x- and/or y-axis parameter/metric, first iterate through the values of the chosen input parameter. Then, compute a metric for each such value. Finally, generate the plot you are interested in using the collection of metric and parameter values. 
-For instance, you can iterate through the `bw` values and load the corresponding throughput via:
-```python
-thr = [] 
-  for bw in aListOfBandwidths:
-  key = {
-    'bw' : bw
-  }
-  results = campaign.db.get_results(key)
-  y = np.array(get_e2e_avg_throughput(campaign, results, \
-      APP_TRACENAME, APP_RUN_TIME))
-  thr.append(y)
-```
-Then plot the results according to your needs. You can use the functions defined in `metrics_common.py` to compute other metrics.
-Please note that with the above code, *all the results* referring to any simulation run with `bw` = `200e6` are loaded. If you wish to fix any other parameter, specify its value in `key` as a parameter name and value pair.
