@@ -68,9 +68,11 @@ python3 -m pip install sem numpy matplotlib
 
 ## Installation
 
-Clone this repository into your ns-3 source tree, then configure and build:
+This module is self-contained. Simply clone the repository and build:
 
 ```bash
+git clone https://github.com/signetlabdei/inmarsat-iab-releases.git
+cd inmarsat-iab-releases
 ./ns3 configure --build-profile=optimized --enable-tests --enable-examples --enable-modules=mmwave,internet-apps
 ./ns3
 ```
