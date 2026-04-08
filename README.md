@@ -28,7 +28,7 @@ The framework models two types of network nodes:
 - **IAB-donors** are full-blown base stations with a wired fiber backhaul to the 5G core. They anchor the topology and serve as the gateway for all traffic entering or leaving the IAB network.
 - **IAB-nodes** are fiber-free wireless relays, each split into a **Distributed Unit (DU)** — which handles access-link connectivity toward downstream UEs and child IAB-nodes — and a **Mobile Terminal (MT)** — which maintains the wireless backhaul link toward an upstream IAB-node or IAB-donor. This dual-interface design allows each IAB-node to simultaneously provide access and relay backhaul traffic across multi-hop chains.
 
-Both spanning tree and directed acyclic graph (DAG) topologies are supported, with no upper limit on the number of hops.
+Spanning tree topologies are supported, with no upper limit on the number of hops.
 
 ---
 
