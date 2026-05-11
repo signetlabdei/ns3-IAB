@@ -36,6 +36,7 @@
 #define MMWAVE_HELPER_H
 
 #include <optional>
+#include <cstdint>
 #include <ns3/config.h>
 #include <ns3/simulator.h>
 #include <ns3/names.h>

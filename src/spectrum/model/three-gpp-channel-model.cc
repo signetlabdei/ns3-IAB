@@ -1656,10 +1656,10 @@ ThreeGppChannelModel::GenerateChannelParameters(const Ptr<const ChannelCondition
 
     for (uint8_t cIndex = 0; cIndex < channelParams->m_reducedClusterNumber; cIndex++)
     {
-        Shuffle(&rayAodRadian[cIndex][0], &rayAodRadian[cIndex][table3gpp->m_raysPerCluster]);
-        Shuffle(&rayAoaRadian[cIndex][0], &rayAoaRadian[cIndex][table3gpp->m_raysPerCluster]);
-        Shuffle(&rayZodRadian[cIndex][0], &rayZodRadian[cIndex][table3gpp->m_raysPerCluster]);
-        Shuffle(&rayZoaRadian[cIndex][0], &rayZoaRadian[cIndex][table3gpp->m_raysPerCluster]);
+        Shuffle(rayAodRadian[cIndex].data(), rayAodRadian[cIndex].data() + table3gpp->m_raysPerCluster);
+        Shuffle(rayAoaRadian[cIndex].data(), rayAoaRadian[cIndex].data() + table3gpp->m_raysPerCluster);
+        Shuffle(rayZodRadian[cIndex].data(), rayZodRadian[cIndex].data() + table3gpp->m_raysPerCluster);
+        Shuffle(rayZoaRadian[cIndex].data(), rayZoaRadian[cIndex].data() + table3gpp->m_raysPerCluster);
     }
 
     // store values
