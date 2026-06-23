@@ -1,11 +1,11 @@
-# inmarsat-iab-releases
+# ns3-IAB
 
 An open-source, full-stack ns-3 simulation framework for **5G NR Integrated Access and Backhaul (IAB) networks**, aligned with 3GPP Release 16 and extended for **remote maritime connectivity** scenarios.
 
 Built on top of the [ns3-mmwave](https://github.com/nyuwireless-unipd/ns3-mmwave) framework.
 
 > **Associated paper:**
-> A. Traspadini, M. Pagin, R. Ihamouine, R. Lucas, A. Noren, M. Zorzi, M. Giordani, *"End-to-End Simulation of 5G NR Integrated Access and Backhaul Networks for Remote Maritime Connectivity"*, submitted to IEEE Transactions on Communications.
+> A. Traspadini, M. Pagin, R. Ihamouine, R. Lucas, A. Noren, M. Zorzi, M. Giordani, *"End-to-End Simulation of 5G NR Integrated Access and Backhaul Networks for Remote Maritime Connectivity"*, in IEEE Transactions on Communications, doi: 10.1109/TCOMM.2026.3698864. [Link](https://ieeexplore.ieee.org/abstract/document/11543385)
 ---
 
 ## Table of Contents
@@ -21,7 +21,7 @@ Built on top of the [ns3-mmwave](https://github.com/nyuwireless-unipd/ns3-mmwave
 
 ## Overview
 
-`inmarsat-iab-releases` implements the complete 5G NR IAB protocol stack as defined in 3GPP Release 16, from the physical layer up to the Backhaul Adaptation Protocol (BAP). It supports flexible configuration of network topology, slot structure, multiplexing schemes, and channel conditions.
+`ns3-IAB` implements the complete 5G NR IAB protocol stack as defined in 3GPP Release 16, from the physical layer up to the Backhaul Adaptation Protocol (BAP). It supports flexible configuration of network topology, slot structure, multiplexing schemes, and channel conditions.
 
 The framework models two types of network nodes:
 
@@ -71,8 +71,8 @@ python3 -m pip install sem numpy matplotlib
 This module is self-contained. Simply clone the repository and build:
 
 ```bash
-git clone https://github.com/signetlabdei/inmarsat-iab-releases.git
-cd inmarsat-iab-releases
+git clone https://github.com/signetlabdei/ns3-IAB.git
+cd ns3-IAB
 ./ns3 configure --build-profile=optimized --enable-tests --enable-examples
 ./ns3
 ```
@@ -141,7 +141,6 @@ If you use this simulator in your research, please cite:
   title   = {End-to-End Simulation of {5G} {NR} Integrated Access and Backhaul Networks for Remote Maritime Connectivity},
   author  = {Traspadini, Alessandro and Pagin, Matteo and Ihamouine, Rapha{\"e}l and Lucas, Rupert and Noren, Andrew and Zorzi, Michele and Giordani, Marco},
   journal = {IEEE Transactions on Communications},
-  year    = {2025},
-  note    = {Submitted}
+  year    = {2026}
 }
 ```
