@@ -137,7 +137,7 @@ mmwaveHelper->AttachToClosestIab(ueDev, iabMmWaveDev);
 If you use this simulator in your research, please cite:
 
 ```bibtex
-@article{traspadini2025iab,
+@article{traspadini2026iab,
   title   = {End-to-End Simulation of {5G} {NR} Integrated Access and Backhaul Networks for Remote Maritime Connectivity},
   author  = {Traspadini, Alessandro and Pagin, Matteo and Ihamouine, Rapha{\"e}l and Lucas, Rupert and Noren, Andrew and Zorzi, Michele and Giordani, Marco},
   journal = {IEEE Transactions on Communications},
