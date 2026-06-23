@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2010 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #include "trace-helper.h"
@@ -26,8 +15,8 @@
 #include "ns3/pcap-file-wrapper.h"
 #include "ns3/ptr.h"
 
+#include <cstdint>
 #include <fstream>
-#include <stdint.h>
 #include <string>
 
 namespace ns3
@@ -438,7 +427,7 @@ PcapHelperForDevice::EnablePcap(std::string prefix,
 void
 PcapHelperForDevice::EnablePcap(std::string prefix, NetDeviceContainer d, bool promiscuous)
 {
-    for (NetDeviceContainer::Iterator i = d.Begin(); i != d.End(); ++i)
+    for (auto i = d.Begin(); i != d.End(); ++i)
     {
         Ptr<NetDevice> dev = *i;
         EnablePcap(prefix, dev, promiscuous);
@@ -449,7 +438,7 @@ void
 PcapHelperForDevice::EnablePcap(std::string prefix, NodeContainer n, bool promiscuous)
 {
     NetDeviceContainer devs;
-    for (NodeContainer::Iterator i = n.Begin(); i != n.End(); ++i)
+    for (auto i = n.Begin(); i != n.End(); ++i)
     {
         Ptr<Node> node = *i;
         for (uint32_t j = 0; j < node->GetNDevices(); ++j)
@@ -474,7 +463,7 @@ PcapHelperForDevice::EnablePcap(std::string prefix,
 {
     NodeContainer n = NodeContainer::GetGlobal();
 
-    for (NodeContainer::Iterator i = n.Begin(); i != n.End(); ++i)
+    for (auto i = n.Begin(); i != n.End(); ++i)
     {
         Ptr<Node> node = *i;
         if (node->GetId() != nodeid)
@@ -567,7 +556,7 @@ AsciiTraceHelperForDevice::EnableAsciiImpl(Ptr<OutputStreamWrapper> stream,
                                            std::string prefix,
                                            NetDeviceContainer d)
 {
-    for (NetDeviceContainer::Iterator i = d.Begin(); i != d.End(); ++i)
+    for (auto i = d.Begin(); i != d.End(); ++i)
     {
         Ptr<NetDevice> dev = *i;
         EnableAsciiInternal(stream, prefix, dev, false);
@@ -601,7 +590,7 @@ AsciiTraceHelperForDevice::EnableAsciiImpl(Ptr<OutputStreamWrapper> stream,
                                            NodeContainer n)
 {
     NetDeviceContainer devs;
-    for (NodeContainer::Iterator i = n.Begin(); i != n.End(); ++i)
+    for (auto i = n.Begin(); i != n.End(); ++i)
     {
         Ptr<Node> node = *i;
         for (uint32_t j = 0; j < node->GetNDevices(); ++j)
@@ -665,7 +654,7 @@ AsciiTraceHelperForDevice::EnableAsciiImpl(Ptr<OutputStreamWrapper> stream,
 {
     NodeContainer n = NodeContainer::GetGlobal();
 
-    for (NodeContainer::Iterator i = n.Begin(); i != n.End(); ++i)
+    for (auto i = n.Begin(); i != n.End(); ++i)
     {
         Ptr<Node> node = *i;
         if (node->GetId() != nodeid)

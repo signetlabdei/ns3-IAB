@@ -53,7 +53,7 @@ FfMacScheduler::GetTypeId (void)
           .SetGroupName ("Lte")
           .AddAttribute ("UlCqiFilter", "The filter to apply on UL CQIs received",
                          EnumValue (FfMacScheduler::SRS_UL_CQI),
-                         MakeEnumAccessor (&FfMacScheduler::m_ulCqiFilter),
+                         MakeEnumAccessor<FfMacScheduler::UlCqiFilter_t> (&FfMacScheduler::m_ulCqiFilter),
                          MakeEnumChecker (FfMacScheduler::SRS_UL_CQI, "SRS_UL_CQI",
                                           FfMacScheduler::PUSCH_UL_CQI, "PUSCH_UL_CQI"));
   return tid;

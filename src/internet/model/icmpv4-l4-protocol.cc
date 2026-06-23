@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2008 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@cutebugs.net>
  */
@@ -20,13 +9,14 @@
 #include "icmpv4-l4-protocol.h"
 
 #include "ipv4-interface.h"
-#include "ipv4-l3-protocol.h"
 #include "ipv4-raw-socket-factory-impl.h"
+#include "ipv4-route.h"
+#include "ipv4-routing-protocol.h"
+#include "ipv4.h"
+#include "ipv6-interface.h"
 
 #include "ns3/assert.h"
 #include "ns3/boolean.h"
-#include "ns3/ipv4-route.h"
-#include "ns3/ipv6-interface.h"
 #include "ns3/log.h"
 #include "ns3/node.h"
 #include "ns3/packet.h"
@@ -37,9 +27,6 @@ namespace ns3
 NS_LOG_COMPONENT_DEFINE("Icmpv4L4Protocol");
 
 NS_OBJECT_ENSURE_REGISTERED(Icmpv4L4Protocol);
-
-// see rfc 792
-const uint8_t Icmpv4L4Protocol::PROT_NUMBER = 1;
 
 TypeId
 Icmpv4L4Protocol::GetTypeId()
@@ -221,14 +208,18 @@ void
 Icmpv4L4Protocol::HandleEcho(Ptr<Packet> p,
                              Icmpv4Header header,
                              Ipv4Address source,
-                             Ipv4Address destination)
+                             Ipv4Address destination,
+                             uint8_t tos)
 {
-    NS_LOG_FUNCTION(this << p << header << source << destination);
+    NS_LOG_FUNCTION(this << p << header << source << destination << tos);
 
     Ptr<Packet> reply = Create<Packet>();
     Icmpv4Echo echo;
     p->RemoveHeader(echo);
     reply->AddHeader(echo);
+    SocketIpTosTag ipTosTag;
+    ipTosTag.SetTos(tos);
+    reply->ReplacePacketTag(ipTosTag);
     SendMessage(reply, destination, source, Icmpv4Header::ICMPV4_ECHO_REPLY, 0, nullptr);
 }
 
@@ -289,7 +280,7 @@ Icmpv4L4Protocol::HandleTimeExceeded(Ptr<Packet> p,
     Forward(source, icmp, 0, ipHeader, payload);
 }
 
-enum IpL4Protocol::RxStatus
+IpL4Protocol::RxStatus
 Icmpv4L4Protocol::Receive(Ptr<Packet> p,
                           const Ipv4Header& header,
                           Ptr<Ipv4Interface> incomingInterface)
@@ -326,7 +317,7 @@ Icmpv4L4Protocol::Receive(Ptr<Packet> p,
                 }
             }
         }
-        HandleEcho(p, icmp, header.GetSource(), dst);
+        HandleEcho(p, icmp, header.GetSource(), dst, header.GetTos());
         break;
     }
     case Icmpv4Header::ICMPV4_DEST_UNREACH:
@@ -342,7 +333,7 @@ Icmpv4L4Protocol::Receive(Ptr<Packet> p,
     return IpL4Protocol::RX_OK;
 }
 
-enum IpL4Protocol::RxStatus
+IpL4Protocol::RxStatus
 Icmpv4L4Protocol::Receive(Ptr<Packet> p,
                           const Ipv6Header& header,
                           Ptr<Ipv6Interface> incomingInterface)

@@ -2,18 +2,7 @@
  * Copyright (c) 2020 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  * Copyright (c) 2020 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #include "ns3/abort.h"
@@ -37,8 +26,7 @@ using namespace ns3;
 NS_LOG_COMPONENT_DEFINE("ThreeGppV2vChannelConditionModelsTest");
 
 /**
- * \ingroup building-test
- * \ingroup tests
+ * @ingroup building-test
  *
  * Test case for the classes ThreeGppV2vUrbanChannelConditionModel,
  * and ThreeGppV2vHighwayChannelConditionModel to test their code to
@@ -148,7 +136,7 @@ ThreeGppV2vBuildingsChCondModelTestCase::DoRun()
     Ptr<MobilityModel> b = CreateObject<ConstantPositionMobilityModel>();
     nodes.Get(1)->AggregateObject(b);
 
-    Ptr<Building> building = Create<Building>();
+    auto building = CreateObject<Building>();
     building->SetNRoomsX(1);
     building->SetNRoomsY(1);
     building->SetNFloors(1);
@@ -213,8 +201,8 @@ class ThreeGppV2vUrbanLosNlosvChCondModelTestCase : public TestCase
      * Evaluates the channel condition between two nodes by calling the method
      * GetChannelCondition on m_condModel. If the channel condition is LOS it
      * increments m_numLos
-     * \param a the mobility model of the first node
-     * \param b the mobility model of the second node
+     * @param a the mobility model of the first node
+     * @param b the mobility model of the second node
      */
     void EvaluateChannelCondition(Ptr<MobilityModel> a, Ptr<MobilityModel> b);
 
@@ -378,8 +366,8 @@ class ThreeGppV2vHighwayLosNlosvChCondModelTestCase : public TestCase
      * Evaluates the channel condition between two nodes by calling the method
      * GetChannelCondition on m_condModel. If the channel condition is LOS it
      * increments m_numLos
-     * \param a the mobility model of the first node
-     * \param b the mobility model of the second node
+     * @param a the mobility model of the first node
+     * @param b the mobility model of the second node
      */
     void EvaluateChannelCondition(Ptr<MobilityModel> a, Ptr<MobilityModel> b);
 
@@ -510,8 +498,7 @@ ThreeGppV2vHighwayLosNlosvChCondModelTestCase::DoRun()
 }
 
 /**
- * \ingroup building-test
- * \ingroup tests
+ * @ingroup building-test
  *
  * Test suite for the 3GPP V2V channel condition model
  *
@@ -524,7 +511,7 @@ ThreeGppV2vHighwayLosNlosvChCondModelTestCase::DoRun()
  * The test ThreeGppV2vBuildingsChCondModelTestCase checks the
  * 1st step of the procedure, the deterministic one, using buildings for
  * both \link ns3::ThreeGppV2vUrbanChannelConditionModel \endlink and
- * \link ns3::ThreeGppV2vHighwayChannelConditionModel \endlink .
+ * @link ns3::ThreeGppV2vHighwayChannelConditionModel \endlink .
  *
  * The tests ThreeGppV2vUrbanLosNlosvChCondModelTestCase and
  * ThreeGppV2vHighwayLosNlosvChCondModelTestCase check the
@@ -539,17 +526,17 @@ class ThreeGppV2vChCondModelsTestSuite : public TestSuite
 };
 
 ThreeGppV2vChCondModelsTestSuite::ThreeGppV2vChCondModelsTestSuite()
-    : TestSuite("three-gpp-v2v-channel-condition-model", SYSTEM)
+    : TestSuite("three-gpp-v2v-channel-condition-model", Type::SYSTEM)
 {
     AddTestCase(new ThreeGppV2vBuildingsChCondModelTestCase,
-                TestCase::QUICK); // test for the deterministic procedure (NLOS vs LOS/NLOSv), based
-                                  // on buildings
+                TestCase::Duration::QUICK); // test for the deterministic procedure (NLOS vs
+                                            // LOS/NLOSv), based on buildings
     AddTestCase(new ThreeGppV2vUrbanLosNlosvChCondModelTestCase,
-                TestCase::QUICK); // test for the probabilistic procedure (LOS vs NLOSv), in V2V
-                                  // urban scenario
+                TestCase::Duration::QUICK); // test for the probabilistic procedure (LOS vs
+                                            // NLOSv), in V2V urban scenario
     AddTestCase(new ThreeGppV2vHighwayLosNlosvChCondModelTestCase,
-                TestCase::QUICK); // test for the probabilistic procedure (LOS vs NLOSv), in V2V
-                                  // highway scenario
+                TestCase::Duration::QUICK); // test for the probabilistic procedure (LOS vs
+                                            // NLOSv), in V2V highway scenario
 }
 
 /// Static variable for test initialization

@@ -1,34 +1,21 @@
 /*
  * Copyright (c) 2022 Lawrence Livermore National Laboratory
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Peter D. Barnes, Jr. <pdbarnes@llnl.gov>
  */
 
 #include "environment-variable.h"
 
-#include "ns3/string.h"
+#include "string.h"
 
-#include <cstdlib>  // std::getenv
-#include <cstring>  // strlen
-#include <iostream> // clog
-#include <stdlib.h> // Global functions setenv, unsetenv
+#include <cstdlib> // Global functions std::getenv, setenv, unsetenv
+#include <cstring> // strlen
 
 /**
- * \file
- * \ingroup core-environ
+ * @file
+ * @ingroup core-environ
  * Class EnvironmentVariable implementation.
  */
 
@@ -38,12 +25,12 @@
 /**
  * Windows implementation of the POSIX function `setenv()`
  *
- * \param [in] var_name The environment variable to set.
+ * @param [in] var_name The environment variable to set.
  *             Must not be a null-pointer, and must not contain `=`.
- * \param [in] new_value The new value to set \p var_name to.
+ * @param [in] new_value The new value to set \p var_name to.
  *             Must not by a null pointer or empty.
- * \param [in] change_flag Must be non-zero to actually change the environment.
- * \returns 0 if successful, -1 if failed.
+ * @param [in] change_flag Must be non-zero to actually change the environment.
+ * @returns 0 if successful, -1 if failed.
  */
 int
 setenv(const char* var_name, const char* new_value, int change_flag)
@@ -82,8 +69,8 @@ setenv(const char* var_name, const char* new_value, int change_flag)
 
 /**
  * Windows implementation of the POSIX function `unsetenv()`
- * \param [in] var_name The environment variable to unset and remove from the environment.
- * \returns 0 if successful, -1 if failed.
+ * @param [in] var_name The environment variable to unset and remove from the environment.
+ * @returns 0 if successful, -1 if failed.
  */
 int
 unsetenv(const char* var_name)
@@ -97,20 +84,20 @@ namespace ns3
 {
 
 /**
- * \ingroup core-environ
+ * @ingroup core-environ
  *
- * \def NS_LOCAL_LOG(msg)
+ * @def NS_LOCAL_LOG(msg)
  * File-local logging macro for environment-variable.cc
  * Our usual Logging doesn't work here because these functions
  * get called during static initialization of Logging itself.
- * \param msg The message stream to log
+ * @param msg The message stream to log
  *
- * \def NS_LOCAL_ASSERT(cond, msg)
+ * @def NS_LOCAL_ASSERT(cond, msg)
  * File-local assert macro for environment-variable.cc
  * Our usual assert doesn't work here because these functions
  * get called during static initialization of Logging itself.
- * \param cond The condition which is asserted to be \c true
- * \param msg The message stream to log
+ * @param cond The condition which is asserted to be \c true
+ * @param msg The message stream to log
  */
 #if 0
 #define NS_LOCAL_LOG(msg)                                                                          \

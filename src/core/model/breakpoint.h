@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2006,2007 INESC Porto, INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Gustavo Carneiro <gjc@inescporto.pt>
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
@@ -21,8 +10,8 @@
 #define BREAKPOINT_H
 
 /**
- * \file
- * \ingroup breakpoint
+ * @file
+ * @ingroup breakpoint
  * NS_BREAKPOINT() macro definition and ns3::BreakpointFallback
  * function declaration.
  */
@@ -42,14 +31,14 @@ namespace ns3
  */
 
 /**
- * \ingroup debugging
- * \defgroup breakpoint Breakpoints
+ * @ingroup debugging
+ * @defgroup breakpoint Breakpoints
  *
- * \brief Trigger a debugger breakpoint.
+ * @brief Trigger a debugger breakpoint.
  */
 
 /**
- * \ingroup breakpoint
+ * @ingroup breakpoint
  *
  * Inserts a breakpoint instruction (or equivalent system call) into
  * the code for selected machines.  When an NS_ASSERT cannot verify
@@ -81,9 +70,9 @@ namespace ns3
 #endif
 
 /**
- * \ingroup breakpoint
+ * @ingroup breakpoint
  *
- * \brief fallback breakpoint function
+ * @brief fallback breakpoint function
  *
  * This function is used by the NS_BREAKPOINT() macro as a fallback
  * for when breakpoint assembly instructions are not available.  It

@@ -1,16 +1,5 @@
 /*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Joe Kopena <tjkopena@cs.drexel.edu>
  *
@@ -23,6 +12,9 @@
  * provide more examples.
  *
  */
+
+#ifndef WIFI_EXAMPLE_APPS_H
+#define WIFI_EXAMPLE_APPS_H
 
 #include "ns3/application.h"
 #include "ns3/core-module.h"
@@ -42,8 +34,8 @@ class Sender : public Application
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return The object TypeId.
+     * @brief Get the type ID.
+     * @return The object TypeId.
      */
     static TypeId GetTypeId();
 
@@ -87,8 +79,8 @@ class Receiver : public Application
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return The object TypeId.
+     * @brief Get the type ID.
+     * @return The object TypeId.
      */
     static TypeId GetTypeId();
 
@@ -97,13 +89,13 @@ class Receiver : public Application
 
     /**
      * Set the counter calculator for received packets.
-     * \param calc The CounterCalculator.
+     * @param calc The CounterCalculator.
      */
     void SetCounter(Ptr<CounterCalculator<>> calc);
 
     /**
      * Set the delay tracker for received packets.
-     * \param delay The Delay calculator.
+     * @param delay The Delay calculator.
      */
     void SetDelayTracker(Ptr<TimeMinMaxAvgTotalCalculator> delay);
 
@@ -116,7 +108,7 @@ class Receiver : public Application
 
     /**
      * Receive a packet.
-     * \param socket The receiving socket.
+     * @param socket The receiving socket.
      */
     void Receive(Ptr<Socket> socket);
 
@@ -126,3 +118,5 @@ class Receiver : public Application
     Ptr<CounterCalculator<>> m_calc;           //!< Counter of the number of received packets
     Ptr<TimeMinMaxAvgTotalCalculator> m_delay; //!< Delay calculator
 };
+
+#endif // WIFI_EXAMPLE_APPS_H

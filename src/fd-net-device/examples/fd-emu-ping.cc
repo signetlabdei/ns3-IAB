@@ -3,18 +3,7 @@
  *               2017 Università' degli Studi di Napoli Federico II
  *               2019 NITK Surathkal
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 // Allow ns-3 to ping a real host somewhere, using emulation mode
@@ -50,7 +39,7 @@
 //  1') If you run emulation in dpdk mode, use device address (eg. 0000:00.1f.6)
 //      as device name. This address can be obtained by running `lspci`
 //  2) The host device must be set to promiscuous mode
-//     (e.g. "sudo ifconfig eth0 promisc")
+//     (e.g. "sudo ip link set eth0 promisc on")
 //  2') If you run emulation in netmap or dpdk mode, you need before to load
 //      the netmap.ko or dpdk modules. The user is in charge to configure and
 //      build netmap/dpdk separately.
@@ -184,7 +173,7 @@ main(int argc, char* argv[])
 #ifdef HAVE_PACKET_H
     if (emuMode == "raw")
     {
-        EmuFdNetDeviceHelper* raw = new EmuFdNetDeviceHelper;
+        auto raw = new EmuFdNetDeviceHelper;
         raw->SetDeviceName(deviceName);
         helper = raw;
     }
@@ -274,8 +263,8 @@ main(int argc, char* argv[])
     app->SetAttribute("Destination", AddressValue(remoteIp));
     app->SetAttribute("VerboseMode", EnumValue(Ping::VerboseMode::VERBOSE));
     node->AddApplication(app);
-    app->SetStartTime(Seconds(1.0));
-    app->SetStopTime(Seconds(22.0));
+    app->SetStartTime(Seconds(1));
+    app->SetStopTime(Seconds(22));
 
     //
     // Give the application a name.  This makes life much easier when constructing
@@ -297,7 +286,7 @@ main(int argc, char* argv[])
     // Now, do the actual emulation.
     //
     NS_LOG_INFO("Run Emulation in " << emuMode << " mode.");
-    Simulator::Stop(Seconds(23.0));
+    Simulator::Stop(Seconds(23));
     Simulator::Run();
     Simulator::Destroy();
     delete helper;

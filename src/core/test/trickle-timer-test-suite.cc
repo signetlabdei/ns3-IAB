@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2020 Universita' di Firenze, Italy
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Tommaso Pecorella <tommaso.pecorella@unifi.it>
  */
@@ -25,10 +14,10 @@
 #include <vector>
 
 /**
- * \file
- * \ingroup core-tests
- * \ingroup timer
- * \ingroup timer-tests
+ * @file
+ * @ingroup core-tests
+ * @ingroup timer
+ * @ingroup timer-tests
  *
  * Trickle Timer test suite.
  *
@@ -46,7 +35,7 @@ namespace tests
 {
 
 /**
- * \ingroup timer-tests
+ * @ingroup timer-tests
  *  TrickleTimer test
  */
 class TrickleTimerTestCase : public TestCase
@@ -68,20 +57,20 @@ class TrickleTimerTestCase : public TestCase
 
     /**
      * Test the steady-state
-     * \param unit Minimum interval
+     * @param unit Minimum interval
      */
     void TestSteadyState(Time unit);
 
     /**
      * Test the redundancy suppression
-     * \param unit Minimum interval
+     * @param unit Minimum interval
      */
     void TestRedundancy(Time unit);
 
     /**
      * Inject in the timer a consistent event
-     * \param interval Interval
-     * \param tricklePtr Pointer to the TrickleTimer
+     * @param interval Interval
+     * @param tricklePtr Pointer to the TrickleTimer
      */
     void ConsistentEvent(Time interval, TrickleTimer* tricklePtr);
 
@@ -96,7 +85,7 @@ TrickleTimerTestCase::TrickleTimerTestCase()
 void
 TrickleTimerTestCase::ExpireTimer()
 {
-    if (m_enableDataCollection == false)
+    if (!m_enableDataCollection)
     {
         return;
     }
@@ -141,6 +130,8 @@ TrickleTimerTestCase::TestSteadyState(Time unit)
                              m_expiredTimes.end(),
                              expirationFrequency.begin());
     expirationFrequency.erase(expirationFrequency.begin());
+
+    NS_TEST_ASSERT_MSG_EQ(expirationFrequency.empty(), false, "No expiration frequency");
 
     int64x64_t min =
         (*std::min_element(expirationFrequency.begin(), expirationFrequency.end())) / unit;
@@ -203,7 +194,7 @@ TrickleTimerTestCase::DoRun()
 }
 
 /**
- * \ingroup timer-tests
+ * @ingroup timer-tests
  *  Trickle Timer test suite
  */
 class TrickleTimerTestSuite : public TestSuite
@@ -218,7 +209,7 @@ class TrickleTimerTestSuite : public TestSuite
 };
 
 /**
- * \ingroup timer-tests
+ * @ingroup timer-tests
  * TrickleTimerTestSuite instance variable.
  */
 static TrickleTimerTestSuite g_trickleTimerTestSuite;

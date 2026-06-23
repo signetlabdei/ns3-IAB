@@ -1,34 +1,23 @@
 /*
  *  Copyright 2013. Lawrence Livermore National Security, LLC.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Steven Smith <smith84@llnl.gov>
  *
  */
 
 /**
- * \file
- * \ingroup mpi
+ * @file
+ * @ingroup mpi
  * Declaration of class ns3::RemoteChannelBundleManager.
  */
 
 #ifndef NS3_REMOTE_CHANNEL_BUNDLE_MANAGER
 #define NS3_REMOTE_CHANNEL_BUNDLE_MANAGER
 
-#include <ns3/nstime.h>
-#include <ns3/ptr.h>
+#include "ns3/nstime.h"
+#include "ns3/ptr.h"
 
 #include <unordered_map>
 
@@ -38,9 +27,9 @@ namespace ns3
 class RemoteChannelBundle;
 
 /**
- * \ingroup mpi
+ * @ingroup mpi
  *
- * \brief Singleton for managing the RemoteChannelBundles for each process.
+ * @brief Singleton for managing the RemoteChannelBundles for each process.
  *
  * Manages collective tasks associated with the bundle collection.
  */
@@ -50,8 +39,8 @@ class RemoteChannelBundleManager
     /**
      * Get the bundle corresponding to a remote rank.
      *
-     * \param [in] systemId The remote system id.
-     * \return The bundle for the specified system id.
+     * @param [in] systemId The remote system id.
+     * @return The bundle for the specified system id.
      */
     static Ptr<RemoteChannelBundle> Find(uint32_t systemId);
 
@@ -60,14 +49,14 @@ class RemoteChannelBundleManager
      * on other side of the link.
      * Can not be invoked after InitializeNullMessageEvents has been invoked.
      *
-     * \param [in] systemId The remote system id.
-     * \return The newly added bundle.
+     * @param [in] systemId The remote system id.
+     * @return The newly added bundle.
      */
     static Ptr<RemoteChannelBundle> Add(uint32_t systemId);
 
     /**
      * Get the number of ns-3 channels in this bundle
-     * \return The number of channels.
+     * @return The number of channels.
      */
     static std::size_t Size();
 
@@ -79,7 +68,7 @@ class RemoteChannelBundleManager
 
     /**
      * Get the safe time across all channels in this bundle.
-     * \return The safe time.
+     * @return The safe time.
      */
     static Time GetSafeTime();
 

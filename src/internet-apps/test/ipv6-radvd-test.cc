@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2021 Universita' di Firenze, Italy
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Tommaso Pecorella <tommaso.pecorella@unifi.it>
  *
@@ -32,15 +21,15 @@
 using namespace ns3;
 
 /**
- * \ingroup radvd
- * \defgroup radvd-test radvd tests
+ * @ingroup radvd
+ * @defgroup radvd-test radvd tests
  */
 
 /**
- * \ingroup radvd-test
- * \ingroup tests
+ * @ingroup radvd-test
+ * @ingroup tests
  *
- * \brief radvd basic tests
+ * @brief radvd basic tests
  */
 class RadvdTestCase : public TestCase
 {
@@ -53,10 +42,10 @@ class RadvdTestCase : public TestCase
 
     /**
      * Checks the addresses on the selected NetDevices.
-     * \param n0Dev node 0 device
-     * \param r0Dev router device toward node 0
-     * \param r1Dev router device toward node 1
-     * \param n1Dev node 1 device
+     * @param n0Dev node 0 device
+     * @param r0Dev router device toward node 0
+     * @param r1Dev router device toward node 1
+     * @param n1Dev node 1 device
      */
     void CheckAddresses(Ptr<NetDevice> n0Dev,
                         Ptr<NetDevice> r0Dev,
@@ -64,10 +53,10 @@ class RadvdTestCase : public TestCase
                         Ptr<NetDevice> n1Dev);
     /**
      * Checks the routing between the selected NetDevices.
-     * \param n0Dev node 0 device
-     * \param r0Dev router device toward node 0
-     * \param r1Dev router device toward node 1
-     * \param n1Dev node 1 device
+     * @param n0Dev node 0 device
+     * @param r0Dev router device toward node 0
+     * @param r1Dev router device toward node 1
+     * @param n1Dev node 1 device
      */
     void CheckRouting(Ptr<NetDevice> n0Dev,
                       Ptr<NetDevice> r0Dev,
@@ -218,8 +207,8 @@ RadvdTestCase::DoRun()
     radvdHelper.GetRadvdInterface(iic2.GetInterfaceIndex(1))->SetSendAdvert(false);
 
     ApplicationContainer radvdApps = radvdHelper.Install(r);
-    radvdApps.Start(Seconds(1.0));
-    radvdApps.Stop(Seconds(10.0));
+    radvdApps.Start(Seconds(1));
+    radvdApps.Stop(Seconds(10));
 
     Simulator::Schedule(Seconds(2),
                         &RadvdTestCase::CheckAddresses,
@@ -236,7 +225,7 @@ RadvdTestCase::DoRun()
                         d2.Get(0),
                         d2.Get(1));
 
-    Simulator::Stop(Seconds(10.0));
+    Simulator::Stop(Seconds(10));
 
     Simulator::Run();
 
@@ -297,10 +286,10 @@ RadvdTestCase::DoRun()
 }
 
 /**
- * \ingroup radvd-test
- * \ingroup tests
+ * @ingroup radvd-test
+ * @ingroup tests
  *
- * \brief radvd TestSuite
+ * @brief radvd TestSuite
  */
 class RadvdTestSuite : public TestSuite
 {
@@ -309,9 +298,9 @@ class RadvdTestSuite : public TestSuite
 };
 
 RadvdTestSuite::RadvdTestSuite()
-    : TestSuite("radvd", UNIT)
+    : TestSuite("radvd", Type::UNIT)
 {
-    AddTestCase(new RadvdTestCase, TestCase::QUICK);
+    AddTestCase(new RadvdTestCase, TestCase::Duration::QUICK);
 }
 
 static RadvdTestSuite radvdTestSuite; //!< Static variable for test initialization

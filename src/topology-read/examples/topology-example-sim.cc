@@ -1,16 +1,5 @@
 /*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Tommaso Pecorella <tommaso.pecorella@unifi.it>
  * Author: Valerio Sartini <valesar@gmail.com>
@@ -34,17 +23,17 @@
 #include <sstream>
 
 /**
- * \ingroup topology
+ * @ingroup topology
  * Example of TopologyReader: read in a topology in a specified format.
  *
  * This example can be used with the following parameters:
- *   - <tt>--format=Inet --input=src/topology-read/examples/Inet_small_toposample.txt</tt>
- *   - <tt>--format=Inet --input=src/topology-read/examples/Inet_toposample.txt</tt>
- *   - <tt>--format=Orbis --input=src/topology-read/examples/Orbis_toposample.txt</tt>
- *   - <tt>--format=Rocket
- *     --input=src/topology-read/examples/RocketFuel_sample_4755.r0.cch_maps.txt</tt>
- *   - <tt>--format=Rocket
- *     --input=src/topology-read/examples/RocketFuel_toposample_1239_weights.txt</tt>
+ *   - ``--format=Inet --input=src/topology-read/examples/Inet_small_toposample.txt``
+ *   - ``--format=Inet --input=src/topology-read/examples/Inet_toposample.txt``
+ *   - ``--format=Orbis --input=src/topology-read/examples/Orbis_toposample.txt``
+ *   - ``--format=Rocket
+ *     --input=src/topology-read/examples/RocketFuel_sample_4755.r0.cch_maps.txt``
+ *   - ``--format=Rocket
+ *     --input=src/topology-read/examples/RocketFuel_toposample_1239_weights.txt``
  */
 
 using namespace ns3;
@@ -53,8 +42,8 @@ NS_LOG_COMPONENT_DEFINE("TopologyCreationExperiment");
 
 /**
  * Print the TTL of received packet
- * \param p received packet
- * \param ad sender address
+ * @param p received packet
+ * @param ad sender address
  */
 static void
 SinkRx(Ptr<const Packet> p, const Address& ad)
@@ -122,7 +111,7 @@ main(int argc, char* argv[])
     int totlinks = inFile->LinksSize();
 
     NS_LOG_INFO("creating node containers");
-    NodeContainer* nc = new NodeContainer[totlinks];
+    auto nc = new NodeContainer[totlinks];
     TopologyReader::ConstLinksIterator iter;
     int i = 0;
     for (iter = inFile->LinksBegin(); iter != inFile->LinksEnd(); iter++, i++)
@@ -131,7 +120,7 @@ main(int argc, char* argv[])
     }
 
     NS_LOG_INFO("creating net device containers");
-    NetDeviceContainer* ndc = new NetDeviceContainer[totlinks];
+    auto ndc = new NetDeviceContainer[totlinks];
     PointToPointHelper p2p;
     for (int i = 0; i < totlinks; i++)
     {
@@ -143,7 +132,7 @@ main(int argc, char* argv[])
 
     // it crates little subnets, one for each couple of nodes.
     NS_LOG_INFO("creating IPv4 interfaces");
-    Ipv4InterfaceContainer* ipic = new Ipv4InterfaceContainer[totlinks];
+    auto ipic = new Ipv4InterfaceContainer[totlinks];
     for (int i = 0; i < totlinks; i++)
     {
         ipic[i] = address.Assign(ndc[i]);
@@ -166,7 +155,7 @@ main(int argc, char* argv[])
     // -- Send around packets to check the ttl
     // --------------------------------------------
     Config::SetDefault("ns3::Ipv4RawSocketImpl::Protocol", StringValue("2"));
-    InetSocketAddress dst = InetSocketAddress(ipv4AddrServer);
+    InetSocketAddress dst(ipv4AddrServer);
 
     OnOffHelper onoff = OnOffHelper("ns3::Ipv4RawSocketFactory", dst);
     onoff.SetConstantRate(DataRate(15000));
@@ -183,13 +172,13 @@ main(int argc, char* argv[])
     }
 
     ApplicationContainer apps = onoff.Install(clientNodes);
-    apps.Start(Seconds(1.0));
-    apps.Stop(Seconds(2.0));
+    apps.Start(Seconds(1));
+    apps.Stop(Seconds(2));
 
     PacketSinkHelper sink = PacketSinkHelper("ns3::Ipv4RawSocketFactory", dst);
     apps = sink.Install(randomServerNode);
-    apps.Start(Seconds(0.0));
-    apps.Stop(Seconds(3.0));
+    apps.Start(Seconds(0));
+    apps.Stop(Seconds(3));
 
     // we trap the packet sink receiver to extract the TTL.
     Config::ConnectWithoutContext("/NodeList/*/ApplicationList/*/$ns3::PacketSink/Rx",

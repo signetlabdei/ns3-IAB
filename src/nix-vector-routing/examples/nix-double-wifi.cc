@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2021 NITK Surathkal
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * This example is inspired from examples/tutorial/third.cc by
  * substituting the CSMA network with another WiFi network.
@@ -36,7 +25,7 @@
  * two Wifi networks on the same channel.
  *
  * IPv4 Network Topology
- * \verbatim
+ * @verbatim
     Wifi 10.1.1.0/24
                    AP
     *    *    *    *
@@ -48,7 +37,7 @@
                                       Wifi 10.1.3.0/24
    \endverbatim
  *
- * \verbatim
+ * @verbatim
     Wifi 2001:1::/64
                    AP
     *    *    *    *
@@ -62,7 +51,7 @@
  *
  * Expected Outputs:
  * IPv4:
- * \verbatim
+ * @verbatim
    Time: +7s, Nix Routing
    Route path from Node 4 to Node 7, Nix Vector: 100011 (6 bits left)
    10.1.1.3                 (Node 4)  ---->   10.1.1.4                 (Node 0)
@@ -71,7 +60,7 @@
    \endverbatim
  *
  * IPv6:
- * \verbatim
+ * @verbatim
    Time: +7s, Nix Routing
    Route path from Node 4 to Node 7, Nix Vector: 100011 (6 bits left)
    2001:1::200:ff:fe00:5    (Node 4)  ---->   fe80::200:ff:fe00:6      (Node 0)
@@ -249,19 +238,19 @@ main(int argc, char* argv[])
     UdpEchoServerHelper echoServer(9);
 
     ApplicationContainer serverApps = echoServer.Install(wifiStaNodes2.Get(2));
-    serverApps.Start(Seconds(1.0));
-    serverApps.Stop(Seconds(10.0));
+    serverApps.Start(Seconds(1));
+    serverApps.Stop(Seconds(10));
 
     UdpEchoClientHelper echoClient(udpServerAddress, 9);
     echoClient.SetAttribute("MaxPackets", UintegerValue(1));
-    echoClient.SetAttribute("Interval", TimeValue(Seconds(1.0)));
+    echoClient.SetAttribute("Interval", TimeValue(Seconds(1)));
     echoClient.SetAttribute("PacketSize", UintegerValue(1024));
 
     ApplicationContainer clientApps = echoClient.Install(wifiStaNodes1.Get(2));
-    clientApps.Start(Seconds(2.0));
-    clientApps.Stop(Seconds(10.0));
+    clientApps.Start(Seconds(2));
+    clientApps.Stop(Seconds(10));
 
-    Simulator::Stop(Seconds(10.0));
+    Simulator::Stop(Seconds(10));
 
     Simulator::Run();
     Simulator::Destroy();

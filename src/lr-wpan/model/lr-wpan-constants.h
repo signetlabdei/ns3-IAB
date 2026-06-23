@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2011 The Boeing Company
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors:
  *  Gary Pei <guangyu.pei@boeing.com>
@@ -34,8 +23,8 @@ namespace lrwpan
 {
 
 /**
- * \defgroup LrWpanConstants
- * \ingroup lr-wpan
+ * @defgroup LrWpanConstants LR-WPAN common parameters
+ * @ingroup lr-wpan
  *
  * Contains common parameters about LR-WPAN that can be reused in multiple files.
  * These parameters are defined in the IEEE 802.15.4-2011 standard and adopt the
@@ -119,7 +108,7 @@ constexpr uint32_t aMaxBeaconOverhead{75};
  * The maximum size, in octets, of a beacon payload.
  * See IEEE 802.15.4-2011, section 6.4.1, Table 51.
  */
-constexpr uint32_t aMaxBeaconPayloadLenght{aMaxPhyPacketSize - aMaxBeaconOverhead};
+constexpr uint32_t aMaxBeaconPayloadLength{aMaxPhyPacketSize - aMaxBeaconOverhead};
 
 /** @} */
 

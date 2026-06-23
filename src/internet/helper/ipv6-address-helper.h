@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2008-2009 Strasbourg University
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Sebastien Vincent <vincent@clarinet.u-strasbg.fr>
  * modified by Tom Henderson for ns-3.14 release
@@ -32,9 +21,9 @@ namespace ns3
 {
 
 /**
- * \ingroup ipv6Helpers
+ * @ingroup ipv6Helpers
  *
- * \brief Helper class to auto-assign global IPv6 unicast addresses
+ * @brief Helper class to auto-assign global IPv6 unicast addresses
  *
  * Assign global unicast IPv6 addresses based on \RFC{4291} definition.
  *
@@ -84,31 +73,31 @@ class Ipv6AddressHelper
 {
   public:
     /**
-     * \brief Constructor.
+     * @brief Constructor.
      */
     Ipv6AddressHelper();
 
     /**
-     * \brief Constructor.
-     * \param network The IPv6 network
-     * \param prefix The prefix
-     * \param base The base interface ID
+     * @brief Constructor.
+     * @param network The IPv6 network
+     * @param prefix The prefix
+     * @param base The base interface ID
      */
     Ipv6AddressHelper(Ipv6Address network,
                       Ipv6Prefix prefix,
                       Ipv6Address base = Ipv6Address("::1"));
 
     /**
-     * \brief Set the base network number, network prefix, and base interface ID
+     * @brief Set the base network number, network prefix, and base interface ID
      *
-     * \param network The IPv6 network
-     * \param prefix The prefix
-     * \param base The base interface ID
+     * @param network The IPv6 network
+     * @param prefix The prefix
+     * @param base The base interface ID
      */
     void SetBase(Ipv6Address network, Ipv6Prefix prefix, Ipv6Address base = Ipv6Address("::1"));
 
     /**
-     * \brief Allocate a new network.
+     * @brief Allocate a new network.
      *
      * This method will cause the subnet prefix to increment, for future
      * network IDs, and resets the interface ID to the previously used
@@ -117,84 +106,84 @@ class Ipv6AddressHelper
     void NewNetwork();
 
     /**
-     * \brief Allocate a new Ipv6Address.
+     * @brief Allocate a new Ipv6Address.
      *
      * If a Mac48Address is passed in, an Ipv6 autoconfigured address
      * according to the current subnet prefix is returned.  If something
      * other than Mac48 address is passed in, the program will terminate.
      *
-     * \param addr address used to generate the interface ID of the IPv6 address
-     * \return newly created Ipv6Address
+     * @param addr address used to generate the interface ID of the IPv6 address
+     * @return newly created Ipv6Address
      */
     Ipv6Address NewAddress(Address addr);
 
     /**
-     * \brief Allocate a new Ipv6Address with interface ID equal to the
+     * @brief Allocate a new Ipv6Address with interface ID equal to the
      * next one in the underlying generator.
      *
-     * \return newly created Ipv6Address
+     * @return newly created Ipv6Address
      */
     Ipv6Address NewAddress();
 
     /**
-     * \brief Allocate an Ipv6InterfaceContainer with auto-assigned addresses.
-     * \param c netdevice container
-     * \return newly created Ipv6InterfaceContainer
+     * @brief Allocate an Ipv6InterfaceContainer with auto-assigned addresses.
+     * @param c netdevice container
+     * @return newly created Ipv6InterfaceContainer
      */
     Ipv6InterfaceContainer Assign(const NetDeviceContainer& c);
 
     /**
-     * \brief Allocate an Ipv6InterfaceContainer, and control whether the
+     * @brief Allocate an Ipv6InterfaceContainer, and control whether the
      *        interfaces have addresses auto-assigned to them
      *
-     * \param c netdevice container
-     * \param withConfiguration a vector of values for which, for a
+     * @param c netdevice container
+     * @param withConfiguration a vector of values for which, for a
      *        given device, true : interface automatically addressed,
      *        false : no automatic address
-     * \return newly created Ipv6InterfaceContainer
+     * @return newly created Ipv6InterfaceContainer
      */
     Ipv6InterfaceContainer Assign(const NetDeviceContainer& c, std::vector<bool> withConfiguration);
 
     /**
-     * \brief Allocate an Ipv6InterfaceContainer, and control whether the
+     * @brief Allocate an Ipv6InterfaceContainer, and control whether the
      *        interfaces have addresses auto-assigned to them
      *
-     * \param c netdevice container
-     * \param withConfiguration a vector of values for which, for a
+     * @param c netdevice container
+     * @param withConfiguration a vector of values for which, for a
      *        given device, true : interface automatically addressed,
      *        false : no automatic address
-     * \param onLink a vector of values for which, for a
+     * @param onLink a vector of values for which, for a
      *        given device, true : on-link property added,
      *        false : network is not on-link
      *        Meaningful only if the address is automatically assigned.
-     * \return newly created Ipv6InterfaceContainer
+     * @return newly created Ipv6InterfaceContainer
      */
     Ipv6InterfaceContainer Assign(const NetDeviceContainer& c,
                                   std::vector<bool> withConfiguration,
                                   std::vector<bool> onLink);
 
     /**
-     * \brief Allocate an Ipv6InterfaceContainer but do not assign any IPv6 addresses
+     * @brief Allocate an Ipv6InterfaceContainer but do not assign any IPv6 addresses
      *
      * This method is used when IPv6 address assignment may occur later
      * (such as dynamic address assignment)
      *
      * Equivalent to AssignWithoutAddress (c, std::vector<bool> of false);
      *
-     * \param c netdevice container
-     * \return newly created Ipv6InterfaceContainer
+     * @param c netdevice container
+     * @return newly created Ipv6InterfaceContainer
      */
     Ipv6InterfaceContainer AssignWithoutAddress(const NetDeviceContainer& c);
 
     /**
-     * \brief Allocate an Ipv6InterfaceContainer with auto-assigned addresses,
+     * @brief Allocate an Ipv6InterfaceContainer with auto-assigned addresses,
      * but do not set the on-link property for the network.
      *
      * This method will assign a valid global address to the interface but
      * the routing will not consider the network as "on-link".
      *
-     * \param c netdevice container
-     * \return newly created Ipv6InterfaceContainer
+     * @param c netdevice container
+     * @return newly created Ipv6InterfaceContainer
      */
     Ipv6InterfaceContainer AssignWithoutOnLink(const NetDeviceContainer& c);
 

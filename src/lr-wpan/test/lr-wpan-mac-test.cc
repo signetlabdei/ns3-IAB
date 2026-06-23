@@ -1,43 +1,33 @@
 /*
  * Copyright (c) 2022 Tokushima University, Japan
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Alberto Gallegos Ramonet <alramonet@is.tokushima-u.ac.jp>
  */
 
-#include <ns3/constant-position-mobility-model.h>
-#include <ns3/core-module.h>
-#include <ns3/log.h>
-#include <ns3/lr-wpan-module.h>
-#include <ns3/packet.h>
-#include <ns3/propagation-delay-model.h>
-#include <ns3/propagation-loss-model.h>
-#include <ns3/simulator.h>
-#include <ns3/single-model-spectrum-channel.h>
+#include "ns3/constant-position-mobility-model.h"
+#include "ns3/core-module.h"
+#include "ns3/log.h"
+#include "ns3/lr-wpan-module.h"
+#include "ns3/packet.h"
+#include "ns3/propagation-delay-model.h"
+#include "ns3/propagation-loss-model.h"
+#include "ns3/simulator.h"
+#include "ns3/single-model-spectrum-channel.h"
 
 #include <iostream>
 
 using namespace ns3;
+using namespace ns3::lrwpan;
 
 NS_LOG_COMPONENT_DEFINE("lr-wpan-mac-test");
 
 /**
- * \ingroup lr-wpan-test
- * \ingroup tests
+ * @ingroup lr-wpan-test
+ * @ingroup tests
  *
- * \brief Test PHY going to TRX_OFF after CSMA failure (MAC->RxOnWhenIdle(false))
+ * @brief Test PHY going to TRX_OFF after CSMA failure (MAC->RxOnWhenIdle(false))
  */
 class TestRxOffWhenIdleAfterCsmaFailure : public TestCase
 {
@@ -48,41 +38,41 @@ class TestRxOffWhenIdleAfterCsmaFailure : public TestCase
   private:
     /**
      * Function called when a Data indication is invoked
-     * \param params MCPS data indication parameters
-     * \param p packet
+     * @param params MCPS data indication parameters
+     * @param p packet
      */
     void DataIndication(McpsDataIndicationParams params, Ptr<Packet> p);
     /**
      * Function called when a Data confirm is invoked (After Tx Attempt)
-     * \param params MCPS data confirm parameters
+     * @param params MCPS data confirm parameters
      */
     void DataConfirm(McpsDataConfirmParams params);
     /**
      * Function called when a the PHY state changes in Dev0 [00:01]
-     * \param context context
-     * \param now time at which the function is called
-     * \param oldState old PHY state
-     * \param newState new PHY state
+     * @param context context
+     * @param now time at which the function is called
+     * @param oldState old PHY state
+     * @param newState new PHY state
      */
     void StateChangeNotificationDev0(std::string context,
                                      Time now,
-                                     LrWpanPhyEnumeration oldState,
-                                     LrWpanPhyEnumeration newState);
+                                     PhyEnumeration oldState,
+                                     PhyEnumeration newState);
     /**
      * Function called when a the PHY state changes in Dev2 [00:03]
-     * \param context context
-     * \param now time at which the function is called
-     * \param oldState old PHY state
-     * \param newState new PHY state
+     * @param context context
+     * @param now time at which the function is called
+     * @param oldState old PHY state
+     * @param newState new PHY state
      */
     void StateChangeNotificationDev2(std::string context,
                                      Time now,
-                                     LrWpanPhyEnumeration oldState,
-                                     LrWpanPhyEnumeration newState);
+                                     PhyEnumeration oldState,
+                                     PhyEnumeration newState);
 
     void DoRun() override;
 
-    LrWpanPhyEnumeration m_dev0State; //!< Stores the PHY state of device 0 [00:01]
+    PhyEnumeration m_dev0State; //!< Stores the PHY state of device 0 [00:01]
 };
 
 TestRxOffWhenIdleAfterCsmaFailure::TestRxOffWhenIdleAfterCsmaFailure()
@@ -103,11 +93,11 @@ TestRxOffWhenIdleAfterCsmaFailure::DataIndication(McpsDataIndicationParams param
 void
 TestRxOffWhenIdleAfterCsmaFailure::DataConfirm(McpsDataConfirmParams params)
 {
-    if (params.m_status == LrWpanMcpsDataConfirmStatus::IEEE_802_15_4_SUCCESS)
+    if (params.m_status == MacStatus::SUCCESS)
     {
         NS_LOG_DEBUG("LrWpanMcpsDataConfirmStatus = Success");
     }
-    else if (params.m_status == LrWpanMcpsDataConfirmStatus::IEEE_802_15_4_CHANNEL_ACCESS_FAILURE)
+    else if (params.m_status == MacStatus::CHANNEL_ACCESS_FAILURE)
     {
         NS_LOG_DEBUG("LrWpanMcpsDataConfirmStatus =  Channel Access Failure");
     }
@@ -116,8 +106,8 @@ TestRxOffWhenIdleAfterCsmaFailure::DataConfirm(McpsDataConfirmParams params)
 void
 TestRxOffWhenIdleAfterCsmaFailure::StateChangeNotificationDev0(std::string context,
                                                                Time now,
-                                                               LrWpanPhyEnumeration oldState,
-                                                               LrWpanPhyEnumeration newState)
+                                                               PhyEnumeration oldState,
+                                                               PhyEnumeration newState)
 {
     NS_LOG_DEBUG(Simulator::Now().As(Time::S)
                  << context << "PHY state change at " << now.As(Time::S) << " from "
@@ -130,8 +120,8 @@ TestRxOffWhenIdleAfterCsmaFailure::StateChangeNotificationDev0(std::string conte
 void
 TestRxOffWhenIdleAfterCsmaFailure::StateChangeNotificationDev2(std::string context,
                                                                Time now,
-                                                               LrWpanPhyEnumeration oldState,
-                                                               LrWpanPhyEnumeration newState)
+                                                               PhyEnumeration oldState,
+                                                               PhyEnumeration newState)
 {
     NS_LOG_DEBUG(Simulator::Now().As(Time::S)
                  << context << "PHY state change at " << now.As(Time::S) << " from "
@@ -157,9 +147,10 @@ TestRxOffWhenIdleAfterCsmaFailure::DoRun()
     // do not attempt to do multiple backoffs delays in its CSMA,
     // macMinBE and MacMaxCSMABackoffs has been set to 0.
 
-    LogComponentEnableAll(LogLevel(LOG_PREFIX_TIME | LOG_PREFIX_FUNC));
+    LogComponentEnableAll(LogLevel(LOG_PREFIX_NODE | LOG_PREFIX_TIME | LOG_PREFIX_FUNC));
 
     LogComponentEnable("LrWpanMac", LOG_LEVEL_DEBUG);
+    LogComponentEnable("LrWpanPhy", LOG_LEVEL_DEBUG);
     LogComponentEnable("LrWpanCsmaCa", LOG_LEVEL_DEBUG);
     LogComponentEnable("lr-wpan-mac-test", LOG_LEVEL_DEBUG);
 
@@ -261,7 +252,7 @@ TestRxOffWhenIdleAfterCsmaFailure::DoRun()
     params.m_msduHandle = 0;
 
     // Send the packet that will be rejected due to channel access failure
-    Simulator::ScheduleWithContext(1,
+    Simulator::ScheduleWithContext(dev0->GetNode()->GetId(),
                                    Seconds(0.00033),
                                    &LrWpanMac::McpsDataRequest,
                                    dev0->GetMac(),
@@ -272,8 +263,8 @@ TestRxOffWhenIdleAfterCsmaFailure::DoRun()
     Ptr<Packet> p2 = Create<Packet>(60); // 60 bytes of dummy data
     params.m_dstAddr = Mac16Address("00:02");
 
-    Simulator::ScheduleWithContext(2,
-                                   Seconds(0.0),
+    Simulator::ScheduleWithContext(dev2->GetNode()->GetId(),
+                                   Seconds(0),
                                    &LrWpanMac::McpsDataRequest,
                                    dev2->GetMac(),
                                    params,
@@ -283,17 +274,17 @@ TestRxOffWhenIdleAfterCsmaFailure::DoRun()
     Simulator::Run();
 
     NS_TEST_EXPECT_MSG_EQ(m_dev0State,
-                          LrWpanPhyEnumeration::IEEE_802_15_4_PHY_TRX_OFF,
+                          PhyEnumeration::IEEE_802_15_4_PHY_TRX_OFF,
                           "Error, dev0 [00:01] PHY should be in TRX_OFF after CSMA failure");
 
     Simulator::Destroy();
 }
 
 /**
- * \ingroup lr-wpan-test
- * \ingroup tests
+ * @ingroup lr-wpan-test
+ * @ingroup tests
  *
- * \brief Test MAC Active Scan PAN descriptor reception and check some of its values.
+ * @brief Test MAC Active Scan PAN descriptor reception and check some of its values.
  */
 class TestActiveScanPanDescriptors : public TestCase
 {
@@ -305,13 +296,14 @@ class TestActiveScanPanDescriptors : public TestCase
     /**
      * Function called in response to a MAC scan request.
      *
-     * \param params MLME scan confirm parameters
+     * @param params MLME scan confirm parameters
      */
     void ScanConfirm(MlmeScanConfirmParams params);
+
     /**
      * Function used to notify the reception of a beacon with payload.
      *
-     * \param params The MLME-BEACON-NOTIFY.indication parameters
+     * @param params The MLME-BEACON-NOTIFY.indication parameters
      */
     void BeaconNotifyIndication(MlmeBeaconNotifyIndicationParams params);
 
@@ -335,7 +327,7 @@ TestActiveScanPanDescriptors::~TestActiveScanPanDescriptors()
 void
 TestActiveScanPanDescriptors::ScanConfirm(MlmeScanConfirmParams params)
 {
-    if (params.m_status == MLMESCAN_SUCCESS)
+    if (params.m_status == MacStatus::SUCCESS)
     {
         m_panDescriptorList = params.m_panDescList;
     }
@@ -354,7 +346,7 @@ TestActiveScanPanDescriptors::DoRun()
      *      [00:01]                       [00:02]                             [00:03]
      *  PAN Coordinator 1 (PAN: 5)       End Device                  PAN Coordinator 2 (PAN: 7)
      *
-     *       |--------100 m----------------|----------106 m -----------------------|
+     *       |--------90 m----------------|----------188 m -----------------------|
      *  Channel 12               (Active Scan channels 11-14)                 Channel 14
      *
      * Test Setup:
@@ -380,9 +372,16 @@ TestActiveScanPanDescriptors::DoRun()
     Ptr<LrWpanNetDevice> endNodeNetDevice = CreateObject<LrWpanNetDevice>();
     Ptr<LrWpanNetDevice> coord2NetDevice = CreateObject<LrWpanNetDevice>();
 
-    coord1NetDevice->SetAddress(Mac16Address("00:01"));
-    endNodeNetDevice->SetAddress(Mac16Address("00:02"));
-    coord2NetDevice->SetAddress(Mac16Address("00:03"));
+    // PAN coordinators typically have a short address = 00:00 (e.g. Zigbee networks)
+    coord1NetDevice->GetMac()->SetExtendedAddress("00:00:00:00:00:00:CA:FE");
+    coord1NetDevice->GetMac()->SetShortAddress(Mac16Address("00:00"));
+
+    coord2NetDevice->GetMac()->SetExtendedAddress("00:00:00:00:00:00:BE:BE");
+    coord2NetDevice->GetMac()->SetShortAddress(Mac16Address("00:00"));
+
+    // An end device currently not associated (short address = ff:ff)
+    endNodeNetDevice->GetMac()->SetExtendedAddress("00:00:00:00:00:00:00:03");
+    endNodeNetDevice->GetMac()->SetShortAddress(Mac16Address("ff:ff"));
 
     // Configure Spectrum channel
     Ptr<SingleModelSpectrumChannel> channel = CreateObject<SingleModelSpectrumChannel>();
@@ -409,12 +408,12 @@ TestActiveScanPanDescriptors::DoRun()
 
     Ptr<ConstantPositionMobilityModel> endNodeMobility =
         CreateObject<ConstantPositionMobilityModel>();
-    endNodeMobility->SetPosition(Vector(100, 0, 0));
+    endNodeMobility->SetPosition(Vector(90, 0, 0));
     endNodeNetDevice->GetPhy()->SetMobility(endNodeMobility);
 
     Ptr<ConstantPositionMobilityModel> coord2Mobility =
         CreateObject<ConstantPositionMobilityModel>();
-    coord2Mobility->SetPosition(Vector(206, 0, 0));
+    coord2Mobility->SetPosition(Vector(188, 0, 0));
     coord2NetDevice->GetPhy()->SetMobility(coord2Mobility);
 
     // MAC layer Callbacks hooks
@@ -438,18 +437,21 @@ TestActiveScanPanDescriptors::DoRun()
     params.m_bcnOrd = 15;
     params.m_sfrmOrd = 15;
     params.m_logCh = 12;
-    Simulator::ScheduleWithContext(1,
-                                   Seconds(2.0),
+    Simulator::ScheduleWithContext(coord1NetDevice->GetNode()->GetId(),
+                                   Seconds(2),
                                    &LrWpanMac::MlmeStartRequest,
                                    coord1NetDevice->GetMac(),
                                    params);
 
     // PAN coordinator N2 (PAN 7) is set to channel 14 in non-beacon mode but answer to beacon
-    // requests. The second coordinator includes a beacon payload of 25 bytes using the
+    // requests. The second coordinator includes a beacon payload of 2 bytes using the
     // MLME-SET.request primitive.
-    Ptr<LrWpanMacPibAttributes> pibAttribute = Create<LrWpanMacPibAttributes>();
-    pibAttribute->macBeaconPayload = Create<Packet>(25);
-    coord2NetDevice->GetMac()->MlmeSetRequest(LrWpanMacPibAttributeIdentifier::macBeaconPayload,
+    Ptr<MacPibAttributes> pibAttribute = Create<MacPibAttributes>();
+    std::vector<uint8_t> payload;
+    payload.emplace_back(1);
+    payload.emplace_back(2);
+    pibAttribute->macBeaconPayload = payload;
+    coord2NetDevice->GetMac()->MlmeSetRequest(MacPibAttributeIdentifier::macBeaconPayload,
                                               pibAttribute);
 
     MlmeStartRequestParams params2;
@@ -458,8 +460,8 @@ TestActiveScanPanDescriptors::DoRun()
     params2.m_bcnOrd = 15;
     params2.m_sfrmOrd = 15;
     params2.m_logCh = 14;
-    Simulator::ScheduleWithContext(2,
-                                   Seconds(2.0),
+    Simulator::ScheduleWithContext(coord2NetDevice->GetNode()->GetId(),
+                                   Seconds(2),
                                    &LrWpanMac::MlmeStartRequest,
                                    coord2NetDevice->GetMac(),
                                    params2);
@@ -475,8 +477,8 @@ TestActiveScanPanDescriptors::DoRun()
     scanParams.m_scanChannels = 0x7800;
     scanParams.m_scanDuration = 14;
     scanParams.m_scanType = MLMESCAN_ACTIVE;
-    Simulator::ScheduleWithContext(1,
-                                   Seconds(3.0),
+    Simulator::ScheduleWithContext(endNodeNetDevice->GetNode()->GetId(),
+                                   Seconds(3),
                                    &LrWpanMac::MlmeScanRequest,
                                    endNodeNetDevice->GetMac(),
                                    scanParams);
@@ -488,36 +490,225 @@ TestActiveScanPanDescriptors::DoRun()
     NS_TEST_EXPECT_MSG_EQ(m_panDescriptorList.size(),
                           2,
                           "Error, Beacons not received or PAN descriptors not found");
-    NS_TEST_ASSERT_MSG_LT(m_panDescriptorList[0].m_linkQuality,
-                          255,
-                          "Error, Coordinator 1 (PAN 5) LQI value should be less than 255.");
-    NS_TEST_ASSERT_MSG_LT(m_panDescriptorList[1].m_linkQuality,
-                          255,
-                          "Error, Coordinator 2 (PAN 7) LQI value should be less than 255.");
-    NS_TEST_ASSERT_MSG_GT(m_panDescriptorList[0].m_linkQuality,
-                          0,
-                          "Error, Coordinator 1 (PAN 5) LQI value should be greater than 0.");
-    NS_TEST_ASSERT_MSG_GT(m_panDescriptorList[1].m_linkQuality,
-                          0,
-                          "Error, Coordinator 2 (PAN 7) LQI value should be greater than 0.");
 
-    NS_TEST_ASSERT_MSG_LT(
-        m_panDescriptorList[1].m_linkQuality,
-        m_panDescriptorList[0].m_linkQuality,
-        "Error, Coordinator 2 (PAN 7) LQI value should be less than Coordinator 1 (PAN 5).");
+    if (m_panDescriptorList.size() == 2)
+    {
+        NS_TEST_ASSERT_MSG_LT(m_panDescriptorList[0].m_linkQuality,
+                              255,
+                              "Error, Coordinator 1 (PAN 5) LQI value should be less than 255.");
+        NS_TEST_ASSERT_MSG_LT(m_panDescriptorList[1].m_linkQuality,
+                              255,
+                              "Error, Coordinator 2 (PAN 7) LQI value should be less than 255.");
+        NS_TEST_ASSERT_MSG_GT(m_panDescriptorList[0].m_linkQuality,
+                              0,
+                              "Error, Coordinator 1 (PAN 5) LQI value should be greater than 0.");
+        NS_TEST_ASSERT_MSG_GT(m_panDescriptorList[1].m_linkQuality,
+                              0,
+                              "Error, Coordinator 2 (PAN 7) LQI value should be greater than 0.");
 
-    NS_TEST_EXPECT_MSG_EQ(g_beaconPayloadSize,
-                          25,
-                          "Error, Beacon Payload not received or incorrect size (25 bytes)");
+        NS_TEST_ASSERT_MSG_LT(m_panDescriptorList[1].m_linkQuality,
+                              m_panDescriptorList[0].m_linkQuality,
+                              "Error, Coordinator 2 (PAN 7) LQI value should"
+                              " be less than Coordinator 1 (PAN 5).");
+
+        NS_TEST_EXPECT_MSG_EQ(g_beaconPayloadSize,
+                              2,
+                              "Error, Beacon Payload not received or incorrect size (2 bytes)");
+    }
 
     Simulator::Destroy();
 }
 
 /**
- * \ingroup lr-wpan-test
- * \ingroup tests
+ * @ingroup lr-wpan-test
+ * @ingroup tests
  *
- * \brief LrWpan MAC TestSuite
+ * @brief Test MAC Orphan Scan Coordinator Realignment command reception and its values.
+ */
+class TestOrphanScan : public TestCase
+{
+  public:
+    TestOrphanScan();
+    ~TestOrphanScan() override;
+
+  private:
+    /**
+     * Function called in response to a MAC scan request.
+     *
+     * @param params MLME scan confirm parameters
+     */
+    void ScanConfirm(MlmeScanConfirmParams params);
+
+    /**
+     * Function called as a result of receiving an orphan notification command
+     * on the coordinator
+     *
+     * @param params MLME orphan indication parameters
+     */
+    void OrphanIndicationCoord(MlmeOrphanIndicationParams params);
+
+    void DoRun() override;
+
+    Ptr<LrWpanNetDevice> coord1NetDevice;  //!< The LrWpanNetDevice of coordinator 1
+    Ptr<LrWpanNetDevice> endNodeNetDevice; //!< The LrWpanNetDevice of the end device
+    bool m_orphanScanSuccess;              //!< Indicates a successful orphan scan
+};
+
+TestOrphanScan::TestOrphanScan()
+    : TestCase("Test an orphan scan and the reception of the commands involved")
+{
+    m_orphanScanSuccess = false;
+}
+
+TestOrphanScan::~TestOrphanScan()
+{
+}
+
+void
+TestOrphanScan::ScanConfirm(MlmeScanConfirmParams params)
+{
+    if (params.m_status == MacStatus::SUCCESS)
+    {
+        m_orphanScanSuccess = true;
+    }
+}
+
+void
+TestOrphanScan::OrphanIndicationCoord(MlmeOrphanIndicationParams params)
+{
+    // The steps taken by the coordinator on the event of an orphan indication
+    // are meant to be implemented by the next higher layer and are out of the scope of the
+    // standard. In this test, we assume that coordinator 2 already has
+    // the endDevice [00:00:00:00:00:00:00:03] registered and therefore reply to this device
+    // a with a coordidinator realignment command.
+
+    if (params.m_orphanAddr == Mac64Address("00:00:00:00:00:00:00:02"))
+    {
+        MlmeOrphanResponseParams respParams;
+        respParams.m_assocMember = true;
+        respParams.m_orphanAddr = params.m_orphanAddr;
+        respParams.m_shortAddr = Mac16Address("00:02");
+
+        Simulator::ScheduleNow(&LrWpanMac::MlmeOrphanResponse,
+                               coord1NetDevice->GetMac(),
+                               respParams);
+    }
+}
+
+void
+TestOrphanScan::DoRun()
+{
+    // Create 2 PAN coordinator nodes, and 1 end device
+    Ptr<Node> coord1 = CreateObject<Node>();
+    Ptr<Node> endNode = CreateObject<Node>();
+
+    coord1NetDevice = CreateObject<LrWpanNetDevice>();
+    endNodeNetDevice = CreateObject<LrWpanNetDevice>();
+
+    // PAN Coordinators configurations require to set both, the EUI-64 (extended address)
+    // and to assign their own short address.
+    coord1NetDevice->GetMac()->SetExtendedAddress(Mac64Address("00:00:00:00:00:00:00:01"));
+    coord1NetDevice->GetMac()->SetShortAddress(Mac16Address("00:01"));
+
+    // Other devices must have only its EUI-64 and later on, their short address is
+    // potentially assigned by the coordinator.
+    endNodeNetDevice->GetMac()->SetExtendedAddress(Mac64Address("00:00:00:00:00:00:00:02"));
+
+    // Configure Spectrum channel
+    Ptr<SingleModelSpectrumChannel> channel = CreateObject<SingleModelSpectrumChannel>();
+    Ptr<LogDistancePropagationLossModel> propModel =
+        CreateObject<LogDistancePropagationLossModel>();
+    Ptr<ConstantSpeedPropagationDelayModel> delayModel =
+        CreateObject<ConstantSpeedPropagationDelayModel>();
+    channel->AddPropagationLossModel(propModel);
+    channel->SetPropagationDelayModel(delayModel);
+
+    coord1NetDevice->SetChannel(channel);
+    endNodeNetDevice->SetChannel(channel);
+
+    coord1->AddDevice(coord1NetDevice);
+    endNode->AddDevice(endNodeNetDevice);
+
+    // Mobility
+    Ptr<ConstantPositionMobilityModel> coord1Mobility =
+        CreateObject<ConstantPositionMobilityModel>();
+    coord1Mobility->SetPosition(Vector(0, 0, 0));
+    coord1NetDevice->GetPhy()->SetMobility(coord1Mobility);
+
+    Ptr<ConstantPositionMobilityModel> endNodeMobility =
+        CreateObject<ConstantPositionMobilityModel>();
+    endNodeMobility->SetPosition(Vector(95, 0, 0));
+    endNodeNetDevice->GetPhy()->SetMobility(endNodeMobility);
+
+    // MAC layer Callbacks hooks
+    MlmeScanConfirmCallback cb1;
+    cb1 = MakeCallback(&TestOrphanScan::ScanConfirm, this);
+    endNodeNetDevice->GetMac()->SetMlmeScanConfirmCallback(cb1);
+
+    MlmeOrphanIndicationCallback cb2;
+    cb2 = MakeCallback(&TestOrphanScan::OrphanIndicationCoord, this);
+    coord1NetDevice->GetMac()->SetMlmeOrphanIndicationCallback(cb2);
+    /////////////////
+    // ORPHAN SCAN //
+    /////////////////
+
+    // PAN coordinator N0 (PAN 5) is set to channel 12 in non-beacon mode
+    // but answer to beacon request and orphan notification commands.
+    MlmeStartRequestParams params;
+    params.m_panCoor = true;
+    params.m_PanId = 5;
+    params.m_bcnOrd = 15;
+    params.m_sfrmOrd = 15;
+    params.m_logCh = 12;
+    Simulator::ScheduleWithContext(coord1NetDevice->GetNode()->GetId(),
+                                   Seconds(2),
+                                   &LrWpanMac::MlmeStartRequest,
+                                   coord1NetDevice->GetMac(),
+                                   params);
+
+    // End device N1 is set to scan 4 channels looking for the presence of a coordinator.
+    // On each channel, a single orphan notification command is sent and a response is
+    // waited for a maximum time of macResponseWaitTime. If a reply is received from a
+    // coordinator within this time (coordinator realignment command), the programmed scans on
+    // other channels is suspended.
+    // Scan Channels are represented by bits 0-26  (27 LSB)
+    //                       ch 14  ch 11
+    //                           |  |
+    // 0x7800  = 0000000000000000111100000000000
+    MlmeScanRequestParams scanParams;
+    scanParams.m_chPage = 0;
+    scanParams.m_scanChannels = 0x7800;
+    scanParams.m_scanType = MLMESCAN_ORPHAN;
+    Simulator::ScheduleWithContext(endNodeNetDevice->GetNode()->GetId(),
+                                   Seconds(3),
+                                   &LrWpanMac::MlmeScanRequest,
+                                   endNodeNetDevice->GetMac(),
+                                   scanParams);
+
+    Simulator::Stop(Seconds(4000));
+    NS_LOG_DEBUG("----------- Start of TestOrphanScan -------------------");
+    Simulator::Run();
+
+    NS_TEST_EXPECT_MSG_EQ(m_orphanScanSuccess,
+                          true,
+                          "Error, no coordinator realignment commands"
+                          " received during orphan scan");
+    if (m_orphanScanSuccess)
+    {
+        NS_TEST_EXPECT_MSG_EQ(endNodeNetDevice->GetMac()->GetShortAddress(),
+                              Mac16Address("00:02"),
+                              "Error, end device did not receive short address"
+                              " during orphan scan");
+    }
+
+    Simulator::Destroy();
+}
+
+/**
+ * @ingroup lr-wpan-test
+ * @ingroup tests
+ *
+ * @brief LrWpan MAC TestSuite
  */
 class LrWpanMacTestSuite : public TestSuite
 {
@@ -526,10 +717,11 @@ class LrWpanMacTestSuite : public TestSuite
 };
 
 LrWpanMacTestSuite::LrWpanMacTestSuite()
-    : TestSuite("lr-wpan-mac-test", UNIT)
+    : TestSuite("lr-wpan-mac-test", Type::UNIT)
 {
-    AddTestCase(new TestRxOffWhenIdleAfterCsmaFailure, TestCase::QUICK);
-    AddTestCase(new TestActiveScanPanDescriptors, TestCase::QUICK);
+    AddTestCase(new TestRxOffWhenIdleAfterCsmaFailure, TestCase::Duration::QUICK);
+    AddTestCase(new TestActiveScanPanDescriptors, TestCase::Duration::QUICK);
+    AddTestCase(new TestOrphanScan, TestCase::Duration::QUICK);
 }
 
 static LrWpanMacTestSuite g_lrWpanMacTestSuite; //!< Static variable for test initialization

@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2014 Universita' di Firenze
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Tommaso Pecorella <tommaso.pecorella@unifi.it>
  */
@@ -20,9 +9,10 @@
 #ifndef PACKET_SOCKET_SERVER_H
 #define PACKET_SOCKET_SERVER_H
 
+#include "packet-socket-address.h"
+
 #include "ns3/application.h"
 #include "ns3/event-id.h"
-#include "ns3/packet-socket-address.h"
 #include "ns3/ptr.h"
 #include "ns3/traced-callback.h"
 
@@ -33,9 +23,9 @@ class Socket;
 class Packet;
 
 /**
- * \ingroup socket
+ * @ingroup socket
  *
- * \brief A server using PacketSocket.
+ * @brief A server using PacketSocket.
  *
  * Receives packets using PacketSocket. It does not require (or use) IP.
  * The application has the same requirements as the PacketSocket for
@@ -48,8 +38,8 @@ class PacketSocketServer : public Application
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
 
@@ -58,8 +48,8 @@ class PacketSocketServer : public Application
     ~PacketSocketServer() override;
 
     /**
-     * \brief set the local address and protocol to be used
-     * \param addr local address
+     * @brief set the local address and protocol to be used
+     * @param addr local address
      */
     void SetLocal(PacketSocketAddress addr);
 
@@ -71,8 +61,8 @@ class PacketSocketServer : public Application
     void StopApplication() override;
 
     /**
-     * \brief Handle a packet received by the application
-     * \param socket the receiving socket
+     * @brief Handle a packet received by the application
+     * @param socket the receiving socket
      */
     void HandleRead(Ptr<Socket> socket);
 

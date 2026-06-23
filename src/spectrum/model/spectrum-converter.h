@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 CTTC
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Nicola Baldo <nbaldo@cttc.es>
  */
@@ -20,13 +9,13 @@
 #ifndef SPECTRUM_CONVERTER_H
 #define SPECTRUM_CONVERTER_H
 
-#include <ns3/spectrum-value.h>
+#include "spectrum-value.h"
 
 namespace ns3
 {
 
 /**
- * \ingroup spectrum
+ * @ingroup spectrum
  *
  * Class which implements a converter between SpectrumValue which are
  * defined over different SpectrumModel. In more formal terms, this class
@@ -52,8 +41,6 @@ class SpectrumConverter : public SimpleRefCount<SpectrumConverter>
     SpectrumConverter(Ptr<const SpectrumModel> fromSpectrumModel,
                       Ptr<const SpectrumModel> toSpectrumModel);
 
-    SpectrumConverter();
-
     /**
      * Convert a particular ValueVsFreq instance to
      *
@@ -64,17 +51,6 @@ class SpectrumConverter : public SimpleRefCount<SpectrumConverter>
     Ptr<SpectrumValue> Convert(Ptr<const SpectrumValue> vvf) const;
 
   private:
-    /**
-     * Calculate the coefficient for value conversion between elements
-     *
-     * @param from BandInfo to convert from
-     * @param to  BandInfo to convert to
-     *
-     * @return the fraction of the value of the "from" BandInfos that is
-     * mapped to the "to" BandInfo
-     */
-    double GetCoefficient(const BandInfo& from, const BandInfo& to) const;
-
     std::vector<double> m_conversionMatrix; //!< matrix of conversion coefficients stored in
                                             //!< Compressed Row Storage format
     std::vector<size_t> m_conversionRowPtr; //!< offset of rows in m_conversionMatrix

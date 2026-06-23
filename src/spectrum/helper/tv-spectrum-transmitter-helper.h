@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2014 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Benjamin Cizdziel <ben.cizdziel@gmail.com>
  */
@@ -20,19 +9,19 @@
 #ifndef TV_SPECTRUM_TRANSMITTER_HELPER_H
 #define TV_SPECTRUM_TRANSMITTER_HELPER_H
 
+#include "ns3/antenna-model.h"
+#include "ns3/mobility-model.h"
+#include "ns3/net-device-container.h"
+#include "ns3/net-device.h"
+#include "ns3/node-container.h"
+#include "ns3/non-communicating-net-device.h"
 #include "ns3/object-factory.h"
-#include <ns3/antenna-model.h>
-#include <ns3/mobility-model.h>
-#include <ns3/net-device-container.h>
-#include <ns3/net-device.h>
-#include <ns3/node-container.h>
-#include <ns3/non-communicating-net-device.h>
-#include <ns3/random-variable-stream.h>
-#include <ns3/spectrum-channel.h>
-#include <ns3/spectrum-phy.h>
-#include <ns3/spectrum-signal-parameters.h>
-#include <ns3/spectrum-value.h>
-#include <ns3/tv-spectrum-transmitter.h>
+#include "ns3/random-variable-stream.h"
+#include "ns3/spectrum-channel.h"
+#include "ns3/spectrum-phy.h"
+#include "ns3/spectrum-signal-parameters.h"
+#include "ns3/spectrum-value.h"
+#include "ns3/tv-spectrum-transmitter.h"
 
 class TvHelperDistributionTestCase;
 
@@ -40,7 +29,7 @@ namespace ns3
 {
 
 /**
- * \ingroup spectrum
+ * @ingroup spectrum
  *
  * Helper class which uses TvSpectrumTransmitter class to create customizable
  * TV transmitter(s) that transmit PSD spectrum specified by user-set attributes.
@@ -50,7 +39,7 @@ namespace ns3
  * and location.
  *
  * Here is an example of how to use this class:
- * \code
+ * @code
    TvSpectrumTransmitterHelper tvTransHelper;
    tvTransHelper.SetChannel (channel); // provided that user has a Ptr<SpectrumChannel> ready.
    tvTransHelper.SetAttribute ("StartFrequency", DoubleValue (524e6));

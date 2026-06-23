@@ -1,18 +1,7 @@
 #
 # Copyright (c) 2008-2009 Strasbourg University
 #
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 2 as
-# published by the Free Software Foundation;
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+# SPDX-License-Identifier: GPL-2.0-only
 #
 # Author: David Gross <gdavid.devel@gmail.com>
 #         Sebastien Vincent <vincent@clarinet.u-strasbg.fr>
@@ -27,7 +16,14 @@
 #                router
 #
 
-from ns import ns
+try:
+    from ns import ns
+except ModuleNotFoundError:
+    raise SystemExit(
+        "Error: ns3 Python module not found;"
+        " Python bindings may not be enabled"
+        " or your PYTHONPATH might not be properly configured"
+    )
 
 
 def main(argv):
@@ -51,7 +47,7 @@ def main(argv):
     internetv6.Install(all)
 
     # Create channels
-    csma = ns.csma.CsmaHelper()
+    csma = ns.CsmaHelper()
     csma.SetChannelAttribute("DataRate", ns.DataRateValue(ns.DataRate(5000000)))
     csma.SetChannelAttribute("Delay", ns.TimeValue(ns.MilliSeconds(2)))
     d1 = csma.Install(net1)
@@ -73,7 +69,7 @@ def main(argv):
     print("Application")
     packetSize = 1024
     maxPacketCount = 5
-    interPacketInterval = ns.Seconds(1.)
+    interPacketInterval = ns.Seconds(1)
     # ping = ns.PingHelper(i2.GetAddress(1, 1).ConvertTo())
     ping = ns.PingHelper(i2.GetAddress(1, 1).ConvertTo())
 
@@ -85,8 +81,8 @@ def main(argv):
     ping.SetAttribute("Size", ns.UintegerValue(packetSize))
 
     apps = ping.Install(ns.NodeContainer(net1.Get(0)))
-    apps.Start(ns.Seconds(2.0))
-    apps.Stop(ns.Seconds(20.0))
+    apps.Start(ns.Seconds(2))
+    apps.Stop(ns.Seconds(20))
 
     print("Tracing")
     ascii = ns.AsciiTraceHelper()
@@ -98,7 +94,7 @@ def main(argv):
     ns.Simulator.Destroy()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import sys
 
     main(sys.argv)

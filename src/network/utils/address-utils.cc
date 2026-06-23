@@ -1,24 +1,14 @@
 /*
  * Copyright (c) 2006 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
 #include "address-utils.h"
 
 #include "inet-socket-address.h"
+#include "inet6-socket-address.h"
 
 #include "ns3/log.h"
 
@@ -146,8 +136,46 @@ IsMulticast(const Address& ad)
         Ipv4Address ipv4 = inetAddr.GetIpv4();
         return ipv4.IsMulticast();
     }
-    // IPv6 case can go here, in future
+    else if (Ipv4Address::IsMatchingType(ad))
+    {
+        Ipv4Address ipv4 = Ipv4Address::ConvertFrom(ad);
+        return ipv4.IsMulticast();
+    }
+    else if (Inet6SocketAddress::IsMatchingType(ad))
+    {
+        Inet6SocketAddress inetAddr = Inet6SocketAddress::ConvertFrom(ad);
+        Ipv6Address ipv6 = inetAddr.GetIpv6();
+        return ipv6.IsMulticast();
+    }
+    else if (Ipv6Address::IsMatchingType(ad))
+    {
+        Ipv6Address ipv6 = Ipv6Address::ConvertFrom(ad);
+        return ipv6.IsMulticast();
+    }
+
     return false;
+}
+
+Address
+ConvertToSocketAddress(const Address& address, uint16_t port)
+{
+    NS_LOG_FUNCTION(address << port);
+    Address convertedAddress;
+    if (Ipv4Address::IsMatchingType(address))
+    {
+        convertedAddress = InetSocketAddress(Ipv4Address::ConvertFrom(address), port);
+        NS_LOG_DEBUG("Address converted to " << convertedAddress);
+    }
+    else if (Ipv6Address::IsMatchingType(address))
+    {
+        convertedAddress = Inet6SocketAddress(Ipv6Address::ConvertFrom(address), port);
+        NS_LOG_DEBUG("Address converted to " << convertedAddress);
+    }
+    else
+    {
+        NS_FATAL_ERROR("This function should be called for an IPv4 or an IPv6 address");
+    }
+    return convertedAddress;
 }
 
 } // namespace addressUtils

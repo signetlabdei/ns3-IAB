@@ -275,7 +275,7 @@ LteHandoverDelayTestCase::EnbHandoverEndOkCallback (std::string context, uint64_
 static class LteHandoverDelayTestSuite : public TestSuite
 {
 public:
-  LteHandoverDelayTestSuite () : TestSuite ("lte-handover-delay", TestSuite::SYSTEM)
+  LteHandoverDelayTestSuite () : TestSuite ("lte-handover-delay", TestSuite::Type::SYSTEM)
   {
     //LogComponentEnable ("LteHandoverDelayTest", LOG_PREFIX_TIME);
     //LogComponentEnable ("LteHandoverDelayTest", LOG_DEBUG);
@@ -289,7 +289,7 @@ public:
         // arguments: useIdealRrc, handoverTime, delayThreshold, simulationDuration
         AddTestCase (
             new LteHandoverDelayTestCase (1, true, handoverTime, Seconds (0.005), Seconds (0.200)),
-            TestCase::QUICK);
+            TestCase::Duration::QUICK);
       }
 
     // HANDOVER DELAY TEST CASES WITH REAL RRC (THRESHOLD = 0.020 sec)
@@ -300,7 +300,7 @@ public:
         // arguments: useIdealRrc, handoverTime, delayThreshold, simulationDuration
         AddTestCase (
             new LteHandoverDelayTestCase (1, false, handoverTime, Seconds (0.020), Seconds (0.200)),
-            TestCase::QUICK);
+            TestCase::Duration::QUICK);
       }
   }
 } g_lteHandoverDelayTestSuite; ///< the test suite

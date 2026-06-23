@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -32,8 +21,7 @@ NS_LOG_COMPONENT_DEFINE("SeqTsHeader");
 NS_OBJECT_ENSURE_REGISTERED(SeqTsHeader);
 
 SeqTsHeader::SeqTsHeader()
-    : m_seq(0),
-      m_ts(Simulator::Now().GetTimeStep())
+    : m_ts{Simulator::Now()}
 {
     NS_LOG_FUNCTION(this);
 }
@@ -56,7 +44,7 @@ Time
 SeqTsHeader::GetTs() const
 {
     NS_LOG_FUNCTION(this);
-    return TimeStep(m_ts);
+    return m_ts;
 }
 
 TypeId
@@ -79,7 +67,7 @@ void
 SeqTsHeader::Print(std::ostream& os) const
 {
     NS_LOG_FUNCTION(this << &os);
-    os << "(seq=" << m_seq << " time=" << TimeStep(m_ts).As(Time::S) << ")";
+    os << "(seq=" << m_seq << " time=" << m_ts.As(Time::S) << ")";
 }
 
 uint32_t
@@ -95,7 +83,7 @@ SeqTsHeader::Serialize(Buffer::Iterator start) const
     NS_LOG_FUNCTION(this << &start);
     Buffer::Iterator i = start;
     i.WriteHtonU32(m_seq);
-    i.WriteHtonU64(m_ts);
+    i.WriteHtonU64(m_ts.GetTimeStep());
 }
 
 uint32_t
@@ -104,7 +92,7 @@ SeqTsHeader::Deserialize(Buffer::Iterator start)
     NS_LOG_FUNCTION(this << &start);
     Buffer::Iterator i = start;
     m_seq = i.ReadNtohU32();
-    m_ts = i.ReadNtohU64();
+    m_ts = TimeStep(i.ReadNtohU64());
     return GetSerializedSize();
 }
 

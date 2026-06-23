@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2007 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -89,7 +78,8 @@ PacketSocketAddress::GetPhysicalAddress() const
     return m_address;
 }
 
-PacketSocketAddress::operator Address() const
+PacketSocketAddress::
+operator Address() const
 {
     return ConvertTo();
 }
@@ -98,7 +88,6 @@ Address
 PacketSocketAddress::ConvertTo() const
 {
     NS_LOG_FUNCTION(this);
-    Address address;
     uint8_t buffer[Address::MAX_SIZE];
     buffer[0] = m_protocol & 0xff;
     buffer[1] = (m_protocol >> 8) & 0xff;
@@ -155,7 +144,7 @@ uint8_t
 PacketSocketAddress::GetType()
 {
     NS_LOG_FUNCTION_NOARGS();
-    static uint8_t type = Address::Register();
+    static uint8_t type = Address::Register("PacketSocketAddress", Address::MAX_SIZE);
     return type;
 }
 

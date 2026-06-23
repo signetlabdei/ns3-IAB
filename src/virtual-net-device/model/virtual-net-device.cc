@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2008,2009 INESC Porto
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author:  Gustavo J. A. M. Carneiro  <gjc@inescporto.pt>
  */
@@ -224,7 +213,7 @@ VirtualNetDevice::IsBroadcast() const
 Address
 VirtualNetDevice::GetBroadcast() const
 {
-    return Mac48Address("ff:ff:ff:ff:ff:ff");
+    return Mac48Address::GetBroadcast();
 }
 
 bool
@@ -236,13 +225,13 @@ VirtualNetDevice::IsMulticast() const
 Address
 VirtualNetDevice::GetMulticast(Ipv4Address multicastGroup) const
 {
-    return Mac48Address("ff:ff:ff:ff:ff:ff");
+    return Mac48Address::GetBroadcast();
 }
 
 Address
 VirtualNetDevice::GetMulticast(Ipv6Address addr) const
 {
-    return Mac48Address("ff:ff:ff:ff:ff:ff");
+    return Mac48Address::GetBroadcast();
 }
 
 bool
@@ -255,11 +244,7 @@ bool
 VirtualNetDevice::Send(Ptr<Packet> packet, const Address& dest, uint16_t protocolNumber)
 {
     m_macTxTrace(packet);
-    if (m_sendCb(packet, GetAddress(), dest, protocolNumber))
-    {
-        return true;
-    }
-    return false;
+    return m_sendCb(packet, GetAddress(), dest, protocolNumber);
 }
 
 bool
@@ -270,11 +255,7 @@ VirtualNetDevice::SendFrom(Ptr<Packet> packet,
 {
     NS_ASSERT(m_supportsSendFrom);
     m_macTxTrace(packet);
-    if (m_sendCb(packet, source, dest, protocolNumber))
-    {
-        return true;
-    }
-    return false;
+    return m_sendCb(packet, source, dest, protocolNumber);
 }
 
 Ptr<Node>

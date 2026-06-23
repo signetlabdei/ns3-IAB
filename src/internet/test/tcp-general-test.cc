@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2015 Natale Patriciello <natale.patriciello@gmail.com>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  */
 #define __STDC_LIMIT_MACROS
@@ -248,7 +237,7 @@ TcpGeneralTest::DoRun()
     m_receiverSocket->Listen();
     m_receiverSocket->ShutdownSend();
 
-    Simulator::Schedule(Seconds(0.0), &TcpGeneralTest::DoConnect, this);
+    Simulator::Schedule(Seconds(0), &TcpGeneralTest::DoConnect, this);
     Simulator::ScheduleWithContext(nodes.Get(0)->GetId(),
                                    m_startTime,
                                    &TcpGeneralTest::SendPacket,

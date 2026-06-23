@@ -1,16 +1,5 @@
 /*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Fabian Mauchle <fabian.mauchle@hsr.ch>
  */
@@ -34,9 +23,9 @@ using namespace ns3;
 // ===========================================================================
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv6 extensions Test: Empty option field.
+ * @brief IPv6 extensions Test: Empty option field.
  */
 class TestEmptyOptionField : public TestCase
 {
@@ -74,9 +63,9 @@ class TestEmptyOptionField : public TestCase
 // ===========================================================================
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv6 extensions Test: Option without alignment.
+ * @brief IPv6 extensions Test: Option without alignment.
  */
 class OptionWithoutAlignmentHeader : public Ipv6OptionHeader
 {
@@ -97,9 +86,9 @@ class OptionWithoutAlignmentHeader : public Ipv6OptionHeader
 };
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv6 extensions Test: Test the option without alignment.
+ * @brief IPv6 extensions Test: Test the option without alignment.
  */
 class TestOptionWithoutAlignment : public TestCase
 {
@@ -147,9 +136,9 @@ class TestOptionWithoutAlignment : public TestCase
 // ===========================================================================
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv6 extensions Test: Option with alignment.
+ * @brief IPv6 extensions Test: Option with alignment.
  */
 class OptionWithAlignmentHeader : public Ipv6OptionHeader
 {
@@ -170,14 +159,14 @@ class OptionWithAlignmentHeader : public Ipv6OptionHeader
 
     Alignment GetAlignment() const override
     {
-        return (Alignment){4, 0};
+        return Alignment{4, 0};
     }
 };
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv6 extensions Test: Test the option with alignment.
+ * @brief IPv6 extensions Test: Test the option with alignment.
  */
 class TestOptionWithAlignment : public TestCase
 {
@@ -232,9 +221,9 @@ class TestOptionWithAlignment : public TestCase
 // ===========================================================================
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv6 extensions Test: Test an option already aligned.
+ * @brief IPv6 extensions Test: Test an option already aligned.
  */
 class TestFulfilledAlignment : public TestCase
 {
@@ -271,20 +260,20 @@ class TestFulfilledAlignment : public TestCase
 };
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv6 extensions TestSuite.
+ * @brief IPv6 extensions TestSuite.
  */
 class Ipv6ExtensionHeaderTestSuite : public TestSuite
 {
   public:
     Ipv6ExtensionHeaderTestSuite()
-        : TestSuite("ipv6-extension-header", UNIT)
+        : TestSuite("ipv6-extension-header", Type::UNIT)
     {
-        AddTestCase(new TestEmptyOptionField, TestCase::QUICK);
-        AddTestCase(new TestOptionWithoutAlignment, TestCase::QUICK);
-        AddTestCase(new TestOptionWithAlignment, TestCase::QUICK);
-        AddTestCase(new TestFulfilledAlignment, TestCase::QUICK);
+        AddTestCase(new TestEmptyOptionField, TestCase::Duration::QUICK);
+        AddTestCase(new TestOptionWithoutAlignment, TestCase::Duration::QUICK);
+        AddTestCase(new TestOptionWithAlignment, TestCase::Duration::QUICK);
+        AddTestCase(new TestFulfilledAlignment, TestCase::Duration::QUICK);
     }
 };
 

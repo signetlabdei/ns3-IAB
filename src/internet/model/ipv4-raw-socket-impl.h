@@ -1,9 +1,10 @@
 #ifndef IPV4_RAW_SOCKET_IMPL_H
 #define IPV4_RAW_SOCKET_IMPL_H
 
-#include "ns3/ipv4-header.h"
-#include "ns3/ipv4-interface.h"
-#include "ns3/ipv4-route.h"
+#include "ipv4-header.h"
+#include "ipv4-interface.h"
+#include "ipv4-route.h"
+
 #include "ns3/socket.h"
 
 #include <list>
@@ -15,10 +16,10 @@ class NetDevice;
 class Node;
 
 /**
- * \ingroup socket
- * \ingroup ipv4
+ * @ingroup socket
+ * @ingroup ipv4
  *
- * \brief IPv4 raw socket.
+ * @brief IPv4 raw socket.
  *
  * A RAW Socket typically is used to access specific IP layers not usually
  * available through L4 sockets, e.g., ICMP. The implementer should take
@@ -29,26 +30,26 @@ class Ipv4RawSocketImpl : public Socket
 {
   public:
     /**
-     * \brief Get the type ID of this class.
-     * \return type ID
+     * @brief Get the type ID of this class.
+     * @return type ID
      */
     static TypeId GetTypeId();
 
     Ipv4RawSocketImpl();
 
     /**
-     * \brief Set the node associated with this socket.
-     * \param node node to set
+     * @brief Set the node associated with this socket.
+     * @param node node to set
      */
     void SetNode(Ptr<Node> node);
 
-    enum Socket::SocketErrno GetErrno() const override;
+    Socket::SocketErrno GetErrno() const override;
 
     /**
-     * \brief Get socket type (NS3_SOCK_RAW)
-     * \return socket type
+     * @brief Get socket type (NS3_SOCK_RAW)
+     * @return socket type
      */
-    enum Socket::SocketType GetSocketType() const override;
+    Socket::SocketType GetSocketType() const override;
 
     Ptr<Node> GetNode() const override;
     int Bind(const Address& address) override;
@@ -69,17 +70,17 @@ class Ipv4RawSocketImpl : public Socket
     Ptr<Packet> RecvFrom(uint32_t maxSize, uint32_t flags, Address& fromAddress) override;
 
     /**
-     * \brief Set protocol field.
-     * \param protocol protocol to set
+     * @brief Set protocol field.
+     * @param protocol protocol to set
      */
     void SetProtocol(uint16_t protocol);
 
     /**
-     * \brief Forward up to receive method.
-     * \param p packet
-     * \param ipHeader IPv4 header
-     * \param incomingInterface incoming interface
-     * \return true if forwarded, false otherwise
+     * @brief Forward up to receive method.
+     * @param p packet
+     * @param ipHeader IPv4 header
+     * @param incomingInterface incoming interface
+     * @return true if forwarded, false otherwise
      */
     bool ForwardUp(Ptr<const Packet> p, Ipv4Header ipHeader, Ptr<Ipv4Interface> incomingInterface);
     bool SetAllowBroadcast(bool allowBroadcast) override;
@@ -89,8 +90,8 @@ class Ipv4RawSocketImpl : public Socket
     void DoDispose() override;
 
     /**
-     * \struct Data
-     * \brief IPv4 raw data and additional information.
+     * @struct Data
+     * @brief IPv4 raw data and additional information.
      */
     struct Data
     {
@@ -99,15 +100,15 @@ class Ipv4RawSocketImpl : public Socket
         uint16_t fromProtocol; /**< Protocol used */
     };
 
-    mutable enum Socket::SocketErrno m_err; //!< Last error number.
-    Ptr<Node> m_node;                       //!< Node
-    Ipv4Address m_src;                      //!< Source address.
-    Ipv4Address m_dst;                      //!< Destination address.
-    uint16_t m_protocol;                    //!< Protocol.
-    std::list<struct Data> m_recv;          //!< Packet waiting to be processed.
-    bool m_shutdownSend;                    //!< Flag to shutdown send capability.
-    bool m_shutdownRecv;                    //!< Flag to shutdown receive capability.
-    uint32_t m_icmpFilter;                  //!< ICMPv4 filter specification
+    mutable Socket::SocketErrno m_err; //!< Last error number.
+    Ptr<Node> m_node;                  //!< Node
+    Ipv4Address m_src;                 //!< Source address.
+    Ipv4Address m_dst;                 //!< Destination address.
+    uint16_t m_protocol;               //!< Protocol.
+    std::list<Data> m_recv;            //!< Packet waiting to be processed.
+    bool m_shutdownSend;               //!< Flag to shutdown send capability.
+    bool m_shutdownRecv;               //!< Flag to shutdown receive capability.
+    uint32_t m_icmpFilter;             //!< ICMPv4 filter specification
     bool m_iphdrincl; //!< Include IP Header information (a.k.a setsockopt (IP_HDRINCL))
 };
 

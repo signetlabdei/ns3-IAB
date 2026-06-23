@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 IITP RAS
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Kirill Andreev <andreev@iitp.ru>
  */
@@ -98,6 +87,8 @@ void
 FlameRegressionTest::CreateDevices()
 {
     int64_t streamsUsed = 0;
+    int64_t streamNumber = 1;
+    int64_t streamIncrement = 1000;
     // 1. setup WiFi
     YansWifiPhyHelper wifiPhy;
     // This test suite output was originally based on YansErrorRateModel
@@ -111,23 +102,24 @@ FlameRegressionTest::CreateDevices()
     // 2. setup mesh
     MeshHelper mesh = MeshHelper::Default();
     mesh.SetStackInstaller("ns3::FlameStack");
-    mesh.SetMacType("RandomStart", TimeValue(Seconds(0.1)));
+    mesh.SetMacType("RandomStart", TimeValue(MilliSeconds(100)));
     mesh.SetNumberOfInterfaces(1);
     NetDeviceContainer meshDevices = mesh.Install(wifiPhy, *m_nodes);
     // Three devices, eight streams per device
-    streamsUsed += mesh.AssignStreams(meshDevices, streamsUsed);
+    streamsUsed = mesh.AssignStreams(meshDevices, streamNumber);
+    streamNumber += streamIncrement;
     NS_TEST_ASSERT_MSG_EQ(streamsUsed,
                           (meshDevices.GetN() * 8),
                           "Stream assignment unexpected value");
     // No further streams used in the default wifi channel configuration
-    streamsUsed += wifiChannel.AssignStreams(chan, streamsUsed);
-    NS_TEST_ASSERT_MSG_EQ(streamsUsed,
-                          (meshDevices.GetN() * 8),
-                          "Stream assignment unexpected value");
+    streamsUsed = wifiChannel.AssignStreams(chan, streamNumber);
+    streamNumber += streamIncrement;
+    NS_TEST_ASSERT_MSG_EQ(streamsUsed, 0, "No WifiChannel stream usage expected");
     // 3. setup TCP/IP
     InternetStackHelper internetStack;
+    internetStack.SetIpv6StackInstall(false);
     internetStack.Install(*m_nodes);
-    streamsUsed += internetStack.AssignStreams(*m_nodes, streamsUsed);
+    internetStack.AssignStreams(*m_nodes, streamNumber);
     Ipv4AddressHelper address;
     address.SetBase("10.1.1.0", "255.255.255.0");
     m_interfaces = address.Assign(meshDevices);
@@ -145,7 +137,7 @@ FlameRegressionTest::InstallApplications()
     m_clientSocket->Connect(InetSocketAddress(m_interfaces.GetAddress(0), 9));
     m_clientSocket->SetRecvCallback(MakeCallback(&FlameRegressionTest::HandleReadClient, this));
     Simulator::ScheduleWithContext(m_clientSocket->GetNode()->GetId(),
-                                   Seconds(1.0),
+                                   Seconds(1),
                                    &FlameRegressionTest::SendData,
                                    this,
                                    m_clientSocket);
@@ -174,7 +166,7 @@ FlameRegressionTest::SendData(Ptr<Socket> socket)
         socket->Send(Create<Packet>(20));
         m_sentPktsCounter++;
         Simulator::ScheduleWithContext(socket->GetNode()->GetId(),
-                                       Seconds(1.1),
+                                       MilliSeconds(1100),
                                        &FlameRegressionTest::SendData,
                                        this,
                                        socket);

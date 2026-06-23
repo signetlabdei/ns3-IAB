@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2005 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -45,13 +34,11 @@ Ipv4InterfaceAddress::Ipv4InterfaceAddress(Ipv4Address local, Ipv4Mask mask)
         m_scope = HOST;
     }
     m_mask = mask;
-    m_broadcast = Ipv4Address(local.Get() | (~mask.Get()));
 }
 
 Ipv4InterfaceAddress::Ipv4InterfaceAddress(const Ipv4InterfaceAddress& o)
     : m_local(o.m_local),
       m_mask(o.m_mask),
-      m_broadcast(o.m_broadcast),
       m_scope(o.m_scope),
       m_secondary(o.m_secondary)
 {
@@ -98,18 +85,11 @@ Ipv4InterfaceAddress::GetMask() const
     return m_mask;
 }
 
-void
-Ipv4InterfaceAddress::SetBroadcast(Ipv4Address broadcast)
-{
-    NS_LOG_FUNCTION(this << broadcast);
-    m_broadcast = broadcast;
-}
-
 Ipv4Address
 Ipv4InterfaceAddress::GetBroadcast() const
 {
     NS_LOG_FUNCTION(this);
-    return m_broadcast;
+    return Ipv4Address(m_local.Get() | (~m_mask.Get()));
 }
 
 void

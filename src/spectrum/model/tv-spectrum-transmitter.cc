@@ -1,34 +1,23 @@
 /*
  * Copyright (c) 2014 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Benjamin Cizdziel <ben.cizdziel@gmail.com>
  */
 
 #include "tv-spectrum-transmitter.h"
 
-#include <ns3/antenna-model.h>
-#include <ns3/double.h>
-#include <ns3/enum.h>
-#include <ns3/integer.h>
-#include <ns3/isotropic-antenna-model.h>
-#include <ns3/log.h>
-#include <ns3/pointer.h>
-#include <ns3/simulator.h>
-#include <ns3/string.h>
-#include <ns3/uinteger.h>
+#include "ns3/antenna-model.h"
+#include "ns3/double.h"
+#include "ns3/enum.h"
+#include "ns3/integer.h"
+#include "ns3/isotropic-antenna-model.h"
+#include "ns3/log.h"
+#include "ns3/pointer.h"
+#include "ns3/simulator.h"
+#include "ns3/string.h"
+#include "ns3/uinteger.h"
 
 #include <cmath>
 
@@ -49,7 +38,7 @@ TvSpectrumTransmitter::TvSpectrumTransmitter()
       m_channelBandwidth(6e6),
       m_basePsd(20),
       m_txPsd(nullptr),
-      m_startingTime(Seconds(0)),
+      m_startingTime(),
       m_transmitDuration(Seconds(0.2)),
       m_active(false)
 {
@@ -74,16 +63,17 @@ TvSpectrumTransmitter::GetTypeId()
             .SetParent<SpectrumPhy>()
             .SetGroupName("Spectrum")
             .AddConstructor<TvSpectrumTransmitter>()
-            .AddAttribute("TvType",
-                          "The type of TV transmitter/modulation to be used.",
-                          EnumValue(TvSpectrumTransmitter::TVTYPE_8VSB),
-                          MakeEnumAccessor(&TvSpectrumTransmitter::m_tvType),
-                          MakeEnumChecker(TvSpectrumTransmitter::TVTYPE_8VSB,
-                                          "8vsb",
-                                          TvSpectrumTransmitter::TVTYPE_COFDM,
-                                          "cofdm",
-                                          TvSpectrumTransmitter::TVTYPE_ANALOG,
-                                          "analog"))
+            .AddAttribute(
+                "TvType",
+                "The type of TV transmitter/modulation to be used.",
+                EnumValue(TvSpectrumTransmitter::TVTYPE_8VSB),
+                MakeEnumAccessor<TvSpectrumTransmitter::TvType>(&TvSpectrumTransmitter::m_tvType),
+                MakeEnumChecker(TvSpectrumTransmitter::TVTYPE_8VSB,
+                                "8vsb",
+                                TvSpectrumTransmitter::TVTYPE_COFDM,
+                                "cofdm",
+                                TvSpectrumTransmitter::TVTYPE_ANALOG,
+                                "analog"))
             .AddAttribute("StartFrequency",
                           "The lower end frequency (in Hz) of the TV transmitter's "
                           "signal. Must be greater than or equal to 0.",
@@ -194,8 +184,8 @@ struct TvSpectrumModelId
 {
     /**
      * Constructor
-     * \param stFreq Start frequency [Hz]
-     * \param bwidth Bandwidth [Hz]
+     * @param stFreq Start frequency [Hz]
+     * @param bwidth Bandwidth [Hz]
      */
     TvSpectrumModelId(double stFreq, double bwidth);
     double startFrequency; //!< Start frequency [Hz]
@@ -210,9 +200,9 @@ TvSpectrumModelId::TvSpectrumModelId(double stFreq, double bwidth)
 
 /**
  * Minus-than operator
- * \param a left operand
- * \param b right operand
- * \returns true if the left operand has a lower starting frequency
+ * @param a left operand
+ * @param b right operand
+ * @returns true if the left operand has a lower starting frequency
  *          or a smaller bandwidth (if both have the same starting freq.)
  */
 bool
@@ -232,7 +222,7 @@ static std::map<TvSpectrumModelId, Ptr<SpectrumModel>> g_tvSpectrumModelMap;
  * <http://www.ieeeghn.org/wiki/index.php/First-Hand:Digital_Television:_The_Digital_Terrestrial_Television_Broadcasting_(DTTB)_Standard>.
  *
  * COFDM PSD approximated from Figure 12 (8k mode) of the following article:
- * Kopp, Carlo. "High Definition Television." High Definition Television. Air
+ * Kopp, Carlo. "High Definition Television." High Definition Television. Air
  * Power Australia. <http://www.ausairpower.net/AC-1100.html>.
  *
  * Analog PSD approximated from Figure 4 of the following paper:
@@ -246,7 +236,7 @@ TvSpectrumTransmitter::CreateTvPsd()
     NS_ASSERT(m_channelBandwidth != 0);
     Ptr<SpectrumModel> model;
     TvSpectrumModelId key(m_startFrequency, m_channelBandwidth);
-    std::map<TvSpectrumModelId, Ptr<SpectrumModel>>::iterator iter = g_tvSpectrumModelMap.find(key);
+    auto iter = g_tvSpectrumModelMap.find(key);
     if (iter != g_tvSpectrumModelMap.end())
     {
         model = iter->second; // set SpectrumModel to previously created one
@@ -506,8 +496,6 @@ TvSpectrumTransmitter::CreateTvPsd()
             case 82:
             case 83:
             case 84:
-                (*psd)[i] = 3.16228e-06 * basePsdWattsHz;
-                break;
             case 85:
             case 86:
             case 87:

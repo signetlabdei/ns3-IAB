@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2012 INRIA, 2012 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  */
 
@@ -34,8 +23,8 @@ namespace ns3
 {
 
 /**
- * \ingroup fd-net-device
- * \brief build a set of FdNetDevice objects attached to a virtual TAP network
+ * @ingroup fd-net-device
+ * @brief build a set of FdNetDevice objects attached to a virtual TAP network
  * interface
  *
  */
@@ -54,42 +43,42 @@ class TapFdNetDeviceHelper : public EmuFdNetDeviceHelper
     /**
      * Set flag IFF_NO_PI on the device.
      *
-     * \param pi Set the IFF_NO_PI flag if pi is false.
+     * @param pi Set the IFF_NO_PI flag if pi is false.
      */
     void SetModePi(bool pi);
 
     /**
      * Set the device IPv4 address.
      *
-     * \param address The IPv4 address for the TAP device.
+     * @param address The IPv4 address for the TAP device.
      */
     void SetTapIpv4Address(Ipv4Address address);
 
     /**
      * Set the IPv4 network mask for the TAP device.
      *
-     * \param mask The IPv4 network mask for the TAP device.
+     * @param mask The IPv4 network mask for the TAP device.
      */
     void SetTapIpv4Mask(Ipv4Mask mask);
 
     /**
      * Set the device IPv6 address.
      *
-     * \param address The IPv6 address for the TAP device.
+     * @param address The IPv6 address for the TAP device.
      */
     void SetTapIpv6Address(Ipv6Address address);
 
     /**
      * Set the IPv6 network mask for the TAP device.
      *
-     * \param prefix The IPv6 network prefix for the TAP device.
+     * @param prefix The IPv6 network prefix for the TAP device.
      */
     void SetTapIpv6Prefix(int prefix);
 
     /**
      * Set the MAC address for the TAP device.
      *
-     * \param mac The MAC address the TAP device.
+     * @param mac The MAC address the TAP device.
      */
     void SetTapMacAddress(Mac48Address mac);
 
@@ -98,21 +87,21 @@ class TapFdNetDeviceHelper : public EmuFdNetDeviceHelper
      * This method creates an ns3::FdNetDevice attached to a virtual TAP network
      * interface
      *
-     * \param node The node to install the device in
-     * \returns A container holding the added net device.
+     * @param node The node to install the device in
+     * @returns A container holding the added net device.
      */
     Ptr<NetDevice> InstallPriv(Ptr<Node> node) const override;
 
     /**
      * Sets a file descriptor on the FileDescriptorNetDevice.
-     * \param device the device to install the file descriptor in
+     * @param device the device to install the file descriptor in
      */
     void SetFileDescriptor(Ptr<FdNetDevice> device) const override;
 
     /**
      * Call out to a separate process running as suid root in order to create a
      * TAP device and obtain the file descriptor associated to it.
-     * \returns The file descriptor associated with the TAP device.
+     * @returns The file descriptor associated with the TAP device.
      */
     int CreateFileDescriptor() const override;
 

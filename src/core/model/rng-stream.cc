@@ -1,18 +1,7 @@
 //
 //  Copyright (C) 2001  Pierre L'Ecuyer (lecuyer@iro.umontreal.ca)
 //
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License version 2 as
-// published by the Free Software Foundation;
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+// SPDX-License-Identifier: GPL-2.0-only
 //
 // Modified for ns-3 by:
 //   - Rajib Bhattacharjea<raj.b@gatech.edu>
@@ -24,12 +13,11 @@
 #include "fatal-error.h"
 #include "log.h"
 
-#include <cstdlib>
 #include <iostream>
 
 /**
- * \file
- * \ingroup rngimpl
+ * @file
+ * @ingroup rngimpl
  * ns3::RngStream and MRG32k3a implementations.
  */
 
@@ -44,7 +32,7 @@ NS_LOG_COMPONENT_DEFINE("RngStream");
 } // namespace ns3
 
 /**
- * \ingroup rngimpl
+ * @ingroup rngimpl
  * @{
  */
 /** Namespace for MRG32k3a implementation details. */
@@ -109,7 +97,7 @@ const Matrix A2p0 = {
  * \param [in] s Second multiplicative argument.
  * \param [in] c Additive argument.
  * \param [in] m Modulus.
- * \returns <tt>(a*s +c) MOD m</tt>
+ * \returns ``(a*s +c) MOD m``
  */
 double MultModM (double a, double s, double c, double m)
 {
@@ -297,9 +285,9 @@ struct Precalculated
  *
  * \returns The precalculated powers of the transition matrices.
  */
-struct Precalculated PowerOfTwoConstants ()
+Precalculated PowerOfTwoConstants ()
 {
-  struct Precalculated precalculated;
+  Precalculated precalculated;
   for (int i = 0; i < 190; i++)
     {
       int power = i + 1;
@@ -317,7 +305,7 @@ struct Precalculated PowerOfTwoConstants ()
  */
 void PowerOfTwoMatrix (int n, Matrix a1p, Matrix a2p)
 {
-  static struct Precalculated constants = PowerOfTwoConstants ();
+  static  Precalculated constants = PowerOfTwoConstants ();
   for (int i = 0; i < 3; i ++)
     {
       for (int j = 0; j < 3; j++)
@@ -370,7 +358,7 @@ RngStream::RandU01()
     m_currentState[5] = p2;
 
     /* Combination */
-    u = ((p1 > p2) ? (p1 - p2) * norm : (p1 - p2 + m1) * norm);
+    u = ((p1 > p2) ? (p1 - p2) * MRG32k3a::norm : (p1 - p2 + m1) * MRG32k3a::norm);
 
     return u;
 }

@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2006 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -26,7 +15,7 @@ namespace ns3
 {
 
 /**
- * \ingroup wifi
+ * @ingroup wifi
  *
  * Capability information
  */
@@ -49,7 +38,7 @@ class CapabilityInformation
      * Set the short preamble bit
      * in the capability information field.
      *
-     * \param shortPreamble the short preamble bit
+     * @param shortPreamble the short preamble bit
      *
      */
     void SetShortPreamble(bool shortPreamble);
@@ -57,7 +46,7 @@ class CapabilityInformation
      * Set the short slot time bit
      * in the capability information field.
      *
-     * \param shortSlotTime the short preamble bit
+     * @param shortSlotTime the short preamble bit
      *
      */
     void SetShortSlotTime(bool shortSlotTime);
@@ -68,10 +57,16 @@ class CapabilityInformation
     void SetCfPollable();
 
     /**
+     * Set Critical Update flag (see IEEE 802.11be D5.0 9.4.1.4)
+     * @param flag critical update bit
+     */
+    void SetCriticalUpdate(bool flag);
+
+    /**
      * Check if the Extended Service Set (ESS) bit
      * in the capability information field is set to 1.
      *
-     * \return ESS bit in the capability information
+     * @return ESS bit in the capability information
      *         field is set to 1
      */
     bool IsEss() const;
@@ -79,7 +74,7 @@ class CapabilityInformation
      * Check if the Independent BSS (IBSS) bit
      * in the capability information field is set to 1.
      *
-     * \return IBSS bit in the capability information
+     * @return IBSS bit in the capability information
      *         field is set to 1
      */
     bool IsIbss() const;
@@ -87,7 +82,7 @@ class CapabilityInformation
      * Check if the short preamble bit
      * in the capability information field is set to 1.
      *
-     * \return short preamble bit in the capability information
+     * @return short preamble bit in the capability information
      *         field is set to 1
      */
     bool IsShortPreamble() const;
@@ -95,7 +90,7 @@ class CapabilityInformation
      * Check if the short slot time
      * in the capability information field is set to 1.
      *
-     * \return short slot time bit in the capability information
+     * @return short slot time bit in the capability information
      *         field is set to 1
      */
     bool IsShortSlotTime() const;
@@ -103,31 +98,38 @@ class CapabilityInformation
      * Check if the CF-Pollable bit
      * in the capability information field is set to 1.
      *
-     * \return CF-Pollable bit in the capability information
+     * @return CF-Pollable bit in the capability information
      *         field is set to 1
      */
     bool IsCfPollable() const;
 
     /**
+     * Check if Critical Update bit is set to 1
+     *
+     * @return true if set to 1, false otherwise
+     */
+    bool IsCriticalUpdate() const;
+
+    /**
      * Return the serialized size of capability
      * information.
      *
-     * \return the serialized size
+     * @return the serialized size
      */
     uint32_t GetSerializedSize() const;
     /**
      * Serialize capability information to the given buffer.
      *
-     * \param start an iterator to a buffer
-     * \return an iterator to a buffer after capability information
+     * @param start an iterator to a buffer
+     * @return an iterator to a buffer after capability information
      *         was serialized
      */
     Buffer::Iterator Serialize(Buffer::Iterator start) const;
     /**
      * Deserialize capability information from the given buffer.
      *
-     * \param start an iterator to a buffer
-     * \return an iterator to a buffer after capability information
+     * @param start an iterator to a buffer
+     * @return an iterator to a buffer after capability information
      *         was deserialized
      */
     Buffer::Iterator Deserialize(Buffer::Iterator start);
@@ -136,22 +138,22 @@ class CapabilityInformation
     /**
      * Check if bit n is set to 1.
      *
-     * \param n the bit position
+     * @param n the bit position
      *
-     * \return true if bit n is set to 1,
+     * @return true if bit n is set to 1,
      *         false otherwise
      */
     bool Is(uint8_t n) const;
     /**
      * Set bit n to 1.
      *
-     * \param n the bit position
+     * @param n the bit position
      */
     void Set(uint8_t n);
     /**
      * Set bit n to 0.
      *
-     * \param n the bit position
+     * @param n the bit position
      */
     void Clear(uint8_t n);
 

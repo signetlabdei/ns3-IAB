@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2008,2009 IITP RAS
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Kirill Andreev <andreev@iitp.ru>
  */
@@ -70,19 +59,12 @@ HwmpRtable::AddReactivePath(Mac48Address destination,
 {
     NS_LOG_FUNCTION(this << destination << retransmitter << interface << metric
                          << lifetime.GetSeconds() << seqnum);
-    std::map<Mac48Address, ReactiveRoute>::iterator i = m_routes.find(destination);
-    if (i == m_routes.end())
-    {
-        ReactiveRoute newroute;
-        m_routes[destination] = newroute;
-    }
-    i = m_routes.find(destination);
-    NS_ASSERT(i != m_routes.end());
-    i->second.retransmitter = retransmitter;
-    i->second.interface = interface;
-    i->second.metric = metric;
-    i->second.whenExpire = Simulator::Now() + lifetime;
-    i->second.seqnum = seqnum;
+    auto& route = m_routes[destination]; // find existing record or create new
+    route.retransmitter = retransmitter;
+    route.interface = interface;
+    route.metric = metric;
+    route.whenExpire = Simulator::Now() + lifetime;
+    route.seqnum = seqnum;
 }
 
 void
@@ -113,7 +95,7 @@ HwmpRtable::AddPrecursor(Mac48Address destination,
     precursor.interface = precursorInterface;
     precursor.address = precursorAddress;
     precursor.whenExpire = Simulator::Now() + lifetime;
-    std::map<Mac48Address, ReactiveRoute>::iterator i = m_routes.find(destination);
+    auto i = m_routes.find(destination);
     if (i != m_routes.end())
     {
         bool should_add = true;
@@ -161,7 +143,7 @@ void
 HwmpRtable::DeleteReactivePath(Mac48Address destination)
 {
     NS_LOG_FUNCTION(this << destination);
-    std::map<Mac48Address, ReactiveRoute>::iterator i = m_routes.find(destination);
+    auto i = m_routes.find(destination);
     if (i != m_routes.end())
     {
         m_routes.erase(i);
@@ -172,12 +154,12 @@ HwmpRtable::LookupResult
 HwmpRtable::LookupReactive(Mac48Address destination)
 {
     NS_LOG_FUNCTION(this << destination);
-    std::map<Mac48Address, ReactiveRoute>::iterator i = m_routes.find(destination);
+    auto i = m_routes.find(destination);
     if (i == m_routes.end())
     {
         return LookupResult();
     }
-    if ((i->second.whenExpire < Simulator::Now()) && (i->second.whenExpire != Seconds(0)))
+    if ((i->second.whenExpire < Simulator::Now()) && (!i->second.whenExpire.IsZero()))
     {
         NS_LOG_DEBUG("Reactive route has expired, sorry.");
         return LookupResult();
@@ -189,7 +171,7 @@ HwmpRtable::LookupResult
 HwmpRtable::LookupReactiveExpired(Mac48Address destination)
 {
     NS_LOG_FUNCTION(this << destination);
-    std::map<Mac48Address, ReactiveRoute>::iterator i = m_routes.find(destination);
+    auto i = m_routes.find(destination);
     if (i == m_routes.end())
     {
         return LookupResult();
@@ -232,8 +214,7 @@ HwmpRtable::GetUnreachableDestinations(Mac48Address peerAddress)
     NS_LOG_FUNCTION(this << peerAddress);
     HwmpProtocol::FailedDestination dst;
     std::vector<HwmpProtocol::FailedDestination> retval;
-    for (std::map<Mac48Address, ReactiveRoute>::iterator i = m_routes.begin(); i != m_routes.end();
-         i++)
+    for (auto i = m_routes.begin(); i != m_routes.end(); i++)
     {
         if (i->second.retransmitter == peerAddress)
         {
@@ -259,12 +240,10 @@ HwmpRtable::GetPrecursors(Mac48Address destination)
     NS_LOG_FUNCTION(this << destination);
     // We suppose that no duplicates here can be
     PrecursorList retval;
-    std::map<Mac48Address, ReactiveRoute>::iterator route = m_routes.find(destination);
+    auto route = m_routes.find(destination);
     if (route != m_routes.end())
     {
-        for (std::vector<Precursor>::const_iterator i = route->second.precursors.begin();
-             i != route->second.precursors.end();
-             i++)
+        for (auto i = route->second.precursors.begin(); i != route->second.precursors.end(); i++)
         {
             if (i->whenExpire > Simulator::Now())
             {

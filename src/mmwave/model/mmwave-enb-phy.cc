@@ -670,8 +670,9 @@ MmWaveEnbPhy::UpdateUeSinrEstimate ()
         }
       else if (m_phasedArraySpectrumPropagationLossModel)
         {
-          rxPsd = m_phasedArraySpectrumPropagationLossModel->CalcRxPowerSpectralDensity (
+          rxParams = m_phasedArraySpectrumPropagationLossModel->CalcRxPowerSpectralDensity (
               rxParams, ueMob, enbMob, txPam, rxPam);
+          rxPsd = rxParams->psd;
         }
 
       NS_LOG_LOGIC ("RxPsd " << *rxPsd);

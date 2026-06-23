@@ -2,18 +2,7 @@
  * Copyright (c) 2009, GTech Systems, Inc.
  * Copyright (c) 2021 NITK Surathkal: Extended to handle IPv6
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Alfred Park <park@gtech-systems.com>
  * Modified By: Josh Pelkey <jpelkey@gatech.edu> (ported to ns-3)
@@ -61,7 +50,7 @@ Progress()
 }
 
 /**
- * \ingroup nix-vector-routing
+ * @ingroup nix-vector-routing
  * 2D array used in nix-vector-routing example "nms-p2p-nix.cc"
  */
 template <typename T>
@@ -70,8 +59,8 @@ class Array2D
   public:
     /**
      * Constructor
-     * \param x number of rows
-     * \param y number of columns
+     * @param x number of rows
+     * @param y number of columns
      */
     Array2D(const size_t x, const size_t y)
         : p(new T*[x]),
@@ -95,8 +84,8 @@ class Array2D
 
     /**
      * Accessor operator
-     * \param i index to be retrieved
-     * \return a pointer to the indexed element
+     * @param i index to be retrieved
+     * @return a pointer to the indexed element
      */
     T* operator[](const size_t i)
     {
@@ -109,7 +98,7 @@ class Array2D
 };
 
 /**
- * \ingroup nix-vector-routing
+ * @ingroup nix-vector-routing
  * 3D array used in nix-vector-routing example "nms-p2p-nix.cc"
  */
 template <typename T>
@@ -118,9 +107,9 @@ class Array3D
   public:
     /**
      * Constructor
-     * \param x number of rows
-     * \param y number of columns
-     * \param z number of layers
+     * @param x number of rows
+     * @param y number of columns
+     * @param z number of layers
      */
     Array3D(const size_t x, const size_t y, const size_t z)
         : p(new Array2D<T>*[x]),
@@ -145,8 +134,8 @@ class Array3D
 
     /**
      * Accessor operator
-     * \param i index to be retrieved
-     * \return a reference to an Array2D of the indexed element
+     * @param i index to be retrieved
+     * @return a reference to an Array2D of the indexed element
      */
     Array2D<T>& operator[](const size_t i)
     {
@@ -193,7 +182,7 @@ main(int argc, char* argv[])
 
     Array2D<NodeContainer> nodes_net0(nCN, 3);
     Array2D<NodeContainer> nodes_net1(nCN, 6);
-    NodeContainer* nodes_netLR = new NodeContainer[nCN];
+    auto nodes_netLR = new NodeContainer[nCN];
     Array2D<NodeContainer> nodes_net2(nCN, 14);
     Array3D<NodeContainer> nodes_net2LAN(nCN, 7, nLANClients);
     Array2D<NodeContainer> nodes_net3(nCN, 9);
@@ -599,7 +588,7 @@ main(int argc, char* argv[])
     if (nCN > 1)
     {
         std::cout << "Forming Ring Topology..." << std::endl;
-        NodeContainer* nodes_ring = new NodeContainer[nCN];
+        auto nodes_ring = new NodeContainer[nCN];
         for (int z = 0; z < nCN - 1; ++z)
         {
             nodes_ring[z].Add(nodes_net0[z][0].Get(0));
@@ -607,7 +596,7 @@ main(int argc, char* argv[])
         }
         nodes_ring[nCN - 1].Add(nodes_net0[nCN - 1][0].Get(0));
         nodes_ring[nCN - 1].Add(nodes_net0[0][0].Get(0));
-        NetDeviceContainer* ndc_ring = new NetDeviceContainer[nCN];
+        auto ndc_ring = new NetDeviceContainer[nCN];
         for (int z = 0; z < nCN; ++z)
         {
             ndc_ring[z] = p2p_2gb200ms.Install(nodes_ring[z]);
@@ -668,7 +657,7 @@ main(int argc, char* argv[])
                 // Sinks
                 PacketSinkHelper sinkHelper("ns3::TcpSocketFactory", sinkAddress);
                 ApplicationContainer sinkApp = sinkHelper.Install(nodes_net2LAN[z][i][j].Get(0));
-                sinkApp.Start(Seconds(0.0));
+                sinkApp.Start(Seconds(0));
                 // Sources
                 r1 = 2 + (int)(4 * urng->GetValue());
                 r2 = 10 * urng->GetValue();
@@ -689,7 +678,7 @@ main(int argc, char* argv[])
                 // Sinks
                 PacketSinkHelper sinkHelper("ns3::TcpSocketFactory", sinkAddress);
                 ApplicationContainer sinkApp = sinkHelper.Install(nodes_net3LAN[z][i][j].Get(0));
-                sinkApp.Start(Seconds(0.0));
+                sinkApp.Start(Seconds(0));
                 // Sources
                 r1 = 2 + (int)(4 * urng->GetValue());
                 r2 = 10 * urng->GetValue();
@@ -727,7 +716,7 @@ main(int argc, char* argv[])
     Simulator::ScheduleNow(Progress);
     std::cout << "Running simulator..." << std::endl;
     auto t1 = std::chrono::steady_clock::now();
-    Simulator::Stop(Seconds(100.0));
+    Simulator::Stop(Seconds(100));
     Simulator::Run();
     auto t2 = std::chrono::steady_clock::now();
     std::cout << "Simulator finished." << std::endl;

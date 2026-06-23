@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2022 Tokushima University, Japan.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author:  Alberto Gallegos Ramonet <alramonet@is.tokushima-u.ac.jp>
  */
@@ -39,24 +28,25 @@
  * Typically, a value below 127 is considered a link with poor quality.
  */
 
-#include <ns3/constant-position-mobility-model.h>
-#include <ns3/core-module.h>
-#include <ns3/log.h>
-#include <ns3/lr-wpan-module.h>
-#include <ns3/packet.h>
-#include <ns3/propagation-delay-model.h>
-#include <ns3/propagation-loss-model.h>
-#include <ns3/simulator.h>
-#include <ns3/single-model-spectrum-channel.h>
+#include "ns3/constant-position-mobility-model.h"
+#include "ns3/core-module.h"
+#include "ns3/log.h"
+#include "ns3/lr-wpan-module.h"
+#include "ns3/packet.h"
+#include "ns3/propagation-delay-model.h"
+#include "ns3/propagation-loss-model.h"
+#include "ns3/simulator.h"
+#include "ns3/single-model-spectrum-channel.h"
 
 #include <iostream>
 
 using namespace ns3;
+using namespace ns3::lrwpan;
 
 static void
 ScanConfirm(Ptr<LrWpanNetDevice> device, MlmeScanConfirmParams params)
 {
-    if (params.m_status == MLMESCAN_SUCCESS)
+    if (params.m_status == MacStatus::SUCCESS)
     {
         std::cout << Simulator::Now().As(Time::S) << "| Active scan status SUCCESSFUL (Completed)"
                   << "\n";
@@ -89,6 +79,10 @@ ScanConfirm(Ptr<LrWpanNetDevice> device, MlmeScanConfirmParams params)
 int
 main(int argc, char* argv[])
 {
+    // CommandLine options required by PyViz visualizer
+    CommandLine cmd(__FILE__);
+    cmd.Parse(argc, argv);
+
     LogComponentEnableAll(LogLevel(LOG_PREFIX_TIME | LOG_PREFIX_FUNC));
 
     // Create 2 PAN coordinator nodes, and 1 end device
@@ -125,17 +119,17 @@ main(int argc, char* argv[])
     Ptr<ConstantPositionMobilityModel> coord1Mobility =
         CreateObject<ConstantPositionMobilityModel>();
     coord1Mobility->SetPosition(Vector(0, 0, 0));
-    coord1NetDevice->GetPhy()->SetMobility(coord1Mobility);
+    coord1->AggregateObject(coord1Mobility);
 
     Ptr<ConstantPositionMobilityModel> endNodeMobility =
         CreateObject<ConstantPositionMobilityModel>();
     endNodeMobility->SetPosition(Vector(100, 0, 0));
-    endNodeNetDevice->GetPhy()->SetMobility(endNodeMobility);
+    endNode->AggregateObject(endNodeMobility);
 
     Ptr<ConstantPositionMobilityModel> coord2Mobility =
         CreateObject<ConstantPositionMobilityModel>();
     coord2Mobility->SetPosition(Vector(206, 0, 0));
-    coord2NetDevice->GetPhy()->SetMobility(coord2Mobility);
+    coord2->AggregateObject(coord2Mobility);
 
     // MAC layer Callbacks hooks
     endNodeNetDevice->GetMac()->SetMlmeScanConfirmCallback(
@@ -154,7 +148,7 @@ main(int argc, char* argv[])
     params.m_sfrmOrd = 15;
     params.m_logCh = 12;
     Simulator::ScheduleWithContext(1,
-                                   Seconds(2.0),
+                                   Seconds(2),
                                    &LrWpanMac::MlmeStartRequest,
                                    coord1NetDevice->GetMac(),
                                    params);
@@ -168,7 +162,7 @@ main(int argc, char* argv[])
     params2.m_sfrmOrd = 15;
     params2.m_logCh = 14;
     Simulator::ScheduleWithContext(2,
-                                   Seconds(2.0),
+                                   Seconds(2),
                                    &LrWpanMac::MlmeStartRequest,
                                    coord2NetDevice->GetMac(),
                                    params2);
@@ -185,7 +179,7 @@ main(int argc, char* argv[])
     scanParams.m_scanDuration = 14;
     scanParams.m_scanType = MLMESCAN_ACTIVE;
     Simulator::ScheduleWithContext(1,
-                                   Seconds(3.0),
+                                   Seconds(3),
                                    &LrWpanMac::MlmeScanRequest,
                                    endNodeNetDevice->GetMac(),
                                    scanParams);

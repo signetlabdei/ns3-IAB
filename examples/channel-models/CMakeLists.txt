@@ -8,5 +8,4 @@ build_example(
     ${libspectrum}
     ${libantenna}
     ${libbuildings}
-    ${libmmwave}
 )

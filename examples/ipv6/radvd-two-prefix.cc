@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 Strasbourg University
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: David Gross <gdavid.devel@gmail.com>
  *         Sebastien Vincent <vincent@clarinet.u-strasbg.fr>
@@ -48,15 +37,15 @@ using namespace ns3;
 NS_LOG_COMPONENT_DEFINE("RadvdTwoPrefixExample");
 
 /**
- * \class IpAddressHelper
- * \brief Helper to print a node's IP addresses.
+ * @class IpAddressHelper
+ * @brief Helper to print a node's IP addresses.
  */
 class IpAddressHelper
 {
   public:
     /**
-     * \brief Print the node's IP addresses.
-     * \param n the node
+     * @brief Print the node's IP addresses.
+     * @param n the node
      */
     inline void PrintIpAddresses(Ptr<Node>& n)
     {
@@ -164,8 +153,7 @@ main(int argc, char** argv)
     routerInterface->SetMaxRtrAdvInterval(2000);
     routerInterface->SetMinRtrAdvInterval(1000);
     RadvdInterface::RadvdPrefixList prefixList = routerInterface->GetPrefixes();
-    for (RadvdInterface::RadvdPrefixListI iter = prefixList.begin(); iter != prefixList.end();
-         iter++)
+    for (auto iter = prefixList.begin(); iter != prefixList.end(); iter++)
     {
         (*iter)->SetPreferredLifeTime(3);
         (*iter)->SetValidLifeTime(5);
@@ -179,16 +167,15 @@ main(int argc, char** argv)
     routerInterface->SetMaxRtrAdvInterval(2000);
     routerInterface->SetMinRtrAdvInterval(1000);
     prefixList = routerInterface->GetPrefixes();
-    for (RadvdInterface::RadvdPrefixListI iter = prefixList.begin(); iter != prefixList.end();
-         iter++)
+    for (auto iter = prefixList.begin(); iter != prefixList.end(); iter++)
     {
         (*iter)->SetPreferredLifeTime(3);
         (*iter)->SetValidLifeTime(5);
     }
 
     ApplicationContainer radvdApps = radvdHelper.Install(r);
-    radvdApps.Start(Seconds(1.0));
-    radvdApps.Stop(Seconds(2.0));
+    radvdApps.Start(Seconds(1));
+    radvdApps.Stop(Seconds(2));
 
     /* Create a Ping application to send ICMPv6 echo request from n0 to n1 via R */
     uint32_t packetSize = 1024;
@@ -200,18 +187,18 @@ main(int argc, char** argv)
     ping.SetAttribute("Count", UintegerValue(maxPacketCount));
     ping.SetAttribute("Size", UintegerValue(packetSize));
     ApplicationContainer apps = ping.Install(net1.Get(0));
-    apps.Start(Seconds(2.0));
-    apps.Stop(Seconds(5.0));
+    apps.Start(Seconds(2));
+    apps.Stop(Seconds(5));
 
     Ptr<OutputStreamWrapper> routingStream = Create<OutputStreamWrapper>(&std::cout);
-    Ipv6RoutingHelper::PrintRoutingTableAt(Seconds(2.0), n0, routingStream);
-    Ipv6RoutingHelper::PrintRoutingTableAt(Seconds(10.0), n0, routingStream);
+    Ipv6RoutingHelper::PrintRoutingTableAt(Seconds(2), n0, routingStream);
+    Ipv6RoutingHelper::PrintRoutingTableAt(Seconds(10), n0, routingStream);
 
     IpAddressHelper ipAddressHelper;
     /* RA should be received, two prefixes + routes + default route should be present */
-    Simulator::Schedule(Seconds(2.0), &IpAddressHelper::PrintIpAddresses, &ipAddressHelper, n0);
+    Simulator::Schedule(Seconds(2), &IpAddressHelper::PrintIpAddresses, &ipAddressHelper, n0);
     /* at the end, RA addresses and routes should be cleared */
-    Simulator::Schedule(Seconds(10.0), &IpAddressHelper::PrintIpAddresses, &ipAddressHelper, n0);
+    Simulator::Schedule(Seconds(10), &IpAddressHelper::PrintIpAddresses, &ipAddressHelper, n0);
 
     AsciiTraceHelper ascii;
     csma.EnableAsciiAll(ascii.CreateFileStream("radvd-two-prefix.tr"));

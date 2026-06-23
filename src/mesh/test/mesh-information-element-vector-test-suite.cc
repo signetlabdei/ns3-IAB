@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 IITP RAS
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Pavel Boyko <boyko@iitp.ru>
  */
@@ -34,20 +23,23 @@
 using namespace ns3;
 
 /**
- * \ingroup mesh
- * \ingroup tests
- * \defgroup mesh-test mesh module tests
+ * @ingroup mesh
+ * @ingroup tests
+ * @defgroup mesh-test mesh module tests
  */
 
 /**
- * \ingroup mesh-test
+ * @ingroup mesh-test
  *
- * \brief Built-in self test for MeshInformationElementVector and all IE
+ * @brief Built-in self test for MeshInformationElementVector and all IE
  */
 struct MeshInformationElementVectorBist : public TestCase
 {
     MeshInformationElementVectorBist()
-        : TestCase("Serialization test for all mesh information elements"){};
+        : TestCase("Serialization test for all mesh information elements")
+    {
+    }
+
     void DoRun() override;
 };
 
@@ -81,10 +73,10 @@ MeshInformationElementVectorBist::DoRun()
     }
     {
         Ptr<dot11s::IeBeaconTiming> beaconTiming = Create<dot11s::IeBeaconTiming>();
-        beaconTiming->AddNeighboursTimingElementUnit(1, Seconds(1.0), Seconds(4.0));
-        beaconTiming->AddNeighboursTimingElementUnit(2, Seconds(2.0), Seconds(3.0));
-        beaconTiming->AddNeighboursTimingElementUnit(3, Seconds(3.0), Seconds(2.0));
-        beaconTiming->AddNeighboursTimingElementUnit(4, Seconds(4.0), Seconds(1.0));
+        beaconTiming->AddNeighboursTimingElementUnit(1, Seconds(1), Seconds(4));
+        beaconTiming->AddNeighboursTimingElementUnit(2, Seconds(2), Seconds(3));
+        beaconTiming->AddNeighboursTimingElementUnit(3, Seconds(3), Seconds(2));
+        beaconTiming->AddNeighboursTimingElementUnit(4, Seconds(4), Seconds(1));
         vector.AddInformationElement(beaconTiming);
     }
     {
@@ -151,9 +143,9 @@ MeshInformationElementVectorBist::DoRun()
 }
 
 /**
- * \ingroup mesh-test
+ * @ingroup mesh-test
  *
- * \brief Mesh Test Suite
+ * @brief Mesh Test Suite
  */
 class MeshTestSuite : public TestSuite
 {
@@ -162,9 +154,9 @@ class MeshTestSuite : public TestSuite
 };
 
 MeshTestSuite::MeshTestSuite()
-    : TestSuite("devices-mesh", UNIT)
+    : TestSuite("devices-mesh", Type::UNIT)
 {
-    AddTestCase(new MeshInformationElementVectorBist, TestCase::QUICK);
+    AddTestCase(new MeshInformationElementVectorBist, TestCase::Duration::QUICK);
 }
 
 static MeshTestSuite g_meshTestSuite; ///< the test suite

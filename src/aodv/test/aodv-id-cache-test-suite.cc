@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 IITP RAS
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Based on
  *      NS-2 AODV model developed by the CMU/MONARCH group and optimized and
@@ -33,15 +22,15 @@ namespace aodv
 {
 
 /**
- * \defgroup aodv-test AODV module tests
- * \ingroup aodv
- * \ingroup tests
+ * @defgroup aodv-test AODV module tests
+ * @ingroup aodv
+ * @ingroup tests
  */
 
 /**
- * \ingroup aodv-test
+ * @ingroup aodv-test
  *
- * \brief Unit test for id cache
+ * @brief Unit test for id cache
  */
 class IdCacheTest : public TestCase
 {
@@ -110,17 +99,17 @@ IdCacheTest::CheckTimeout3()
 }
 
 /**
- * \ingroup aodv-test
+ * @ingroup aodv-test
  *
- * \brief Id Cache Test Suite
+ * @brief Id Cache Test Suite
  */
 class IdCacheTestSuite : public TestSuite
 {
   public:
     IdCacheTestSuite()
-        : TestSuite("aodv-routing-id-cache", UNIT)
+        : TestSuite("aodv-routing-id-cache", Type::UNIT)
     {
-        AddTestCase(new IdCacheTest, TestCase::QUICK);
+        AddTestCase(new IdCacheTest, TestCase::Duration::QUICK);
     }
 } g_idCacheTestSuite; ///< the test suite
 

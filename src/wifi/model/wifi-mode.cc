@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2005,2006,2007 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  *          Sébastien Deronne <sebastien.deronne@gmail.com>
@@ -22,7 +11,6 @@
 
 #include "wifi-tx-vector.h"
 
-#include "ns3/he-ru.h"
 #include "ns3/log.h"
 
 #include <cmath>
@@ -65,7 +53,7 @@ operator>>(std::istream& is, WifiMode& mode)
 }
 
 bool
-WifiMode::IsAllowed(uint16_t channelWidth, uint8_t nss) const
+WifiMode::IsAllowed(MHz_u channelWidth, uint8_t nss) const
 {
     WifiTxVector txVector;
     txVector.SetMode(WifiMode(m_uid));
@@ -82,13 +70,13 @@ WifiMode::IsAllowed(const WifiTxVector& txVector) const
 }
 
 uint64_t
-WifiMode::GetPhyRate(uint16_t channelWidth) const
+WifiMode::GetPhyRate(MHz_u channelWidth) const
 {
-    return GetPhyRate(channelWidth, 800, 1);
+    return GetPhyRate(channelWidth, NanoSeconds(800), 1);
 }
 
 uint64_t
-WifiMode::GetPhyRate(uint16_t channelWidth, uint16_t guardInterval, uint8_t nss) const
+WifiMode::GetPhyRate(MHz_u channelWidth, Time guardInterval, uint8_t nss) const
 {
     WifiTxVector txVector;
     txVector.SetMode(WifiMode(m_uid));
@@ -106,9 +94,9 @@ WifiMode::GetPhyRate(const WifiTxVector& txVector, uint16_t staId) const
 }
 
 uint64_t
-WifiMode::GetDataRate(uint16_t channelWidth) const
+WifiMode::GetDataRate(MHz_u channelWidth) const
 {
-    return GetDataRate(channelWidth, 800, 1);
+    return GetDataRate(channelWidth, NanoSeconds(800), 1);
 }
 
 uint64_t
@@ -119,7 +107,7 @@ WifiMode::GetDataRate(const WifiTxVector& txVector, uint16_t staId) const
 }
 
 uint64_t
-WifiMode::GetDataRate(uint16_t channelWidth, uint16_t guardInterval, uint8_t nss) const
+WifiMode::GetDataRate(MHz_u channelWidth, Time guardInterval, uint8_t nss) const
 {
     NS_ASSERT(nss <= 8);
     WifiTxVector txVector;
@@ -144,7 +132,7 @@ WifiMode::GetConstellationSize() const
     return item->GetConstellationSizeCallback();
 }
 
-std::string
+const std::string&
 WifiMode::GetUniqueName() const
 {
     // needed for ostream printing of the invalid mode
@@ -169,8 +157,7 @@ WifiMode::GetMcsValue() const
     }
     else
     {
-        // We should not go here!
-        NS_ASSERT(false);
+        NS_ASSERT_MSG(false, "GetMcsValue() cannot be called for non-HT modulations");
         return 0;
     }
 }
@@ -349,9 +336,8 @@ WifiModeFactory::CreateWifiMcs(std::string uniqueName,
 WifiMode
 WifiModeFactory::Search(std::string name) const
 {
-    WifiModeItemList::const_iterator i;
     uint32_t j = 0;
-    for (i = m_itemList.begin(); i != m_itemList.end(); i++)
+    for (auto i = m_itemList.begin(); i != m_itemList.end(); i++)
     {
         if (i->uniqueUid == name)
         {
@@ -364,7 +350,7 @@ WifiModeFactory::Search(std::string name) const
     // is a fatal problem, but we try to be helpful by displaying the
     // list of WifiModes that are supported.
     NS_LOG_UNCOND("Could not find match for WifiMode named \"" << name << "\". Valid options are:");
-    for (i = m_itemList.begin(); i != m_itemList.end(); i++)
+    for (auto i = m_itemList.begin(); i != m_itemList.end(); i++)
     {
         NS_LOG_UNCOND("  " << i->uniqueUid);
     }
@@ -384,7 +370,7 @@ uint32_t
 WifiModeFactory::AllocateUid(std::string uniqueUid)
 {
     uint32_t j = 0;
-    for (WifiModeItemList::const_iterator i = m_itemList.begin(); i != m_itemList.end(); i++)
+    for (auto i = m_itemList.begin(); i != m_itemList.end(); i++)
     {
         if (i->uniqueUid == uniqueUid)
         {
@@ -392,7 +378,7 @@ WifiModeFactory::AllocateUid(std::string uniqueUid)
         }
         j++;
     }
-    uint32_t uid = static_cast<uint32_t>(m_itemList.size());
+    auto uid = static_cast<uint32_t>(m_itemList.size());
     m_itemList.emplace_back();
     return uid;
 }

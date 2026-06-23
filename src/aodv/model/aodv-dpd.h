@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 IITP RAS
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  *
  * Authors: Elena Buchatskaia <borovkovaes@iitp.ru>
@@ -33,9 +22,9 @@ namespace ns3
 namespace aodv
 {
 /**
- * \ingroup aodv
+ * @ingroup aodv
  *
- * \brief Helper class used to remember already seen packets and detect duplicates.
+ * @brief Helper class used to remember already seen packets and detect duplicates.
  *
  * Currently duplicate detection is based on unique packet ID given by Packet::GetUid ()
  * This approach is known to be weak (ns3::Packet UID is an internal identifier and not intended for
@@ -46,7 +35,7 @@ class DuplicatePacketDetection
   public:
     /**
      * Constructor
-     * \param lifetime the lifetime for added entries
+     * @param lifetime the lifetime for added entries
      */
     DuplicatePacketDetection(Time lifetime)
         : m_idCache(lifetime)
@@ -55,19 +44,19 @@ class DuplicatePacketDetection
 
     /**
      * Check if the packet is a duplicate. If not, save information about this packet.
-     * \param p the packet to check
-     * \param header the IP header to check
-     * \returns true if duplicate
+     * @param p the packet to check
+     * @param header the IP header to check
+     * @returns true if duplicate
      */
     bool IsDuplicate(Ptr<const Packet> p, const Ipv4Header& header);
     /**
      * Set duplicate record lifetime
-     * \param lifetime the lifetime for duplicate records
+     * @param lifetime the lifetime for duplicate records
      */
     void SetLifetime(Time lifetime);
     /**
      * Get duplicate record lifetime
-     * \returns the duplicate record lifetime
+     * @returns the duplicate record lifetime
      */
     Time GetLifetime() const;
 

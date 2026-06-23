@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2010 Network Security Lab, University of Washington, Seattle.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Sidharth Nabar <snabar@uw.edu>, He Wu <mdzz@u.washington.edu>
  */
@@ -27,12 +16,14 @@
 
 namespace ns3
 {
+namespace energy
+{
 
 class EnergySource;
 
 /**
- * \ingroup energy
- * \brief Base class for device energy models.
+ * @ingroup energy
+ * @brief Base class for device energy models.
  *
  * A device energy model should represent the energy consumption behavior of a
  * specific device. It will update remaining energy stored in the EnergySource
@@ -51,15 +42,15 @@ class DeviceEnergyModel : public Object
 
   public:
     /**
-     * \brief Get the type ID.
-     * \return The object TypeId.
+     * @brief Get the type ID.
+     * @return The object TypeId.
      */
     static TypeId GetTypeId();
     DeviceEnergyModel();
     ~DeviceEnergyModel() override;
 
     /**
-     * \param source Pointer to energy source installed on node.
+     * @param source Pointer to energy source installed on node.
      *
      * This function sets the pointer to energy source installed on node. Should
      * be called only by DeviceEnergyModel helper classes.
@@ -67,14 +58,14 @@ class DeviceEnergyModel : public Object
     virtual void SetEnergySource(Ptr<EnergySource> source) = 0;
 
     /**
-     * \returns Total energy consumption of the device.
+     * @returns Total energy consumption of the device.
      *
      * DeviceEnergyModel records its own energy consumption during simulation.
      */
     virtual double GetTotalEnergyConsumption() const = 0;
 
     /**
-     * \param newState New state the device is in.
+     * @param newState New state the device is in.
      *
      * DeviceEnergyModel is a state based model. This function is implemented by
      * all child of DeviceEnergyModel to change the model's state. States are to
@@ -83,7 +74,7 @@ class DeviceEnergyModel : public Object
     virtual void ChangeState(int newState) = 0;
 
     /**
-     * \returns Current draw of the device, in Ampere.
+     * @returns Current draw of the device, in Ampere.
      *
      * This function returns the current draw at the device in its current state.
      * This function is called from the EnergySource to obtain the total current
@@ -111,7 +102,7 @@ class DeviceEnergyModel : public Object
 
   private:
     /**
-     * \returns 0.0 as the current value, in Ampere.
+     * @returns 0.0 as the current value, in Ampere.
      *
      * Child class does not have to implement this method if current draw for its
      * states are not know. This default method will always return 0.0A. For the
@@ -121,6 +112,7 @@ class DeviceEnergyModel : public Object
     virtual double DoGetCurrentA() const;
 };
 
+} // namespace energy
 } // namespace ns3
 
 #endif /* DEVICE_ENERGY_MODEL_H */

@@ -247,7 +247,7 @@ def get_rlc_or_pdcp_throughput_samples(cam, results, rlc_or_pdcp_tracename, phy_
                                    'delay max', 'PduSize', 'PduSize std dev', 'size min', 'size max'],
                             skip_blank_lines=True, index_col=False)
         if (rx_df.size == 0):
-            assert (0 == 1)
+            assert False, f"RLC/PDCP trace file is empty: {result_filename}"
 
         # group by UE and gNB pairs
         for gnb in set(rx_df['Cell ID']):

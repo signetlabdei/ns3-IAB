@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2007 Georgia Tech Research Corporation
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Raj Bhattacharjea <raj.b@gatech.edu>
  */
@@ -56,9 +45,9 @@
 using namespace ns3;
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief UDP Socket Loopback over IPv4 Test
+ * @brief UDP Socket Loopback over IPv4 Test
  */
 class UdpSocketLoopbackTest : public TestCase
 {
@@ -67,8 +56,8 @@ class UdpSocketLoopbackTest : public TestCase
     void DoRun() override;
 
     /**
-     * \brief Receive a packet.
-     * \param socket The receiving socket.
+     * @brief Receive a packet.
+     * @param socket The receiving socket.
      */
     void ReceivePkt(Ptr<Socket> socket);
     Ptr<Packet> m_receivedPacket; //!< Received packet
@@ -113,9 +102,9 @@ UdpSocketLoopbackTest::DoRun()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief UDP Socket Loopback over IPv6 Test
+ * @brief UDP Socket Loopback over IPv6 Test
  */
 class Udp6SocketLoopbackTest : public TestCase
 {
@@ -124,8 +113,8 @@ class Udp6SocketLoopbackTest : public TestCase
     void DoRun() override;
 
     /**
-     * \brief Receive a packet.
-     * \param socket The receiving socket.
+     * @brief Receive a packet.
+     * @param socket The receiving socket.
      */
     void ReceivePkt(Ptr<Socket> socket);
     Ptr<Packet> m_receivedPacket; //!< Received packet
@@ -169,9 +158,9 @@ Udp6SocketLoopbackTest::DoRun()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief UDP Socket over IPv4 Test
+ * @brief UDP Socket over IPv4 Test
  */
 class UdpSocketImplTest : public TestCase
 {
@@ -180,37 +169,37 @@ class UdpSocketImplTest : public TestCase
     Ptr<Ipv4QueueDiscItem> m_sentPacket; //!< Sent packet.
 
     /**
-     * \brief Get the TOS of the received packet.
-     * \returns The TOS.
+     * @brief Get the TOS of the received packet.
+     * @returns The TOS.
      */
     uint32_t GetTos();
 
     /**
-     * \brief Get the priority of the received packet.
-     * \returns The priority.
+     * @brief Get the priority of the received packet.
+     * @returns The priority.
      */
     uint32_t GetPriority();
 
     /**
-     * \brief Send data.
-     * \param socket The sending socket.
-     * \param to The destination address.
+     * @brief Send data.
+     * @param socket The sending socket.
+     * @param to The destination address.
      */
     void DoSendDataTo(Ptr<Socket> socket, std::string to);
     /**
-     * \brief Send data.
-     * \param socket The sending socket.
-     * \param to The destination address.
+     * @brief Send data.
+     * @param socket The sending socket.
+     * @param to The destination address.
      */
     void SendDataTo(Ptr<Socket> socket, std::string to);
     /**
-     * \brief Send data.
-     * \param socket The sending socket.
+     * @brief Send data.
+     * @param socket The sending socket.
      */
     void DoSendData(Ptr<Socket> socket);
     /**
-     * \brief Send data.
-     * \param socket The sending socket.
+     * @brief Send data.
+     * @param socket The sending socket.
      */
     void SendData(Ptr<Socket> socket);
 
@@ -219,19 +208,19 @@ class UdpSocketImplTest : public TestCase
     UdpSocketImplTest();
 
     /**
-     * \brief Receive packets (1).
-     * \param socket The receiving socket.
+     * @brief Receive packets (1).
+     * @param socket The receiving socket.
      */
     void ReceivePkt(Ptr<Socket> socket);
     /**
-     * \brief Receive packets (2).
-     * \param socket The receiving socket.
+     * @brief Receive packets (2).
+     * @param socket The receiving socket.
      */
     void ReceivePkt2(Ptr<Socket> socket);
 
     /**
-     * \brief Adds a packet to the list of sent packets.
-     * \param item The sent packet.
+     * @brief Adds a packet to the list of sent packets.
+     * @param item The sent packet.
      */
     void SentPkt(Ptr<const QueueDiscItem> item);
 };
@@ -490,10 +479,8 @@ UdpSocketImplTest::DoRun()
                                               MakeCallback(&UdpSocketImplTest::SentPkt, this));
 
     // The socket is not connected.
-    txSocket->SetIpTos(0x28); // AF11
     txSocket->SetPriority(6); // Interactive
     // Send a packet to a specified destination:
-    // - for not connected sockets, the tos specified in the destination address (0) is used
     // - since the tos is zero, the priority set for the socket is used
     SendDataTo(txSocket, "10.0.0.1");
     NS_TEST_EXPECT_MSG_EQ(m_receivedPacket->GetSize(), 123, "trivial");
@@ -504,7 +491,7 @@ UdpSocketImplTest::DoRun()
     m_receivedPacket->RemoveAllByteTags();
 
     InetSocketAddress dest("10.0.0.1", 1234);
-    dest.SetTos(0xb8); // EF
+    txSocket->SetIpTos(0xb8); // EF
     // the connect operation sets the tos (and priority) for the socket
     NS_TEST_EXPECT_MSG_EQ(txSocket->Connect(dest), 0, "the connect operation failed");
 
@@ -520,9 +507,9 @@ UdpSocketImplTest::DoRun()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief UDP Socket over IPv6 Test
+ * @brief UDP Socket over IPv6 Test
  */
 class Udp6SocketImplTest : public TestCase
 {
@@ -530,15 +517,15 @@ class Udp6SocketImplTest : public TestCase
     Ptr<Packet> m_receivedPacket2; //!< Received packet (2).
 
     /**
-     * \brief Send data.
-     * \param socket The sending socket.
-     * \param to The destination address.
+     * @brief Send data.
+     * @param socket The sending socket.
+     * @param to The destination address.
      */
     void DoSendDataTo(Ptr<Socket> socket, std::string to);
     /**
-     * \brief Send data.
-     * \param socket The sending socket.
-     * \param to The destination address.
+     * @brief Send data.
+     * @param socket The sending socket.
+     * @param to The destination address.
      */
     void SendDataTo(Ptr<Socket> socket, std::string to);
 
@@ -547,27 +534,27 @@ class Udp6SocketImplTest : public TestCase
     Udp6SocketImplTest();
 
     /**
-     * \brief Receive packets (1).
-     * \param socket The receiving socket.
-     * \param packet The received packet.
-     * \param from The source address.
+     * @brief Receive packets (1).
+     * @param socket The receiving socket.
+     * @param packet The received packet.
+     * @param from The source address.
      */
     void ReceivePacket(Ptr<Socket> socket, Ptr<Packet> packet, const Address& from);
     /**
-     * \brief Receive packets (2).
-     * \param socket The receiving socket.
-     * \param packet The received packet.
-     * \param from The source address.
+     * @brief Receive packets (2).
+     * @param socket The receiving socket.
+     * @param packet The received packet.
+     * @param from The source address.
      */
     void ReceivePacket2(Ptr<Socket> socket, Ptr<Packet> packet, const Address& from);
     /**
-     * \brief Receive packets (1).
-     * \param socket The receiving socket.
+     * @brief Receive packets (1).
+     * @param socket The receiving socket.
      */
     void ReceivePkt(Ptr<Socket> socket);
     /**
-     * \brief Receive packets (2).
-     * \param socket The receiving socket.
+     * @brief Receive packets (2).
+     * @param socket The receiving socket.
      */
     void ReceivePkt2(Ptr<Socket> socket);
 };
@@ -763,20 +750,93 @@ Udp6SocketImplTest::DoRun()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief UDP TestSuite
+ * @brief UDP Socket BindToNetDevice restricts outgoing packets to bound device
+ */
+class UdpSocketBindToNetDeviceTest : public TestCase
+{
+  public:
+    UdpSocketBindToNetDeviceTest()
+        : TestCase("UDP BindToNetDevice restricts outgoing packets to bound device")
+    {
+    }
+
+    void DoRun() override;
+};
+
+void
+UdpSocketBindToNetDeviceTest::DoRun()
+{
+    // Create two nodes and two point-to-point links
+    // Sender Node
+    Ptr<Node> txNode = CreateObject<Node>();
+    // Receiver Node
+    Ptr<Node> rxNode = CreateObject<Node>();
+
+    NodeContainer nodes(txNode, rxNode);
+
+    SimpleNetDeviceHelper helperChannel1;
+    helperChannel1.SetNetDevicePointToPointMode(true);
+    NetDeviceContainer net1 = helperChannel1.Install(nodes);
+
+    SimpleNetDeviceHelper helperChannel2;
+    helperChannel2.SetNetDevicePointToPointMode(true);
+    NetDeviceContainer net2 = helperChannel2.Install(nodes);
+
+    InternetStackHelper internet;
+    internet.Install(nodes);
+
+    // Assign only one IP subnet to each link
+    Ptr<Ipv4> ipv4;
+    uint32_t netdev_idx;
+    Ipv4InterfaceAddress ipv4Addr;
+
+    // Sender Node
+    ipv4 = txNode->GetObject<Ipv4>();
+    netdev_idx = ipv4->AddInterface(net1.Get(0));
+    ipv4->AddAddress(netdev_idx,
+                     Ipv4InterfaceAddress(Ipv4Address("10.0.0.1"), Ipv4Mask("255.255.255.0")));
+    ipv4->SetUp(netdev_idx);
+
+    netdev_idx = ipv4->AddInterface(net2.Get(0));
+    ipv4->AddAddress(netdev_idx,
+                     Ipv4InterfaceAddress(Ipv4Address("10.0.1.1"), Ipv4Mask("255.255.255.0")));
+    ipv4->SetUp(netdev_idx);
+
+    // Create UDP socket on sender and bind to net2 (10.0.1.1)
+    Ptr<SocketFactory> txSocketFactory = txNode->GetObject<UdpSocketFactory>();
+    Ptr<Socket> txSocket = txSocketFactory->CreateSocket();
+
+    // Try to send to 10.0.1.2 (only reachable via net1)
+    txSocket->BindToNetDevice(net1.Get(0));
+    int sent = txSocket->SendTo(Create<Packet>(100), 0, InetSocketAddress("10.0.1.2", 1234));
+    NS_TEST_EXPECT_MSG_EQ(sent, -1, "Send should fail: no route via bound device");
+
+    // Now send to 10.0.1.2 (reachable via net2)
+    txSocket->BindToNetDevice(net2.Get(0));
+    sent = txSocket->SendTo(Create<Packet>(100), 0, InetSocketAddress("10.0.1.2", 1234));
+    NS_TEST_EXPECT_MSG_EQ(sent, 100, "Send should succeed: route exists via bound device");
+
+    Simulator::Destroy();
+}
+
+/**
+ * @ingroup internet-test
+ *
+ * @brief UDP TestSuite
  */
 class UdpTestSuite : public TestSuite
 {
   public:
     UdpTestSuite()
-        : TestSuite("udp", UNIT)
+        : TestSuite("udp", Type::UNIT)
     {
-        AddTestCase(new UdpSocketImplTest, TestCase::QUICK);
-        AddTestCase(new UdpSocketLoopbackTest, TestCase::QUICK);
-        AddTestCase(new Udp6SocketImplTest, TestCase::QUICK);
-        AddTestCase(new Udp6SocketLoopbackTest, TestCase::QUICK);
+        AddTestCase(new UdpSocketImplTest, TestCase::Duration::QUICK);
+        AddTestCase(new UdpSocketLoopbackTest, TestCase::Duration::QUICK);
+        AddTestCase(new Udp6SocketImplTest, TestCase::Duration::QUICK);
+        AddTestCase(new Udp6SocketLoopbackTest, TestCase::Duration::QUICK);
+        AddTestCase(new UdpSocketBindToNetDeviceTest, TestCase::Duration::QUICK);
     }
 };
 

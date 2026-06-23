@@ -1,16 +1,5 @@
 /*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  */
 
@@ -133,8 +122,8 @@ main(int argc, char* argv[])
     onoff1.SetConstantRate(DataRate("448kb/s"));
 
     ApplicationContainer onOffApp1 = onoff1.Install(c.Get(0));
-    onOffApp1.Start(Seconds(10.0));
-    onOffApp1.Stop(Seconds(20.0));
+    onOffApp1.Start(Seconds(10));
+    onOffApp1.Stop(Seconds(20));
 
     // Create a similar flow from n3 to n1, starting at time 1.1 seconds
     OnOffHelper onoff2("ns3::UdpSocketFactory", InetSocketAddress(i12.GetAddress(0), port));
@@ -142,14 +131,14 @@ main(int argc, char* argv[])
 
     ApplicationContainer onOffApp2 = onoff2.Install(c.Get(3));
     onOffApp2.Start(Seconds(10.1));
-    onOffApp2.Stop(Seconds(20.0));
+    onOffApp2.Stop(Seconds(20));
 
     // Create packet sinks to receive these packets
     PacketSinkHelper sink("ns3::UdpSocketFactory", InetSocketAddress(Ipv4Address::GetAny(), port));
     NodeContainer sinks = NodeContainer(c.Get(4), c.Get(1));
     ApplicationContainer sinkApps = sink.Install(sinks);
-    sinkApps.Start(Seconds(0.0));
-    sinkApps.Stop(Seconds(21.0));
+    sinkApps.Start(Seconds(0));
+    sinkApps.Stop(Seconds(21));
 
     AsciiTraceHelper ascii;
     p2p.EnableAsciiAll(ascii.CreateFileStream("simple-point-to-point-olsr.tr"));

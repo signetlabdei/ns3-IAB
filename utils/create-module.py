@@ -1,18 +1,12 @@
 #! /usr/bin/env python3
-import sys
 import argparse
 import os
 import re
 import shutil
-
+import sys
 from pathlib import Path
 
-CMAKELISTS_TEMPLATE = '''\
-check_include_file_cxx(stdint.h HAVE_STDINT_H)
-if(HAVE_STDINT_H)
-    add_definitions(-DHAVE_STDINT_H)
-endif()
-
+CMAKELISTS_TEMPLATE = """\
 set(examples_as_tests_sources)
 if(${{ENABLE_EXAMPLES}})
     set(examples_as_tests_sources
@@ -30,11 +24,10 @@ build_lib(
     TEST_SOURCES test/{MODULE}-test-suite.cc
                  ${{examples_as_tests_sources}}
 )
+"""
 
-'''
 
-
-MODEL_CC_TEMPLATE = '''\
+MODEL_CC_TEMPLATE = """\
 #include "{MODULE}.h"
 
 namespace ns3
@@ -42,35 +35,35 @@ namespace ns3
 
 /* ... */
 
-}}
-'''
+}} // namespace ns3
+"""
 
 
-MODEL_H_TEMPLATE = '''\
+MODEL_H_TEMPLATE = """\
 #ifndef {INCLUDE_GUARD}
 #define {INCLUDE_GUARD}
 
 // Add a doxygen group for this module.
 // If you have more than one file, this should be in only one of them.
 /**
- * \defgroup {MODULE} Description of the {MODULE}
+ * @defgroup {MODULE} Description of the {MODULE}
  */
 
 namespace ns3
 {{
 
 // Each class should be documented using Doxygen,
-// and have an \ingroup {MODULE} directive
+// and have an @ingroup {MODULE} directive
 
 /* ... */
 
-}}
+}} // namespace ns3
 
-#endif /* {INCLUDE_GUARD} */
-'''
+#endif // {INCLUDE_GUARD}
+"""
 
 
-HELPER_CC_TEMPLATE = '''\
+HELPER_CC_TEMPLATE = """\
 #include "{MODULE}-helper.h"
 
 namespace ns3
@@ -78,11 +71,11 @@ namespace ns3
 
 /* ... */
 
-}}
-'''
+}} // namespace ns3
+"""
 
 
-HELPER_H_TEMPLATE = '''\
+HELPER_H_TEMPLATE = """\
 #ifndef {INCLUDE_GUARD}
 #define {INCLUDE_GUARD}
 
@@ -92,31 +85,30 @@ namespace ns3
 {{
 
 // Each class should be documented using Doxygen,
-// and have an \ingroup {MODULE} directive
+// and have an @ingroup {MODULE} directive
 
 /* ... */
 
-}}
+}} // namespace ns3
 
-#endif /* {INCLUDE_GUARD} */
-'''
+#endif // {INCLUDE_GUARD}
+"""
 
 
-EXAMPLES_CMAKELISTS_TEMPLATE = '''\
+EXAMPLES_CMAKELISTS_TEMPLATE = """\
 build_lib_example(
     NAME {MODULE}-example
     SOURCE_FILES {MODULE}-example.cc
     LIBRARIES_TO_LINK ${{lib{MODULE}}}
 )
+"""
 
-'''
-
-EXAMPLE_CC_TEMPLATE = '''\
+EXAMPLE_CC_TEMPLATE = """\
 #include "ns3/core-module.h"
 #include "ns3/{MODULE}-helper.h"
 
 /**
- * \\file
+ * @file
  *
  * Explain here what the example does.
  */
@@ -139,11 +131,10 @@ main(int argc, char* argv[])
     Simulator::Destroy();
     return 0;
 }}
-'''
+"""
 
 
-TEST_CC_TEMPLATE = '''\
-
+TEST_CC_TEMPLATE = """\
 // Include a header file from your module to test.
 #include "ns3/{MODULE}.h"
 
@@ -157,21 +148,21 @@ using namespace ns3;
 // Add a doxygen group for tests.
 // If you have more than one test, this should be in only one of them.
 /**
- * \defgroup {MODULE}-tests Tests for {MODULE}
- * \ingroup {MODULE}
- * \ingroup tests
+ * @defgroup {MODULE}-tests Tests for {MODULE}
+ * @ingroup {MODULE}
+ * @ingroup tests
  */
 
 // This is an example TestCase.
 /**
- * \ingroup {MODULE}-tests
+ * @ingroup {MODULE}-tests
  * Test case for feature 1
  */
 class {CAPITALIZED}TestCase1 : public TestCase
 {{
   public:
     {CAPITALIZED}TestCase1();
-    virtual ~{CAPITALIZED}TestCase1();
+    ~{CAPITALIZED}TestCase1() override;
 
   private:
     void DoRun() override;
@@ -197,7 +188,7 @@ void
 {CAPITALIZED}TestCase1::DoRun()
 {{
     // A wide variety of test macros are available in src/core/test.h
-    NS_TEST_ASSERT_MSG_EQ(true, true, "true doesn\'t equal true for some reason");
+    NS_TEST_ASSERT_MSG_EQ(true, true, "true doesn't equal true for some reason");
     // Use this one for floating point comparisons
     NS_TEST_ASSERT_MSG_EQ_TOL(0.01, 0.01, 0.001, "Numbers are not equal within tolerance");
 }}
@@ -207,7 +198,7 @@ void
 // this class must be defined
 
 /**
- * \ingroup {MODULE}-tests
+ * @ingroup {MODULE}-tests
  * TestSuite for module {MODULE}
  */
 class {CAPITALIZED}TestSuite : public TestSuite
@@ -216,132 +207,136 @@ class {CAPITALIZED}TestSuite : public TestSuite
     {CAPITALIZED}TestSuite();
 }};
 
+// Type for TestSuite can be UNIT, SYSTEM, EXAMPLE, or PERFORMANCE
 {CAPITALIZED}TestSuite::{CAPITALIZED}TestSuite()
-    : TestSuite("{MODULE}", UNIT)
+    : TestSuite("{MODULE}", Type::UNIT)
 {{
-    // TestDuration for TestCase can be QUICK, EXTENSIVE or TAKES_FOREVER
-    AddTestCase(new {CAPITALIZED}TestCase1, TestCase::QUICK);
+    // Duration for TestCase can be QUICK, EXTENSIVE or TAKES_FOREVER
+    AddTestCase(new {CAPITALIZED}TestCase1, TestCase::Duration::QUICK);
 }}
 
 // Do not forget to allocate an instance of this TestSuite
 /**
- * \ingroup {MODULE}-tests
+ * @ingroup {MODULE}-tests
  * Static variable for test initialization
  */
 static {CAPITALIZED}TestSuite s{COMPOUND}TestSuite;
-'''
+"""
 
 
-DOC_RST_TEMPLATE = '''Example Module Documentation
-----------------------------
+DOC_RST_TEMPLATE = """Example Module Documentation
+============================
 
 .. include:: replace.txt
 .. highlight:: cpp
 
 .. heading hierarchy:
-   ------------- Chapter
-   ************* Section (#.#)
-   ============= Subsection (#.#.#)
-   ############# Paragraph (no number)
+   ============= Module Name
+   ------------- Section (#.#)
+   ~~~~~~~~~~~~~ Subsection (#.#.#)
 
-This is a suggested outline for adding new module documentation to |ns3|.
-See ``src/click/doc/click.rst`` for an example.
+This is the outline for adding new module documentation to |ns3|.
+See ``src/lr-wpan/doc/lr-wpan.rst`` for an example.
 
-The introductory paragraph is for describing what this code is trying to
-model.
+This first part is for describing what the model is trying to
+accomplish. General descriptions and design, overview of the project
+goes in this part without the need of any subsections. A visual summary
+is also recommended.
 
 For consistency (italicized formatting), please use |ns3| to refer to
 ns-3 in the documentation (and likewise, |ns2| for ns-2).  These macros
 are defined in the file ``replace.txt``.
 
-Model Description
-*****************
+Detailed |ns3| Sphinx documentation guidelines can be found `here <https://www.nsnam.org/docs/contributing/html/models.html>`_
+
 
 The source code for the new module lives in the directory ``{MODULE_DIR}``.
 
-Add here a basic description of what is being modeled.
-
-Design
-======
-
-Briefly describe the software design of the model and how it fits into
-the existing ns-3 architecture.
 
 Scope and Limitations
-=====================
+---------------------
 
-What can the model do?  What can it not do?  Please use this section to
-describe the scope and limitations of the model.
+This is should be your first section. Please use it to list the scope and
+limitations. What can the model do?  What can it not do? Be brief and concise.
 
-References
-==========
+Section A
+---------
 
-Add academic citations here, such as if you published a paper on this
-model, or if readers should read a particular specification or other work.
+Free form. Your second section of your documentation and its subsections goes here.
+The documentation can contain any number of sections but be careful to not use
+more than two levels in subsections.
+
+Section B
+---------
+
+Free form. The last section of your documentation with content goes here.
 
 Usage
-*****
+-----
 
-This section is principally concerned with the usage of your model, using
-the public API.  Focus first on most common usage patterns, then go
-into more advanced topics.
-
-Building New Module
-===================
-
-Include this subsection only if there are special build instructions or
-platform limitations.
+A brief description of the module usage goes here. This section must be present.
 
 Helpers
-=======
+~~~~~~~
 
-What helper API will users typically use?  Describe it here.
+A subsection with a description of the helpers used by the model goes here. Snippets of code are
+preferable when describing the helpers usage. This subsection must be present.
+If the model CANNOT provide helpers write "Not applicable".
 
 Attributes
-==========
+~~~~~~~~~~
 
-What classes hold attributes, and what are the key ones worth mentioning?
+A subsection with a list of attributes used by the module, each attribute should include a small
+description. This subsection must be present.
+If the model CANNOT provide attributes write "Not applicable".
 
-Output
-======
+Traces
+~~~~~~
 
-What kind of data does the model generate?  What are the key trace
-sources?   What kind of logging output can be enabled?
+A subsection with a list of the source traces used by the module, each trace should include a small
+description. This subsection must be present.
+If the model CANNOT provide traces write "Not applicable".
 
-Advanced Usage
-==============
+Examples and Tests
+------------------
 
-Go into further details (such as using the API outside of the helpers)
-in additional sections, as needed.
-
-Examples
-========
-
-What examples using this new code are available?  Describe them here.
-
-Troubleshooting
-===============
-
-Add any tips for avoiding pitfalls, etc.
+A brief description of each example and test present in the model must be here.
+Include both the name of the example file and a brief description of the example.
+This section must be present.
 
 Validation
-**********
+----------
 
 Describe how the model has been tested/validated.  What tests run in the
-test suite?  How much API and code is covered by the tests?  Again,
-references to outside published work may help here.
-'''
+test suite?  How much API and code is covered by the tests?
+
+This section must be present. Write ``No formal validation has been made`` if your
+model do not contain validations.
+
+References
+----------
+
+The reference material used in the construction of the model.
+This section must be the last section and must be present.
+Use numbers for the index not names when listing the references. When possible, include the link of the referenced material.
+
+Example:
+
+[`1 <https://ieeexplore.ieee.org/document/6012487>`_] IEEE Standard for Local and metropolitan area networks--Part 15.4: Low-Rate Wireless Personal Area Networks (LR-WPANs)," in IEEE Std 802.15.4-2011 (Revision of IEEE Std 802.15.4-2006) , vol., no., pp.1-314, 5 Sept. 2011, doi: 10.1109/IEEESTD.2011.6012487.
+
+"""
+
 
 def create_file(path, template, **kwargs):
     artifact_path = Path(path)
 
-    #open file for (w)rite and in (t)ext mode
-    with artifact_path.open("wt") as f:
+    # open file for (w)rite and in (t)ext mode
+    with artifact_path.open("wt", encoding="utf-8") as f:
         f.write(template.format(**kwargs))
 
 
 def make_cmakelists(moduledir, modname):
-    path = Path(moduledir, 'CMakeLists.txt')
+    path = Path(moduledir, "CMakeLists.txt")
     macro = "build_lib"
     create_file(path, CMAKELISTS_TEMPLATE, MODULE=modname)
 
@@ -352,14 +347,12 @@ def make_model(moduledir, modname):
     modelpath = Path(moduledir, "model")
     modelpath.mkdir(parents=True)
 
-    srcfile_path = modelpath.joinpath(modname).with_suffix('.cc')
+    srcfile_path = modelpath.joinpath(modname).with_suffix(".cc")
     create_file(srcfile_path, MODEL_CC_TEMPLATE, MODULE=modname)
 
-    hfile_path = modelpath.joinpath(modname).with_suffix('.h')
-    guard = "{}_H".format(modname.replace('-', '_').upper())
-    create_file(hfile_path, MODEL_H_TEMPLATE,
-                MODULE=modname,
-                INCLUDE_GUARD=guard)
+    hfile_path = modelpath.joinpath(modname).with_suffix(".h")
+    guard = "{}_H".format(modname.replace("-", "_").upper())
+    create_file(hfile_path, MODEL_H_TEMPLATE, MODULE=modname, INCLUDE_GUARD=guard)
 
     return True
 
@@ -368,11 +361,17 @@ def make_test(moduledir, modname):
     testpath = Path(moduledir, "test")
     testpath.mkdir(parents=True)
 
-    file_path = testpath.joinpath(modname+'-test-suite').with_suffix('.cc')
-    name_parts = modname.split('-')
-    create_file(file_path, TEST_CC_TEMPLATE, MODULE=modname,
-                CAPITALIZED=''.join([word.capitalize() for word in name_parts]),
-                COMPOUND=''.join([word.capitalize() if index > 0 else word for index, word in enumerate(name_parts)]))
+    file_path = testpath.joinpath(modname + "-test-suite").with_suffix(".cc")
+    name_parts = modname.split("-")
+    create_file(
+        file_path,
+        TEST_CC_TEMPLATE,
+        MODULE=modname,
+        CAPITALIZED="".join([word.capitalize() for word in name_parts]),
+        COMPOUND="".join(
+            [word.capitalize() if index > 0 else word for index, word in enumerate(name_parts)]
+        ),
+    )
 
     return True
 
@@ -381,11 +380,11 @@ def make_helper(moduledir, modname):
     helperpath = Path(moduledir, "helper")
     helperpath.mkdir(parents=True)
 
-    srcfile_path = helperpath.joinpath(modname+'-helper').with_suffix('.cc')
+    srcfile_path = helperpath.joinpath(modname + "-helper").with_suffix(".cc")
     create_file(srcfile_path, HELPER_CC_TEMPLATE, MODULE=modname)
 
-    h_file_path = helperpath.joinpath(modname+'-helper').with_suffix('.h')
-    guard = "{}_HELPER_H".format(modname.replace('-', '_').upper())
+    h_file_path = helperpath.joinpath(modname + "-helper").with_suffix(".h")
+    guard = "{}_HELPER_H".format(modname.replace("-", "_").upper())
     create_file(h_file_path, HELPER_H_TEMPLATE, MODULE=modname, INCLUDE_GUARD=guard)
 
     return True
@@ -395,10 +394,10 @@ def make_examples(moduledir, modname):
     examplespath = Path(moduledir, "examples")
     examplespath.mkdir(parents=True)
 
-    cmakelistspath = Path(examplespath, 'CMakeLists.txt')
+    cmakelistspath = Path(examplespath, "CMakeLists.txt")
     create_file(cmakelistspath, EXAMPLES_CMAKELISTS_TEMPLATE, MODULE=modname)
 
-    examplesfile_path = examplespath.joinpath(modname+'-example').with_suffix('.cc')
+    examplesfile_path = examplespath.joinpath(modname + "-example").with_suffix(".cc")
     create_file(examplesfile_path, EXAMPLE_CC_TEMPLATE, MODULE=modname)
 
     return True
@@ -408,11 +407,11 @@ def make_doc(moduledir, modname):
     docpath = Path(moduledir, "doc")
     docpath.mkdir(parents=True)
 
-    #the module_dir template parameter must be a relative path
-    #instead of an absolute path
+    # the module_dir template parameter must be a relative path
+    # instead of an absolute path
     mod_relpath = os.path.relpath(str(moduledir))
 
-    file_name = '{}.rst'.format(modname)
+    file_name = "{}.rst".format(modname)
     file_path = Path(docpath, file_name)
     create_file(file_path, DOC_RST_TEMPLATE, MODULE=modname, MODULE_DIR=mod_relpath)
 
@@ -428,8 +427,7 @@ def make_module(modpath, modname):
 
     print("Creating module {}".format(modulepath))
 
-    functions = (make_cmakelists, make_model, make_test,
-                 make_helper, make_examples, make_doc)
+    functions = (make_cmakelists, make_model, make_test, make_helper, make_examples, make_doc)
 
     try:
         modulepath.mkdir(parents=True)
@@ -448,6 +446,7 @@ def make_module(modpath, modname):
         return False
 
     return True
+
 
 def create_argument_parser():
     description = """Generate scaffolding for ns-3 modules
@@ -527,24 +526,35 @@ project directory.
 
     formatter = argparse.RawDescriptionHelpFormatter
 
-    parser = argparse.ArgumentParser(description=description,
-                                     epilog=epilog,
-                                     formatter_class=formatter)
+    parser = argparse.ArgumentParser(
+        description=description, epilog=epilog, formatter_class=formatter
+    )
 
-    parser.add_argument('--project', default='',
-                        help=("Specify a relative path under the contrib directory "
-                            "where the new modules will be generated. The path "
-                            "will be created if it does not exist."))
+    parser.add_argument(
+        "--project",
+        default="",
+        help=(
+            "Specify a relative path under the contrib directory "
+            "where the new modules will be generated. The path "
+            "will be created if it does not exist."
+        ),
+    )
 
-    parser.add_argument('modnames', nargs='+',
-                        help=("One or more modules to generate.  Module names "
-                            "are limited to the following: letters, numbers, -, "
-                            "_. Modules are generated under the contrib directory "
-                            "except when the module name starts with src/. Modules "
-                            "that start with src/ are generated under the src "
-                            "directory."))
+    parser.add_argument(
+        "modnames",
+        nargs="+",
+        help=(
+            "One or more modules to generate.  Module names "
+            "are limited to the following: letters, numbers, -, "
+            "_. Modules are generated under the contrib directory "
+            "except when the module name starts with src/. Modules "
+            "that start with src/ are generated under the src "
+            "directory."
+        ),
+    )
 
     return parser
+
 
 def main(argv):
     parser = create_argument_parser()
@@ -556,46 +566,47 @@ def main(argv):
 
     base_path = Path.cwd()
 
-    src_path = base_path.joinpath('src')
-    contrib_path = base_path.joinpath('contrib')
+    src_path = base_path.joinpath("src")
+    contrib_path = base_path.joinpath("contrib")
 
     for p in (src_path, contrib_path):
         if not p.is_dir():
-            parser.error("Cannot find the directory '{}'.\nPlease run this "
-                        "script from the top level of the ns3 directory".format(
-                            p))
+            parser.error(
+                "Cannot find the directory '{}'.\nPlease run this "
+                "script from the top level of the ns3 directory".format(p)
+            )
 
     #
     # Error check the arguments
     #
 
     # Alphanumeric and '-' only
-    allowedRE = re.compile('^(\w|-)+$')
+    allowedRE = re.compile(r"^(\w|-)+$")
 
     project_path = None
 
     if project:
-        #project may be a path in the form a/b/c
-        #remove any leading or trailing path separators
+        # project may be a path in the form a/b/c
+        # remove any leading or trailing path separators
         project_path = Path(project)
 
         if project_path.is_absolute():
-            #remove leading separator
+            # remove leading separator
             project_path = project_path.relative_to(os.sep)
 
         if not all(allowedRE.match(part) for part in project_path.parts):
-            parser.error('Project path may only contain the characters [a-zA-Z0-9_-].')
+            parser.error("Project path may only contain the characters [a-zA-Z0-9_-].")
     #
     # Create each module, if it doesn't exist
     #
     modules = []
     for name in modnames:
         if name:
-            #remove any leading or trailing directory separators
+            # remove any leading or trailing directory separators
             name = name.strip(os.sep)
 
         if not name:
-            #skip empty modules
+            # skip empty modules
             continue
 
         name_path = Path(name)
@@ -604,33 +615,41 @@ def main(argv):
             print("Skipping {}: module name can not be a path".format(name))
             continue
 
-        #default target directory is contrib
+        # default target directory is contrib
         modpath = contrib_path
 
-        if name_path.parts[0] == 'src':
+        if name_path.parts[0] == "src":
             if project:
-                parser.error("{}: Cannot specify src/ in a module name when --project option is used".format(name))
+                parser.error(
+                    "{}: Cannot specify src/ in a module name when --project option is used".format(
+                        name
+                    )
+                )
 
             modpath = src_path
 
-            #create a new path without the src part
-            name_path = name_path.relative_to('src')
+            # create a new path without the src part
+            name_path = name_path.relative_to("src")
 
-        elif name_path.parts[0] == 'contrib':
+        elif name_path.parts[0] == "contrib":
             modpath = contrib_path
 
-            #create a new path without the contrib part
-            name_path = name_path.relative_to('contrib')
+            # create a new path without the contrib part
+            name_path = name_path.relative_to("contrib")
 
         if project_path:
-            #if a project path was specified, that overrides other paths
-            #project paths are always relative to the contrib path
+            # if a project path was specified, that overrides other paths
+            # project paths are always relative to the contrib path
             modpath = contrib_path.joinpath(project_path)
 
         modname = name_path.parts[0]
 
         if not allowedRE.match(modname):
-            print("Skipping {}: module name may only contain the characters [a-zA-Z0-9_-]".format(modname))
+            print(
+                "Skipping {}: module name may only contain the characters [a-zA-Z0-9_-]".format(
+                    modname
+                )
+            )
             continue
 
         modules.append((modpath, modname))
@@ -642,7 +661,8 @@ def main(argv):
 
     return 0
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     return_value = 0
     try:
         return_value = main(sys.argv)

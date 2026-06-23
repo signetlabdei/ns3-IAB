@@ -10,15 +10,22 @@ build_lib(
   SOURCE_FILES
     helper/sixlowpan-helper.cc
     model/sixlowpan-header.cc
+    model/sixlowpan-nd-context.cc
+    model/sixlowpan-nd-header.cc
+    model/sixlowpan-nd-prefix.cc
+    model/sixlowpan-nd-protocol.cc
     model/sixlowpan-net-device.cc
+    model/sixlowpan-nd-binding-table.cc
   HEADER_FILES
     helper/sixlowpan-helper.h
     model/sixlowpan-header.h
+    model/sixlowpan-nd-context.h
+    model/sixlowpan-nd-header.h
+    model/sixlowpan-nd-prefix.h
+    model/sixlowpan-nd-protocol.h
     model/sixlowpan-net-device.h
-  LIBRARIES_TO_LINK
-    ${libinternet}
-    ${libinternet}
-    ${libcore}
+    model/sixlowpan-nd-binding-table.h
+  LIBRARIES_TO_LINK ${libinternet}
   TEST_SOURCES
     ${example_as_test_suite}
     test/mock-net-device.cc
@@ -26,4 +33,9 @@ build_lib(
     test/sixlowpan-hc1-test.cc
     test/sixlowpan-iphc-stateful-test.cc
     test/sixlowpan-iphc-test.cc
+    test/sixlowpan-nd-packet-test.cc
+    test/sixlowpan-nd-reg-test.cc
+    test/sixlowpan-nd-binding-table-test.cc
+    test/sixlowpan-nd-rovr-test.cc
+    test/sixlowpan-nd-test-utils.cc
 )

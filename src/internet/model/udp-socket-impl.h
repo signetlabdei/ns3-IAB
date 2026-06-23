@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2007 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -20,14 +9,14 @@
 #define UDP_SOCKET_IMPL_H
 
 #include "icmpv4.h"
+#include "ipv4-interface.h"
+#include "udp-socket.h"
 
 #include "ns3/callback.h"
 #include "ns3/ipv4-address.h"
-#include "ns3/ipv4-interface.h"
 #include "ns3/ptr.h"
 #include "ns3/socket.h"
 #include "ns3/traced-callback.h"
-#include "ns3/udp-socket.h"
 
 #include <queue>
 #include <stdint.h>
@@ -44,10 +33,10 @@ class Ipv6Header;
 class Ipv6Interface;
 
 /**
- * \ingroup socket
- * \ingroup udp
+ * @ingroup socket
+ * @ingroup udp
  *
- * \brief A sockets interface to UDP
+ * @brief A sockets interface to UDP
  *
  * This class subclasses ns3::UdpSocket, and provides a socket interface
  * to ns3's implementation of UDP.
@@ -72,8 +61,8 @@ class UdpSocketImpl : public UdpSocket
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
     /**
@@ -83,13 +72,13 @@ class UdpSocketImpl : public UdpSocket
     ~UdpSocketImpl() override;
 
     /**
-     * \brief Set the associated node.
-     * \param node the node
+     * @brief Set the associated node.
+     * @param node the node
      */
     void SetNode(Ptr<Node> node);
     /**
-     * \brief Set the associated UDP L4 protocol.
-     * \param udp the UDP L4 protocol
+     * @brief Set the associated UDP L4 protocol.
+     * @param udp the UDP L4 protocol
      */
     void SetUdp(Ptr<UdpL4Protocol> udp);
 
@@ -135,25 +124,25 @@ class UdpSocketImpl : public UdpSocket
     bool GetMtuDiscover() const override;
 
     /**
-     * \brief UdpSocketFactory friend class.
-     * \relates UdpSocketFactory
+     * @brief UdpSocketFactory friend class.
+     * @relates UdpSocketFactory
      */
     friend class UdpSocketFactory;
     // invoked by Udp class
 
     /**
      * Finish the binding process
-     * \returns 0 on success, -1 on failure
+     * @returns 0 on success, -1 on failure
      */
     int FinishBind();
 
     /**
-     * \brief Called by the L3 protocol when it received a packet to pass on to TCP.
+     * @brief Called by the L3 protocol when it received a packet to pass on to UDP.
      *
-     * \param packet the incoming packet
-     * \param header the packet's IPv4 header
-     * \param port the remote port
-     * \param incomingInterface the incoming interface
+     * @param packet the incoming packet
+     * @param header the packet's IPv4 header
+     * @param port the remote port
+     * @param incomingInterface the incoming interface
      */
     void ForwardUp(Ptr<Packet> packet,
                    Ipv4Header header,
@@ -161,12 +150,12 @@ class UdpSocketImpl : public UdpSocket
                    Ptr<Ipv4Interface> incomingInterface);
 
     /**
-     * \brief Called by the L3 protocol when it received a packet to pass on to TCP.
+     * @brief Called by the L3 protocol when it received a packet to pass on to UDP.
      *
-     * \param packet the incoming packet
-     * \param header the packet's IPv6 header
-     * \param port the remote port
-     * \param incomingInterface the incoming interface
+     * @param packet the incoming packet
+     * @param header the packet's IPv6 header
+     * @param port the remote port
+     * @param incomingInterface the incoming interface
      */
     void ForwardUp6(Ptr<Packet> packet,
                     Ipv6Header header,
@@ -174,7 +163,7 @@ class UdpSocketImpl : public UdpSocket
                     Ptr<Ipv6Interface> incomingInterface);
 
     /**
-     * \brief Kill this socket by zeroing its attributes (IPv4)
+     * @brief Kill this socket by zeroing its attributes (IPv4)
      *
      * This is a callback function configured to m_endpoint in
      * SetupCallback(), invoked when the endpoint is destroyed.
@@ -182,7 +171,7 @@ class UdpSocketImpl : public UdpSocket
     void Destroy();
 
     /**
-     * \brief Kill this socket by zeroing its attributes (IPv6)
+     * @brief Kill this socket by zeroing its attributes (IPv6)
      *
      * This is a callback function configured to m_endpoint in
      * SetupCallback(), invoked when the endpoint is destroyed.
@@ -190,42 +179,42 @@ class UdpSocketImpl : public UdpSocket
     void Destroy6();
 
     /**
-     * \brief Deallocate m_endPoint and m_endPoint6
+     * @brief Deallocate m_endPoint and m_endPoint6
      */
     void DeallocateEndPoint();
 
     /**
-     * \brief Send a packet
-     * \param p packet
-     * \returns 0 on success, -1 on failure
+     * @brief Send a packet
+     * @param p packet
+     * @returns 0 on success, -1 on failure
      */
     int DoSend(Ptr<Packet> p);
     /**
-     * \brief Send a packet to a specific destination and port (IPv4)
-     * \param p packet
-     * \param daddr destination address
-     * \param dport destination port
-     * \param tos ToS
-     * \returns 0 on success, -1 on failure
+     * @brief Send a packet to a specific destination and port (IPv4)
+     * @param p packet
+     * @param daddr destination address
+     * @param dport destination port
+     * @param tos ToS
+     * @returns 0 on success, -1 on failure
      */
     int DoSendTo(Ptr<Packet> p, Ipv4Address daddr, uint16_t dport, uint8_t tos);
     /**
-     * \brief Send a packet to a specific destination and port (IPv6)
-     * \param p packet
-     * \param daddr destination address
-     * \param dport destination port
-     * \returns 0 on success, -1 on failure
+     * @brief Send a packet to a specific destination and port (IPv6)
+     * @param p packet
+     * @param daddr destination address
+     * @param dport destination port
+     * @returns 0 on success, -1 on failure
      */
     int DoSendTo(Ptr<Packet> p, Ipv6Address daddr, uint16_t dport);
 
     /**
-     * \brief Called by the L3 protocol when it received an ICMP packet to pass on to TCP.
+     * @brief Called by the L3 protocol when it received an ICMP packet to pass on to UDP.
      *
-     * \param icmpSource the ICMP source address
-     * \param icmpTtl the ICMP Time to Live
-     * \param icmpType the ICMP Type
-     * \param icmpCode the ICMP Code
-     * \param icmpInfo the ICMP Info
+     * @param icmpSource the ICMP source address
+     * @param icmpTtl the ICMP Time to Live
+     * @param icmpType the ICMP Type
+     * @param icmpCode the ICMP Code
+     * @param icmpInfo the ICMP Info
      */
     void ForwardIcmp(Ipv4Address icmpSource,
                      uint8_t icmpTtl,
@@ -234,13 +223,13 @@ class UdpSocketImpl : public UdpSocket
                      uint32_t icmpInfo);
 
     /**
-     * \brief Called by the L3 protocol when it received an ICMPv6 packet to pass on to TCP.
+     * @brief Called by the L3 protocol when it received an ICMPv6 packet to pass on to UDP.
      *
-     * \param icmpSource the ICMP source address
-     * \param icmpTtl the ICMP Time to Live
-     * \param icmpType the ICMP Type
-     * \param icmpCode the ICMP Code
-     * \param icmpInfo the ICMP Info
+     * @param icmpSource the ICMP source address
+     * @param icmpTtl the ICMP Time to Live
+     * @param icmpType the ICMP Type
+     * @param icmpCode the ICMP Code
+     * @param icmpInfo the ICMP Info
      */
     void ForwardIcmp6(Ipv6Address icmpSource,
                       uint8_t icmpTtl,

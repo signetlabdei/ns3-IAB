@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2010 Hemanth Narra
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Hemanth Narra <hemanth@ittc.ku.com>
  *
@@ -29,7 +18,6 @@
  */
 
 #include "ns3/applications-module.h"
-#include "ns3/config-store-module.h"
 #include "ns3/core-module.h"
 #include "ns3/dsdv-helper.h"
 #include "ns3/internet-module.h"
@@ -47,11 +35,15 @@ uint16_t port = 9;
 NS_LOG_COMPONENT_DEFINE("DsdvManetExample");
 
 /**
- * \ingroup dsdv
- * \ingroup dsdv-examples
- * \ingroup examples
+ * @defgroup dsdv-examples DSDV Examples
+ * @ingroup dsdv
+ * @ingroup examples
+ */
+
+/**
+ * @ingroup dsdv-examples
  *
- * \brief DSDV Manet example
+ * @brief DSDV Manet example
  */
 class DsdvManetExample
 {
@@ -59,17 +51,17 @@ class DsdvManetExample
     DsdvManetExample();
     /**
      * Run function
-     * \param nWifis The total number of nodes
-     * \param nSinks The total number of receivers
-     * \param totalTime The total simulation time
-     * \param rate The network speed
-     * \param phyMode The physical mode
-     * \param nodeSpeed The node speed
-     * \param periodicUpdateInterval The routing update interval
-     * \param settlingTime The routing update settling time
-     * \param dataStart The data transmission start time
-     * \param printRoutes print the routes if true
-     * \param CSVfileName The CSV file name
+     * @param nWifis The total number of nodes
+     * @param nSinks The total number of receivers
+     * @param totalTime The total simulation time
+     * @param rate The network speed
+     * @param phyMode The physical mode
+     * @param nodeSpeed The node speed
+     * @param periodicUpdateInterval The routing update interval
+     * @param settlingTime The routing update settling time
+     * @param dataStart The data transmission start time
+     * @param printRoutes print the routes if true
+     * @param CSVfileName The CSV file name
      */
     void CaseRun(uint32_t nWifis,
                  uint32_t nSinks,
@@ -107,12 +99,12 @@ class DsdvManetExample
     void CreateNodes();
     /**
      * Create and initialize all devices
-     * \param tr_name The trace file name
+     * @param tr_name The trace file name
      */
     void CreateDevices(std::string tr_name);
     /**
      * Create network
-     * \param tr_name The trace file name
+     * @param tr_name The trace file name
      */
     void InstallInternetStack(std::string tr_name);
     /// Create data sinks and sources
@@ -121,14 +113,14 @@ class DsdvManetExample
     void SetupMobility();
     /**
      * Packet receive function
-     * \param socket The communication socket
+     * @param socket The communication socket
      */
     void ReceivePacket(Ptr<Socket> socket);
     /**
      * Setup packet receivers
-     * \param addr the receiving IPv4 address
-     * \param node the receiving node
-     * \returns the communication socket
+     * @param addr the receiving IPv4 address
+     * @param node the receiving node
+     * @returns the communication socket
      */
     Ptr<Socket> SetupPacketReceive(Ipv4Address addr, Ptr<Node> node);
     /// Check network throughput
@@ -237,7 +229,7 @@ DsdvManetExample::CheckThroughput()
 
     out.close();
     packetsReceived = 0;
-    Simulator::Schedule(Seconds(1.0), &DsdvManetExample::CheckThroughput, this);
+    Simulator::Schedule(Seconds(1), &DsdvManetExample::CheckThroughput, this);
 }
 
 Ptr<Socket>

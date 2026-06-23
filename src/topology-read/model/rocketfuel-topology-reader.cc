@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2010 Hajime Tazaki
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Hajime Tazaki (tazaki@sfc.wide.ad.jp)
  */
@@ -30,8 +19,8 @@
 #include <string>
 
 /**
- * \file
- * \ingroup topology
+ * @file
+ * @ingroup topology
  * ns3::RocketfuelTopologyReader implementation.
  */
 
@@ -86,25 +75,25 @@ RocketfuelTopologyReader::~RocketfuelTopologyReader()
 
 /**
  * Build a Regex object for RocketFuel topology maps file type
- * \return a static regex object for maps file type
+ * @return a static regex object for maps file type
  */
 static const std::regex rocketfuel_maps_regex(ROCKETFUEL_MAPS_LINE);
 
 /**
  * Build a Regex object for RocketFuel topology weights file type
- * \return a static regex object for weights file type
+ * @return a static regex object for weights file type
  */
 static const std::regex rocketfuel_weights_regex(ROCKETFUEL_WEIGHTS_LINE);
 
 /**
- * \brief Print node info
- * \param uid node ID
- * \param loc node location
- * \param dns is a DNS node ?
- * \param bb is a BB node ?
- * \param neighListSize size of neighbor list
- * \param name node name
- * \param radius node radius
+ * @brief Print node info
+ * @param uid node ID
+ * @param loc node location
+ * @param dns is a DNS node ?
+ * @param bb is a BB node ?
+ * @param neighListSize size of neighbor list
+ * @param name node name
+ * @param radius node radius
  */
 static inline void
 PrintNodeInfo(std::string& uid,
@@ -117,9 +106,7 @@ PrintNodeInfo(std::string& uid,
 {
     /* uid @loc [+] [bb] (num_neigh) [&ext] -> <nuid-1> <nuid-2> ... {-euid} ... =name[!] rn */
     NS_LOG_INFO("Load Node[" << uid << "]: location: " << loc << " dns: " << dns << " bb: " << bb
-                             << " neighbors: " << neighListSize << "("
-                             << "%d"
-                             << ") externals: \"%s\"(%d) "
+                             << " neighbors: " << neighListSize << "(%d) externals: \"%s\"(%d) "
                              << "name: " << name << " radius: " << radius);
 }
 
@@ -261,7 +248,7 @@ RocketfuelTopologyReader::GenerateFromWeightsFile(const std::vector<std::string>
 
     sname = argv[0];
     tname = argv[1];
-    std::stod(argv[2], &endptr); // weight
+    double weight [[maybe_unused]] = std::stod(argv[2], &endptr);
 
     if (argv[2].size() != endptr)
     {
@@ -319,22 +306,18 @@ RocketfuelTopologyReader::GenerateFromWeightsFile(const std::vector<std::string>
     return nodes;
 }
 
-enum RocketfuelTopologyReader::RF_FileType
+RocketfuelTopologyReader::RF_FileType
 RocketfuelTopologyReader::GetFileType(const std::string& line)
 {
-    int ret;
-
     // Check whether Maps file or not
     std::smatch matches;
-    ret = std::regex_match(line, matches, rocketfuel_maps_regex);
-    if (ret)
+    if (std::regex_match(line, matches, rocketfuel_maps_regex))
     {
         return RF_MAPS;
     }
 
     // Check whether Weights file or not
-    ret = std::regex_match(line, matches, rocketfuel_weights_regex);
-    if (ret)
+    if (std::regex_match(line, matches, rocketfuel_weights_regex))
     {
         return RF_WEIGHTS;
     }
@@ -352,7 +335,7 @@ RocketfuelTopologyReader::Read()
     std::istringstream lineBuffer;
     std::string line;
     int lineNumber = 0;
-    enum RF_FileType ftype = RF_UNKNOWN;
+    RF_FileType ftype = RF_UNKNOWN;
 
     if (!topgen.is_open())
     {
@@ -362,7 +345,6 @@ RocketfuelTopologyReader::Read()
 
     while (!topgen.eof())
     {
-        int ret;
         std::vector<std::string> argv;
 
         lineNumber++;
@@ -385,8 +367,8 @@ RocketfuelTopologyReader::Read()
 
         if (ftype == RF_MAPS)
         {
-            ret = std::regex_match(line, matches, rocketfuel_maps_regex);
-            if (ret != true || matches.empty())
+            bool ret = std::regex_match(line, matches, rocketfuel_maps_regex);
+            if (!ret || matches.empty())
             {
                 NS_LOG_WARN("match failed (maps file): %s" << line);
                 break;
@@ -394,8 +376,8 @@ RocketfuelTopologyReader::Read()
         }
         else if (ftype == RF_WEIGHTS)
         {
-            ret = std::regex_match(line, matches, rocketfuel_weights_regex);
-            if (ret != true || matches.empty())
+            bool ret = std::regex_match(line, matches, rocketfuel_weights_regex);
+            if (!ret || matches.empty())
             {
                 NS_LOG_WARN("match failed (weights file): %s" << line);
                 break;

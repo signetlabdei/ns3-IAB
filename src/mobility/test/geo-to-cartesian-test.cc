@@ -1,25 +1,14 @@
 /*
  * Copyright (c) 2014 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Benjamin Cizdziel <ben.cizdziel@gmail.com>
  */
 
-#include <ns3/geographic-positions.h>
-#include <ns3/log.h>
-#include <ns3/test.h>
+#include "ns3/geographic-positions.h"
+#include "ns3/log.h"
+#include "ns3/test.h"
 
 NS_LOG_COMPONENT_DEFINE("GeoToCartesianTest");
 
@@ -1485,15 +1474,15 @@ const double ZWGS84_MATLAB[216] = {
 };
 
 /**
- * \ingroup mobility
- * \ingroup tests
- * \defgroup mobility-test mobility module tests
+ * @ingroup mobility
+ * @ingroup tests
+ * @defgroup mobility-test mobility module tests
  */
 
 /**
- * \ingroup mobility-test
+ * @ingroup mobility-test
  *
- * \brief Geo To Cartesian Test Case
+ * @brief Geo To Cartesian Test Case
  *
  * This test verifies the accuracy of the GeographicToCartesianCoordinates()
  * method in the GeographicPositions class, which converts earth
@@ -1512,11 +1501,11 @@ class GeoToCartesianTestCase : public TestCase
     /**
      * Constructor
      *
-     * \param latitude latitude (deg)
-     * \param longitude longitude (deg)
-     * \param altitude altitude (m)
-     * \param sphType sphere type
-     * \param i index
+     * @param latitude latitude (deg)
+     * @param longitude longitude (deg)
+     * @param altitude altitude (m)
+     * @param sphType sphere type
+     * @param i index
      */
     GeoToCartesianTestCase(double latitude,
                            double longitude,
@@ -1530,11 +1519,11 @@ class GeoToCartesianTestCase : public TestCase
 
     /**
      * Name function
-     * \param latitude the latitude (deg)
-     * \param longitude the longitude (deg)
-     * \param altitude the altitude (m)
-     * \param sphType the sphere type
-     * \returns the name string
+     * @param latitude the latitude (deg)
+     * @param longitude the longitude (deg)
+     * @param altitude the altitude (m)
+     * @param sphType the sphere type
+     * @returns the name string
      */
     static std::string Name(double latitude,
                             double longitude,
@@ -1673,9 +1662,9 @@ GeoToCartesianTestCase::DoRun()
 }
 
 /**
- * \ingroup mobility-test
+ * @ingroup mobility-test
  *
- * \brief Cartesian to Geo Test Case
+ * @brief Cartesian to Geo Test Case
  *
  * This test verifies the accuracy of the CartesianToGeographicCoordinates()
  * method in the GeographicPositions class, which converts earth
@@ -1690,11 +1679,11 @@ class CartesianToGeoTestCase : public TestCase
     /**
      * Constructor
      *
-     * \param latitude latitude (deg)
-     * \param longitude longitude (deg)
-     * \param altitude altitude (m)
-     * \param sphType sphere type
-     * \param i index
+     * @param latitude latitude (deg)
+     * @param longitude longitude (deg)
+     * @param altitude altitude (m)
+     * @param sphType sphere type
+     * @param i index
      */
     CartesianToGeoTestCase(double latitude,
                            double longitude,
@@ -1708,11 +1697,11 @@ class CartesianToGeoTestCase : public TestCase
 
     /**
      * Name function
-     * \param latitude the latitude (deg)
-     * \param longitude the longitude (deg)
-     * \param altitude the altitude (m)
-     * \param sphType the sphere type
-     * \returns the name string
+     * @param latitude the latitude (deg)
+     * @param longitude the longitude (deg)
+     * @param altitude the altitude (m)
+     * @param sphType the sphere type
+     * @returns the name string
      */
     static std::string Name(double latitude,
                             double longitude,
@@ -1789,9 +1778,9 @@ CartesianToGeoTestCase::DoRun()
 }
 
 /**
- * \ingroup mobility-test
+ * @ingroup mobility-test
  *
- * \brief Geo To Cartesian Test Suite
+ * @brief Geo To Cartesian Test Suite
  */
 class GeoToCartesianTestSuite : public TestSuite
 {
@@ -1800,7 +1789,7 @@ class GeoToCartesianTestSuite : public TestSuite
 };
 
 GeoToCartesianTestSuite::GeoToCartesianTestSuite()
-    : TestSuite("geo-to-cartesian", UNIT)
+    : TestSuite("geo-to-cartesian", Type::UNIT)
 {
     NS_LOG_INFO("creating GeoToCartesianTestSuite");
     int i = 0; // iteration number
@@ -1815,13 +1804,13 @@ GeoToCartesianTestSuite::GeoToCartesianTestSuite()
                                                        altitude,
                                                        GeographicPositions::SPHERE,
                                                        i),
-                            TestCase::QUICK);
+                            TestCase::Duration::QUICK);
                 AddTestCase(new CartesianToGeoTestCase(latitude,
                                                        longitude,
                                                        altitude,
                                                        GeographicPositions::SPHERE,
                                                        i),
-                            TestCase::QUICK);
+                            TestCase::Duration::QUICK);
                 ++i;
             }
         }
@@ -1838,13 +1827,13 @@ GeoToCartesianTestSuite::GeoToCartesianTestSuite()
                                                        altitude,
                                                        GeographicPositions::GRS80,
                                                        i),
-                            TestCase::QUICK);
+                            TestCase::Duration::QUICK);
                 AddTestCase(new CartesianToGeoTestCase(latitude,
                                                        longitude,
                                                        altitude,
                                                        GeographicPositions::GRS80,
                                                        i),
-                            TestCase::QUICK);
+                            TestCase::Duration::QUICK);
                 ++i;
             }
         }
@@ -1861,13 +1850,13 @@ GeoToCartesianTestSuite::GeoToCartesianTestSuite()
                                                        altitude,
                                                        GeographicPositions::WGS84,
                                                        i),
-                            TestCase::QUICK);
+                            TestCase::Duration::QUICK);
                 AddTestCase(new CartesianToGeoTestCase(latitude,
                                                        longitude,
                                                        altitude,
                                                        GeographicPositions::WGS84,
                                                        i),
-                            TestCase::QUICK);
+                            TestCase::Duration::QUICK);
                 ++i;
             }
         }
@@ -1875,7 +1864,7 @@ GeoToCartesianTestSuite::GeoToCartesianTestSuite()
 }
 
 /**
- * \ingroup mobility-test
+ * @ingroup mobility-test
  * Static variable for test initialization
  */
 static GeoToCartesianTestSuite g_GeoToCartesianTestSuite;

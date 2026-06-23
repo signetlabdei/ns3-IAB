@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2013 Universita' di Firenze, Italy
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Tommaso Pecorella <tommaso.pecorella@unifi.it>
  *         Michele Muccio <michelemuccio@virgilio.it>
@@ -144,8 +133,6 @@ SixLowPanHc1::GetSerializedSize() const
         serializedSize += 16;
         break;
     case HC1_PIIC:
-        serializedSize += 8;
-        break;
     case HC1_PCII:
         serializedSize += 8;
         break;
@@ -158,8 +145,6 @@ SixLowPanHc1::GetSerializedSize() const
         serializedSize += 16;
         break;
     case HC1_PIIC:
-        serializedSize += 8;
-        break;
     case HC1_PCII:
         serializedSize += 8;
         break;
@@ -167,7 +152,7 @@ SixLowPanHc1::GetSerializedSize() const
         break;
     }
 
-    if (m_tcflCompression == false)
+    if (!m_tcflCompression)
     {
         serializedSize += 4;
     }
@@ -253,7 +238,7 @@ SixLowPanHc1::Serialize(Buffer::Iterator start) const
         break;
     }
 
-    if (m_tcflCompression == false)
+    if (!m_tcflCompression)
     {
         i.WriteU8(m_trafficClass);
         uint8_t temp[3];
@@ -347,7 +332,7 @@ SixLowPanHc1::Deserialize(Buffer::Iterator start)
         break;
     }
 
-    if (m_tcflCompression == false)
+    if (!m_tcflCompression)
     {
         m_trafficClass = i.ReadU8();
         uint8_t temp[3];
@@ -938,7 +923,7 @@ SixLowPanIphc::GetSerializedSize() const
     default:
         break;
     }
-    if (GetNh() == false)
+    if (!GetNh())
     {
         serializedSize++;
     }
@@ -949,7 +934,7 @@ SixLowPanIphc::GetSerializedSize() const
     switch (GetSam())
     {
     case HC_INLINE:
-        if (GetSac() == false)
+        if (!GetSac())
         {
             serializedSize += 16;
         }
@@ -964,12 +949,12 @@ SixLowPanIphc::GetSerializedSize() const
     default:
         break;
     }
-    if (GetM() == false)
+    if (!GetM())
     {
         switch (GetDam())
         {
         case HC_INLINE:
-            if (GetDac() == false)
+            if (!GetDac())
             {
                 serializedSize += 16;
             }
@@ -990,7 +975,7 @@ SixLowPanIphc::GetSerializedSize() const
         switch (GetDam())
         {
         case HC_INLINE:
-            if (GetDac() == false)
+            if (!GetDac())
             {
                 serializedSize += 16;
             }
@@ -1000,20 +985,20 @@ SixLowPanIphc::GetSerializedSize() const
             }
             break;
         case HC_COMPR_64:
-            if (GetDac() == false)
+            if (!GetDac())
             {
                 serializedSize += 6;
             }
             break;
         case HC_COMPR_16:
-            if (GetDac() == false)
+            if (!GetDac())
             {
                 serializedSize += 4;
             }
             break;
         case HC_COMPR_0:
         default:
-            if (GetDac() == false)
+            if (!GetDac())
             {
                 serializedSize++;
             }
@@ -1065,7 +1050,7 @@ SixLowPanIphc::Serialize(Buffer::Iterator start) const
         break;
     }
     // Next Header
-    if (GetNh() == false)
+    if (!GetNh())
     {
         i.WriteU8(m_nextHeader);
     }
@@ -1078,7 +1063,7 @@ SixLowPanIphc::Serialize(Buffer::Iterator start) const
     switch (GetSam())
     {
     case HC_INLINE:
-        if (GetSac() == false)
+        if (!GetSac())
         {
             i.Write(m_srcInlinePart, 16);
         }
@@ -1094,7 +1079,7 @@ SixLowPanIphc::Serialize(Buffer::Iterator start) const
         break;
     }
     // Destination Address
-    if (GetM() == false)
+    if (!GetM())
     {
         // unicast
         switch (GetDam())
@@ -1184,7 +1169,7 @@ SixLowPanIphc::Deserialize(Buffer::Iterator start)
         break;
     }
     // Next Header
-    if (GetNh() == false)
+    if (!GetNh())
     {
         m_nextHeader = i.ReadU8();
     }
@@ -1210,7 +1195,7 @@ SixLowPanIphc::Deserialize(Buffer::Iterator start)
     switch (GetSam())
     {
     case HC_INLINE:
-        if (GetSac() == false)
+        if (!GetSac())
         {
             i.Read(m_srcInlinePart, 16);
         }
@@ -1228,7 +1213,7 @@ SixLowPanIphc::Deserialize(Buffer::Iterator start)
 
     // Destination Address
     memset(m_dstInlinePart, 0x00, sizeof(m_dstInlinePart));
-    if (GetM() == false)
+    if (!GetM())
     {
         // unicast
         switch (GetDam())
@@ -1552,7 +1537,7 @@ uint32_t
 SixLowPanNhcExtension::GetSerializedSize() const
 {
     uint32_t serializedSize = 2;
-    if (GetNh() == false)
+    if (!GetNh())
     {
         serializedSize++;
     }
@@ -1564,7 +1549,7 @@ SixLowPanNhcExtension::Serialize(Buffer::Iterator start) const
 {
     Buffer::Iterator i = start;
     i.WriteU8(m_nhcExtensionHeader);
-    if (GetNh() == false)
+    if (!GetNh())
     {
         i.WriteU8(m_nhcNextHeader);
     }
@@ -1577,7 +1562,7 @@ SixLowPanNhcExtension::Deserialize(Buffer::Iterator start)
 {
     Buffer::Iterator i = start;
     m_nhcExtensionHeader = i.ReadU8();
-    if (GetNh() == false)
+    if (!GetNh())
     {
         m_nhcNextHeader = i.ReadU8();
     }
@@ -2198,6 +2183,148 @@ SixLowPanMesh::GetHopsLeft() const
 
 std::ostream&
 operator<<(std::ostream& os, const SixLowPanMesh& h)
+{
+    h.Print(os);
+    return os;
+}
+
+/*
+ * SixLowPanCio
+ */
+NS_OBJECT_ENSURE_REGISTERED(Icmpv6OptionSixLowPanCapabilityIndication);
+
+Icmpv6OptionSixLowPanCapabilityIndication::Icmpv6OptionSixLowPanCapabilityIndication()
+{
+    SetType(Icmpv6Header::ICMPV6_OPT_CAPABILITY_INDICATION);
+    SetLength(1);
+    m_capabilityOptionField = 0;
+}
+
+TypeId
+Icmpv6OptionSixLowPanCapabilityIndication::GetTypeId()
+{
+    static TypeId tid = TypeId("ns3::Icmpv6OptionSixLowPanCapabilityIndication")
+                            .SetParent<Icmpv6Header>()
+                            .SetGroupName("SixLowPan")
+                            .AddConstructor<Icmpv6OptionSixLowPanCapabilityIndication>();
+    return tid;
+}
+
+TypeId
+Icmpv6OptionSixLowPanCapabilityIndication::GetInstanceTypeId() const
+{
+    return GetTypeId();
+}
+
+void
+Icmpv6OptionSixLowPanCapabilityIndication::Print(std::ostream& os) const
+{
+    os << "( type = " << (uint32_t)GetType() << " Option field: ";
+
+    if (m_capabilityOptionField & D)
+    {
+        os << "D";
+    }
+    else
+    {
+        os << " ";
+    }
+
+    if (m_capabilityOptionField & L)
+    {
+        os << "L";
+    }
+    else
+    {
+        os << " ";
+    }
+
+    if (m_capabilityOptionField & B)
+    {
+        os << "B";
+    }
+    else
+    {
+        os << " ";
+    }
+
+    if (m_capabilityOptionField & P)
+    {
+        os << "P";
+    }
+    else
+    {
+        os << " ";
+    }
+
+    if (m_capabilityOptionField & E)
+    {
+        os << "E";
+    }
+    else
+    {
+        os << " ";
+    }
+
+    if (m_capabilityOptionField & G)
+    {
+        os << "G";
+    }
+    else
+    {
+        os << " ";
+    }
+    os << " )";
+}
+
+uint32_t
+Icmpv6OptionSixLowPanCapabilityIndication::GetSerializedSize() const
+{
+    return 8;
+}
+
+void
+Icmpv6OptionSixLowPanCapabilityIndication::Serialize(Buffer::Iterator start) const
+{
+    Buffer::Iterator i = start;
+
+    i.WriteU8(GetType());
+    i.WriteU8(GetLength());
+
+    i.WriteU8(0);
+    i.WriteU8(m_capabilityOptionField);
+    i.WriteU32(0);
+}
+
+uint32_t
+Icmpv6OptionSixLowPanCapabilityIndication::Deserialize(Buffer::Iterator start)
+{
+    Buffer::Iterator i = start;
+
+    SetType(i.ReadU8());
+    SetLength(i.ReadU8());
+
+    i.Next();
+    m_capabilityOptionField = i.ReadU8();
+    i.Next(4);
+
+    return GetSerializedSize();
+}
+
+void
+Icmpv6OptionSixLowPanCapabilityIndication::SetOption(SixLowPanCapability_e option)
+{
+    m_capabilityOptionField |= option;
+}
+
+bool
+Icmpv6OptionSixLowPanCapabilityIndication::CheckOption(SixLowPanCapability_e option) const
+{
+    return (m_capabilityOptionField & option) != 0;
+}
+
+std::ostream&
+operator<<(std::ostream& os, const Icmpv6OptionSixLowPanCapabilityIndication& h)
 {
     h.Print(os);
     return os;

@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Leonard Tracy <lentracy@gmail.com>
  */
@@ -34,10 +23,10 @@
 using namespace ns3;
 
 /**
- * \ingroup uan-test
- * \ingroup tests
+ * @ingroup uan-test
+ * @ingroup tests
  *
- * \brief Uan Test
+ * @brief Uan Test
  */
 class UanTest : public TestCase
 {
@@ -49,26 +38,26 @@ class UanTest : public TestCase
   private:
     /**
      * Create node function
-     * \param pos the position of the device
-     * \param chan the communication channel
-     * \returns the UAN device
+     * @param pos the position of the device
+     * @param chan the communication channel
+     * @returns the UAN device
      */
     Ptr<UanNetDevice> CreateNode(Vector pos, Ptr<UanChannel> chan);
     /**
      * Phy test function
-     * \returns true if successful
+     * @returns true if successful
      */
     bool DoPhyTests();
     /**
      * Do one Phy test function
-     * \param t1 the time to send first packet
-     * \param t2 the time to send the second packet
-     * \param r1 first distance constant
-     * \param r2 second distance constant
-     * \param prop the propagation model
-     * \param mode1 the send mode for device 1
-     * \param mode2 the send mode for device 2
-     * \returns number of bytes received
+     * @param t1 the time to send first packet
+     * @param t2 the time to send the second packet
+     * @param r1 first distance constant
+     * @param r2 second distance constant
+     * @param prop the propagation model
+     * @param mode1 the send mode for device 1
+     * @param mode2 the send mode for device 2
+     * @returns number of bytes received
      */
     uint32_t DoOnePhyTest(Time t1,
                           Time t2,
@@ -79,17 +68,17 @@ class UanTest : public TestCase
                           uint16_t mode2 = 0);
     /**
      * Receive packet function
-     * \param dev the device
-     * \param pkt the packet
-     * \param mode the receive mode
-     * \param sender the address of the sender
-     * \returns true if successful
+     * @param dev the device
+     * @param pkt the packet
+     * @param mode the receive mode
+     * @param sender the address of the sender
+     * @returns true if successful
      */
     bool RxPacket(Ptr<NetDevice> dev, Ptr<const Packet> pkt, uint16_t mode, const Address& sender);
     /**
      * Send one packet function
-     * \param dev the device
-     * \param mode the transmit mode
+     * @param dev the device
+     * @param mode the transmit mode
      */
     void SendOnePacket(Ptr<UanNetDevice> dev, uint16_t mode);
     ObjectFactory m_phyFac; ///< Phy
@@ -165,7 +154,7 @@ UanTest::DoOnePhyTest(Time txTime1,
     Simulator::Schedule(txTime2, &UanTest::SendOnePacket, this, dev2, mode2);
 
     m_bytesRx = 0;
-    Simulator::Stop(Seconds(20.0));
+    Simulator::Stop(Seconds(20));
     Simulator::Run();
     Simulator::Destroy();
 
@@ -190,12 +179,12 @@ UanTest::DoPhyTests()
     Ptr<UanPropModelIdeal> prop = CreateObject<UanPropModelIdeal>();
 
     // No collision (Get 2 packets)
-    NS_TEST_ASSERT_MSG_EQ_RETURNS_BOOL(DoOnePhyTest(Seconds(1.0), Seconds(3.001), 50, 50, prop),
+    NS_TEST_ASSERT_MSG_EQ_RETURNS_BOOL(DoOnePhyTest(Seconds(1), Seconds(3.001), 50, 50, prop),
                                        34,
                                        "Should have received 34 bytes from 2 disjoint packets");
 
     // Collision (Lose both packets)
-    NS_TEST_ASSERT_MSG_EQ_RETURNS_BOOL(DoOnePhyTest(Seconds(1.0), Seconds(2.99), 50, 50, prop),
+    NS_TEST_ASSERT_MSG_EQ_RETURNS_BOOL(DoOnePhyTest(Seconds(1), Seconds(2.99), 50, 50, prop),
                                        0,
                                        "Expected collision resulting in loss of both packets");
 
@@ -211,18 +200,18 @@ UanTest::DoPhyTests()
 #endif // UAN_PROP_BH_INSTALLED
 
     //  No collision (Get 2 packets)
-    NS_TEST_ASSERT_MSG_EQ_RETURNS_BOOL(DoOnePhyTest(Seconds(1.0), Seconds(3.001), 50, 50, prop),
+    NS_TEST_ASSERT_MSG_EQ_RETURNS_BOOL(DoOnePhyTest(Seconds(1), Seconds(3.001), 50, 50, prop),
                                        34,
                                        "Should have received 34 bytes from 2 disjoint packets");
 
     // Should correctly receive first arriving packet
-    NS_TEST_ASSERT_MSG_EQ_RETURNS_BOOL(DoOnePhyTest(Seconds(1.0), Seconds(1.0126), 50, 50, prop),
+    NS_TEST_ASSERT_MSG_EQ_RETURNS_BOOL(DoOnePhyTest(Seconds(1), Seconds(1.0126), 50, 50, prop),
                                        17,
                                        "Should have received 17 bytes from first arriving packet");
 
     // Packets should collide and both be lost
     NS_TEST_ASSERT_MSG_EQ_RETURNS_BOOL(
-        DoOnePhyTest(Seconds(1.0), Seconds(1.0 + 7.01 * (13.0 / 80.0)), 50, 50, prop),
+        DoOnePhyTest(Seconds(1), Seconds(1.0 + 7.01 * (13.0 / 80.0)), 50, 50, prop),
         0,
         "Packets should collide, but received data");
 
@@ -255,29 +244,25 @@ UanTest::DoPhyTests()
     m_phyFac.Set("SupportedModesPhy2", UanModesListValue(m1));
 
     // No collision (Get 2 packets)
-    NS_TEST_ASSERT_MSG_EQ_RETURNS_BOOL(DoOnePhyTest(Seconds(1.0), Seconds(3.01), 50, 50, prop),
+    NS_TEST_ASSERT_MSG_EQ_RETURNS_BOOL(DoOnePhyTest(Seconds(1), Seconds(3.01), 50, 50, prop),
                                        34,
                                        "Expected no collision");
 
-    NS_TEST_ASSERT_MSG_EQ_RETURNS_BOOL(
-        DoOnePhyTest(Seconds(1.0), Seconds(2.99), 50, 50, prop, 0, 0),
-        0,
-        "Expected collision with both packets lost");
+    NS_TEST_ASSERT_MSG_EQ_RETURNS_BOOL(DoOnePhyTest(Seconds(1), Seconds(2.99), 50, 50, prop, 0, 0),
+                                       0,
+                                       "Expected collision with both packets lost");
 
-    NS_TEST_ASSERT_MSG_EQ_RETURNS_BOOL(
-        DoOnePhyTest(Seconds(1.0), Seconds(2.99), 50, 50, prop, 0, 2),
-        17,
-        "Expected collision with only one packets lost");
+    NS_TEST_ASSERT_MSG_EQ_RETURNS_BOOL(DoOnePhyTest(Seconds(1), Seconds(2.99), 50, 50, prop, 0, 2),
+                                       17,
+                                       "Expected collision with only one packets lost");
 
-    NS_TEST_ASSERT_MSG_EQ_RETURNS_BOOL(
-        DoOnePhyTest(Seconds(1.0), Seconds(2.99), 50, 50, prop, 0, 5),
-        34,
-        "Expected no collision");
+    NS_TEST_ASSERT_MSG_EQ_RETURNS_BOOL(DoOnePhyTest(Seconds(1), Seconds(2.99), 50, 50, prop, 0, 5),
+                                       34,
+                                       "Expected no collision");
 
-    NS_TEST_ASSERT_MSG_EQ_RETURNS_BOOL(
-        DoOnePhyTest(Seconds(1.0), Seconds(2.99), 50, 50, prop, 2, 3),
-        34,
-        "Expected no collision");
+    NS_TEST_ASSERT_MSG_EQ_RETURNS_BOOL(DoOnePhyTest(Seconds(1), Seconds(2.99), 50, 50, prop, 2, 3),
+                                       34,
+                                       "Expected no collision");
 
     return false;
 }
@@ -311,10 +296,95 @@ UanTest::DoRun()
 }
 
 /**
- * \ingroup uan-test
- * \ingroup tests
+ * @ingroup uan-test
+ * @ingroup tests
  *
- * \brief Uan Test Suite
+ * @brief UanModesList Test
+ */
+class UanModesListTest : public TestCase
+{
+  public:
+    UanModesListTest();
+
+    void DoRun() override;
+};
+
+UanModesListTest::UanModesListTest()
+    : TestCase("UanModesListTest")
+{
+}
+
+void
+UanModesListTest::DoRun()
+{
+    // operator >> (std::istream &is, UanModesList &ml)
+    std::string inputStr;
+    std::istringstream iss;
+    UanModesList ml;
+
+    inputStr = "3|0|1|1|";
+    iss.str(inputStr);
+    iss >> ml;
+    NS_TEST_ASSERT_MSG_EQ(ml.GetNModes(), 3, "Expected 3 modes in the list");
+    NS_TEST_ASSERT_MSG_EQ(iss.eof(), true, "Expected end of file state");
+    NS_TEST_ASSERT_MSG_EQ(iss.fail(), false, "Expected no fail state");
+
+    inputStr = "3|0|1|";
+    iss.str(inputStr);
+    iss.clear();
+    iss >> ml;
+    NS_TEST_ASSERT_MSG_EQ(iss.fail(), true, "Expected fail state due to incomplete input");
+
+    inputStr = "|3|0|1|1|";
+    iss.str(inputStr);
+    iss.clear();
+    iss >> ml;
+    NS_TEST_ASSERT_MSG_EQ(iss.fail(), true, "Expected fail state due to leading delimiter");
+
+    inputStr = "3|0|1|1|0|";
+    iss.str(inputStr);
+    iss.clear();
+    iss >> ml;
+    NS_TEST_ASSERT_MSG_EQ(iss.eof(), false, "Expected no end of file state");
+
+    inputStr = "0|";
+    iss.str(inputStr);
+    iss.clear();
+    iss >> ml;
+    NS_TEST_ASSERT_MSG_EQ(ml.GetNModes(), 0, "Expected 0 modes in the list");
+    NS_TEST_ASSERT_MSG_EQ(iss.eof(), true, "Expected end of file state");
+    NS_TEST_ASSERT_MSG_EQ(iss.fail(), false, "Expected no fail state");
+
+    inputStr = "0|1|0|";
+    iss.str(inputStr);
+    iss.clear();
+    iss >> ml;
+    NS_TEST_ASSERT_MSG_EQ(iss.eof(), false, "Expected end of file state");
+
+    inputStr = "a|1|2|";
+    iss.str(inputStr);
+    iss.clear();
+    iss >> ml;
+    NS_TEST_ASSERT_MSG_EQ(iss.fail(), true, "Expected fail state due to non-numeric input");
+
+    inputStr = "a|b|c|";
+    iss.str(inputStr);
+    iss.clear();
+    iss >> ml;
+    NS_TEST_ASSERT_MSG_EQ(iss.fail(), true, "Expected fail state due to non-numeric input");
+
+    inputStr = "3|a|b|c|";
+    iss.str(inputStr);
+    iss.clear();
+    iss >> ml;
+    NS_TEST_ASSERT_MSG_EQ(iss.fail(), true, "Expected fail state due to non-numeric input");
+}
+
+/**
+ * @ingroup uan-test
+ * @ingroup tests
+ *
+ * @brief Uan Test Suite
  */
 class UanTestSuite : public TestSuite
 {
@@ -323,9 +393,10 @@ class UanTestSuite : public TestSuite
 };
 
 UanTestSuite::UanTestSuite()
-    : TestSuite("devices-uan", UNIT)
+    : TestSuite("devices-uan", Type::UNIT)
 {
-    AddTestCase(new UanTest, TestCase::QUICK);
+    AddTestCase(new UanTest, TestCase::Duration::QUICK);
+    AddTestCase(new UanModesListTest, TestCase::Duration::QUICK);
 }
 
 static UanTestSuite g_uanTestSuite; ///< the test suite

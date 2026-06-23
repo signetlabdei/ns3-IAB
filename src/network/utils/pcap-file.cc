@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author:  Craig Dowell (craigdo@ee.washington.edu)
  */
@@ -225,7 +214,7 @@ PcapFile::WriteFileHeader()
     //
     PcapFileHeader* headerOut = nullptr;
 
-    if (m_swapMode == false)
+    if (!m_swapMode)
     {
         headerOut = &m_fileHeader;
     }
@@ -404,7 +393,7 @@ PcapFile::Init(uint32_t dataLinkType,
     //
     // And set swap mode if requested or we are on a big-endian system.
     //
-    m_swapMode = swapMode | bigEndian;
+    m_swapMode = swapMode || bigEndian;
 
     WriteFileHeader();
 }
@@ -552,8 +541,8 @@ PcapFile::Diff(const std::string& f1,
         return true;
     }
 
-    uint8_t* data1 = new uint8_t[snapLen]();
-    uint8_t* data2 = new uint8_t[snapLen]();
+    auto data1 = new uint8_t[snapLen]();
+    auto data2 = new uint8_t[snapLen]();
     uint32_t tsSec1 = 0;
     uint32_t tsSec2 = 0;
     uint32_t tsUsec1 = 0;

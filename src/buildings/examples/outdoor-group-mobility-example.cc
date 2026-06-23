@@ -2,18 +2,7 @@
  * Copyright (c) 2020 Institute for the Wireless Internet of Things, Northeastern University,
  * Boston, MA Copyright (c) 2021, University of Washington: refactor for hierarchical model
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Michele Polese <michele.polese@gmail.com>
  * Heavily edited by Tom Henderson to use HierarchicalMobilityModel
@@ -61,8 +50,8 @@
 
 #include "ns3/buildings-module.h"
 #include "ns3/core-module.h"
+#include "ns3/mobility-module.h"
 #include "ns3/network-module.h"
-#include <ns3/mobility-module.h>
 
 #include <iostream>
 
@@ -76,7 +65,7 @@ std::ofstream g_timeSeries;
 /**
  * Print the node position to the time series file.
  *
- * \param node The node.
+ * @param node The node.
  */
 void
 PrintPosition(Ptr<Node> node)
@@ -98,7 +87,7 @@ PrintPosition(Ptr<Node> node)
 /**
  * Print the buildings list in a format that can be used by Gnuplot to draw them.
  *
- * \param filename The output filename.
+ * @param filename The output filename.
  */
 void
 PrintGnuplottableBuildingListToFile(std::string filename)
@@ -111,7 +100,7 @@ PrintGnuplottableBuildingListToFile(std::string filename)
         return;
     }
     uint32_t index = 1;
-    for (BuildingList::Iterator it = BuildingList::Begin(); it != BuildingList::End(); ++it)
+    for (auto it = BuildingList::Begin(); it != BuildingList::End(); ++it)
     {
         ++index;
         Box box = (*it)->GetBoundaries();
@@ -176,7 +165,7 @@ main(int argc, char* argv[])
     // configuration.
 
     int64_t streamIndex = 1;
-    if (useHelper == false)
+    if (!useHelper)
     {
         // The reference (parent) mobility model starts at coordinate (10, 10, 0)
         // and performs a buildings-aware random walk.
@@ -196,7 +185,7 @@ main(int argc, char* argv[])
         outdoorMm->SetPosition(Vector(10, 10, 0));
         streamIndex += outdoorMm->AssignStreams(streamIndex);
 
-        // Each HierachicalMobilityModel contains the above model as the Parent,
+        // Each HierarchicalMobilityModel contains the above model as the Parent,
         // and a user defined model as the Child.  Two MobilityModel objects are
         // instantiated per node, and each node also shares the same parent model.
 

@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2007 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: George Riley <riley@ece.gatech.edu>
  */
@@ -30,9 +19,9 @@ namespace ns3
 {
 
 /**
- * \ingroup point-to-point
+ * @ingroup point-to-point
  *
- * \brief A Remote Point-To-Point Channel
+ * @brief A Remote Point-To-Point Channel
  *
  * This object connects two point-to-point net devices where at least one
  * is not local to this simulator object. It simply override the transmit
@@ -42,29 +31,29 @@ class PointToPointRemoteChannel : public PointToPointChannel
 {
   public:
     /**
-     * \brief Get the TypeId
+     * @brief Get the TypeId
      *
-     * \return The TypeId for this class
+     * @return The TypeId for this class
      */
     static TypeId GetTypeId();
 
     /**
-     * \brief Constructor
+     * @brief Constructor
      */
     PointToPointRemoteChannel();
 
     /**
-     * \brief Deconstructor
+     * @brief Deconstructor
      */
     ~PointToPointRemoteChannel() override;
 
     /**
-     * \brief Transmit the packet
+     * @brief Transmit the packet
      *
-     * \param p Packet to transmit
-     * \param src Source PointToPointNetDevice
-     * \param txTime Transmit time to apply
-     * \returns true if successful (currently always true)
+     * @param p Packet to transmit
+     * @param src Source PointToPointNetDevice
+     * @param txTime Transmit time to apply
+     * @returns true if successful (currently always true)
      */
     bool TransmitStart(Ptr<const Packet> p, Ptr<PointToPointNetDevice> src, Time txTime) override;
 };

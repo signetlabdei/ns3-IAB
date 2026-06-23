@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2008 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -23,13 +12,10 @@
 #include "fatal-error.h"
 #include "log.h"
 #include "string.h"
-#include "uinteger.h"
-
-#include "ns3/core-config.h"
 
 /**
- * \file
- * \ingroup core
+ * @file
+ * @ingroup core
  * ns3::GlobalValue implementation.
  */
 
@@ -103,7 +89,7 @@ GlobalValue::GetValue(AttributeValue& value) const
     {
         return;
     }
-    StringValue* str = dynamic_cast<StringValue*>(&value);
+    auto str = dynamic_cast<StringValue*>(&value);
     if (str == nullptr)
     {
         NS_FATAL_ERROR("GlobalValue name=" << m_name << ": input value is not a string");
@@ -127,7 +113,7 @@ GlobalValue::SetValue(const AttributeValue& value)
     Ptr<AttributeValue> v = m_checker->CreateValidValue(value);
     if (!v)
     {
-        return 0;
+        return false;
     }
     m_currentValue = v;
     return true;
@@ -138,7 +124,7 @@ GlobalValue::Bind(std::string name, const AttributeValue& value)
 {
     NS_LOG_FUNCTION(name << &value);
 
-    for (Iterator i = Begin(); i != End(); i++)
+    for (auto i = Begin(); i != End(); i++)
     {
         if ((*i)->GetName() == name)
         {
@@ -157,7 +143,7 @@ GlobalValue::BindFailSafe(std::string name, const AttributeValue& value)
 {
     NS_LOG_FUNCTION(name << &value);
 
-    for (Iterator i = Begin(); i != End(); i++)
+    for (auto i = Begin(); i != End(); i++)
     {
         if ((*i)->GetName() == name)
         {
@@ -193,7 +179,7 @@ bool
 GlobalValue::GetValueByNameFailSafe(std::string name, AttributeValue& value)
 {
     NS_LOG_FUNCTION(name << &value);
-    for (GlobalValue::Iterator gvit = GlobalValue::Begin(); gvit != GlobalValue::End(); ++gvit)
+    for (auto gvit = GlobalValue::Begin(); gvit != GlobalValue::End(); ++gvit)
     {
         if ((*gvit)->GetName() == name)
         {

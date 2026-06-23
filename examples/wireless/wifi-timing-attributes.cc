@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2015
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Sebastien Deronne <sebastien.deronne@gmail.com>
  */
@@ -29,6 +18,7 @@
 #include "ns3/ssid.h"
 #include "ns3/string.h"
 #include "ns3/udp-client-server-helper.h"
+#include "ns3/udp-server.h"
 #include "ns3/uinteger.h"
 #include "ns3/yans-wifi-channel.h"
 #include "ns3/yans-wifi-helper.h"
@@ -38,7 +28,7 @@
 // Example: set slot time to 20 microseconds, while keeping other values as defined in the
 // simulation script:
 //
-//          ./ns3 run "wifi-timing-attributes --slot=20"
+//          ./ns3 run "wifi-timing-attributes --slot=20us"
 //
 // Network topology:
 //
@@ -56,16 +46,16 @@ NS_LOG_COMPONENT_DEFINE("wifi-timing-attributes");
 int
 main(int argc, char* argv[])
 {
-    uint32_t slot = 9;          // slot time in microseconds
-    uint32_t sifs = 10;         // SIFS duration in microseconds
-    uint32_t pifs = 19;         // PIFS duration in microseconds
-    double simulationTime = 10; // simulation time in seconds
+    Time slot{"9us"};           // slot time
+    Time sifs{"10us"};          // SIFS duration
+    Time pifs{"19us"};          // PIFS duration
+    Time simulationTime{"10s"}; // Simulation time
 
     CommandLine cmd(__FILE__);
-    cmd.AddValue("slot", "Slot time in microseconds", slot);
-    cmd.AddValue("sifs", "SIFS duration in microseconds", sifs);
-    cmd.AddValue("pifs", "PIFS duration in microseconds", pifs);
-    cmd.AddValue("simulationTime", "Simulation time in seconds", simulationTime);
+    cmd.AddValue("slot", "Slot time", slot);
+    cmd.AddValue("sifs", "SIFS duration", sifs);
+    cmd.AddValue("pifs", "PIFS duration", pifs);
+    cmd.AddValue("simulationTime", "Simulation time", simulationTime);
     cmd.Parse(argc, argv);
 
     // Since default reference loss is defined for 5 GHz, it needs to be changed when operating
@@ -106,12 +96,9 @@ main(int argc, char* argv[])
     apDevice = wifi.Install(phy, mac, wifiApNode);
 
     // Once install is done, we overwrite the standard timing values
-    Config::Set("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Phy/Slot",
-                TimeValue(MicroSeconds(slot)));
-    Config::Set("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Phy/Sifs",
-                TimeValue(MicroSeconds(sifs)));
-    Config::Set("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Phy/Pifs",
-                TimeValue(MicroSeconds(pifs)));
+    Config::Set("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Phy/Slot", TimeValue(slot));
+    Config::Set("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Phy/Sifs", TimeValue(sifs));
+    Config::Set("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Phy/Pifs", TimeValue(pifs));
 
     // Mobility
     MobilityHelper mobility;
@@ -144,8 +131,8 @@ main(int argc, char* argv[])
     uint16_t port = 9;
     UdpServerHelper server(port);
     ApplicationContainer serverApp = server.Install(wifiStaNode.Get(0));
-    serverApp.Start(Seconds(0.0));
-    serverApp.Stop(Seconds(simulationTime + 1));
+    serverApp.Start(Seconds(0));
+    serverApp.Stop(simulationTime + Seconds(1));
 
     UdpClientHelper client(staNodeInterface.GetAddress(0), port);
     client.SetAttribute("MaxPackets", UintegerValue(4294967295U));
@@ -153,19 +140,19 @@ main(int argc, char* argv[])
     client.SetAttribute("PacketSize", UintegerValue(1472));     // bytes
 
     ApplicationContainer clientApp = client.Install(wifiApNode.Get(0));
-    clientApp.Start(Seconds(1.0));
-    clientApp.Stop(Seconds(simulationTime + 1));
+    clientApp.Start(Seconds(1));
+    clientApp.Stop(simulationTime + Seconds(1));
 
     // Populate routing table
     Ipv4GlobalRoutingHelper::PopulateRoutingTables();
 
     // Set simulation time and launch simulation
-    Simulator::Stop(Seconds(simulationTime + 1));
+    Simulator::Stop(simulationTime + Seconds(1));
     Simulator::Run();
 
     // Get and print results
-    uint64_t totalPacketsThrough = DynamicCast<UdpServer>(serverApp.Get(0))->GetReceived();
-    double throughput = totalPacketsThrough * 1472 * 8 / (simulationTime * 1000000.0); // Mbit/s
+    double totalPacketsThrough = DynamicCast<UdpServer>(serverApp.Get(0))->GetReceived();
+    auto throughput = totalPacketsThrough * 1472 * 8 / simulationTime.GetMicroSeconds(); // Mbit/s
     std::cout << "Throughput: " << throughput << " Mbit/s" << std::endl;
 
     Simulator::Destroy();

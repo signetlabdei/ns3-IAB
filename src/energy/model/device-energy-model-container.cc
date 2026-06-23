@@ -2,18 +2,7 @@
  * Copyright (c) 2008 INRIA
  * Copyright (c) 2010 Network Security Lab, University of Washington, Seattle.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  *          Sidharth Nabar <snabar@uw.edu>, He Wu <mdzz@u.washington.edu>
@@ -25,6 +14,8 @@
 #include "ns3/names.h"
 
 namespace ns3
+{
+namespace energy
 {
 
 NS_LOG_COMPONENT_DEFINE("DeviceEnergyModelContainer");
@@ -89,7 +80,7 @@ void
 DeviceEnergyModelContainer::Add(DeviceEnergyModelContainer container)
 {
     NS_LOG_FUNCTION(this << &container);
-    for (Iterator i = container.Begin(); i != container.End(); i++)
+    for (auto i = container.Begin(); i != container.End(); i++)
     {
         m_models.push_back(*i);
     }
@@ -119,4 +110,5 @@ DeviceEnergyModelContainer::Clear()
     m_models.clear();
 }
 
+} // namespace energy
 } // namespace ns3

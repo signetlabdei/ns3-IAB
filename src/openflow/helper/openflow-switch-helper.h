@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2011 Blake Hurd
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Blake Hurd  <naimorai@gmail.com>
  */
@@ -33,7 +22,7 @@ class AttributeValue;
 class Controller;
 
 /**
- * \brief Add capability to switch multiple LAN segments (IEEE 802.1D bridging)
+ * @brief Add capability to switch multiple LAN segments (IEEE 802.1D bridging)
  */
 class OpenFlowSwitchHelper
 {
@@ -47,8 +36,8 @@ class OpenFlowSwitchHelper
      * Set an attribute on each ns3::OpenFlowSwitchNetDevice created by
      * OpenFlowSwitchHelper::Install
      *
-     * \param n1 the name of the attribute to set
-     * \param v1 the value of the attribute to set
+     * @param n1 the name of the attribute to set
+     * @param v1 the value of the attribute to set
      */
     void SetDeviceAttribute(std::string n1, const AttributeValue& v1);
 
@@ -59,10 +48,10 @@ class OpenFlowSwitchHelper
      * switch, and sets up a controller connection using the provided
      * Controller.
      *
-     * \param node The node to install the device in
-     * \param c Container of NetDevices to add as switch ports
-     * \param controller The controller connection.
-     * \returns A container holding the added net device.
+     * @param node The node to install the device in
+     * @param c Container of NetDevices to add as switch ports
+     * @param controller The controller connection.
+     * @returns A container holding the added net device.
      */
     NetDeviceContainer Install(Ptr<Node> node,
                                NetDeviceContainer c,
@@ -74,9 +63,9 @@ class OpenFlowSwitchHelper
      * to the node, and attaches the given NetDevices as ports of the
      * switch.
      *
-     * \param node The node to install the device in
-     * \param c Container of NetDevices to add as switch ports
-     * \returns A container holding the added net device.
+     * @param node The node to install the device in
+     * @param c Container of NetDevices to add as switch ports
+     * @returns A container holding the added net device.
      */
     NetDeviceContainer Install(Ptr<Node> node, NetDeviceContainer c);
 
@@ -86,9 +75,9 @@ class OpenFlowSwitchHelper
      * to the node, and attaches the given NetDevices as ports of the
      * switch.
      *
-     * \param nodeName The name of the node to install the device in
-     * \param c Container of NetDevices to add as switch ports
-     * \returns A container holding the added net device.
+     * @param nodeName The name of the node to install the device in
+     * @param c Container of NetDevices to add as switch ports
+     * @returns A container holding the added net device.
      */
     NetDeviceContainer Install(std::string nodeName, NetDeviceContainer c);
 

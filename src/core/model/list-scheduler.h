@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2005 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -27,8 +16,8 @@
 #include <utility>
 
 /**
- * \file
- * \ingroup scheduler
+ * @file
+ * @ingroup scheduler
  * ns3::ListScheduler declaration.
  */
 
@@ -38,13 +27,13 @@ namespace ns3
 class EventImpl;
 
 /**
- * \ingroup scheduler
- * \brief a std::list event scheduler
+ * @ingroup scheduler
+ * @brief a std::list event scheduler
  *
  * This class implements an event scheduler using an std::list
  * data structure, that is, a double linked-list.
  *
- * \par Time Complexity
+ * @par Time Complexity
  *
  * Operation    | Amortized %Time | Reason
  * :----------- | :-------------- | :-----
@@ -54,7 +43,7 @@ class EventImpl;
  * Remove()     | Linear          | Linear search in `std::list`
  * RemoveNext() | Constant        | `std::list::pop_front()`
  *
- * \par Memory Complexity
+ * @par Memory Complexity
  *
  * Category  | Memory                           | Reason
  * :-------- | :------------------------------- | :-----
@@ -67,7 +56,7 @@ class ListScheduler : public Scheduler
   public:
     /**
      *  Register this type.
-     *  \return The object TypeId.
+     *  @return The object TypeId.
      */
     static TypeId GetTypeId();
 

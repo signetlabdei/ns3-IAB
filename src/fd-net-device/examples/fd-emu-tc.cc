@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2017 Universita' degli Studi di Napoli Federico II
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Pasquale Imputato <p.imputato@gmail.com>
  */
@@ -95,7 +84,7 @@ main(int argc, char* argv[])
     std::string emuMode("netmap");
 #endif
 
-    CommandLine cmd;
+    CommandLine cmd(__FILE__);
     cmd.AddValue("deviceName0", "Device name", deviceName0);
     cmd.AddValue("deviceName1", "Device name", deviceName1);
     cmd.AddValue("ip0", "Local IP address", ip0);
@@ -168,11 +157,11 @@ main(int argc, char* argv[])
 #ifdef HAVE_PACKET_H
     if (emuMode == "raw")
     {
-        EmuFdNetDeviceHelper* raw0 = new EmuFdNetDeviceHelper;
+        auto raw0 = new EmuFdNetDeviceHelper;
         raw0->SetDeviceName(deviceName0);
         helper0 = raw0;
 
-        EmuFdNetDeviceHelper* raw1 = new EmuFdNetDeviceHelper;
+        auto raw1 = new EmuFdNetDeviceHelper;
         raw1->SetDeviceName(deviceName1);
         helper1 = raw1;
     }
@@ -310,7 +299,7 @@ main(int argc, char* argv[])
     }
 
     NS_LOG_INFO("Run Emulation.");
-    Simulator::Stop(Seconds(50.0));
+    Simulator::Stop(Seconds(50));
     Simulator::Run();
     Simulator::Destroy();
     delete helper0;

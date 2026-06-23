@@ -1,24 +1,13 @@
 /*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Sébastien Deronne <sebastien.deronne@gmail.com>
  */
 
-// This example is used to validate error rate models for DSSS rates.
-//
-// It outputs plots of the Frame Success Rate versus the Signal-to-noise ratio
-// for the DSSS error rate models and for every DSSS mode.
+// This example is used to generate plots of the Frame Success Rate (FSR) versus the Signal-to-noise
+// ratio (SNR) for NIST, YANS and Table-based error rate models and for every DSSS rate. It also
+// performs a boundary check to ensure that the FSR is between 0 and 1. The results are finally
+// saved in files (.plt) per model which can be processed by gnuplot to generate the plots.
 
 #include "ns3/command-line.h"
 #include "ns3/gnuplot.h"
@@ -35,7 +24,7 @@ using namespace ns3;
 int
 main(int argc, char* argv[])
 {
-    uint32_t FrameSize = 1500; // bytes
+    uint32_t frameSizeBytes = 1500;
     std::ofstream file("frame-success-rate-dsss.plt");
 
     const std::vector<std::string> modes{
@@ -46,7 +35,7 @@ main(int argc, char* argv[])
     };
 
     CommandLine cmd(__FILE__);
-    cmd.AddValue("FrameSize", "The frame size in bytes", FrameSize);
+    cmd.AddValue("FrameSize", "The frame size in bytes", frameSizeBytes);
     cmd.Parse(argc, argv);
 
     Gnuplot plot = Gnuplot("frame-success-rate-dsss.eps");
@@ -56,27 +45,27 @@ main(int argc, char* argv[])
     Ptr<TableBasedErrorRateModel> table = CreateObject<TableBasedErrorRateModel>();
     WifiTxVector txVector;
 
-    for (uint32_t i = 0; i < modes.size(); i++)
-    {
-        std::cout << modes[i] << std::endl;
-        Gnuplot2dDataset dataset(modes[i]);
-        txVector.SetMode(modes[i]);
+    uint32_t frameSizeBits = frameSizeBytes * 8;
 
-        for (double snr = -10.0; snr <= 20.0; snr += 0.1)
+    for (const auto& mode : modes)
+    {
+        std::cout << mode << std::endl;
+        Gnuplot2dDataset dataset(mode);
+        txVector.SetMode(mode);
+
+        WifiMode wifiMode(mode);
+
+        for (double snrDb = -10.0; snrDb <= 20.0; snrDb += 0.1)
         {
-            double psYans = yans->GetChunkSuccessRate(WifiMode(modes[i]),
-                                                      txVector,
-                                                      std::pow(10.0, snr / 10.0),
-                                                      FrameSize * 8);
+            double snr = std::pow(10.0, snrDb / 10.0);
+
+            double psYans = yans->GetChunkSuccessRate(wifiMode, txVector, snr, frameSizeBits);
             if (psYans < 0.0 || psYans > 1.0)
             {
                 // error
                 exit(1);
             }
-            double psNist = nist->GetChunkSuccessRate(WifiMode(modes[i]),
-                                                      txVector,
-                                                      std::pow(10.0, snr / 10.0),
-                                                      FrameSize * 8);
+            double psNist = nist->GetChunkSuccessRate(wifiMode, txVector, snr, frameSizeBits);
             if (psNist < 0.0 || psNist > 1.0)
             {
                 std::cout << psNist << std::endl;
@@ -87,10 +76,7 @@ main(int argc, char* argv[])
             {
                 exit(1);
             }
-            double psTable = table->GetChunkSuccessRate(WifiMode(modes[i]),
-                                                        txVector,
-                                                        std::pow(10.0, snr / 10.0),
-                                                        FrameSize * 8);
+            double psTable = table->GetChunkSuccessRate(wifiMode, txVector, snr, frameSizeBits);
             if (psTable < 0.0 || psTable > 1.0)
             {
                 std::cout << psTable << std::endl;
@@ -101,7 +87,7 @@ main(int argc, char* argv[])
             {
                 exit(1);
             }
-            dataset.Add(snr, psYans);
+            dataset.Add(snrDb, psYans);
         }
 
         plot.AddDataset(dataset);

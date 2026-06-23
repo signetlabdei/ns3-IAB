@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2014 Natale Patriciello <natale.patriciello@gmail.com>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  */
 
@@ -27,26 +16,26 @@
 using namespace ns3;
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief TCP Window Scaling option Test
+ * @brief TCP Window Scaling option Test
  */
 class TcpOptionWSTestCase : public TestCase
 {
   public:
     /**
-     * \brief Constructor.
-     * \param name Test description.
-     * \param scale Window scaling.
+     * @brief Constructor.
+     * @param name Test description.
+     * @param scale Window scaling.
      */
     TcpOptionWSTestCase(std::string name, uint8_t scale);
 
     /**
-     * \brief Serialization test.
+     * @brief Serialization test.
      */
     void TestSerialize();
     /**
-     * \brief Deserialization test.
+     * @brief Deserialization test.
      */
     void TestDeserialize();
 
@@ -105,25 +94,25 @@ TcpOptionWSTestCase::DoTeardown()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief TCP TimeStamp option Test
+ * @brief TCP TimeStamp option Test
  */
 class TcpOptionTSTestCase : public TestCase
 {
   public:
     /**
-     * \brief Constructor.
-     * \param name Test description.
+     * @brief Constructor.
+     * @param name Test description.
      */
     TcpOptionTSTestCase(std::string name);
 
     /**
-     * \brief Serialization test.
+     * @brief Serialization test.
      */
     void TestSerialize();
     /**
-     * \brief Deserialization test.
+     * @brief Deserialization test.
      */
     void TestDeserialize();
 
@@ -195,22 +184,23 @@ TcpOptionTSTestCase::DoTeardown()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief TCP options TestSuite
+ * @brief TCP options TestSuite
  */
 class TcpOptionTestSuite : public TestSuite
 {
   public:
     TcpOptionTestSuite()
-        : TestSuite("tcp-option", UNIT)
+        : TestSuite("tcp-option", Type::UNIT)
     {
         for (uint8_t i = 0; i < 15; ++i)
         {
-            AddTestCase(new TcpOptionWSTestCase("Testing window scale value", i), TestCase::QUICK);
+            AddTestCase(new TcpOptionWSTestCase("Testing window scale value", i),
+                        TestCase::Duration::QUICK);
         }
         AddTestCase(new TcpOptionTSTestCase("Testing serialization of random values for timestamp"),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
     }
 };
 

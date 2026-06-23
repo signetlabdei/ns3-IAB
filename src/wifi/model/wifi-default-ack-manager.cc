@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2020 Universita' degli Studi di Napoli Federico II
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Stefano Avallone <stavallo@unina.it>
  */
@@ -21,6 +10,7 @@
 
 #include "ap-wifi-mac.h"
 #include "ctrl-headers.h"
+#include "gcr-manager.h"
 #include "qos-utils.h"
 #include "wifi-mac-queue.h"
 #include "wifi-mpdu.h"
@@ -60,16 +50,17 @@ WifiDefaultAckManager::GetTypeId()
                           DoubleValue(0.0),
                           MakeDoubleAccessor(&WifiDefaultAckManager::m_baThreshold),
                           MakeDoubleChecker<double>(0.0, 1.0))
-            .AddAttribute("DlMuAckSequenceType",
-                          "Type of the acknowledgment sequence for DL MU PPDUs.",
-                          EnumValue(WifiAcknowledgment::DL_MU_BAR_BA_SEQUENCE),
-                          MakeEnumAccessor(&WifiDefaultAckManager::m_dlMuAckType),
-                          MakeEnumChecker(WifiAcknowledgment::DL_MU_BAR_BA_SEQUENCE,
-                                          "DL_MU_BAR_BA_SEQUENCE",
-                                          WifiAcknowledgment::DL_MU_TF_MU_BAR,
-                                          "DL_MU_TF_MU_BAR",
-                                          WifiAcknowledgment::DL_MU_AGGREGATE_TF,
-                                          "DL_MU_AGGREGATE_TF"))
+            .AddAttribute(
+                "DlMuAckSequenceType",
+                "Type of the acknowledgment sequence for DL MU PPDUs.",
+                EnumValue(WifiAcknowledgment::DL_MU_BAR_BA_SEQUENCE),
+                MakeEnumAccessor<WifiAcknowledgment::Method>(&WifiDefaultAckManager::m_dlMuAckType),
+                MakeEnumChecker(WifiAcknowledgment::DL_MU_BAR_BA_SEQUENCE,
+                                "DL_MU_BAR_BA_SEQUENCE",
+                                WifiAcknowledgment::DL_MU_TF_MU_BAR,
+                                "DL_MU_TF_MU_BAR",
+                                WifiAcknowledgment::DL_MU_AGGREGATE_TF,
+                                "DL_MU_AGGREGATE_TF"))
             .AddAttribute("MaxBlockAckMcs",
                           "The MCS used to send a BlockAck in a TB PPDU is the minimum between "
                           "the MCS used for the PSDU sent in the preceding DL MU PPDU and the "
@@ -105,30 +96,27 @@ WifiDefaultAckManager::GetMaxDistFromStartingSeq(Ptr<const WifiMpdu> mpdu,
                     "An established Block Ack agreement is required");
 
     uint16_t startingSeq = edca->GetBaStartingSequence(origReceiver, tid);
-    uint16_t maxDistFromStartingSeq =
-        (mpdu->GetHeader().GetSequenceNumber() - startingSeq + SEQNO_SPACE_SIZE) % SEQNO_SPACE_SIZE;
-    NS_ABORT_MSG_IF(maxDistFromStartingSeq >= SEQNO_SPACE_HALF_SIZE,
-                    "The given QoS data frame is too old");
+    uint16_t maxDistFromStartingSeq = 0;
 
-    const WifiTxParameters::PsduInfo* psduInfo = txParams.GetPsduInfo(receiver);
+    const auto* psduInfo = txParams.GetPsduInfo(receiver);
+    NS_ASSERT_MSG(psduInfo && psduInfo->seqNumbers.contains(tid),
+                  "There must be at least an MPDU with tid " << +tid);
 
-    if (!psduInfo || psduInfo->seqNumbers.find(tid) == psduInfo->seqNumbers.end())
+    const auto& seqNumbers = psduInfo->seqNumbers.at(tid);
+    NS_ASSERT_MSG(seqNumbers.contains(mpdu->GetHeader().GetSequenceNumber()),
+                  "The sequence number of the given MPDU is not included in the TX parameters");
+
+    for (const auto& seqNumber : seqNumbers)
     {
-        // there are no aggregated MPDUs (so far)
-        return maxDistFromStartingSeq;
-    }
+        NS_ASSERT_MSG(!QosUtilsIsOldPacket(startingSeq, seqNumber),
+                      "QoS data frame SeqN=" << seqNumber << " is too old");
 
-    for (const auto& seqNumber : psduInfo->seqNumbers.at(tid))
-    {
-        if (!QosUtilsIsOldPacket(startingSeq, seqNumber))
+        uint16_t currDistToStartingSeq =
+            (seqNumber - startingSeq + SEQNO_SPACE_SIZE) % SEQNO_SPACE_SIZE;
+
+        if (currDistToStartingSeq > maxDistFromStartingSeq)
         {
-            uint16_t currDistToStartingSeq =
-                (seqNumber - startingSeq + SEQNO_SPACE_SIZE) % SEQNO_SPACE_SIZE;
-
-            if (currDistToStartingSeq > maxDistFromStartingSeq)
-            {
-                maxDistFromStartingSeq = currDistToStartingSeq;
-            }
+            maxDistFromStartingSeq = currDistToStartingSeq;
         }
     }
 
@@ -143,31 +131,53 @@ WifiDefaultAckManager::IsResponseNeeded(Ptr<const WifiMpdu> mpdu,
     NS_LOG_FUNCTION(this << *mpdu << &txParams);
 
     uint8_t tid = mpdu->GetHeader().GetQosTid();
-    Mac48Address receiver = mpdu->GetOriginal()->GetHeader().GetAddr1();
+    auto receiver = mpdu->GetHeader().GetAddr1();
+    auto origReceiver = mpdu->GetOriginal()->GetHeader().GetAddr1();
     Ptr<QosTxop> edca = m_mac->GetQosTxop(tid);
+    const auto& seqNumbers = txParams.GetPsduInfo(receiver)->seqNumbers.at(tid);
 
     // An immediate response (Ack or Block Ack) is needed if any of the following holds:
+    // * the BA threshold is set to zero
+    if (m_baThreshold == 0.0)
+    {
+        return true;
+    }
     // * the maximum distance between the sequence number of an MPDU to transmit
     //   and the starting sequence number of the transmit window is greater than
     //   or equal to the window size multiplied by the BaThreshold
+    if (GetMaxDistFromStartingSeq(mpdu, txParams) >=
+        m_baThreshold * edca->GetBaBufferSize(origReceiver, tid))
+    {
+        return true;
+    }
     // * no other frame belonging to this BA agreement is queued (because, in such
     //   a case, a Block Ack is not going to be requested anytime soon)
-    // * this is the initial frame of a transmission opportunity and it is not
-    //   protected by RTS/CTS (see Annex G.3 of IEEE 802.11-2016)
-    if (m_baThreshold > 0 &&
-        GetMaxDistFromStartingSeq(mpdu, txParams) <
-            m_baThreshold * edca->GetBaBufferSize(receiver, tid) &&
-        (edca->GetWifiMacQueue()->GetNPackets({WIFI_QOSDATA_UNICAST_QUEUE, receiver, tid}) -
-             edca->GetBaManager()->GetNBufferedPackets(receiver, tid) >
-         1) &&
-        !(edca->GetTxopLimit(m_linkId).IsStrictlyPositive() &&
-          edca->GetRemainingTxop(m_linkId) == edca->GetTxopLimit(m_linkId) &&
-          !(txParams.m_protection && txParams.m_protection->method == WifiProtection::RTS_CTS)))
+    if (const auto queueId = MakeWifiUnicastQueueId(WIFI_QOSDATA_QUEUE, origReceiver, tid);
+        edca->GetWifiMacQueue()->GetNPackets(queueId) -
+            edca->GetBaManager()->GetNBufferedPackets(origReceiver, tid) - seqNumbers.size() <
+        1)
     {
-        return false;
+        return true;
+    }
+    // * the block ack TX window cannot advance because all the MPDUs in the TX window other than
+    //   those being transmitted have been already acknowledged
+    if (m_mac->GetBaAgreementEstablishedAsOriginator(origReceiver, tid)
+            ->get()
+            .AllAckedMpdusInTxWindow(seqNumbers))
+    {
+        return true;
     }
 
-    return true;
+    // * this is the initial frame of a transmission opportunity and it is not
+    //   protected by RTS/CTS (see Annex G.3 of IEEE 802.11-2016)
+    if (edca->GetTxopLimit(m_linkId).IsStrictlyPositive() &&
+        edca->GetRemainingTxop(m_linkId) == edca->GetTxopLimit(m_linkId) &&
+        !(txParams.m_protection && txParams.m_protection->method == WifiProtection::RTS_CTS))
+    {
+        return true;
+    }
+
+    return false;
 }
 
 bool
@@ -181,8 +191,9 @@ WifiDefaultAckManager::ExistInflightOnSameLink(Ptr<const WifiMpdu> mpdu) const
     auto agreement = m_mac->GetBaAgreementEstablishedAsOriginator(origReceiver, tid);
     NS_ASSERT(agreement);
     auto mpduDist = agreement->get().GetDistance(mpdu->GetHeader().GetSequenceNumber());
+    const auto src = m_mac->GetFrameExchangeManager(m_linkId)->GetAddress();
 
-    Ptr<WifiMpdu> item = queue->PeekByTidAndAddress(tid, origReceiver);
+    Ptr<WifiMpdu> item = queue->PeekByTidAndAddress(tid, origReceiver, src);
 
     while (item)
     {
@@ -196,12 +207,12 @@ WifiDefaultAckManager::ExistInflightOnSameLink(Ptr<const WifiMpdu> mpdu) const
                         "While searching for given MPDU ("
                             << *mpdu << "), found first another one (" << *item
                             << ") with higher sequence number");
-        if (auto linkIds = item->GetInFlightLinkIds(); linkIds.count(m_linkId) > 0)
+        if (auto linkIds = item->GetInFlightLinkIds(); linkIds.contains(m_linkId))
         {
             NS_LOG_DEBUG("Found MPDU inflight on the same link");
             return true;
         }
-        item = queue->PeekByTidAndAddress(tid, origReceiver, item);
+        item = queue->PeekByTidAndAddress(tid, origReceiver, src, item);
     }
     NS_ABORT_MSG("Should not get here");
     return false;
@@ -211,6 +222,14 @@ std::unique_ptr<WifiAcknowledgment>
 WifiDefaultAckManager::TryAddMpdu(Ptr<const WifiMpdu> mpdu, const WifiTxParameters& txParams)
 {
     NS_LOG_FUNCTION(this << *mpdu << &txParams);
+
+    const auto& hdr = mpdu->GetHeader();
+
+    if (hdr.IsPsPoll())
+    {
+        NS_ASSERT(!txParams.m_acknowledgment);
+        return std::make_unique<WifiNoAck>();
+    }
 
     // If the TXVECTOR indicates a DL MU PPDU, call a separate method
     if (txParams.m_txVector.IsDlMu())
@@ -229,7 +248,6 @@ WifiDefaultAckManager::TryAddMpdu(Ptr<const WifiMpdu> mpdu, const WifiTxParamete
         }
     }
 
-    const WifiMacHeader& hdr = mpdu->GetHeader();
     Mac48Address receiver = hdr.GetAddr1();
 
     // Acknowledgment for TB PPDUs
@@ -238,20 +256,19 @@ WifiDefaultAckManager::TryAddMpdu(Ptr<const WifiMpdu> mpdu, const WifiTxParamete
         if (hdr.IsQosData() && !hdr.HasData())
         {
             // QoS Null frame
-            WifiNoAck* acknowledgment = nullptr;
+            std::unique_ptr<WifiAcknowledgment> acknowledgment;
 
             if (txParams.m_acknowledgment)
             {
                 NS_ASSERT(txParams.m_acknowledgment->method == WifiAcknowledgment::NONE);
-                acknowledgment = static_cast<WifiNoAck*>(txParams.m_acknowledgment.get());
-                acknowledgment = new WifiNoAck(*acknowledgment);
+                acknowledgment = txParams.m_acknowledgment->Copy();
             }
             else
             {
-                acknowledgment = new WifiNoAck;
+                acknowledgment = std::make_unique<WifiNoAck>();
             }
             acknowledgment->SetQosAckPolicy(receiver, hdr.GetQosTid(), WifiMacHeader::NO_ACK);
-            return std::unique_ptr<WifiAcknowledgment>(acknowledgment);
+            return acknowledgment;
         }
 
         if (txParams.m_acknowledgment)
@@ -260,12 +277,12 @@ WifiDefaultAckManager::TryAddMpdu(Ptr<const WifiMpdu> mpdu, const WifiTxParamete
             return nullptr;
         }
 
-        WifiAckAfterTbPpdu* acknowledgment = new WifiAckAfterTbPpdu;
+        auto acknowledgment = std::make_unique<WifiAckAfterTbPpdu>();
         if (hdr.IsQosData())
         {
             acknowledgment->SetQosAckPolicy(receiver, hdr.GetQosTid(), WifiMacHeader::NORMAL_ACK);
         }
-        return std::unique_ptr<WifiAcknowledgment>(acknowledgment);
+        return acknowledgment;
     }
 
     // if this is a Trigger Frame, call a separate method
@@ -284,13 +301,38 @@ WifiDefaultAckManager::TryAddMpdu(Ptr<const WifiMpdu> mpdu, const WifiTxParamete
 
     if (receiver.IsGroup())
     {
-        NS_ABORT_MSG_IF(txParams.GetSize(receiver) > 0, "Unicast frames only can be aggregated");
-        WifiNoAck* acknowledgment = new WifiNoAck;
+        // if the current acknowledgment method (if any) is already BAR_BLOCK_ACK, it will not
+        // change by adding an MPDU
+        if (txParams.m_acknowledgment &&
+            txParams.m_acknowledgment->method == WifiAcknowledgment::BAR_BLOCK_ACK)
+        {
+            return nullptr;
+        }
+        const auto isGcr = IsGcr(m_mac, hdr);
+        NS_ABORT_MSG_IF(!isGcr && !txParams.LastAddedIsFirstMpdu(receiver),
+                        "Unicast frames only can be aggregated if GCR is not used");
+        if (auto apMac = DynamicCast<ApWifiMac>(m_mac);
+            isGcr && apMac->GetGcrManager()->GetRetransmissionPolicyFor(hdr) ==
+                         GroupAddressRetransmissionPolicy::GCR_BLOCK_ACK)
+        {
+            NS_LOG_DEBUG("Request to schedule a GCR Block Ack Request");
+            const auto recipient =
+                apMac->GetGcrManager()->GetIndividuallyAddressedRecipient(receiver);
+            auto acknowledgment = std::make_unique<WifiBarBlockAck>();
+            acknowledgment->blockAckReqTxVector =
+                GetWifiRemoteStationManager()->GetBlockAckTxVector(recipient, txParams.m_txVector);
+            acknowledgment->blockAckTxVector = acknowledgment->blockAckReqTxVector;
+            acknowledgment->barType = BlockAckReqType::GCR;
+            acknowledgment->baType = BlockAckType::GCR;
+            acknowledgment->SetQosAckPolicy(receiver, hdr.GetQosTid(), WifiMacHeader::BLOCK_ACK);
+            return acknowledgment;
+        }
+        auto acknowledgment = std::make_unique<WifiNoAck>();
         if (hdr.IsQosData())
         {
             acknowledgment->SetQosAckPolicy(receiver, hdr.GetQosTid(), WifiMacHeader::NO_ACK);
         }
-        return std::unique_ptr<WifiAcknowledgment>(acknowledgment);
+        return acknowledgment;
     }
 
     if ((!hdr.IsQosData() ||
@@ -299,14 +341,14 @@ WifiDefaultAckManager::TryAddMpdu(Ptr<const WifiMpdu> mpdu, const WifiTxParamete
     {
         NS_LOG_DEBUG(
             "Non-QoS data frame or Block Ack agreement not established, request Normal Ack");
-        WifiNormalAck* acknowledgment = new WifiNormalAck;
+        auto acknowledgment = std::make_unique<WifiNormalAck>();
         acknowledgment->ackTxVector =
             GetWifiRemoteStationManager()->GetAckTxVector(receiver, txParams.m_txVector);
         if (hdr.IsQosData())
         {
             acknowledgment->SetQosAckPolicy(receiver, hdr.GetQosTid(), WifiMacHeader::NORMAL_ACK);
         }
-        return std::unique_ptr<WifiAcknowledgment>(acknowledgment);
+        return acknowledgment;
     }
 
     // we get here if mpdu is a QoS data frame related to an established Block Ack agreement
@@ -321,52 +363,69 @@ WifiDefaultAckManager::TryAddMpdu(Ptr<const WifiMpdu> mpdu, const WifiTxParamete
             return nullptr;
         }
 
-        WifiNoAck* acknowledgment = new WifiNoAck;
+        auto acknowledgment = std::make_unique<WifiNoAck>();
         if (hdr.IsQosData())
         {
             acknowledgment->SetQosAckPolicy(receiver, hdr.GetQosTid(), WifiMacHeader::BLOCK_ACK);
         }
-        return std::unique_ptr<WifiAcknowledgment>(acknowledgment);
+        return acknowledgment;
     }
 
     // we get here if a response is needed
     uint8_t tid = GetTid(mpdu->GetPacket(), hdr);
-    if (!hdr.IsBlockAckReq() && txParams.GetSize(receiver) == 0 && !ExistInflightOnSameLink(mpdu))
+    if (!hdr.IsBlockAckReq() && txParams.LastAddedIsFirstMpdu(receiver) &&
+        !ExistInflightOnSameLink(mpdu))
     {
         NS_LOG_DEBUG("Sending a single MPDU, no previous frame to ack: request Normal Ack");
-        WifiNormalAck* acknowledgment = new WifiNormalAck;
+        auto acknowledgment = std::make_unique<WifiNormalAck>();
         acknowledgment->ackTxVector =
             GetWifiRemoteStationManager()->GetAckTxVector(receiver, txParams.m_txVector);
         acknowledgment->SetQosAckPolicy(receiver, tid, WifiMacHeader::NORMAL_ACK);
-        return std::unique_ptr<WifiAcknowledgment>(acknowledgment);
+        return acknowledgment;
     }
 
     // we get here if multiple MPDUs are being/have been sent
-    if (!hdr.IsBlockAckReq() && (txParams.GetSize(receiver) == 0 || m_useExplicitBar))
+    if (!hdr.IsBlockAckReq() && (txParams.LastAddedIsFirstMpdu(receiver) || m_useExplicitBar))
     {
         // in case of single MPDU, there are previous unacknowledged frames, thus
         // we cannot use Implicit Block Ack Request policy, otherwise we get a
         // normal ack as response
         NS_LOG_DEBUG("Request to schedule a Block Ack Request");
 
-        WifiBarBlockAck* acknowledgment = new WifiBarBlockAck;
+        auto acknowledgment = std::make_unique<WifiBarBlockAck>();
         acknowledgment->blockAckReqTxVector =
             GetWifiRemoteStationManager()->GetBlockAckTxVector(receiver, txParams.m_txVector);
         acknowledgment->blockAckTxVector = acknowledgment->blockAckReqTxVector;
         acknowledgment->barType = m_mac->GetBarTypeAsOriginator(receiver, tid);
         acknowledgment->baType = m_mac->GetBaTypeAsOriginator(receiver, tid);
         acknowledgment->SetQosAckPolicy(receiver, tid, WifiMacHeader::BLOCK_ACK);
-        return std::unique_ptr<WifiAcknowledgment>(acknowledgment);
+        return acknowledgment;
+    }
+
+    if (hdr.IsBlockAckReq())
+    {
+        CtrlBAckRequestHeader baReqHdr;
+        mpdu->GetPacket()->PeekHeader(baReqHdr);
+        if (baReqHdr.IsGcr())
+        {
+            NS_LOG_DEBUG("GCR Block Ack Req, request GCR Block Ack");
+            auto acknowledgment = std::make_unique<WifiBlockAck>();
+            acknowledgment->blockAckTxVector =
+                GetWifiRemoteStationManager()->GetBlockAckTxVector(receiver, txParams.m_txVector);
+            acknowledgment->baType = BlockAckType::GCR;
+            acknowledgment->SetQosAckPolicy(receiver, tid, WifiMacHeader::NORMAL_ACK);
+            return acknowledgment;
+        }
     }
 
     NS_LOG_DEBUG(
         "A-MPDU using Implicit Block Ack Request policy or BlockAckReq, request Block Ack");
-    WifiBlockAck* acknowledgment = new WifiBlockAck;
+    auto acknowledgment = std::make_unique<WifiBlockAck>();
     acknowledgment->blockAckTxVector =
         GetWifiRemoteStationManager()->GetBlockAckTxVector(receiver, txParams.m_txVector);
     acknowledgment->baType = m_mac->GetBaTypeAsOriginator(receiver, tid);
     acknowledgment->SetQosAckPolicy(receiver, tid, WifiMacHeader::NORMAL_ACK);
-    return std::unique_ptr<WifiAcknowledgment>(acknowledgment);
+    return acknowledgment;
 }
 
 std::unique_ptr<WifiAcknowledgment>
@@ -389,8 +448,6 @@ WifiDefaultAckManager::GetAckInfoIfBarBaSequence(Ptr<const WifiMpdu> mpdu,
     const WifiMacHeader& hdr = mpdu->GetHeader();
     Mac48Address receiver = hdr.GetAddr1();
 
-    const WifiTxParameters::PsduInfo* psduInfo = txParams.GetPsduInfo(receiver);
-
     NS_ABORT_MSG_IF(!hdr.IsQosData(),
                     "QoS data frames only can be aggregated when transmitting a "
                     "DL MU PPDU acknowledged via a sequence of BAR and BA frames");
@@ -406,15 +463,13 @@ WifiDefaultAckManager::GetAckInfoIfBarBaSequence(Ptr<const WifiMpdu> mpdu,
         acknowledgment = static_cast<WifiDlMuBarBaSequence*>(txParams.m_acknowledgment.get());
     }
 
-    if (psduInfo)
+    if (!txParams.LastAddedIsFirstMpdu(receiver))
     {
         // an MPDU addressed to the same receiver has been already added
         NS_ASSERT(acknowledgment);
 
-        if ((acknowledgment->stationsSendBlockAckReqTo.find(receiver) !=
-             acknowledgment->stationsSendBlockAckReqTo.end()) ||
-            (acknowledgment->stationsReplyingWithBlockAck.find(receiver) !=
-             acknowledgment->stationsReplyingWithBlockAck.end()))
+        if (acknowledgment->stationsSendBlockAckReqTo.contains(receiver) ||
+            acknowledgment->stationsReplyingWithBlockAck.contains(receiver))
         {
             // the receiver either is already listed among the stations that will
             // receive a BlockAckReq frame or is the station that will immediately
@@ -514,8 +569,6 @@ WifiDefaultAckManager::GetAckInfoIfTfMuBar(Ptr<const WifiMpdu> mpdu,
     const WifiMacHeader& hdr = mpdu->GetHeader();
     Mac48Address receiver = hdr.GetAddr1();
 
-    const WifiTxParameters::PsduInfo* psduInfo = txParams.GetPsduInfo(receiver);
-
     NS_ASSERT(!txParams.m_acknowledgment ||
               txParams.m_acknowledgment->method == WifiAcknowledgment::DL_MU_TF_MU_BAR);
 
@@ -525,7 +578,7 @@ WifiDefaultAckManager::GetAckInfoIfTfMuBar(Ptr<const WifiMpdu> mpdu,
         acknowledgment = static_cast<WifiDlMuTfMuBar*>(txParams.m_acknowledgment.get());
     }
 
-    if (!psduInfo)
+    if (txParams.LastAddedIsFirstMpdu(receiver))
     {
         // we get here if this is the first MPDU for this receiver.
         Ptr<ApWifiMac> apMac = DynamicCast<ApWifiMac>(m_mac);
@@ -558,7 +611,7 @@ WifiDefaultAckManager::GetAckInfoIfTfMuBar(Ptr<const WifiMpdu> mpdu,
         blockAckTxVector.SetChannelWidth(txParams.m_txVector.GetChannelWidth());
         // 800ns GI is not allowed for HE TB
         blockAckTxVector.SetGuardInterval(
-            std::max<uint16_t>(txParams.m_txVector.GetGuardInterval(), 1600));
+            std::max(txParams.m_txVector.GetGuardInterval(), NanoSeconds(1600)));
         const auto& userInfo = txParams.m_txVector.GetHeMuUserInfo(staId);
         blockAckTxVector.SetHeMuUserInfo(
             staId,
@@ -577,7 +630,9 @@ WifiDefaultAckManager::GetAckInfoIfTfMuBar(Ptr<const WifiMpdu> mpdu,
                                           m_mac->GetBaTypeAsOriginator(receiver, tid)});
 
         acknowledgment->barTypes.push_back(m_mac->GetBarTypeAsOriginator(receiver, tid));
-        acknowledgment->muBarTxVector = GetWifiRemoteStationManager()->GetRtsTxVector(receiver);
+        acknowledgment->muBarTxVector =
+            GetWifiRemoteStationManager()->GetRtsTxVector(receiver,
+                                                          txParams.m_txVector.GetChannelWidth());
         acknowledgment->SetQosAckPolicy(receiver, tid, WifiMacHeader::BLOCK_ACK);
         return std::unique_ptr<WifiDlMuTfMuBar>(acknowledgment);
     }
@@ -602,8 +657,6 @@ WifiDefaultAckManager::GetAckInfoIfAggregatedMuBar(Ptr<const WifiMpdu> mpdu,
     const WifiMacHeader& hdr = mpdu->GetHeader();
     Mac48Address receiver = hdr.GetAddr1();
 
-    const WifiTxParameters::PsduInfo* psduInfo = txParams.GetPsduInfo(receiver);
-
     NS_ASSERT(!txParams.m_acknowledgment ||
               txParams.m_acknowledgment->method == WifiAcknowledgment::DL_MU_AGGREGATE_TF);
 
@@ -613,7 +666,7 @@ WifiDefaultAckManager::GetAckInfoIfAggregatedMuBar(Ptr<const WifiMpdu> mpdu,
         acknowledgment = static_cast<WifiDlMuAggregateTf*>(txParams.m_acknowledgment.get());
     }
 
-    if (!psduInfo)
+    if (txParams.LastAddedIsFirstMpdu(receiver))
     {
         // we get here if this is the first MPDU for this receiver.
         Ptr<ApWifiMac> apMac = DynamicCast<ApWifiMac>(m_mac);
@@ -646,7 +699,7 @@ WifiDefaultAckManager::GetAckInfoIfAggregatedMuBar(Ptr<const WifiMpdu> mpdu,
         blockAckTxVector.SetChannelWidth(txParams.m_txVector.GetChannelWidth());
         // 800ns GI is not allowed for HE TB
         blockAckTxVector.SetGuardInterval(
-            std::max<uint16_t>(txParams.m_txVector.GetGuardInterval(), 1600));
+            std::max(txParams.m_txVector.GetGuardInterval(), NanoSeconds(1600)));
         const auto& userInfo = txParams.m_txVector.GetHeMuUserInfo(staId);
         blockAckTxVector.SetHeMuUserInfo(
             staId,
@@ -658,7 +711,10 @@ WifiDefaultAckManager::GetAckInfoIfAggregatedMuBar(Ptr<const WifiMpdu> mpdu,
         acknowledgment->stationsReplyingWithBlockAck.emplace(
             receiver,
             WifiDlMuAggregateTf::BlockAckInfo{
-                GetMuBarSize({m_mac->GetBarTypeAsOriginator(receiver, tid)}),
+                GetMuBarSize(IsEht(txParams.m_txVector.GetPreambleType()) ? TriggerFrameVariant::EHT
+                                                                          : TriggerFrameVariant::HE,
+                             txParams.m_txVector.GetChannelWidth(),
+                             {m_mac->GetBarTypeAsOriginator(receiver, tid)}),
                 edca->GetBaManager()->GetBlockAckReqHeader(
                     mpdu->GetOriginal()->GetHeader().GetAddr1(),
                     tid),
@@ -698,21 +754,25 @@ WifiDefaultAckManager::TryUlMuTransmission(Ptr<const WifiMpdu> mpdu,
     if (trigger.IsBasic())
     {
         // the only supported ack method for now is through a multi-STA BlockAck frame
-        WifiUlMuMultiStaBa* acknowledgment = new WifiUlMuMultiStaBa;
+        auto acknowledgment = std::make_unique<WifiUlMuMultiStaBa>();
 
         for (const auto& userInfo : trigger)
         {
             uint16_t aid12 = userInfo.GetAid12();
 
-            if (aid12 == 2046)
+            if (aid12 == NO_USER_STA_ID)
             {
                 NS_LOG_INFO("Unallocated RU");
                 continue;
             }
-            NS_ABORT_MSG_IF(aid12 == 0 || aid12 > 2007, "Allocation of RA-RUs is not supported");
+            const auto maxAid =
+                IsEht(txParams.m_txVector.GetPreambleType()) ? EHT_MAX_AID : MAX_AID;
+            NS_ABORT_MSG_IF(aid12 < MIN_AID || aid12 > maxAid,
+                            "Allocation of RA-RUs is not supported");
 
-            NS_ASSERT(apMac->GetStaList(m_linkId).find(aid12) != apMac->GetStaList(m_linkId).end());
-            Mac48Address staAddress = apMac->GetStaList(m_linkId).find(aid12)->second;
+            const auto it = apMac->GetStaList(m_linkId).find(aid12);
+            NS_ASSERT(it != apMac->GetStaList(m_linkId).end());
+            const auto staAddress = it->second;
 
             // find a TID for which a BA agreement exists with the given originator
             uint8_t tid = 0;
@@ -738,11 +798,11 @@ WifiDefaultAckManager::TryUlMuTransmission(Ptr<const WifiMpdu> mpdu,
         acknowledgment->multiStaBaTxVector = GetWifiRemoteStationManager()->GetBlockAckTxVector(
             apMac->GetStaList(m_linkId).find(staId)->second,
             acknowledgment->tbPpduTxVector);
-        return std::unique_ptr<WifiUlMuMultiStaBa>(acknowledgment);
+        return acknowledgment;
     }
     else if (trigger.IsBsrp())
     {
-        return std::unique_ptr<WifiAcknowledgment>(new WifiNoAck);
+        return std::make_unique<WifiNoAck>();
     }
 
     return nullptr;

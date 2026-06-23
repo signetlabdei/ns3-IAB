@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2011 The Boeing Company
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author:  Tom Henderson <thomas.r.henderson@boeing.com>
  */
@@ -24,57 +13,60 @@
  * Trace Phy state changes, and Mac DataIndication and DataConfirm events
  * to stdout
  */
-#include <ns3/constant-position-mobility-model.h>
-#include <ns3/core-module.h>
-#include <ns3/log.h>
-#include <ns3/lr-wpan-module.h>
-#include <ns3/packet.h>
-#include <ns3/propagation-delay-model.h>
-#include <ns3/propagation-loss-model.h>
-#include <ns3/simulator.h>
-#include <ns3/single-model-spectrum-channel.h>
+#include "ns3/constant-position-mobility-model.h"
+#include "ns3/core-module.h"
+#include "ns3/log.h"
+#include "ns3/lr-wpan-module.h"
+#include "ns3/packet.h"
+#include "ns3/propagation-delay-model.h"
+#include "ns3/propagation-loss-model.h"
+#include "ns3/simulator.h"
+#include "ns3/single-model-spectrum-channel.h"
 
 #include <iostream>
 
 using namespace ns3;
+using namespace ns3::lrwpan;
 
 /**
  * Function called when a Data indication is invoked
- * \param params MCPS data indication parameters
- * \param p packet
+ * @param params MCPS data indication parameters
+ * @param p packet
  */
 static void
 DataIndication(McpsDataIndicationParams params, Ptr<Packet> p)
 {
-    NS_LOG_UNCOND("Received packet of size " << p->GetSize());
+    std::cout << "Received packet of size: " << p->GetSize()
+              << " | LQI: " << static_cast<uint16_t>(params.m_mpduLinkQuality)
+              << " | RSSI: " << static_cast<int16_t>(params.m_rssi) << " dBm\n";
 }
 
 /**
  * Function called when a Data confirm is invoked
- * \param params MCPS data confirm parameters
+ * @param params MCPS data confirm parameters
  */
 static void
 DataConfirm(McpsDataConfirmParams params)
 {
-    NS_LOG_UNCOND("LrWpanMcpsDataConfirmStatus = " << params.m_status);
+    std::cout << "LrWpanMcpsDataConfirmStatus = " << static_cast<uint16_t>(params.m_status) << "\n";
 }
 
 /**
  * Function called when a the PHY state changes
- * \param context context
- * \param now time at which the function is called
- * \param oldState old PHY state
- * \param newState new PHY state
+ * @param context context
+ * @param now time at which the function is called
+ * @param oldState old PHY state
+ * @param newState new PHY state
  */
 static void
 StateChangeNotification(std::string context,
                         Time now,
-                        LrWpanPhyEnumeration oldState,
-                        LrWpanPhyEnumeration newState)
+                        PhyEnumeration oldState,
+                        PhyEnumeration newState)
 {
-    NS_LOG_UNCOND(context << " state change at " << now.As(Time::S) << " from "
-                          << LrWpanHelper::LrWpanPhyEnumerationPrinter(oldState) << " to "
-                          << LrWpanHelper::LrWpanPhyEnumerationPrinter(newState));
+    std::cout << context << " state change at " << now.As(Time::S) << " from "
+              << LrWpanHelper::LrWpanPhyEnumerationPrinter(oldState) << " to "
+              << LrWpanHelper::LrWpanPhyEnumerationPrinter(newState) << "\n";
 }
 
 int
@@ -83,6 +75,7 @@ main(int argc, char* argv[])
     bool verbose = false;
     bool extended = false;
 
+    // CommandLine options are also required by PyViz visualizer
     CommandLine cmd(__FILE__);
 
     cmd.AddValue("verbose", "turn on all log components", verbose);
@@ -90,10 +83,11 @@ main(int argc, char* argv[])
 
     cmd.Parse(argc, argv);
 
-    LrWpanHelper lrWpanHelper;
     if (verbose)
     {
-        lrWpanHelper.EnableLogComponents();
+        LogComponentEnableAll(LogLevel(LOG_PREFIX_TIME | LOG_PREFIX_FUNC));
+        LogComponentEnable("LrWpanPhy", LOG_LEVEL_ALL);
+        LogComponentEnable("LrWpanMac", LOG_LEVEL_ALL);
     }
 
     // Enable calculation of FCS in the trailers. Only necessary when interacting with real devices
@@ -105,19 +99,6 @@ main(int argc, char* argv[])
 
     Ptr<LrWpanNetDevice> dev0 = CreateObject<LrWpanNetDevice>();
     Ptr<LrWpanNetDevice> dev1 = CreateObject<LrWpanNetDevice>();
-
-    if (!extended)
-    {
-        dev0->SetAddress(Mac16Address("00:01"));
-        dev1->SetAddress(Mac16Address("00:02"));
-    }
-    else
-    {
-        Ptr<LrWpanMac> mac0 = dev0->GetMac();
-        Ptr<LrWpanMac> mac1 = dev1->GetMac();
-        mac0->SetExtendedAddress(Mac64Address("00:00:00:00:00:00:00:01"));
-        mac1->SetExtendedAddress(Mac64Address("00:00:00:00:00:00:00:02"));
-    }
 
     // Each device must be attached to the same channel
     Ptr<SingleModelSpectrumChannel> channel = CreateObject<SingleModelSpectrumChannel>();
@@ -135,6 +116,38 @@ main(int argc, char* argv[])
     n0->AddDevice(dev0);
     n1->AddDevice(dev1);
 
+    // Note: This setup, which has been done manually here, can be simplified using the LrWpanHelper
+    // class. The LrWpanHelper can be used to set up the propagation loss and delay models in many
+    // devices in a simpler way. The following is an equivalent, simplified setup:
+    //
+    //    LrWpanHelper lrWpanHelper;
+    //    lrWpanHelper.SetPropagationDelayModel("ns3::ConstantSpeedPropagationDelayModel");
+    //    lrWpanHelper.AddPropagationLossModel("ns3::LogDistancePropagationLossModel");
+    //    NodeContainer nodes;
+    //    nodes.Create(2);
+    //    NetDeviceContainer devices = lrWpanHelper.Install(nodes);
+    //    Ptr<LrWpanNetDevice> dev0 = devices.Get(0)->GetObject<LrWpanNetDevice>();
+    //    Ptr<LrWpanNetDevice> dev1 = devices.Get(1)->GetObject<LrWpanNetDevice>();
+
+    // Set 16-bit and 64-bit MAC addresses.
+    // Note: Extended addresses must ALWAYS be present. If the devices are using the extended
+    // address mode, short addresses should use the short address FF:FE. A short address of FF:FF
+    // indicates that the devices is not associated to any device.
+    if (!extended)
+    {
+        dev0->GetMac()->SetExtendedAddress(Mac64Address("00:00:00:00:00:00:00:01"));
+        dev1->GetMac()->SetExtendedAddress(Mac64Address("00:00:00:00:00:00:00:02"));
+        dev0->GetMac()->SetShortAddress(Mac16Address("00:01"));
+        dev1->GetMac()->SetShortAddress(Mac16Address("00:02"));
+    }
+    else
+    {
+        dev0->GetMac()->SetExtendedAddress(Mac64Address("00:00:00:00:00:00:00:01"));
+        dev1->GetMac()->SetExtendedAddress(Mac64Address("00:00:00:00:00:00:00:02"));
+        dev0->GetMac()->SetShortAddress(Mac16Address("FF:FE"));
+        dev1->GetMac()->SetShortAddress(Mac16Address("FF:FE"));
+    }
+
     // Trace state changes in the phy
     dev0->GetPhy()->TraceConnect("TrxState",
                                  std::string("phy0"),
@@ -146,12 +159,12 @@ main(int argc, char* argv[])
     Ptr<ConstantPositionMobilityModel> sender0Mobility =
         CreateObject<ConstantPositionMobilityModel>();
     sender0Mobility->SetPosition(Vector(0, 0, 0));
-    dev0->GetPhy()->SetMobility(sender0Mobility);
+    n0->AggregateObject(sender0Mobility);
+
     Ptr<ConstantPositionMobilityModel> sender1Mobility =
         CreateObject<ConstantPositionMobilityModel>();
-    // Configure position 10 m distance
     sender1Mobility->SetPosition(Vector(0, 10, 0));
-    dev1->GetPhy()->SetMobility(sender1Mobility);
+    n1->AggregateObject(sender1Mobility);
 
     McpsDataConfirmCallback cb0;
     cb0 = MakeCallback(&DataConfirm);
@@ -168,12 +181,6 @@ main(int argc, char* argv[])
     McpsDataIndicationCallback cb3;
     cb3 = MakeCallback(&DataIndication);
     dev1->GetMac()->SetMcpsDataIndicationCallback(cb3);
-
-    // Tracing
-    lrWpanHelper.EnablePcapAll(std::string("lr-wpan-data"), true);
-    AsciiTraceHelper ascii;
-    Ptr<OutputStreamWrapper> stream = ascii.CreateFileStream("lr-wpan-data.tr");
-    lrWpanHelper.EnableAsciiAll(stream);
 
     // The below should trigger two callbacks when end-to-end data is working
     // 1) DataConfirm callback is called
@@ -195,9 +202,10 @@ main(int argc, char* argv[])
     }
     params.m_msduHandle = 0;
     params.m_txOptions = TX_OPTION_ACK;
+
     //  dev0->GetMac ()->McpsDataRequest (params, p0);
     Simulator::ScheduleWithContext(1,
-                                   Seconds(0.0),
+                                   Seconds(0),
                                    &LrWpanMac::McpsDataRequest,
                                    dev0->GetMac(),
                                    params,
@@ -214,12 +222,13 @@ main(int argc, char* argv[])
         params.m_dstExtAddr = Mac64Address("00:00:00:00:00:00:00:01");
     }
     Simulator::ScheduleWithContext(2,
-                                   Seconds(2.0),
+                                   Seconds(2),
                                    &LrWpanMac::McpsDataRequest,
                                    dev1->GetMac(),
                                    params,
                                    p2);
 
+    Simulator::Stop(Seconds(10));
     Simulator::Run();
 
     Simulator::Destroy();

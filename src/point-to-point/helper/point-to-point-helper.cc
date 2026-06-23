@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2008 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -82,8 +71,7 @@ PointToPointHelper::EnablePcapInternal(std::string prefix,
     Ptr<PointToPointNetDevice> device = nd->GetObject<PointToPointNetDevice>();
     if (!device)
     {
-        NS_LOG_INFO("PointToPointHelper::EnablePcapInternal(): Device "
-                    << device << " not of type ns3::PointToPointNetDevice");
+        NS_LOG_INFO("Device " << device << " not of type ns3::PointToPointNetDevice");
         return;
     }
 
@@ -117,8 +105,7 @@ PointToPointHelper::EnableAsciiInternal(Ptr<OutputStreamWrapper> stream,
     Ptr<PointToPointNetDevice> device = nd->GetObject<PointToPointNetDevice>();
     if (!device)
     {
-        NS_LOG_INFO("PointToPointHelper::EnableAsciiInternal(): Device "
-                    << device << " not of type ns3::PointToPointNetDevice");
+        NS_LOG_INFO("Device " << device << " not of type ns3::PointToPointNetDevice");
         return;
     }
 
@@ -199,7 +186,7 @@ PointToPointHelper::EnableAsciiInternal(Ptr<OutputStreamWrapper> stream,
     uint32_t deviceid = nd->GetIfIndex();
     std::ostringstream oss;
 
-    oss << "/NodeList/" << nd->GetNode()->GetId() << "/DeviceList/" << deviceid
+    oss << "/NodeList/" << nodeid << "/DeviceList/" << deviceid
         << "/$ns3::PointToPointNetDevice/MacRx";
     Config::Connect(oss.str(),
                     MakeBoundCallback(&AsciiTraceHelper::DefaultReceiveSinkWithContext, stream));

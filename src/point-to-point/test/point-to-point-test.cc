@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -29,7 +18,7 @@
 using namespace ns3;
 
 /**
- * \brief Test class for PointToPoint model
+ * @brief Test class for PointToPoint model
  *
  * It tries to send one packet from one NetDevice to another, over a
  * PointToPointChannel.
@@ -38,34 +27,34 @@ class PointToPointTest : public TestCase
 {
   public:
     /**
-     * \brief Create the test
+     * @brief Create the test
      */
     PointToPointTest();
 
     /**
-     * \brief Run the test
+     * @brief Run the test
      */
     void DoRun() override;
 
   private:
     Ptr<const Packet> m_recvdPacket; //!< received packet
     /**
-     * \brief Send one packet to the device specified
+     * @brief Send one packet to the device specified
      *
-     * \param device NetDevice to send to.
-     * \param buffer Payload content of the packet.
-     * \param size Size of the payload.
+     * @param device NetDevice to send to.
+     * @param buffer Payload content of the packet.
+     * @param size Size of the payload.
      */
     void SendOnePacket(Ptr<PointToPointNetDevice> device, const uint8_t* buffer, uint32_t size);
     /**
-     * \brief Callback function which sets the recvdPacket parameter
+     * @brief Callback function which sets the recvdPacket parameter
      *
-     * \param dev The receiving device.
-     * \param pkt The received packet.
-     * \param mode The protocol mode used.
-     * \param sender The sender address.
+     * @param dev The receiving device.
+     * @param pkt The received packet.
+     * @param mode The protocol mode used.
+     * @param sender The sender address.
      *
-     * \return A boolean indicating packet handled properly.
+     * @return A boolean indicating packet handled properly.
      */
     bool RxPacket(Ptr<NetDevice> dev, Ptr<const Packet> pkt, uint16_t mode, const Address& sender);
 };
@@ -119,7 +108,7 @@ PointToPointTest::DoRun()
                          "for her merchandise, he traded in his prize.";
     size_t txBufferSize = sizeof(txBuffer);
 
-    Simulator::Schedule(Seconds(1.0),
+    Simulator::Schedule(Seconds(1),
                         &PointToPointTest::SendOnePacket,
                         this,
                         devA,
@@ -140,21 +129,21 @@ PointToPointTest::DoRun()
 }
 
 /**
- * \brief TestSuite for PointToPoint module
+ * @brief TestSuite for PointToPoint module
  */
 class PointToPointTestSuite : public TestSuite
 {
   public:
     /**
-     * \brief Constructor
+     * @brief Constructor
      */
     PointToPointTestSuite();
 };
 
 PointToPointTestSuite::PointToPointTestSuite()
-    : TestSuite("devices-point-to-point", UNIT)
+    : TestSuite("devices-point-to-point", Type::UNIT)
 {
-    AddTestCase(new PointToPointTest, TestCase::QUICK);
+    AddTestCase(new PointToPointTest, TestCase::Duration::QUICK);
 }
 
 static PointToPointTestSuite g_pointToPointTestSuite; //!< The testsuite

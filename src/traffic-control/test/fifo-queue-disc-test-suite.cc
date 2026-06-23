@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2017 Universita' degli Studi di Napoli Federico II
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Stefano Avallone <stavallo@unina.it>
  *
@@ -34,9 +23,9 @@
 using namespace ns3;
 
 /**
- * \ingroup traffic-control-test
+ * @ingroup traffic-control-test
  *
- * \brief Fifo Queue Disc Test Item
+ * @brief Fifo Queue Disc Test Item
  */
 class FifoQueueDiscTestItem : public QueueDiscItem
 {
@@ -44,8 +33,8 @@ class FifoQueueDiscTestItem : public QueueDiscItem
     /**
      * Constructor
      *
-     * \param p the packet
-     * \param addr the address
+     * @param p the packet
+     * @param addr the address
      */
     FifoQueueDiscTestItem(Ptr<Packet> p, const Address& addr);
     ~FifoQueueDiscTestItem() override;
@@ -80,9 +69,9 @@ FifoQueueDiscTestItem::Mark()
 }
 
 /**
- * \ingroup traffic-control-test
+ * @ingroup traffic-control-test
  *
- * \brief Fifo Queue Disc Test Case
+ * @brief Fifo Queue Disc Test Case
  */
 class FifoQueueDiscTestCase : public TestCase
 {
@@ -93,14 +82,14 @@ class FifoQueueDiscTestCase : public TestCase
   private:
     /**
      * Run test function
-     * \param mode the test mode
+     * @param mode the test mode
      */
     void RunFifoTest(QueueSizeUnit mode);
     /**
      * Run test function
-     * \param q the queue disc
-     * \param qSize the expected size of the queue disc
-     * \param pktSize the packet size
+     * @param q the queue disc
+     * @param qSize the expected size of the queue disc
+     * @param pktSize the packet size
      */
     void DoRunFifoTest(Ptr<FifoQueueDisc> q, uint32_t qSize, uint32_t pktSize);
 };
@@ -266,16 +255,16 @@ FifoQueueDiscTestCase::DoRun()
 }
 
 /**
- * \ingroup traffic-control-test
+ * @ingroup traffic-control-test
  *
- * \brief Fifo Queue Disc Test Suite
+ * @brief Fifo Queue Disc Test Suite
  */
 static class FifoQueueDiscTestSuite : public TestSuite
 {
   public:
     FifoQueueDiscTestSuite()
-        : TestSuite("fifo-queue-disc", UNIT)
+        : TestSuite("fifo-queue-disc", Type::UNIT)
     {
-        AddTestCase(new FifoQueueDiscTestCase(), TestCase::QUICK);
+        AddTestCase(new FifoQueueDiscTestCase(), TestCase::Duration::QUICK);
     }
 } g_fifoQueueTestSuite; ///< the test suite

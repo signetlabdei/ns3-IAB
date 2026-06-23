@@ -1,30 +1,19 @@
 /*
  * Copyright (c) 2009 CTTC
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Nicola Baldo <nbaldo@cttc.es>
  */
 
 #include "waveform-generator.h"
 
-#include <ns3/antenna-model.h>
-#include <ns3/double.h>
-#include <ns3/log.h>
-#include <ns3/object-factory.h>
-#include <ns3/packet-burst.h>
-#include <ns3/simulator.h>
+#include "ns3/antenna-model.h"
+#include "ns3/double.h"
+#include "ns3/log.h"
+#include "ns3/object-factory.h"
+#include "ns3/packet-burst.h"
+#include "ns3/simulator.h"
 
 namespace ns3
 {
@@ -38,7 +27,7 @@ WaveformGenerator::WaveformGenerator()
       m_netDevice(nullptr),
       m_channel(nullptr),
       m_txPowerSpectralDensity(nullptr),
-      m_startTime(Seconds(0))
+      m_startTime()
 {
 }
 
@@ -53,7 +42,7 @@ WaveformGenerator::DoDispose()
     m_channel = nullptr;
     m_netDevice = nullptr;
     m_mobility = nullptr;
-    if (m_nextWave.IsRunning())
+    if (m_nextWave.IsPending())
     {
         m_nextWave.Cancel();
     }
@@ -70,7 +59,7 @@ WaveformGenerator::GetTypeId()
             .AddAttribute(
                 "Period",
                 "the period (=1/frequency)",
-                TimeValue(Seconds(1.0)),
+                TimeValue(Seconds(1)),
                 MakeTimeAccessor(&WaveformGenerator::SetPeriod, &WaveformGenerator::GetPeriod),
                 MakeTimeChecker())
             .AddAttribute("DutyCycle",
@@ -202,7 +191,7 @@ void
 WaveformGenerator::Start()
 {
     NS_LOG_FUNCTION(this);
-    if (!m_nextWave.IsRunning())
+    if (!m_nextWave.IsPending())
     {
         NS_LOG_LOGIC("generator was not active, now starting");
         m_startTime = Now();
@@ -214,7 +203,7 @@ void
 WaveformGenerator::Stop()
 {
     NS_LOG_FUNCTION(this);
-    if (m_nextWave.IsRunning())
+    if (m_nextWave.IsPending())
     {
         m_nextWave.Cancel();
     }

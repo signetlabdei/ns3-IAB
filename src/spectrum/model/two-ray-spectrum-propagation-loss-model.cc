@@ -2,30 +2,19 @@
  * Copyright (c) 2022 SIGNET Lab, Department of Information Engineering,
  * University of Padova
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  */
 
 #include "two-ray-spectrum-propagation-loss-model.h"
 
-#include <ns3/double.h>
-#include <ns3/log.h>
-#include <ns3/node.h>
-#include <ns3/object-factory.h>
-#include <ns3/pointer.h>
-#include <ns3/random-variable-stream.h>
-#include <ns3/string.h>
+#include "ns3/double.h"
+#include "ns3/log.h"
+#include "ns3/node.h"
+#include "ns3/object-factory.h"
+#include "ns3/pointer.h"
+#include "ns3/random-variable-stream.h"
+#include "ns3/string.h"
 
 #include <algorithm>
 
@@ -1052,11 +1041,11 @@ TwoRaySpectrumPropagationLossModel::CalcBeamformingGain(
     std::complex<double> bArrayOverallResponse = 0;
 
     // Compute the dot products between the array responses and the beamforming vectors
-    for (size_t i = 0; i < aPhasedArrayModel->GetNumberOfElements(); i++)
+    for (size_t i = 0; i < aPhasedArrayModel->GetNumElems(); i++)
     {
         aArrayOverallResponse += aArrayResponse[i] * aBfVector[i];
     }
-    for (size_t i = 0; i < bPhasedArrayModel->GetNumberOfElements(); i++)
+    for (size_t i = 0; i < bPhasedArrayModel->GetNumElems(); i++)
     {
         bArrayOverallResponse += bArrayResponse[i] * bBfVector[i];
     }
@@ -1112,7 +1101,7 @@ TwoRaySpectrumPropagationLossModel::GetFtrFastFading(const FtrParams& params) co
     return norm(h);
 }
 
-Ptr<SpectrumValue>
+Ptr<SpectrumSignalParameters>
 TwoRaySpectrumPropagationLossModel::DoCalcRxPowerSpectralDensity(
     Ptr<const SpectrumSignalParameters> params,
     Ptr<const MobilityModel> a,
@@ -1127,8 +1116,6 @@ TwoRaySpectrumPropagationLossModel::DoCalcRxPowerSpectralDensity(
     NS_ASSERT_MSG(aId != bId, "The two nodes must be different from one another");
     NS_ASSERT_MSG(a->GetDistanceFrom(b) > 0.0,
                   "The position of a and b devices cannot be the same");
-
-    Ptr<SpectrumValue> rxPsd = Copy<SpectrumValue>(params->psd);
 
     // Retrieve the antenna of device a
     NS_ASSERT_MSG(aPhasedArrayModel, "Antenna not found for node " << aId);
@@ -1147,10 +1134,11 @@ TwoRaySpectrumPropagationLossModel::DoCalcRxPowerSpectralDensity(
     // Compute the beamforming gain
     double bfGain = CalcBeamformingGain(a, b, aPhasedArrayModel, bPhasedArrayModel);
 
-    // Apply the above terms to the TX PSD
-    *rxPsd *= (fading * bfGain);
+    Ptr<SpectrumSignalParameters> rxParams = params->Copy();
+    // Apply the above terms to the TX PSD to calculate RX PSD
+    (*(rxParams->psd)) *= (fading * bfGain);
 
-    return rxPsd;
+    return rxParams;
 }
 
 std::size_t
@@ -1166,7 +1154,7 @@ TwoRaySpectrumPropagationLossModel::SearchClosestFc(const std::vector<double>& f
 }
 
 int64_t
-TwoRaySpectrumPropagationLossModel::AssignStreams(int64_t stream)
+TwoRaySpectrumPropagationLossModel::DoAssignStreams(int64_t stream)
 {
     NS_LOG_FUNCTION(this << stream);
     m_normalRv->SetStream(stream);

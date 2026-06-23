@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2015 Universita' degli Studi di Napoli Federico II
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Pasquale Imputato <p.imputato@gmail.com>
  *          Stefano Avallone <stefano.avallone@unina.it>
@@ -69,9 +58,9 @@ NS_LOG_COMPONENT_DEFINE("BenchmarkQueueDiscs");
 /**
  * Print the queue limits.
  *
- * \param stream The output stream.
- * \param oldVal Old value.
- * \param newVal New value.
+ * @param stream The output stream.
+ * @param oldVal Old value.
+ * @param newVal New value.
  */
 void
 LimitsTrace(Ptr<OutputStreamWrapper> stream, uint32_t oldVal, uint32_t newVal)
@@ -82,9 +71,9 @@ LimitsTrace(Ptr<OutputStreamWrapper> stream, uint32_t oldVal, uint32_t newVal)
 /**
  * Print the bytes in the queue.
  *
- * \param stream The output stream.
- * \param oldVal Old value.
- * \param newVal New value.
+ * @param stream The output stream.
+ * @param oldVal Old value.
+ * @param newVal New value.
  */
 void
 BytesInQueueTrace(Ptr<OutputStreamWrapper> stream, uint32_t oldVal, uint32_t newVal)
@@ -95,9 +84,9 @@ BytesInQueueTrace(Ptr<OutputStreamWrapper> stream, uint32_t oldVal, uint32_t new
 /**
  * Sample and print the queue goodput.
  *
- * \param app The Tx app.
- * \param stream The output stream.
- * \param period The sampling period.
+ * @param app The Tx app.
+ * @param stream The output stream.
+ * @param period The sampling period.
  */
 static void
 GoodputSampling(ApplicationContainer app, Ptr<OutputStreamWrapper> stream, float period)
@@ -112,8 +101,8 @@ GoodputSampling(ApplicationContainer app, Ptr<OutputStreamWrapper> stream, float
 /**
  * Print the ping RTT.
  *
- * \param context The context.
- * \param rtt The RTT.
+ * @param context The context.
+ * @param rtt The RTT.
  */
 static void
 PingRtt(std::string context, uint16_t, Time rtt)

@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2014 Universita' di Firenze
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Tommaso Pecorella <tommaso.pecorella@unifi.it>
  */
@@ -20,9 +9,10 @@
 #ifndef PACKET_SOCKET_CLIENT_H
 #define PACKET_SOCKET_CLIENT_H
 
+#include "packet-socket-address.h"
+
 #include "ns3/application.h"
 #include "ns3/event-id.h"
-#include "ns3/packet-socket-address.h"
 #include "ns3/ptr.h"
 #include "ns3/traced-callback.h"
 
@@ -33,9 +23,9 @@ class Socket;
 class Packet;
 
 /**
- * \ingroup socket
+ * @ingroup socket
  *
- * \brief A simple client.
+ * @brief A simple client.
  *
  * Sends packets using PacketSocket. It does not require (or use) IP.
  *
@@ -44,8 +34,8 @@ class Packet;
  * what concerns the underlying NetDevice and the Address scheme.
  * It is meant to be used in ns-3 tests.
  *
- * The application will send `MaxPackets' packets, one every `Interval'
- * time. Packet size (`PacketSize') can be configured.
+ * The application will send `MaxPackets` packets, one every `Interval`
+ * time. Packet size (`PacketSize`) can be configured.
  * Provides a "Tx" Traced Callback (transmitted packets, source address).
  *
  * Note: packets larger than the NetDevice MTU will not be sent.
@@ -54,8 +44,8 @@ class PacketSocketClient : public Application
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
 
@@ -64,14 +54,14 @@ class PacketSocketClient : public Application
     ~PacketSocketClient() override;
 
     /**
-     * \brief set the remote address and protocol to be used
-     * \param addr remote address
+     * @brief set the remote address and protocol to be used
+     * @param addr remote address
      */
     void SetRemote(PacketSocketAddress addr);
 
     /**
-     * \brief Query the priority value of this socket
-     * \return The priority value
+     * @brief Query the priority value of this socket
+     * @return The priority value
      */
     uint8_t GetPriority() const;
 
@@ -83,13 +73,18 @@ class PacketSocketClient : public Application
     void StopApplication() override;
 
     /**
-     * \brief Manually set the socket priority
-     * \param priority The socket priority (in the range 0..6)
+     * @brief Manually set the socket priority
+     * @param priority The socket priority (in the range 0..6)
      */
     void SetPriority(uint8_t priority);
 
     /**
-     * \brief Send a packet
+     * @brief Send a packet
+     *
+     * Either <i>Interval</i> and <i>MaxPackets</i> may be zero, but not both.  If <i>Interval</i>
+     * is zero, the PacketSocketClient will send <i>MaxPackets</i> packets without any delay into
+     * the socket.  If <i>MaxPackets</i> is zero, then the PacketSocketClient will send every
+     * <i>Interval</i> until the application is stopped.
      */
     void Send();
 

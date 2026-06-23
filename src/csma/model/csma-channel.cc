@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2007 Emmanuelle Laprise
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Emmanuelle Laprise <emmanuelle.laprise@bluekazoo.ca>
  */
@@ -86,8 +75,7 @@ CsmaChannel::Reattach(Ptr<CsmaNetDevice> device)
     NS_LOG_FUNCTION(this << device);
     NS_ASSERT(device);
 
-    std::vector<CsmaDeviceRec>::iterator it;
-    for (it = m_deviceList.begin(); it < m_deviceList.end(); it++)
+    for (auto it = m_deviceList.begin(); it < m_deviceList.end(); it++)
     {
         if (it->devicePtr == device)
         {
@@ -131,28 +119,25 @@ CsmaChannel::Detach(uint32_t deviceId)
 {
     NS_LOG_FUNCTION(this << deviceId);
 
-    if (deviceId < m_deviceList.size())
-    {
-        if (!m_deviceList[deviceId].active)
-        {
-            NS_LOG_WARN("CsmaChannel::Detach(): Device is already detached (" << deviceId << ")");
-            return false;
-        }
-
-        m_deviceList[deviceId].active = false;
-
-        if ((m_state == TRANSMITTING) && (m_currentSrc == deviceId))
-        {
-            NS_LOG_WARN("CsmaChannel::Detach(): Device is currently"
-                        << "transmitting (" << deviceId << ")");
-        }
-
-        return true;
-    }
-    else
+    if (deviceId >= m_deviceList.size())
     {
         return false;
     }
+
+    if (!m_deviceList[deviceId].active)
+    {
+        NS_LOG_WARN("CsmaChannel::Detach(): Device is already detached (" << deviceId << ")");
+        return false;
+    }
+
+    m_deviceList[deviceId].active = false;
+
+    if ((m_state == TRANSMITTING) && (m_currentSrc == deviceId))
+    {
+        NS_LOG_WARN("CsmaChannel::Detach(): Device is currently transmitting (" << deviceId << ")");
+    }
+
+    return true;
 }
 
 bool
@@ -161,8 +146,7 @@ CsmaChannel::Detach(Ptr<CsmaNetDevice> device)
     NS_LOG_FUNCTION(this << device);
     NS_ASSERT(device);
 
-    std::vector<CsmaDeviceRec>::iterator it;
-    for (it = m_deviceList.begin(); it < m_deviceList.end(); it++)
+    for (auto it = m_deviceList.begin(); it < m_deviceList.end(); it++)
     {
         if ((it->devicePtr == device) && (it->active))
         {
@@ -193,7 +177,7 @@ CsmaChannel::TransmitStart(Ptr<const Packet> p, uint32_t srcId)
     }
 
     NS_LOG_LOGIC("switch to TRANSMITTING");
-    m_currentPkt = p->Copy();
+    m_currentPkt = p;
     m_currentSrc = srcId;
     m_state = TRANSMITTING;
     return true;
@@ -202,7 +186,7 @@ CsmaChannel::TransmitStart(Ptr<const Packet> p, uint32_t srcId)
 bool
 CsmaChannel::IsActive(uint32_t deviceId)
 {
-    return (m_deviceList[deviceId].active);
+    return m_deviceList[deviceId].active;
 }
 
 bool
@@ -227,8 +211,7 @@ CsmaChannel::TransmitEnd()
 
     NS_LOG_LOGIC("Receive");
 
-    std::vector<CsmaDeviceRec>::iterator it;
-    for (it = m_deviceList.begin(); it < m_deviceList.end(); it++)
+    for (auto it = m_deviceList.begin(); it < m_deviceList.end(); it++)
     {
         if (it->IsActive() && it->devicePtr != m_deviceList[m_currentSrc].devicePtr)
         {
@@ -237,7 +220,7 @@ CsmaChannel::TransmitEnd()
                                            m_delay,
                                            &CsmaNetDevice::Receive,
                                            it->devicePtr,
-                                           m_currentPkt->Copy(),
+                                           m_currentPkt,
                                            m_deviceList[m_currentSrc].devicePtr);
         }
     }
@@ -261,8 +244,7 @@ uint32_t
 CsmaChannel::GetNumActDevices()
 {
     int numActDevices = 0;
-    std::vector<CsmaDeviceRec>::iterator it;
-    for (it = m_deviceList.begin(); it < m_deviceList.end(); it++)
+    for (auto it = m_deviceList.begin(); it < m_deviceList.end(); it++)
     {
         if (it->active)
         {
@@ -287,9 +269,8 @@ CsmaChannel::GetCsmaDevice(std::size_t i) const
 int32_t
 CsmaChannel::GetDeviceNum(Ptr<CsmaNetDevice> device)
 {
-    std::vector<CsmaDeviceRec>::iterator it;
     int i = 0;
-    for (it = m_deviceList.begin(); it < m_deviceList.end(); it++)
+    for (auto it = m_deviceList.begin(); it < m_deviceList.end(); it++)
     {
         if (it->devicePtr == device)
         {
@@ -310,14 +291,7 @@ CsmaChannel::GetDeviceNum(Ptr<CsmaNetDevice> device)
 bool
 CsmaChannel::IsBusy()
 {
-    if (m_state == IDLE)
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
+    return m_state != IDLE;
 }
 
 DataRate

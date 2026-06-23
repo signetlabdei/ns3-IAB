@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2007 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -28,10 +17,10 @@ namespace ns3
 class Socket;
 
 /**
- * \ingroup ipv6
- * \ingroup socket
+ * @ingroup ipv6
+ * @ingroup socket
  *
- * \brief API to create IPv6 RAW socket instances
+ * @brief API to create IPv6 RAW socket instances
  *
  * This abstract class defines the API for IPv6 RAW socket factory.
  *
@@ -45,7 +34,7 @@ class Socket;
  * behavior.
  *
  * A correct example is (from src/applications/model/radvd.cc):
- * \code
+ * @code
    if (!m_socket)
      {
        TypeId tid = TypeId::LookupByName ("ns3::Ipv6RawSocketFactory");
@@ -56,15 +45,15 @@ class Socket;
        m_socket->SetAttribute ("Protocol", UintegerValue(Ipv6Header::IPV6_ICMPV6));
        m_socket->SetRecvCallback (MakeCallback (&Radvd::HandleRead, this));
      }
- * \endcode
+ * @endcode
  *
  */
 class Ipv6RawSocketFactory : public SocketFactory
 {
   public:
     /**
-     * \brief Get the type ID of this class.
-     * \return type ID
+     * @brief Get the type ID of this class.
+     * @return type ID
      */
     static TypeId GetTypeId();
 };

@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2011 Yufei Cheng
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Yufei Cheng   <yfcheng@ittc.ku.edu>
  *
@@ -56,9 +45,7 @@ bool
 DsrErrorBuffer::Enqueue(DsrErrorBuffEntry& entry)
 {
     Purge();
-    for (std::vector<DsrErrorBuffEntry>::const_iterator i = m_errorBuffer.begin();
-         i != m_errorBuffer.end();
-         ++i)
+    for (auto i = m_errorBuffer.begin(); i != m_errorBuffer.end(); ++i)
     {
         NS_LOG_INFO("packet id " << i->GetPacket()->GetUid() << " " << entry.GetPacket()->GetUid()
                                  << " source " << i->GetSource() << " " << entry.GetSource()
@@ -66,7 +53,7 @@ DsrErrorBuffer::Enqueue(DsrErrorBuffEntry& entry)
                                  << " dst " << i->GetDestination() << " "
                                  << entry.GetDestination());
 
-        /// \todo check the source and destination over here
+        /// @todo check the source and destination over here
         if ((i->GetPacket()->GetUid() == entry.GetPacket()->GetUid()) &&
             (i->GetSource() == entry.GetSource()) && (i->GetNextHop() == entry.GetSource()) &&
             (i->GetDestination() == entry.GetDestination()))
@@ -101,9 +88,7 @@ DsrErrorBuffer::DropPacketForErrLink(Ipv4Address source, Ipv4Address nextHop)
     /*
      * Drop the packet with the error link source----------nextHop
      */
-    for (std::vector<DsrErrorBuffEntry>::iterator i = m_errorBuffer.begin();
-         i != m_errorBuffer.end();
-         ++i)
+    for (auto i = m_errorBuffer.begin(); i != m_errorBuffer.end(); ++i)
     {
         if ((i->GetSource() == link[0]) && (i->GetNextHop() == link[1]))
         {
@@ -127,9 +112,7 @@ DsrErrorBuffer::Dequeue(Ipv4Address dst, DsrErrorBuffEntry& entry)
     /*
      * Dequeue the entry with destination address dst
      */
-    for (std::vector<DsrErrorBuffEntry>::iterator i = m_errorBuffer.begin();
-         i != m_errorBuffer.end();
-         ++i)
+    for (auto i = m_errorBuffer.begin(); i != m_errorBuffer.end(); ++i)
     {
         if (i->GetDestination() == dst)
         {
@@ -148,9 +131,7 @@ DsrErrorBuffer::Find(Ipv4Address dst)
     /*
      * Make sure if the send buffer contains entry with certain dst
      */
-    for (std::vector<DsrErrorBuffEntry>::const_iterator i = m_errorBuffer.begin();
-         i != m_errorBuffer.end();
-         ++i)
+    for (auto i = m_errorBuffer.begin(); i != m_errorBuffer.end(); ++i)
     {
         if (i->GetDestination() == dst)
         {
@@ -165,14 +146,14 @@ DsrErrorBuffer::Find(Ipv4Address dst)
 struct IsExpired
 {
     /**
-     * \brief comparison operator
-     * \param e entry to compare
-     * \return true if entry expired
+     * @brief comparison operator
+     * @param e entry to compare
+     * @return true if entry expired
      */
     bool operator()(const DsrErrorBuffEntry& e) const
     {
         // NS_LOG_DEBUG("Expire time for packet in req queue: "<<e.GetExpireTime ());
-        return (e.GetExpireTime() < Seconds(0));
+        return (e.GetExpireTime().IsStrictlyNegative());
     }
 };
 
@@ -184,9 +165,7 @@ DsrErrorBuffer::Purge()
      */
     NS_LOG_DEBUG("The error buffer size " << m_errorBuffer.size());
     IsExpired pred;
-    for (std::vector<DsrErrorBuffEntry>::iterator i = m_errorBuffer.begin();
-         i != m_errorBuffer.end();
-         ++i)
+    for (auto i = m_errorBuffer.begin(); i != m_errorBuffer.end(); ++i)
     {
         if (pred(*i))
         {

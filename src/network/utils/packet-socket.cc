@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2007 Emmanuelle Laprise, INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Emmanuelle Laprise <emmanuelle.laprise@bluekazoo.ca>
  *          Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
@@ -87,14 +76,14 @@ PacketSocket::DoDispose()
     m_device = 0;
 }
 
-enum Socket::SocketErrno
+Socket::SocketErrno
 PacketSocket::GetErrno() const
 {
     NS_LOG_FUNCTION(this);
     return m_errno;
 }
 
-enum Socket::SocketType
+Socket::SocketType
 PacketSocket::GetSocketType() const
 {
     NS_LOG_FUNCTION(this);
@@ -122,7 +111,7 @@ int
 PacketSocket::Bind6()
 {
     NS_LOG_FUNCTION(this);
-    return (Bind());
+    return Bind();
 }
 
 int
@@ -221,7 +210,7 @@ int
 PacketSocket::Connect(const Address& ad)
 {
     NS_LOG_FUNCTION(this << ad);
-    PacketSocketAddress address;
+
     if (m_state == STATE_CLOSED)
     {
         m_errno = ERROR_BADF;
@@ -408,7 +397,7 @@ PacketSocket::ForwardUp(Ptr<NetDevice> device,
     {
         Ptr<Packet> copy = packet->Copy();
         DeviceNameTag dnt;
-        dnt.SetDeviceName(device->GetTypeId().GetName());
+        dnt.SetDeviceName(NetDevice::GetTypeId().GetName());
         PacketSocketTag pst;
         pst.SetPacketType(packetType);
         pst.SetDestAddress(to);
@@ -520,11 +509,7 @@ bool
 PacketSocket::SetAllowBroadcast(bool allowBroadcast)
 {
     NS_LOG_FUNCTION(this << allowBroadcast);
-    if (allowBroadcast)
-    {
-        return false;
-    }
-    return true;
+    return !allowBroadcast;
 }
 
 bool
@@ -663,7 +648,7 @@ void
 DeviceNameTag::Serialize(TagBuffer i) const
 {
     const char* n = m_deviceName.c_str();
-    uint8_t l = (uint8_t)m_deviceName.size();
+    auto l = (uint8_t)m_deviceName.size();
 
     i.WriteU8(l);
     i.Write((uint8_t*)n, (uint32_t)l);

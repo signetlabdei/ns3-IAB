@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2008 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -26,30 +15,10 @@
 
 #include <algorithm>
 #include <ctime>
+#include <filesystem>
 #include <regex>
 #include <sstream>
 #include <tuple>
-
-// Some compilers such as GCC < 8 (Ubuntu 18.04
-// ships with GCC 7) do not ship with the
-// std::filesystem header,  but with the
-// std::experimental::filesystem header.
-// Since Clang reuses these headers and the libstdc++
-// from GCC, we need to either use the experimental
-// version or require a more up-to-date GCC.
-// we use the "fs" namespace to prevent collisions
-// with musl libc.
-#ifdef __has_include
-#if __has_include(<filesystem>)
-#include <filesystem>
-namespace fs = std::filesystem;
-#elif __has_include(<experimental/filesystem>)
-#include <experimental/filesystem>
-namespace fs = std::experimental::filesystem;
-#else
-#error "No support for filesystem library"
-#endif
-#endif
 
 #ifdef __APPLE__
 #include <mach-o/dyld.h>
@@ -81,8 +50,8 @@ constexpr auto SYSTEM_PATH_SEP = "/";
 #endif
 
 /**
- * \file
- * \ingroup systempath
+ * @file
+ * @ingroup systempath
  * ns3::SystemPath implementation.
  */
 
@@ -95,11 +64,11 @@ NS_LOG_COMPONENT_DEFINE("SystemPath");
 namespace
 {
 /**
- * \ingroup systempath
+ * @ingroup systempath
  * Get the list of files located in a file system directory with error.
  *
- * \param [in] path A path which identifies a directory
- * \return Tuple with a list of the filenames which are located in the input directory or error flag
+ * @param [in] path A path which identifies a directory
+ * @return Tuple with a list of the filenames which are located in the input directory or error flag
  * \c true if directory doesn't exist.
  */
 std::tuple<std::list<std::string>, bool>
@@ -107,13 +76,13 @@ ReadFilesNoThrow(std::string path)
 {
     NS_LOG_FUNCTION(path);
     std::list<std::string> files;
-    if (!fs::exists(path))
+    if (!std::filesystem::exists(path))
     {
         return std::make_tuple(files, true);
     }
-    for (auto& it : fs::directory_iterator(path))
+    for (auto& it : std::filesystem::directory_iterator(path))
     {
-        if (!fs::is_directory(it.path()))
+        if (!std::filesystem::is_directory(it.path()))
         {
             files.push_back(it.path().filename().string());
         }
@@ -127,27 +96,27 @@ namespace SystemPath
 {
 
 /**
- * \ingroup systempath
- * \brief Get the directory path for a file.
+ * @ingroup systempath
+ * @brief Get the directory path for a file.
  *
  * This is an internal function (by virtue of not being
  * declared in a \c .h file); the public API is FindSelfDirectory().
  *
- * \param [in] path The full path to a file.
- * \returns The full path to the containing directory.
+ * @param [in] path The full path to a file.
+ * @returns The full path to the containing directory.
  */
 std::string
 Dirname(std::string path)
 {
     NS_LOG_FUNCTION(path);
     std::list<std::string> elements = Split(path);
-    std::list<std::string>::const_iterator last = elements.end();
+    auto last = elements.end();
     last--;
     return Join(elements.begin(), last);
 }
 
 std::string
-FindSelfDirectory()
+FindSelf()
 {
     /**
      * This function returns the path to the running $PREFIX.
@@ -165,11 +134,12 @@ FindSelfDirectory()
         ssize_t size = 1024;
         char* buffer = (char*)malloc(size);
         memset(buffer, 0, size);
-        int status;
+        int pathLength;
         while (true)
         {
-            status = readlink("/proc/self/exe", buffer, size);
-            if (status != 1 || (status == -1 && errno != ENAMETOOLONG))
+            pathLength = readlink("/proc/self/exe", buffer, size);
+            if ((pathLength > 0 && pathLength < size) ||
+                (pathLength == -1 && errno != ENAMETOOLONG))
             {
                 break;
             }
@@ -178,7 +148,7 @@ FindSelfDirectory()
             buffer = (char*)malloc(size);
             memset(buffer, 0, size);
         }
-        if (status == -1)
+        if (pathLength == -1)
         {
             NS_FATAL_ERROR("Oops, could not find self directory.");
         }
@@ -189,16 +159,16 @@ FindSelfDirectory()
     {
         //  LPTSTR = char *
         DWORD size = 1024;
-        LPTSTR lpFilename = (LPTSTR)malloc(sizeof(TCHAR) * size);
-        DWORD status = GetModuleFileName(nullptr, lpFilename, size);
-        while (status == size)
+        auto lpFilename = (LPTSTR)malloc(sizeof(TCHAR) * size);
+        DWORD pathLength = GetModuleFileName(nullptr, lpFilename, size);
+        while (pathLength == size)
         {
             size = size * 2;
             free(lpFilename);
             lpFilename = (LPTSTR)malloc(sizeof(TCHAR) * size);
-            status = GetModuleFileName(nullptr, lpFilename, size);
+            pathLength = GetModuleFileName(nullptr, lpFilename, size);
         }
-        NS_ASSERT(status != 0);
+        NS_ASSERT(pathLength != 0);
         filename = lpFilename;
         free(lpFilename);
     }
@@ -233,7 +203,13 @@ FindSelfDirectory()
         filename = buf;
     }
 #endif
-    return Dirname(filename);
+    return filename;
+}
+
+std::string
+FindSelfDirectory()
+{
+    return Dirname(FindSelf());
 }
 
 std::string
@@ -268,7 +244,7 @@ Join(std::list<std::string>::const_iterator begin, std::list<std::string>::const
 {
     NS_LOG_FUNCTION(*begin << *end);
     std::string retval = "";
-    for (std::list<std::string>::const_iterator i = begin; i != end; i++)
+    for (auto i = begin; i != end; i++)
     {
         if ((*i).empty())
         {
@@ -352,9 +328,9 @@ MakeDirectories(std::string path)
     NS_LOG_FUNCTION(path);
 
     std::error_code ec;
-    if (!fs::exists(path))
+    if (!std::filesystem::exists(path))
     {
-        fs::create_directories(path, ec);
+        std::filesystem::create_directories(path, ec);
     }
 
     if (ec.value())
@@ -382,7 +358,7 @@ Exists(const std::string path)
 
     // Check if the file itself exists
     auto tokens = Split(path);
-    std::string file = tokens.back();
+    const std::string& file = tokens.back();
 
     if (file.empty())
     {
@@ -405,8 +381,7 @@ Exists(const std::string path)
 
     NS_LOG_LOGIC("file itself exists: " << file);
     return true;
-
-} // Exists()
+}
 
 std::string
 CreateValidSystemPath(const std::string path)
@@ -423,7 +398,7 @@ CreateValidSystemPath(const std::string path)
                        incompatible_characters,
                        "_");
     return valid_path;
-} // CreateValidSystemPath
+}
 
 } // namespace SystemPath
 

@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2018 NITK Surathkal
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Viyom Mittal <viyommittal@gmail.com>
  *         Vivek Jain <jain.vivek.anand@gmail.com>
@@ -38,12 +27,7 @@ TcpPrrRecovery::GetTypeId()
     static TypeId tid = TypeId("ns3::TcpPrrRecovery")
                             .SetParent<TcpClassicRecovery>()
                             .AddConstructor<TcpPrrRecovery>()
-                            .SetGroupName("Internet")
-                            .AddAttribute("ReductionBound",
-                                          "Type of Reduction Bound",
-                                          EnumValue(SSRB),
-                                          MakeEnumAccessor(&TcpPrrRecovery::m_reductionBoundMode),
-                                          MakeEnumChecker(CRB, "CRB", SSRB, "SSRB"));
+                            .SetGroupName("Internet");
     return tid;
 }
 
@@ -57,8 +41,7 @@ TcpPrrRecovery::TcpPrrRecovery(const TcpPrrRecovery& recovery)
     : TcpClassicRecovery(recovery),
       m_prrDelivered(recovery.m_prrDelivered),
       m_prrOut(recovery.m_prrOut),
-      m_recoveryFlightSize(recovery.m_recoveryFlightSize),
-      m_reductionBoundMode(recovery.m_reductionBoundMode)
+      m_recoveryFlightSize(recovery.m_recoveryFlightSize)
 {
     NS_LOG_FUNCTION(this);
 }
@@ -78,41 +61,50 @@ TcpPrrRecovery::EnterRecovery(Ptr<TcpSocketState> tcb,
 
     m_prrOut = 0;
     m_prrDelivered = 0;
-    m_recoveryFlightSize = unAckDataCount;
+    m_recoveryFlightSize = tcb->m_bytesInFlight; // RFC 6675 pipe before recovery
 
-    DoRecovery(tcb, deliveredBytes);
+    DoRecovery(tcb, deliveredBytes, true);
 }
 
 void
-TcpPrrRecovery::DoRecovery(Ptr<TcpSocketState> tcb, uint32_t deliveredBytes)
+TcpPrrRecovery::DoRecovery(Ptr<TcpSocketState> tcb, uint32_t deliveredBytes, bool isDupAck)
 {
     NS_LOG_FUNCTION(this << tcb << deliveredBytes);
+
+    if (isDupAck && m_prrDelivered < m_recoveryFlightSize)
+    {
+        deliveredBytes += tcb->m_segmentSize;
+    }
+    if (deliveredBytes == 0)
+    {
+        return;
+    }
+
     m_prrDelivered += deliveredBytes;
 
     int sendCount;
     if (tcb->m_bytesInFlight > tcb->m_ssThresh)
     {
+        // Proportional Rate Reductions
         sendCount =
             std::ceil(m_prrDelivered * tcb->m_ssThresh * 1.0 / m_recoveryFlightSize) - m_prrOut;
     }
     else
     {
-        int limit = static_cast<int>(tcb->m_ssThresh - tcb->m_bytesInFlight);
-        if (m_reductionBoundMode == CRB)
+        // PRR-CRB by default
+        int limit = std::max(m_prrDelivered - m_prrOut, deliveredBytes);
+
+        // safeACK should be true iff ACK advances SND.UNA with no further loss indicated.
+        // We approximate that here (given the current lack of RACK-TLP in ns-3)
+        bool safeACK = tcb->m_isRetransDataAcked; // retransmit cumulatively ACKed?
+
+        if (safeACK)
         {
-            limit = m_prrDelivered - m_prrOut;
+            // PRR-SSRB when recovery makes good progress
+            limit += tcb->m_segmentSize;
         }
-        else if (m_reductionBoundMode == SSRB)
-        {
-            if (tcb->m_isRetransDataAcked)
-            {
-                limit = std::max(m_prrDelivered - m_prrOut, deliveredBytes) + tcb->m_segmentSize;
-            }
-            else
-            {
-                limit = deliveredBytes;
-            }
-        }
+
+        // Attempt to catch up, as permitted
         sendCount = std::min(limit, static_cast<int>(tcb->m_ssThresh - tcb->m_bytesInFlight));
     }
 

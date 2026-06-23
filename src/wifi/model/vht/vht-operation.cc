@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2016 Sébastien Deronne
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Sébastien Deronne <sebastien.deronne@gmail.com>
  */
@@ -34,6 +23,15 @@ WifiInformationElementId
 VhtOperation::ElementId() const
 {
     return IE_VHT_OPERATION;
+}
+
+void
+VhtOperation::Print(std::ostream& os) const
+{
+    os << "VHT Operation=[Channel Width: " << +m_channelWidth
+       << ", Channel Center Frequency Segment 0: " << +m_channelCenterFrequencySegment0
+       << ", Channel Center Frequency Segment 1: " << +m_channelCenterFrequencySegment1
+       << ", Basic VHT-MCS and NSS Set: " << m_basicVhtMcsAndNssSet << "]";
 }
 
 uint16_t
@@ -127,16 +125,6 @@ VhtOperation::DeserializeInformationField(Buffer::Iterator start, uint16_t lengt
     SetChannelCenterFrequencySegment1(channelCenterFrequencySegment1);
     SetBasicVhtMcsAndNssSet(basicVhtMcsAndNssSet);
     return length;
-}
-
-std::ostream&
-operator<<(std::ostream& os, const VhtOperation& VhtOperation)
-{
-    os << +VhtOperation.GetChannelWidth() << "|"
-       << +VhtOperation.GetChannelCenterFrequencySegment0() << "|"
-       << +VhtOperation.GetChannelCenterFrequencySegment1() << "|"
-       << VhtOperation.GetBasicVhtMcsAndNssSet();
-    return os;
 }
 
 } // namespace ns3

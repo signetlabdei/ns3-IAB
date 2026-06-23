@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 CTTC
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Nicola Baldo <nbaldo@cttc.es>
  */
@@ -20,8 +9,8 @@
 #ifndef SPECTRUM_PHY_H
 #define SPECTRUM_PHY_H
 
-#include <ns3/nstime.h>
-#include <ns3/object.h>
+#include "ns3/nstime.h"
+#include "ns3/object.h"
 
 namespace ns3
 {
@@ -37,7 +26,7 @@ class NetDevice;
 struct SpectrumSignalParameters;
 
 /**
- * \ingroup spectrum
+ * @ingroup spectrum
  *
  * Abstract base class for Spectrum-aware PHY layers
  *
@@ -53,8 +42,8 @@ class SpectrumPhy : public Object
     SpectrumPhy& operator=(const SpectrumPhy&) = delete;
 
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
 
@@ -102,7 +91,7 @@ class SpectrumPhy : public Object
     virtual Ptr<const SpectrumModel> GetRxSpectrumModel() const = 0;
 
     /**
-     * \brief Get the AntennaModel used by this SpectrumPhy instance for
+     * @brief Get the AntennaModel used by this SpectrumPhy instance for
      * transmission and/or reception
      *
      * Note that in general and depending on each module design, there can be

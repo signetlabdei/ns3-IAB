@@ -2,18 +2,7 @@
  * Copyright (c) 2017 Kungliga Tekniska Högskolan
  *               2017 Universita' degli Studi di Napoli Federico II
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * TBF, The Token Bucket Filter Queueing discipline
  *
@@ -261,7 +250,7 @@ TbfQueueDisc::DoDequeue()
         // A packet gets blocked if the above if() condition is not satisfied:
         // either or both btoks and ptoks are negative.  In that case, we have
         // to schedule the waking of queue when enough tokens are available.
-        if (m_id.IsExpired() == true)
+        if (m_id.IsExpired())
         {
             NS_ASSERT_MSG(m_rate.GetBitRate() > 0, "Rate must be positive");
             Time requiredDelayTime;
@@ -360,8 +349,8 @@ TbfQueueDisc::CheckConfig()
     if (m_burst <= m_mtu)
     {
         NS_LOG_WARN("The size of the first bucket ("
-                    << m_burst << ") should be "
-                    << "greater than the size of the second bucket (" << m_mtu << ").");
+                    << m_burst << ") should be greater than the size of the second bucket ("
+                    << m_mtu << ").");
     }
 
     if (m_peakRate > DataRate("0bps") && m_peakRate <= m_rate)

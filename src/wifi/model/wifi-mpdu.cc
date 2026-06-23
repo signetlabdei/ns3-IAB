@@ -2,18 +2,7 @@
  * Copyright (c) 2005, 2009 INRIA
  * Copyright (c) 2009 MIRKO BANCHI
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  *          Mirko Banchi <mk.banchi@gmail.com>
@@ -28,18 +17,19 @@
 
 #include "ns3/log.h"
 #include "ns3/packet.h"
-#include "ns3/simulator.h"
 
 namespace ns3
 {
 
 NS_LOG_COMPONENT_DEFINE("WifiMpdu");
 
-WifiMpdu::WifiMpdu(Ptr<const Packet> p, const WifiMacHeader& header)
+WifiMpdu::WifiMpdu(Ptr<const Packet> p, const WifiMacHeader& header, Time stamp)
     : m_header(header)
 {
     auto& original = std::get<OriginalInfo>(m_instanceInfo);
     original.m_packet = p;
+    original.m_timestamp = stamp;
+    original.m_retryCount = 0;
 
     if (header.IsQosData() && header.IsQosAmsdu())
     {
@@ -75,8 +65,6 @@ WifiMpdu::CreateAlias(uint8_t linkId) const
     NS_LOG_FUNCTION(this << +linkId);
     NS_ABORT_MSG_IF(!std::holds_alternative<OriginalInfo>(m_instanceInfo),
                     "This method can only be called on the original version of the MPDU");
-    NS_ABORT_MSG_IF(!IsQueued(),
-                    "This method can only be called if the MPDU is stored in a MAC queue");
 
     auto alias = Ptr<WifiMpdu>(new WifiMpdu, false);
 
@@ -113,6 +101,52 @@ Ptr<const Packet>
 WifiMpdu::GetPacket() const
 {
     return GetOriginalInfo().m_packet;
+}
+
+Time
+WifiMpdu::GetTimestamp() const
+{
+    if (auto original = std::get_if<ORIGINAL>(&m_instanceInfo))
+    {
+        return original->m_timestamp;
+    }
+    const auto& origInstanceInfo = std::get<Ptr<WifiMpdu>>(m_instanceInfo)->m_instanceInfo;
+    return std::get<OriginalInfo>(origInstanceInfo).m_timestamp;
+}
+
+uint32_t
+WifiMpdu::GetRetryCount() const
+{
+    if (auto original = std::get_if<ORIGINAL>(&m_instanceInfo))
+    {
+        return original->m_retryCount;
+    }
+    const auto& origInstanceInfo = std::get<Ptr<WifiMpdu>>(m_instanceInfo)->m_instanceInfo;
+    return std::get<OriginalInfo>(origInstanceInfo).m_retryCount;
+}
+
+void
+WifiMpdu::IncrementRetryCount()
+{
+    NS_LOG_FUNCTION(this);
+
+    if (m_header.IsBlockAckReq() || m_header.IsTrigger())
+    {
+        // this function may be called for these frames, but a retry count must not be maintained
+        // for them
+        return;
+    }
+
+    NS_ABORT_MSG_UNLESS(m_header.IsData() || m_header.IsMgt(),
+                        "Frame retry count is not maintained for frames of type "
+                            << m_header.GetTypeString());
+    if (auto original = std::get_if<ORIGINAL>(&m_instanceInfo))
+    {
+        ++original->m_retryCount;
+        return;
+    }
+    auto& origInstanceInfo = std::get<Ptr<WifiMpdu>>(m_instanceInfo)->m_instanceInfo;
+    ++std::get<OriginalInfo>(origInstanceInfo).m_retryCount;
 }
 
 const WifiMacHeader&
@@ -163,9 +197,15 @@ WifiMpdu::GetProtocolDataUnit() const
 void
 WifiMpdu::Aggregate(Ptr<const WifiMpdu> msdu)
 {
-    NS_ASSERT(msdu);
-    NS_LOG_FUNCTION(this << *msdu);
-    NS_ABORT_MSG_IF(!msdu->GetHeader().IsQosData() || msdu->GetHeader().IsQosAmsdu(),
+    if (msdu)
+    {
+        NS_LOG_FUNCTION(this << *msdu);
+    }
+    else
+    {
+        NS_LOG_FUNCTION(this);
+    }
+    NS_ABORT_MSG_IF(msdu && (!msdu->GetHeader().IsQosData() || msdu->GetHeader().IsQosAmsdu()),
                     "Only QoS data frames that do not contain an A-MSDU can be aggregated");
     NS_ABORT_MSG_IF(!std::holds_alternative<OriginalInfo>(m_instanceInfo),
                     "This method can only be called on the original version of the MPDU");
@@ -177,6 +217,7 @@ WifiMpdu::Aggregate(Ptr<const WifiMpdu> msdu)
         // An MSDU is going to be aggregated to this MPDU, hence this has to be an A-MSDU now
         Ptr<const WifiMpdu> firstMsdu = Create<const WifiMpdu>(*this);
         original.m_packet = Create<Packet>();
+        original.m_retryCount = 0;
         DoAggregate(firstMsdu);
 
         m_header.SetQosAmsdu();
@@ -195,7 +236,10 @@ WifiMpdu::Aggregate(Ptr<const WifiMpdu> msdu)
         // to be set to the BSSID, but neither Address 1 nor Address 2 contain the
         // BSSID. Hence, it is left up to the caller to set these Address fields.
     }
-    DoAggregate(msdu);
+    if (msdu)
+    {
+        DoAggregate(msdu);
+    }
 }
 
 void
@@ -363,26 +407,8 @@ WifiMpdu::end() const
 void
 WifiMpdu::Print(std::ostream& os) const
 {
-    os << m_header.GetTypeString() << ", payloadSize=" << GetPacketSize()
-       << ", to=" << m_header.GetAddr1() << ", seqN=" << m_header.GetSequenceNumber()
-       << ", duration/ID=" << m_header.GetDuration();
-    if (m_header.IsQosData())
-    {
-        os << ", tid=" << +m_header.GetQosTid();
-        if (m_header.IsQosNoAck())
-        {
-            os << ", ack=NoAck";
-        }
-        else if (m_header.IsQosAck())
-        {
-            os << ", ack=NormalAck";
-        }
-        else if (m_header.IsQosBlockAck())
-        {
-            os << ", ack=BlockAck";
-        }
-    }
-    os << ", queued=" << IsQueued();
+    os << m_header << ", payloadSize=" << GetPacketSize() << ", retryCount=" << GetRetryCount()
+       << ", queued=" << IsQueued();
     if (IsQueued())
     {
         os << ", residualLifetime=" << (GetExpiryTime() - Simulator::Now()).As(Time::US)

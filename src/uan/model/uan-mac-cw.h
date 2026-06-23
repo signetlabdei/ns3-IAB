@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Leonard Tracy <lentracy@gmail.com>
  */
@@ -20,19 +9,20 @@
 #ifndef UAN_MAC_CW_H
 #define UAN_MAC_CW_H
 
+#include "uan-mac.h"
+#include "uan-phy.h"
+#include "uan-tx-mode.h"
+
 #include "ns3/mac8-address.h"
 #include "ns3/nstime.h"
 #include "ns3/random-variable-stream.h"
 #include "ns3/simulator.h"
-#include "ns3/uan-mac.h"
-#include "ns3/uan-phy.h"
-#include "ns3/uan-tx-mode.h"
 
 namespace ns3
 {
 
 /**
- * \ingroup uan
+ * @ingroup uan
  *
  * CW-MAC protocol, similar in idea to the 802.11 DCF with
  * constant backoff window
@@ -52,32 +42,32 @@ class UanMacCw : public UanMac, public UanPhyListener
     ~UanMacCw() override;
     /**
      * Register this type.
-     * \return The TypeId.
+     * @return The TypeId.
      */
     static TypeId GetTypeId();
 
     /**
      * Set the contention window size.
      *
-     * \param cw Contention window size.
+     * @param cw Contention window size.
      */
     virtual void SetCw(uint32_t cw);
     /**
      * Set the slot time duration.
      *
-     * \param duration Slot time duration.
+     * @param duration Slot time duration.
      */
     virtual void SetSlotTime(Time duration);
     /**
      * Get the contention window size.
      *
-     * \return Contention window size.
+     * @return Contention window size.
      */
     virtual uint32_t GetCw();
     /**
      * Get the slot time duration.
      *
-     * \return Slot time duration.
+     * @return Slot time duration.
      */
     virtual Time GetSlotTime();
 
@@ -100,8 +90,8 @@ class UanMacCw : public UanMac, public UanPhyListener
     /**
      *  TracedCallback signature for enqueue/dequeue of a packet.
      *
-     * \param [in] packet The Packet being received.
-     * \param [in] proto The protocol number.
+     * @param [in] packet The Packet being received.
+     * @param [in] proto The protocol number.
      */
     typedef void (*QueueTracedCallback)(Ptr<const Packet> packet, uint16_t proto);
 
@@ -155,16 +145,16 @@ class UanMacCw : public UanMac, public UanPhyListener
     /**
      * Receive packet from lower layer (passed to PHY as callback).
      *
-     * \param packet Packet being received.
-     * \param sinr SINR of received packet.
-     * \param mode Mode of received packet.
+     * @param packet Packet being received.
+     * @param sinr SINR of received packet.
+     * @param mode Mode of received packet.
      */
     void PhyRxPacketGood(Ptr<Packet> packet, double sinr, UanTxMode mode);
     /**
      * Packet received at lower layer in error.
      *
-     * \param packet Packet received in error.
-     * \param sinr SINR of received packet.
+     * @param packet Packet received in error.
+     * @param sinr SINR of received packet.
      */
     void PhyRxPacketError(Ptr<Packet> packet, double sinr);
     /** Cancel SendEvent and save remaining delay. */
@@ -178,8 +168,7 @@ class UanMacCw : public UanMac, public UanPhyListener
 
   protected:
     void DoDispose() override;
-
-}; // class UanMacCw
+};
 
 } // namespace ns3
 

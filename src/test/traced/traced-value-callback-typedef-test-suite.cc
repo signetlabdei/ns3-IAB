@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2015 Lawrence Livermore National Laboratory
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author:  Peter D. Barnes, Jr. <pdbarnes@llnl.gov>
  */
@@ -30,8 +19,8 @@
 using namespace ns3;
 
 /**
- * \file
- * \ingroup system-tests-traced
+ * @file
+ * @ingroup system-tests-traced
  *
  * TracedValueCallback tests to verify that they work with different types
  * of classes - it tests bool, double, various types of integers types,
@@ -42,7 +31,7 @@ namespace
 {
 
 /**
- * \ingroup system-tests-traced
+ * @ingroup system-tests-traced
  *
  * Result of callback test.
  *
@@ -55,17 +44,17 @@ namespace
 std::string g_Result = "";
 
 /**
- * \ingroup system-tests-traced
+ * @ingroup system-tests-traced
  *
  * Template for TracedValue sink functions.
  *
  * This generates a sink function for any underlying type.
  *
- * \tparam T \explicit The type of the value being traced.
+ * @tparam T \explicit The type of the value being traced.
  *        Since the point of this template is to create a
  *        sink function, the template type must be given explicitly.
- * \param [in] oldValue The original value
- * \param [in] newValue The new value
+ * @param [in] oldValue The original value
+ * @param [in] newValue The new value
  */
 template <typename T>
 void
@@ -86,11 +75,11 @@ TracedValueCbSink(T oldValue, T newValue)
 } // TracedValueCbSink<>()
 
 /**
- * \ingroup system-tests-traced
+ * @ingroup system-tests-traced
  *
  * TracedValueCbSink specialization for Time.
- * \param oldValue The old value
- * \param newValue The new value
+ * @param oldValue The old value
+ * @param newValue The new value
  */
 template <>
 void
@@ -100,11 +89,11 @@ TracedValueCbSink<Time>(Time oldValue, Time newValue)
 }
 
 /**
- * \ingroup system-tests-traced
+ * @ingroup system-tests-traced
  *
  * TracedValueCbSink specialization for SequenceNumber32.
- * \param oldValue The old value
- * \param newValue The new value
+ * @param oldValue The old value
+ * @param newValue The new value
  */
 template <>
 void
@@ -116,9 +105,9 @@ TracedValueCbSink<SequenceNumber32>(SequenceNumber32 oldValue, SequenceNumber32 
 } // unnamed namespace
 
 /**
- * \ingroup system-tests-traced
+ * @ingroup system-tests-traced
  *
- * \brief TracedValueCallback Test Case
+ * @brief TracedValueCallback Test Case
  */
 class TracedValueCallbackTestCase : public TestCase
 {
@@ -148,8 +137,8 @@ class TracedValueCallbackTestCase : public TestCase
         }
 
         /**
-         * \brief Register this type.
-         * \return The object TypeId.
+         * @brief Register this type.
+         * @return The object TypeId.
          */
         static TypeId GetTypeId()
         {
@@ -172,7 +161,7 @@ class TracedValueCallbackTestCase : public TestCase
          * Just to make sure, we increment the TracedValue,
          * which calls the sink.
          *
-         * \param cb Callback.
+         * @param cb Callback.
          */
         template <typename U>
         void Invoke(U cb)
@@ -199,7 +188,8 @@ class TracedValueCallbackTestCase : public TestCase
 
         } // Invoke()
 
-    }; // class CheckTvCb<T>
+        // end of class CheckTvCb<T>
+    };
 
     /**
      * Check the TracedValue typedef against TracedValueCbSink<T>.
@@ -208,8 +198,8 @@ class TracedValueCallbackTestCase : public TestCase
      * TracedValueCbSink<T>.  If this compiles, we've proved the
      * sink function and the typedef agree.
      *
-     * \tparam T \explicit The base type.
-     * \tparam U \explicit The TracedValueCallback sink typedef type.
+     * @tparam T \explicit The base type.
+     * @tparam U \explicit The TracedValueCallback sink typedef type.
      */
     template <typename T, typename U>
     void CheckType()
@@ -248,9 +238,9 @@ TracedValueCallbackTestCase::DoRun()
 }
 
 /**
- * \ingroup system-tests-traced
+ * @ingroup system-tests-traced
  *
- * \brief TracedValueCallback TestSuite
+ * @brief TracedValueCallback TestSuite
  */
 class TracedValueCallbackTestSuite : public TestSuite
 {
@@ -259,9 +249,9 @@ class TracedValueCallbackTestSuite : public TestSuite
 };
 
 TracedValueCallbackTestSuite::TracedValueCallbackTestSuite()
-    : TestSuite("traced-value-callback", UNIT)
+    : TestSuite("traced-value-callback", Type::UNIT)
 {
-    AddTestCase(new TracedValueCallbackTestCase, TestCase::QUICK);
+    AddTestCase(new TracedValueCallbackTestCase, TestCase::Duration::QUICK);
 }
 
 /// Static variable for test initialization

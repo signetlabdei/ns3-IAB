@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2013 Universita' di Firenze
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Tommaso Pecorella <tommaso.pecorella@unifi.it>
  */
@@ -43,24 +32,24 @@
 using namespace ns3;
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv4 Forwarding Test
+ * @brief IPv4 Forwarding Test
  */
 class Ipv4ForwardingTest : public TestCase
 {
     Ptr<Packet> m_receivedPacket; //!< Received packet
 
     /**
-     * \brief Send data.
-     * \param socket The sending socket.
-     * \param to Destination address.
+     * @brief Send data.
+     * @param socket The sending socket.
+     * @param to Destination address.
      */
     void DoSendData(Ptr<Socket> socket, std::string to);
     /**
-     * \brief Send data.
-     * \param socket The sending socket.
-     * \param to Destination address.
+     * @brief Send data.
+     * @param socket The sending socket.
+     * @param to Destination address.
      */
     void SendData(Ptr<Socket> socket, std::string to);
 
@@ -69,8 +58,8 @@ class Ipv4ForwardingTest : public TestCase
     Ipv4ForwardingTest();
 
     /**
-     * \brief Receive data.
-     * \param socket The receiving socket.
+     * @brief Receive data.
+     * @param socket The receiving socket.
      */
     void ReceivePkt(Ptr<Socket> socket);
 };
@@ -225,9 +214,9 @@ Ipv4ForwardingTest::DoRun()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv4 Forwarding TestSuite
+ * @brief IPv4 Forwarding TestSuite
  */
 class Ipv4ForwardingTestSuite : public TestSuite
 {
@@ -238,9 +227,9 @@ class Ipv4ForwardingTestSuite : public TestSuite
 };
 
 Ipv4ForwardingTestSuite::Ipv4ForwardingTestSuite()
-    : TestSuite("ipv4-forwarding", UNIT)
+    : TestSuite("ipv4-forwarding", Type::UNIT)
 {
-    AddTestCase(new Ipv4ForwardingTest, TestCase::QUICK);
+    AddTestCase(new Ipv4ForwardingTest, TestCase::Duration::QUICK);
 }
 
 static Ipv4ForwardingTestSuite

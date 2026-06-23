@@ -1,36 +1,26 @@
 /*
  * Copyright (c) 2016 Universita' di Firenze, Italy
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Tommaso Pecorella <tommaso.pecorella@unifi.it>
  */
 
 #include "rip.h"
 
+#include "ipv4-packet-info-tag.h"
+#include "ipv4-route.h"
+#include "loopback-net-device.h"
+#include "rip-header.h"
+#include "udp-header.h"
+
 #include "ns3/abort.h"
 #include "ns3/assert.h"
 #include "ns3/enum.h"
-#include "ns3/ipv4-packet-info-tag.h"
-#include "ns3/ipv4-route.h"
 #include "ns3/log.h"
-#include "ns3/loopback-net-device.h"
 #include "ns3/names.h"
 #include "ns3/node.h"
 #include "ns3/random-variable-stream.h"
-#include "ns3/rip-header.h"
-#include "ns3/udp-header.h"
 #include "ns3/uinteger.h"
 
 #include <iomanip>
@@ -98,7 +88,7 @@ Rip::GetTypeId()
             .AddAttribute("SplitHorizon",
                           "Split Horizon strategy.",
                           EnumValue(Rip::POISON_REVERSE),
-                          MakeEnumAccessor(&Rip::m_splitHorizonStrategy),
+                          MakeEnumAccessor<SplitHorizonType_e>(&Rip::m_splitHorizonStrategy),
                           MakeEnumChecker(Rip::NO_SPLIT_HORIZON,
                                           "NoSplitHorizon",
                                           Rip::SPLIT_HORIZON,
@@ -153,7 +143,7 @@ Rip::DoInitialize()
         for (uint32_t j = 0; j < m_ipv4->GetNAddresses(i); j++)
         {
             Ipv4InterfaceAddress address = m_ipv4->GetAddress(i, j);
-            if (address.GetScope() != Ipv4InterfaceAddress::HOST && activeInterface == true)
+            if (address.GetScope() != Ipv4InterfaceAddress::HOST && activeInterface)
             {
                 NS_LOG_LOGIC("RIP: adding socket to " << address.GetLocal());
                 TypeId tid = TypeId::LookupByName("ns3::UdpSocketFactory");
@@ -241,10 +231,10 @@ bool
 Rip::RouteInput(Ptr<const Packet> p,
                 const Ipv4Header& header,
                 Ptr<const NetDevice> idev,
-                UnicastForwardCallback ucb,
-                MulticastForwardCallback mcb,
-                LocalDeliverCallback lcb,
-                ErrorCallback ecb)
+                const UnicastForwardCallback& ucb,
+                const MulticastForwardCallback& mcb,
+                const LocalDeliverCallback& lcb,
+                const ErrorCallback& ecb)
 {
     NS_LOG_FUNCTION(this << p << header << header.GetSource() << header.GetDestination() << idev);
 
@@ -290,7 +280,7 @@ Rip::RouteInput(Ptr<const Packet> p,
     }
 
     // Check if input device supports IP forwarding
-    if (m_ipv4->IsForwarding(iif) == false)
+    if (!m_ipv4->IsForwarding(iif))
     {
         NS_LOG_LOGIC("Forwarding disabled for this interface");
         if (!ecb.IsNull())
@@ -345,7 +335,7 @@ Rip::NotifyInterfaceUp(uint32_t i)
     }
 
     bool sendSocketFound = false;
-    for (SocketListI iter = m_unicastSocketList.begin(); iter != m_unicastSocketList.end(); iter++)
+    for (auto iter = m_unicastSocketList.begin(); iter != m_unicastSocketList.end(); iter++)
     {
         if (iter->second == i)
         {
@@ -365,8 +355,7 @@ Rip::NotifyInterfaceUp(uint32_t i)
     {
         Ipv4InterfaceAddress address = m_ipv4->GetAddress(i, j);
 
-        if (address.GetScope() != Ipv4InterfaceAddress::HOST && sendSocketFound == false &&
-            activeInterface == true)
+        if (address.GetScope() != Ipv4InterfaceAddress::HOST && !sendSocketFound && activeInterface)
         {
             NS_LOG_LOGIC("RIP: adding sending socket to " << address.GetLocal());
             TypeId tid = TypeId::LookupByName("ns3::UdpSocketFactory");
@@ -406,7 +395,7 @@ Rip::NotifyInterfaceDown(uint32_t interface)
     NS_LOG_FUNCTION(this << interface);
 
     /* remove all routes that are going through this interface */
-    for (RoutesI it = m_routes.begin(); it != m_routes.end(); it++)
+    for (auto it = m_routes.begin(); it != m_routes.end(); it++)
     {
         if (it->first->GetInterface() == interface)
         {
@@ -414,7 +403,7 @@ Rip::NotifyInterfaceDown(uint32_t interface)
         }
     }
 
-    for (SocketListI iter = m_unicastSocketList.begin(); iter != m_unicastSocketList.end(); iter++)
+    for (auto iter = m_unicastSocketList.begin(); iter != m_unicastSocketList.end(); iter++)
     {
         NS_LOG_INFO("Checking socket for interface " << interface);
         if (iter->second == interface)
@@ -478,7 +467,7 @@ Rip::NotifyRemoveAddress(uint32_t interface, Ipv4InterfaceAddress address)
 
     // Remove all routes that are going through this interface
     // which reference this network
-    for (RoutesI it = m_routes.begin(); it != m_routes.end(); it++)
+    for (auto it = m_routes.begin(); it != m_routes.end(); it++)
     {
         if (it->first->GetInterface() == interface && it->first->IsNetwork() &&
             it->first->GetDestNetwork() == networkAddress &&
@@ -536,7 +525,7 @@ Rip::PrintRoutingTable(Ptr<OutputStreamWrapper> stream, Time::Unit unit) const
     {
         *os << "Destination     Gateway         Genmask         Flags Metric Ref    Use Iface"
             << std::endl;
-        for (RoutesCI it = m_routes.begin(); it != m_routes.end(); it++)
+        for (auto it = m_routes.begin(); it != m_routes.end(); it++)
         {
             RipRoutingTableEntry* route = it->first;
             RipRoutingTableEntry::Status_e status = route->GetRouteStatus();
@@ -592,7 +581,7 @@ Rip::DoDispose()
 {
     NS_LOG_FUNCTION(this);
 
-    for (RoutesI j = m_routes.begin(); j != m_routes.end(); j = m_routes.erase(j))
+    for (auto j = m_routes.begin(); j != m_routes.end(); j = m_routes.erase(j))
     {
         delete j->first;
     }
@@ -603,7 +592,7 @@ Rip::DoDispose()
     m_nextTriggeredUpdate = EventId();
     m_nextUnsolicitedUpdate = EventId();
 
-    for (SocketListI iter = m_unicastSocketList.begin(); iter != m_unicastSocketList.end(); iter++)
+    for (auto iter = m_unicastSocketList.begin(); iter != m_unicastSocketList.end(); iter++)
     {
         iter->first->Close();
     }
@@ -639,7 +628,7 @@ Rip::Lookup(Ipv4Address dst, bool setSource, Ptr<NetDevice> interface)
         return rtentry;
     }
 
-    for (RoutesI it = m_routes.begin(); it != m_routes.end(); it++)
+    for (auto it = m_routes.begin(); it != m_routes.end(); it++)
     {
         RipRoutingTableEntry* j = it->first;
 
@@ -708,8 +697,7 @@ Rip::AddNetworkRouteTo(Ipv4Address network,
 {
     NS_LOG_FUNCTION(this << network << networkPrefix << nextHop << interface);
 
-    RipRoutingTableEntry* route =
-        new RipRoutingTableEntry(network, networkPrefix, nextHop, interface);
+    auto route = new RipRoutingTableEntry(network, networkPrefix, nextHop, interface);
     route->SetRouteMetric(1);
     route->SetRouteStatus(RipRoutingTableEntry::RIP_VALID);
     route->SetRouteChanged(true);
@@ -722,7 +710,7 @@ Rip::AddNetworkRouteTo(Ipv4Address network, Ipv4Mask networkPrefix, uint32_t int
 {
     NS_LOG_FUNCTION(this << network << networkPrefix << interface);
 
-    RipRoutingTableEntry* route = new RipRoutingTableEntry(network, networkPrefix, interface);
+    auto route = new RipRoutingTableEntry(network, networkPrefix, interface);
     route->SetRouteMetric(1);
     route->SetRouteStatus(RipRoutingTableEntry::RIP_VALID);
     route->SetRouteChanged(true);
@@ -735,14 +723,14 @@ Rip::InvalidateRoute(RipRoutingTableEntry* route)
 {
     NS_LOG_FUNCTION(this << *route);
 
-    for (RoutesI it = m_routes.begin(); it != m_routes.end(); it++)
+    for (auto it = m_routes.begin(); it != m_routes.end(); it++)
     {
         if (it->first == route)
         {
             route->SetRouteStatus(RipRoutingTableEntry::RIP_INVALID);
             route->SetRouteMetric(m_linkDown);
             route->SetRouteChanged(true);
-            if (it->second.IsRunning())
+            if (it->second.IsPending())
             {
                 it->second.Cancel();
             }
@@ -759,7 +747,7 @@ Rip::DeleteRoute(RipRoutingTableEntry* route)
 {
     NS_LOG_FUNCTION(this << *route);
 
-    for (RoutesI it = m_routes.begin(); it != m_routes.end(); it++)
+    for (auto it = m_routes.begin(); it != m_routes.end(); it++)
     {
         if (it->first == route)
         {
@@ -869,8 +857,7 @@ Rip::HandleRequests(RipHeader requestHdr,
                 // we use one of the sending sockets, as they're bound to the right interface
                 // and the local address might be used on different interfaces.
                 Ptr<Socket> sendingSocket;
-                for (SocketListI iter = m_unicastSocketList.begin();
-                     iter != m_unicastSocketList.end();
+                for (auto iter = m_unicastSocketList.begin(); iter != m_unicastSocketList.end();
                      iter++)
                 {
                     if (iter->second == incomingInterface)
@@ -903,7 +890,7 @@ Rip::HandleRequests(RipHeader requestHdr,
                 RipHeader hdr;
                 hdr.SetCommand(RipHeader::RESPONSE);
 
-                for (RoutesI rtIter = m_routes.begin(); rtIter != m_routes.end(); rtIter++)
+                for (auto rtIter = m_routes.begin(); rtIter != m_routes.end(); rtIter++)
                 {
                     bool splitHorizoning = (rtIter->first->GetInterface() == incomingInterface);
 
@@ -976,10 +963,10 @@ Rip::HandleRequests(RipHeader requestHdr,
         RipHeader hdr;
         hdr.SetCommand(RipHeader::RESPONSE);
 
-        for (std::list<RipRte>::iterator iter = rtes.begin(); iter != rtes.end(); iter++)
+        for (auto iter = rtes.begin(); iter != rtes.end(); iter++)
         {
             bool found = false;
-            for (RoutesI rtIter = m_routes.begin(); rtIter != m_routes.end(); rtIter++)
+            for (auto rtIter = m_routes.begin(); rtIter != m_routes.end(); rtIter++)
             {
                 Ipv4InterfaceAddress rtDestAddr =
                     Ipv4InterfaceAddress(rtIter->first->GetDestNetwork(),
@@ -1033,7 +1020,7 @@ Rip::HandleResponses(RipHeader hdr,
     std::list<RipRte> rtes = hdr.GetRteList();
 
     // validate the RTEs before processing
-    for (std::list<RipRte>::iterator iter = rtes.begin(); iter != rtes.end(); iter++)
+    for (auto iter = rtes.begin(); iter != rtes.end(); iter++)
     {
         if (iter->GetRouteMetric() == 0 || iter->GetRouteMetric() > m_linkDown)
         {
@@ -1051,7 +1038,7 @@ Rip::HandleResponses(RipHeader hdr,
 
     bool changed = false;
 
-    for (std::list<RipRte>::iterator iter = rtes.begin(); iter != rtes.end(); iter++)
+    for (auto iter = rtes.begin(); iter != rtes.end(); iter++)
     {
         Ipv4Mask rtePrefixMask = iter->GetSubnetMask();
         Ipv4Address rteAddr = iter->GetPrefix().CombineMask(rtePrefixMask);
@@ -1081,10 +1068,10 @@ Rip::HandleResponses(RipHeader hdr,
                 {
                     if (senderAddress != it->first->GetGateway())
                     {
-                        RipRoutingTableEntry* route = new RipRoutingTableEntry(rteAddr,
-                                                                               rtePrefixMask,
-                                                                               senderAddress,
-                                                                               incomingInterface);
+                        auto route = new RipRoutingTableEntry(rteAddr,
+                                                              rtePrefixMask,
+                                                              senderAddress,
+                                                              incomingInterface);
                         delete it->first;
                         it->first = route;
                     }
@@ -1111,11 +1098,10 @@ Rip::HandleResponses(RipHeader hdr,
                     {
                         if (Simulator::GetDelayLeft(it->second) < m_timeoutDelay / 2)
                         {
-                            RipRoutingTableEntry* route =
-                                new RipRoutingTableEntry(rteAddr,
-                                                         rtePrefixMask,
-                                                         senderAddress,
-                                                         incomingInterface);
+                            auto route = new RipRoutingTableEntry(rteAddr,
+                                                                  rtePrefixMask,
+                                                                  senderAddress,
+                                                                  incomingInterface);
                             route->SetRouteMetric(rteMetric);
                             route->SetRouteStatus(RipRoutingTableEntry::RIP_VALID);
                             route->SetRouteTag(iter->GetRouteTag());
@@ -1159,7 +1145,7 @@ Rip::HandleResponses(RipHeader hdr,
         {
             NS_LOG_LOGIC("Received a RTE with new route, adding.");
 
-            RipRoutingTableEntry* route =
+            auto route =
                 new RipRoutingTableEntry(rteAddr, rtePrefixMask, senderAddress, incomingInterface);
             route->SetRouteMetric(rteMetric);
             route->SetRouteStatus(RipRoutingTableEntry::RIP_VALID);
@@ -1183,7 +1169,7 @@ Rip::DoSendRouteUpdate(bool periodic)
 {
     NS_LOG_FUNCTION(this << (periodic ? " periodic" : " triggered"));
 
-    for (SocketListI iter = m_unicastSocketList.begin(); iter != m_unicastSocketList.end(); iter++)
+    for (auto iter = m_unicastSocketList.begin(); iter != m_unicastSocketList.end(); iter++)
     {
         uint32_t interface = iter->second;
 
@@ -1202,7 +1188,7 @@ Rip::DoSendRouteUpdate(bool periodic)
             RipHeader hdr;
             hdr.SetCommand(RipHeader::RESPONSE);
 
-            for (RoutesI rtIter = m_routes.begin(); rtIter != m_routes.end(); rtIter++)
+            for (auto rtIter = m_routes.begin(); rtIter != m_routes.end(); rtIter++)
             {
                 bool splitHorizoning = (rtIter->first->GetInterface() == interface);
                 Ipv4InterfaceAddress rtDestAddr =
@@ -1244,11 +1230,8 @@ Rip::DoSendRouteUpdate(bool periodic)
                         rte.SetRouteMetric(rtIter->first->GetRouteMetric());
                     }
                     rte.SetRouteTag(rtIter->first->GetRouteTag());
-                    if (m_splitHorizonStrategy == SPLIT_HORIZON && !splitHorizoning)
-                    {
-                        hdr.AddRte(rte);
-                    }
-                    else if (m_splitHorizonStrategy != SPLIT_HORIZON)
+                    if ((m_splitHorizonStrategy == SPLIT_HORIZON && !splitHorizoning) ||
+                        (m_splitHorizonStrategy != SPLIT_HORIZON))
                     {
                         hdr.AddRte(rte);
                     }
@@ -1270,7 +1253,7 @@ Rip::DoSendRouteUpdate(bool periodic)
             }
         }
     }
-    for (RoutesI rtIter = m_routes.begin(); rtIter != m_routes.end(); rtIter++)
+    for (auto rtIter = m_routes.begin(); rtIter != m_routes.end(); rtIter++)
     {
         rtIter->first->SetRouteChanged(false);
     }
@@ -1281,7 +1264,7 @@ Rip::SendTriggeredRouteUpdate()
 {
     NS_LOG_FUNCTION(this);
 
-    if (m_nextTriggeredUpdate.IsRunning())
+    if (m_nextTriggeredUpdate.IsPending())
     {
         NS_LOG_LOGIC("Skipping Triggered Update due to cooldown");
         return;
@@ -1313,7 +1296,7 @@ Rip::SendUnsolicitedRouteUpdate()
 {
     NS_LOG_FUNCTION(this);
 
-    if (m_nextTriggeredUpdate.IsRunning())
+    if (m_nextTriggeredUpdate.IsPending())
     {
         m_nextTriggeredUpdate.Cancel();
     }
@@ -1344,7 +1327,7 @@ Rip::GetInterfaceMetric(uint32_t interface) const
 {
     NS_LOG_FUNCTION(this << interface);
 
-    std::map<uint32_t, uint8_t>::const_iterator iter = m_interfaceMetrics.find(interface);
+    auto iter = m_interfaceMetrics.find(interface);
     if (iter != m_interfaceMetrics.end())
     {
         return iter->second;
@@ -1385,7 +1368,7 @@ Rip::SendRouteRequest()
     hdr.AddRte(rte);
     p->AddHeader(hdr);
 
-    for (SocketListI iter = m_unicastSocketList.begin(); iter != m_unicastSocketList.end(); iter++)
+    for (auto iter = m_unicastSocketList.begin(); iter != m_unicastSocketList.end(); iter++)
     {
         uint32_t interface = iter->second;
 

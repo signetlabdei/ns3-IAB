@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 CTTC
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Nicola Baldo <nbaldo@cttc.es>
  */
@@ -52,27 +41,27 @@ class AthstatsHelper
     AthstatsHelper();
     /**
      * Enable athstats
-     * \param filename the file name
-     * \param nodeid the node ID
-     * \param deviceid the device ID
+     * @param filename the file name
+     * @param nodeid the node ID
+     * @param deviceid the device ID
      */
     void EnableAthstats(std::string filename, uint32_t nodeid, uint32_t deviceid);
     /**
      * Enable athstats
-     * \param filename the file name
-     * \param nd the device
+     * @param filename the file name
+     * @param nd the device
      */
     void EnableAthstats(std::string filename, Ptr<NetDevice> nd);
     /**
      * Enable athstats
-     * \param filename the file name
-     * \param d the collection of devices
+     * @param filename the file name
+     * @param d the collection of devices
      */
     void EnableAthstats(std::string filename, NetDeviceContainer d);
     /**
      * Enable athstats
-     * \param filename the file name
-     * \param n the collection of nodes
+     * @param filename the file name
+     * @param n the collection of nodes
      */
     void EnableAthstats(std::string filename, NodeContainer n);
 
@@ -105,8 +94,8 @@ class AthstatsWifiTraceSink : public Object
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
     AthstatsWifiTraceSink();
@@ -199,13 +188,13 @@ class AthstatsWifiTraceSink : public Object
      * @param packet the packet
      * @param mode the WifiMode
      * @param preamble the wifi preamble
-     * @param txPower the transmit power level
+     * @param txPowerLevel the transmit power level
      */
     void PhyTxTrace(std::string context,
                     Ptr<const Packet> packet,
                     WifiMode mode,
                     WifiPreamble preamble,
-                    uint8_t txPower);
+                    uint8_t txPowerLevel);
 
     /**
      * Function to be called when the PHY layer of the considered device
@@ -243,8 +232,7 @@ class AthstatsWifiTraceSink : public Object
     std::ofstream* m_writer; ///< output stream
 
     Time m_interval; ///< interval
-
-}; // class AthstatsWifiTraceSink
+};
 
 } // namespace ns3
 

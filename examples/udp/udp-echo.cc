@@ -1,16 +1,5 @@
 /*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 // Network topology
@@ -81,7 +70,7 @@ main(int argc, char* argv[])
     // We've got the "hardware" in place.  Now we need to add IP addresses.
     //
     NS_LOG_INFO("Assign IP Addresses.");
-    if (useV6 == false)
+    if (!useV6)
     {
         Ipv4AddressHelper ipv4;
         ipv4.SetBase("10.1.1.0", "255.255.255.0");
@@ -103,8 +92,8 @@ main(int argc, char* argv[])
     uint16_t port = 9; // well-known echo port number
     UdpEchoServerHelper server(port);
     ApplicationContainer apps = server.Install(n.Get(1));
-    apps.Start(Seconds(1.0));
-    apps.Stop(Seconds(10.0));
+    apps.Start(Seconds(1));
+    apps.Stop(Seconds(10));
 
     //
     // Create a UdpEchoClient application to send UDP datagrams from node zero to
@@ -118,8 +107,8 @@ main(int argc, char* argv[])
     client.SetAttribute("Interval", TimeValue(interPacketInterval));
     client.SetAttribute("PacketSize", UintegerValue(packetSize));
     apps = client.Install(n.Get(0));
-    apps.Start(Seconds(2.0));
-    apps.Stop(Seconds(10.0));
+    apps.Start(Seconds(2));
+    apps.Stop(Seconds(10));
 
 #if 0
 //

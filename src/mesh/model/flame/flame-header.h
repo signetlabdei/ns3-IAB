@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 IITP RAS
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Kirill Andreev <andreev@iitp.ru>
  */
@@ -28,9 +17,9 @@ namespace ns3
 namespace flame
 {
 /**
- * \ingroup flame
+ * @ingroup flame
  *
- * \brief Flame header
+ * @brief Flame header
  *
  * Header format: | Reserved: 1 | cost: 1 | Sequence number: 2 | OrigDst: 6 | OrigSrc: 6 | Flame
  * port : 2 |
@@ -43,8 +32,8 @@ class FlameHeader : public Header
     ~FlameHeader() override;
 
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
     // Inherited from Header class:
@@ -57,52 +46,52 @@ class FlameHeader : public Header
     // Seeters/Getters for fields:
     /**
      * Add cost value
-     * \param cost the cost
+     * @param cost the cost
      */
     void AddCost(uint8_t cost);
     /**
      * Get cost value
-     * \returns the cost
+     * @returns the cost
      */
     uint8_t GetCost() const;
     /**
      * Set sequence number value
-     * \param seqno the sequence number
+     * @param seqno the sequence number
      */
     void SetSeqno(uint16_t seqno);
     /**
      * Get sequence number value
-     * \returns the sequence number
+     * @returns the sequence number
      */
     uint16_t GetSeqno() const;
     /**
      * Set origin destination address
-     * \param dst the MAC address of the destination
+     * @param dst the MAC address of the destination
      */
     void SetOrigDst(Mac48Address dst);
     /**
      * Get origin destination address
-     * \returns the MAC address of the destination
+     * @returns the MAC address of the destination
      */
     Mac48Address GetOrigDst() const;
     /**
      * Set origin source function
-     * \param OrigSrc the MAC address of the origina source
+     * @param OrigSrc the MAC address of the origina source
      */
     void SetOrigSrc(Mac48Address OrigSrc);
     /**
      * Get origin source address
-     * \returns the MAC address of the origin source
+     * @returns the MAC address of the origin source
      */
     Mac48Address GetOrigSrc() const;
     /**
      * Set protocol value
-     * \param protocol the protocol
+     * @param protocol the protocol
      */
     void SetProtocol(uint16_t protocol);
     /**
      * Get protocol value
-     * \returns the protocol
+     * @returns the protocol
      */
     uint16_t GetProtocol() const;
 
@@ -115,9 +104,9 @@ class FlameHeader : public Header
     /**
      * equality operator
      *
-     * \param a lhs
-     * \param b rhs
-     * \returns true if equal
+     * @param a lhs
+     * @param b rhs
+     * @returns true if equal
      */
     friend bool operator==(const FlameHeader& a, const FlameHeader& b);
 };

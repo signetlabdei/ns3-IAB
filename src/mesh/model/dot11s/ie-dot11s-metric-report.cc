@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2008,2009 IITP RAS
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Kirill Andreev <andreev@iitp.ru>
  */
@@ -62,14 +51,14 @@ IeLinkMetricReport::SetMetric(uint32_t metric)
 void
 IeLinkMetricReport::SerializeInformationField(Buffer::Iterator i) const
 {
-    i.WriteHtolsbU32(m_metric);
+    i.WriteU32(m_metric);
 }
 
 uint16_t
 IeLinkMetricReport::DeserializeInformationField(Buffer::Iterator start, uint16_t length)
 {
     Buffer::Iterator i = start;
-    m_metric = i.ReadLsbtohU32();
+    m_metric = i.ReadU32();
     return i.GetDistanceFrom(start);
 }
 

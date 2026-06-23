@@ -24,6 +24,16 @@ license if necessary.  GNU GPLv3 is not accepted in the |ns3| mainline.
 Note that the Free Software Foundation maintains
 `a list <https://www.gnu.org/licenses/license-list.en.html#GPLCompatibleLicenses>`_ of GPLv2-compatible licenses.
 
+There are two variants of GNU GPLv2: GNU GPLv2-only, and GNU GPLv2-or-later.
+Most of the ns-3 codebase is licensed under GNU GPLv2-only; a few files
+are licensed as GNU GPLv2-or-later or other compatible licenses (see
+the `LICENSES` directory for a listing of all licenses in the main
+tree). Strictly speaking, ns-3 as an aggregate is licensed as GNU GPLv2-only
+and cannot be redistributed either as GNU GPLv2-or-later or as GNU GPLv3.
+
+ns-3 cannot accept GNU GPLv3 or Apache licensed code into the mainline
+because those licenses are not compatible with GNU GPLv2-only.
+
 If a contribution is based upon or contains copied code that itself
 uses GNU GPLv2, then the author should in most cases retain the GPLv2 and
 optionally extend the copyright and/or the author (or 'Modified by')
@@ -95,13 +105,10 @@ the previous copyrights from the copyright file!  See below for this case.
 An example placement of a copyright statement can be found in the file
 ``src/network/model/packet.h``::
 
-  /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
   /*
    * Copyright (c) 2005,2006 INRIA
    *
-   * This program is free software; you can redistribute it and/or modify
-   * it under the terms of the GNU General Public License version 2 as
-   * published by the Free Software Foundation;
+   * SPDX-License-Identifier: GPL-2.0-only
 
 Copyright on existing files
 ===========================
@@ -112,14 +119,11 @@ contributor may add a copyright statement that clarifies the new portion
 of code that is covered by the new copyright.  An example is the program
 ``src/lte/model/lte-ue-phy.h``::
 
-  /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
   /*
    * Copyright (c) 2010 TELEMATICS LAB, DEE - Politecnico di Bari
    * Copyright (c) 2018 Fraunhofer ESK : RLF extensions
    *
-   * This program is free software; you can redistribute it and/or modify
-   * it under the terms of the GNU General Public License version 2 as
-   * published by the Free Software Foundation;
+   * SPDX-License-Identifier: GPL-2.0-only
 
 Here, Fraunhofer ESK added extensions to support radio link failure (RLF),
 and the copyright statement clarifies the extension (separated from the
@@ -252,7 +256,7 @@ as their involvement with the project deepens; maintainers are not newcomers
 to the project.
 
 The list of maintainers for each module is found here:
-https://www.nsnam.org/developers/maintainers/
+https://www.nsnam.org/about/governance/maintainers/
 
 Maintainers review code (bug fixes, new models) within scope of their
 maintenance responsibility.  A maintainer of a module should "sign off"

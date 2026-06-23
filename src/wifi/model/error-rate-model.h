@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2005,2006 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -28,29 +17,29 @@ namespace ns3
 {
 
 /**
- * \ingroup wifi
- * \brief the interface for Wifi's error models
+ * @ingroup wifi
+ * @brief the interface for Wifi's error models
  *
  */
 class ErrorRateModel : public Object
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
 
     /**
-     * \param txVector a specific transmission vector including WifiMode
-     * \param ber a target BER
+     * @param txVector a specific transmission vector including WifiMode
+     * @param ber a target BER
      *
-     * \return the SNR which corresponds to the requested BER
+     * @return the SNR which corresponds to the requested BER
      */
     double CalculateSnr(const WifiTxVector& txVector, double ber) const;
 
     /**
-     * \return true if the model is for AWGN channels,
+     * @return true if the model is for AWGN channels,
      *         false otherwise
      */
     virtual bool IsAwgn() const;
@@ -73,16 +62,16 @@ class ErrorRateModel : public Object
      * This method handles 802.11b rates by using the DSSS error rate model.
      * For all other rates, the method implemented by the subclass is called.
      *
-     * \param mode the Wi-Fi mode applicable to this chunk
-     * \param txVector TXVECTOR of the overall transmission
-     * \param snr the SNR of the chunk
-     * \param nbits the number of bits in this chunk
-     * \param numRxAntennas the number of active RX antennas (1 if not provided)
-     * \param field the PPDU field to which the chunk belongs to (assumes this is for the payload
+     * @param mode the Wi-Fi mode applicable to this chunk
+     * @param txVector TXVECTOR of the overall transmission
+     * @param snr the SNR of the chunk
+     * @param nbits the number of bits in this chunk
+     * @param numRxAntennas the number of active RX antennas (1 if not provided)
+     * @param field the PPDU field to which the chunk belongs to (assumes this is for the payload
      * part if not provided)
-     * \param staId the station ID for MU
+     * @param staId the station ID for MU
      *
-     * \return probability of successfully receiving the chunk
+     * @return probability of successfully receiving the chunk
      */
     double GetChunkSuccessRate(WifiMode mode,
                                const WifiTxVector& txVector,
@@ -97,8 +86,8 @@ class ErrorRateModel : public Object
      * used by this model. Return the number of streams (possibly zero) that
      * have been assigned.
      *
-     * \param stream first stream index to use
-     * \return the number of stream indices assigned by this model
+     * @param stream first stream index to use
+     * @return the number of stream indices assigned by this model
      */
     virtual int64_t AssignStreams(int64_t stream);
 
@@ -106,15 +95,15 @@ class ErrorRateModel : public Object
     /**
      * A pure virtual method that must be implemented in the subclass.
      *
-     * \param mode the Wi-Fi mode applicable to this chunk
-     * \param txVector TXVECTOR of the overall transmission
-     * \param snr the SNR of the chunk
-     * \param nbits the number of bits in this chunk
-     * \param numRxAntennas the number of active RX antennas
-     * \param field the PPDU field to which the chunk belongs to
-     * \param staId the station ID for MU
+     * @param mode the Wi-Fi mode applicable to this chunk
+     * @param txVector TXVECTOR of the overall transmission
+     * @param snr the SNR of the chunk
+     * @param nbits the number of bits in this chunk
+     * @param numRxAntennas the number of active RX antennas
+     * @param field the PPDU field to which the chunk belongs to
+     * @param staId the station ID for MU
      *
-     * \return probability of successfully receiving the chunk
+     * @return probability of successfully receiving the chunk
      */
     virtual double DoGetChunkSuccessRate(WifiMode mode,
                                          const WifiTxVector& txVector,

@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2014 Universidad de la República - Uruguay
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Matías Richart <mrichart@fing.edu.uy>
  */
@@ -24,7 +13,7 @@
  * highlighting the power adaptation.
  *
  * This simulation consist of 2 nodes, one AP and one STA.
- * The AP generates UDP traffic with a CBR of 54 Mbps to the STA.
+ * The AP generates UDP traffic with a CBR of 400 Mbps to the STA.
  * The AP can use any power and rate control mechanism and the STA uses
  * only Minstrel rate control.
  * The STA can be configured to move away from (or towards to) the AP.
@@ -56,6 +45,7 @@
 #include "ns3/boolean.h"
 #include "ns3/command-line.h"
 #include "ns3/config.h"
+#include "ns3/double.h"
 #include "ns3/gnuplot.h"
 #include "ns3/internet-stack-helper.h"
 #include "ns3/ipv4-address-helper.h"
@@ -65,6 +55,7 @@
 #include "ns3/on-off-helper.h"
 #include "ns3/packet-sink-helper.h"
 #include "ns3/ssid.h"
+#include "ns3/string.h"
 #include "ns3/uinteger.h"
 #include "ns3/yans-wifi-channel.h"
 #include "ns3/yans-wifi-helper.h"
@@ -79,39 +70,39 @@ class NodeStatistics
   public:
     /**
      * Constructor
-     * \param aps AP devices
-     * \param stas STA devices
+     * @param aps AP devices
+     * @param stas STA devices
      */
     NodeStatistics(NetDeviceContainer aps, NetDeviceContainer stas);
 
     /**
      * RX callback
-     * \param path path
-     * \param packet received packet
-     * \param from sender
+     * @param path path
+     * @param packet received packet
+     * @param from sender
      */
     void RxCallback(std::string path, Ptr<const Packet> packet, const Address& from);
     /**
      * Set node position
-     * \param node the node
-     * \param position the position
+     * @param node the node
+     * @param position the position
      */
     void SetPosition(Ptr<Node> node, Vector position);
     /**
      * Advance node position
-     * \param node the node
-     * \param stepsSize the size of a step
-     * \param stepsTime the time interval between steps
+     * @param node the node
+     * @param stepsSize the size of a step
+     * @param stepsTime the time interval between steps
      */
     void AdvancePosition(Ptr<Node> node, int stepsSize, int stepsTime);
     /**
      * Get node position
-     * \param node the node
-     * \return the position
+     * @param node the node
+     * @return the position
      */
     Vector GetPosition(Ptr<Node> node);
     /**
-     * \return the gnuplot 2d dataset
+     * @return the gnuplot 2d dataset
      */
     Gnuplot2dDataset GetDatafile();
 
@@ -168,35 +159,41 @@ NodeStatistics::GetDatafile()
     return m_output;
 }
 
+/**
+ * Callback for 'Rate' trace source
+ *
+ * @param oldRate old MCS rate (bits/sec)
+ * @param newRate new MCS rate (bits/sec)
+ */
 void
-RateCallback(std::string path, uint64_t rate, Mac48Address dest)
+RateCallback(uint64_t oldRate, uint64_t newRate)
 {
-    NS_LOG_INFO((Simulator::Now()).GetSeconds() << " " << dest << " Rate " << rate / 1000000.0);
+    NS_LOG_INFO("Rate " << newRate / 1000000.0 << " Mbps");
 }
 
 int
 main(int argc, char* argv[])
 {
-    uint32_t rtsThreshold = 65535;
-    std::string staManager = "ns3::MinstrelHtWifiManager";
-    std::string apManager = "ns3::MinstrelHtWifiManager";
-    std::string standard = "802.11n-5GHz";
-    std::string outputFileName = "minstrelHT";
-    uint32_t BeMaxAmpduSize = 65535;
-    bool shortGuardInterval = false;
-    uint32_t chWidth = 20;
-    int ap1_x = 0;
-    int ap1_y = 0;
-    int sta1_x = 5;
-    int sta1_y = 0;
-    int steps = 100;
-    int stepsSize = 1;
-    int stepsTime = 1;
+    uint32_t rtsThreshold{65535};
+    std::string staManager{"ns3::MinstrelHtWifiManager"};
+    std::string apManager{"ns3::MinstrelHtWifiManager"};
+    std::string standard{"802.11n-5GHz"};
+    std::string outputFileName{"minstrelHT"};
+    uint32_t BeMaxAmpduSize{65535};
+    bool shortGuardInterval{false};
+    uint32_t chWidth{20};
+    int ap1_x{0};
+    int ap1_y{0};
+    int sta1_x{5};
+    int sta1_y{0};
+    int steps{100};
+    int stepsSize{1};
+    int stepsTime{1};
 
     CommandLine cmd(__FILE__);
-    cmd.AddValue("staManager", "PRC Manager of the STA", staManager);
-    cmd.AddValue("apManager", "PRC Manager of the AP", apManager);
-    cmd.AddValue("standard", "Wifi Phy Standard", standard);
+    cmd.AddValue("staManager", "Rate adaptation manager of the STA", staManager);
+    cmd.AddValue("apManager", "Rate adaptation manager of the AP", apManager);
+    cmd.AddValue("standard", "Wifi standard (a/b/g/n/ac only)", standard);
     cmd.AddValue("shortGuardInterval",
                  "Enable Short Guard Interval in all stations",
                  shortGuardInterval);
@@ -215,6 +212,12 @@ main(int argc, char* argv[])
 
     int simuTime = steps * stepsTime;
 
+    if (standard != "802.11a" && standard != "802.11b" && standard != "802.11g" &&
+        standard != "802.11n-2.4GHz" && standard != "802.11n-5GHz" && standard != "802.11ac")
+    {
+        NS_FATAL_ERROR("Standard " << standard << " is not supported by this program");
+    }
+
     // Define the APs
     NodeContainer wifiApNodes;
     wifiApNodes.Create(1);
@@ -226,6 +229,30 @@ main(int argc, char* argv[])
     YansWifiPhyHelper wifiPhy;
     YansWifiChannelHelper wifiChannel = YansWifiChannelHelper::Default();
     wifiPhy.SetChannel(wifiChannel.Create());
+    // Channel configuration via ChannelSettings attribute can be performed here
+    std::string frequencyBand;
+    if (standard == "802.11b" || standard == "802.11g" || standard == "802.11n-2.4GHz")
+    {
+        frequencyBand = "BAND_2_4GHZ";
+    }
+    else
+    {
+        frequencyBand = "BAND_5GHZ";
+    }
+    wifiPhy.Set("ChannelSettings",
+                StringValue("{0, " + std::to_string(chWidth) + ", " + frequencyBand + ", 0}"));
+
+    // By default, the CCA sensitivity is -82 dBm, meaning if the RSS is
+    // below this value, the receiver will reject the Wi-Fi frame.
+    // However, we want to allow the rate adaptation to work down to low
+    // SNR values.  To allow this, we need to do three things:  1) disable
+    // the noise figure (set it to 0 dB) so that the noise level in 20 MHz
+    // is around -101 dBm, 2) lower the CCA sensitivity to a value that
+    // disables it (e.g. -110 dBm), and 3) disable the Wi-Fi preamble
+    // detection model.
+    wifiPhy.Set("CcaSensitivity", DoubleValue(-110));
+    wifiPhy.Set("RxNoiseFigure", DoubleValue(0));
+    wifiPhy.DisablePreambleDetectionModel();
 
     NetDeviceContainer wifiApDevices;
     NetDeviceContainer wifiStaDevices;
@@ -296,10 +323,6 @@ main(int argc, char* argv[])
     wifiDevices.Add(wifiStaDevices);
     wifiDevices.Add(wifiApDevices);
 
-    // Set channel width
-    Config::Set("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Phy/ChannelWidth",
-                UintegerValue(chWidth));
-
     // Set guard interval
     Config::Set(
         "/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/HtConfiguration/ShortGuardIntervalSupported",
@@ -359,9 +382,9 @@ main(int argc, char* argv[])
                     MakeCallback(&NodeStatistics::RxCallback, &atpCounter));
 
     // Callbacks to print every change of rate
-    Config::ConnectFailSafe("/NodeList/0/DeviceList/*/$ns3::WifiNetDevice/RemoteStationManager/$" +
-                                apManager + "/RateChange",
-                            MakeCallback(RateCallback));
+    Config::ConnectWithoutContextFailSafe(
+        "/NodeList/0/DeviceList/*/$ns3::WifiNetDevice/RemoteStationManager/$" + apManager + "/Rate",
+        MakeCallback(RateCallback));
 
     Simulator::Stop(Seconds(simuTime));
     Simulator::Run();
@@ -369,8 +392,8 @@ main(int argc, char* argv[])
     std::ofstream outfile("throughput-" + outputFileName + ".plt");
     Gnuplot gnuplot = Gnuplot("throughput-" + outputFileName + ".eps", "Throughput");
     gnuplot.SetTerminal("post eps color enhanced");
-    gnuplot.SetLegend("Time (seconds)", "Throughput (Mb/s)");
-    gnuplot.SetTitle("Throughput (AP to STA) vs time");
+    gnuplot.SetLegend("Distance (meters)", "Throughput (Mb/s)");
+    gnuplot.SetTitle("Throughput (AP to STA) vs distance");
     gnuplot.AddDataset(atpCounter.GetDatafile());
     gnuplot.GenerateOutput(outfile);
 

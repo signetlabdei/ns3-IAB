@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2018 Lawrence Livermore National Laboratory
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Mathew Bielejeski <bielejeski1@llnl.gov>
  */
@@ -20,13 +9,13 @@
 #ifndef BUILD_VERSION_H_
 #define BUILD_VERSION_H_
 
-#include "ns3/int64x64.h"
+#include "int64x64.h"
 
 #include <string>
 
 /**
- * \file
- * \ingroup buildversion
+ * @file
+ * @ingroup buildversion
  * class ns3::Version definition
  */
 
@@ -34,8 +23,8 @@ namespace ns3
 {
 
 /**
- * \ingroup core
- * \defgroup buildversion Build version reporting
+ * @ingroup core
+ * @defgroup buildversion Build version reporting
  *
  * Version information is pulled from the local git repository during the build
  * process.  If a git repository is not found, the build system will search for
@@ -49,7 +38,7 @@ namespace ns3
  */
 
 /**
- * \ingroup buildversion
+ * @ingroup buildversion
  *
  * Helper class providing functions to access various parts of the version
  * string, as well as functions for composing short and long variants of the
@@ -63,10 +52,10 @@ namespace ns3
  *
  * Below is a partial view of a git branch:
  *
- * \note Square nodes represent tags
- * \note Circle nodes represent commits
+ * @note Square nodes represent tags
+ * @note Circle nodes represent commits
  *
- * \dot
+ * @dot
  * digraph {
  *   vt [label="ns-3.32", shape="box"]
  *   t  [label="mytag", shape="box"]
@@ -80,7 +69,7 @@ namespace ns3
  *   t -> c2
  *   vt -> c4
  * }
- * \enddot
+ * @enddot
  *
  * Here are the values that will be assigned based on this example branch:
  *
@@ -102,15 +91,15 @@ class Version
 {
   public:
     /**
-     * Returns the ns-3 version tag of the closest ancestor commit.
+     * Returns the ns-3 version tag of the closest ancestor commit prefixed with ns-3.
      *
      * The format of the tag is
-     * \verbatim ns3-<major>.<minor>[.patch] \endverbatim
+     * @verbatim ns3-<major>.<minor>[.patch] \endverbatim
      *
      * The patch field is optional and may not be present.  The value of
      * patch defaults to 0 if the tag does not have a patch field.
      *
-     * \return ns-3 version tag
+     * @return ns-3 version tag
      */
     static std::string VersionTag();
 
@@ -121,7 +110,7 @@ class Version
      * The value returned by this function may be the same as VersionTag()
      * if the ns-3 version tag is the closest ancestor tag.
      *
-     * \return Closest tag attached to an ancestor of the current commit
+     * @return Closest tag attached to an ancestor of the current commit
      */
     static std::string ClosestAncestorTag();
 
@@ -129,11 +118,11 @@ class Version
      * Major component of the build version
      *
      * The format of the build version string is
-     * \verbatim ns-<major>.<minor>[.patch][-RC<digit>] \endverbatim
+     * @verbatim ns-<major>.<minor>[.patch][-RC<digit>] \endverbatim
      *
      * The major component is the number before the first period
      *
-     * \return The major component of the build version
+     * @return The major component of the build version
      */
     static uint32_t Major();
 
@@ -141,11 +130,11 @@ class Version
      * Minor component of the build version
      *
      * The format of the build version string is
-     * \verbatim ns-<major>.<minor>[.patch][-RC<digit>] \endverbatim
+     * @verbatim ns-<major>.<minor>[.patch][-RC<digit>] \endverbatim
      *
      * The minor component is the number after the first period
      *
-     * \return The minor component of the build version
+     * @return The minor component of the build version
      */
     static uint32_t Minor();
 
@@ -153,11 +142,11 @@ class Version
      * Patch component of the build version
      *
      * A build version with a patch component will have the format
-     * \verbatim ns-<major>.<minor>.<patch> \endverbatim
+     * @verbatim ns-<major>.<minor>.<patch> \endverbatim
      *
      * The patch component is the number after the second period
      *
-     * \return The patch component of the build version or 0 if the build version
+     * @return The patch component of the build version or 0 if the build version
      * does not have a patch component
      */
     static uint32_t Patch();
@@ -166,11 +155,11 @@ class Version
      * Release candidate component of the build version
      *
      * A build version with a release candidate will have the format
-     * \verbatim ns-<major>.<minor>[.patch]-RC<digit> \endverbatim
+     * @verbatim ns-<major>.<minor>[.patch]-RC<digit> \endverbatim
      *
      * The string returned by this function will have the format RC<digit>
      *
-     * \return The release candidate component of the build version or an empty
+     * @return The release candidate component of the build version or an empty
      * string if the build version does not have a release candidate component
      */
     static std::string ReleaseCandidate();
@@ -179,14 +168,14 @@ class Version
      * The number of commits between the current
      * commit and the tag returned by ClosestAncestorTag().
      *
-     * \return The number of commits made since the last tagged commit
+     * @return The number of commits made since the last tagged commit
      */
     static uint32_t TagDistance();
 
     /**
      * Indicates whether there were uncommitted changes during the build
      *
-     * \return \c true if the working tree had uncommitted changes.
+     * @return \c true if the working tree had uncommitted changes.
      */
     static bool DirtyWorkingTree();
 
@@ -202,7 +191,7 @@ class Version
      *
      * Example of hash output: g6bfb0c9
      *
-     * \return hexadecimal representation of the most recent commit id
+     * @return hexadecimal representation of the most recent commit id
      */
     static std::string CommitHash();
 
@@ -211,7 +200,7 @@ class Version
      *
      * This information is set by the --build-profile option of ns3 configure
      *
-     * \return String containing the type of build
+     * @return String containing the type of build
      */
     static std::string BuildProfile();
 
@@ -220,7 +209,7 @@ class Version
      * and indication of additional commits or dirty status.
      *
      * The format of the constructed string is
-     * \verbatim ns-<major>.<minor>[.patch][-rc]<flags> \endverbatim
+     * @verbatim ns-<major>.<minor>[.patch][-rc]<flags> \endverbatim
      *
      *   * [patch] is included when Patch() > 0.
      *   * [-rc] is included when ReleaseCandidate() contains a non-empty string
@@ -230,7 +219,7 @@ class Version
      * [flags] will contain none, one, or both characters depending on the state
      * of the branch
      *
-     * \return String containing the ns-3 major and minor components and flags.
+     * @return String containing the ns-3 major and minor components and flags.
      */
     static std::string ShortVersion();
 
@@ -248,7 +237,7 @@ class Version
      * [flags] will contain none, one, or both characters depending on the state
      * of the branch
      *
-     * \return String containing the closest ancestor tag and flags.
+     * @return String containing the closest ancestor tag and flags.
      */
     static std::string BuildSummary();
 
@@ -256,9 +245,9 @@ class Version
      * Constructs a string containing all of the build details
      *
      * The format of the constructed string is
-     * \verbatim
+     * @verbatim
      * ns-<major>.<minor>[.patch][-rc][-closest-tag]-<tag-distance>@<hash>[-dirty]-<build-profile>
-     * \endverbatim
+     * @endverbatim
      *
      * [patch], [rc], [closest-tag], and [dirty] will only be present under certain circumstances:
      *   * [patch] is included when Patch() > 0
@@ -266,11 +255,10 @@ class Version
      *   * [closest-tag] is included when ClosestTag() != VersionTag()
      *   * [dirty] is included when DirtyWorkingTree() is \c true
      *
-     * \return String containing full version
+     * @return String containing full version
      */
     static std::string LongVersion();
-
-}; // class Version
+};
 
 } // namespace ns3
 

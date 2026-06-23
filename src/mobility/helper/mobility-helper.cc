@@ -1,22 +1,11 @@
 /*
  * Copyright (c) 2008 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
-#include "ns3/mobility-helper.h"
+#include "mobility-helper.h"
 
 #include "ns3/config.h"
 #include "ns3/hierarchical-mobility-model.h"
@@ -126,7 +115,7 @@ MobilityHelper::Install(std::string nodeName) const
 void
 MobilityHelper::Install(NodeContainer c) const
 {
-    for (NodeContainer::Iterator i = c.Begin(); i != c.End(); ++i)
+    for (auto i = c.Begin(); i != c.End(); ++i)
     {
         Install(*i);
     }
@@ -141,8 +130,8 @@ MobilityHelper::InstallAll() const
 /**
  * Utility function that rounds |1e-4| < input value < |1e-3| up to +/- 1e-3
  * and value <= |1e-4| to zero
- * \param v value to round
- * \return rounded value
+ * @param v value to round
+ * @return rounded value
  */
 static double
 DoRound(double v)
@@ -201,7 +190,7 @@ MobilityHelper::EnableAscii(Ptr<OutputStreamWrapper> stream, uint32_t nodeid)
 void
 MobilityHelper::EnableAscii(Ptr<OutputStreamWrapper> stream, NodeContainer n)
 {
-    for (NodeContainer::Iterator i = n.Begin(); i != n.End(); ++i)
+    for (auto i = n.Begin(); i != n.End(); ++i)
     {
         EnableAscii(stream, (*i)->GetId());
     }
@@ -219,7 +208,7 @@ MobilityHelper::AssignStreams(NodeContainer c, int64_t stream)
     int64_t currentStream = stream;
     Ptr<Node> node;
     Ptr<MobilityModel> mobility;
-    for (NodeContainer::Iterator i = c.Begin(); i != c.End(); ++i)
+    for (auto i = c.Begin(); i != c.End(); ++i)
     {
         node = (*i);
         mobility = node->GetObject<MobilityModel>();

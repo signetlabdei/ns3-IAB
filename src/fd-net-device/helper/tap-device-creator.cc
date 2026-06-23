@@ -1,23 +1,16 @@
 /*
  * Copyright (c) 2009 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #include "creator-utils.h"
 
+#include "ns3/mac48-address.h"
+
 #include <arpa/inet.h>
+#include <cstdint>
+#include <cstdlib>
 #include <cstring>
 #include <errno.h>
 #include <fcntl.h>
@@ -28,8 +21,6 @@
 #include <net/route.h>
 #include <netinet/in.h>
 #include <sstream>
-#include <stdint.h>
-#include <stdlib.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -37,18 +28,6 @@
 #include <unistd.h>
 
 #define TAP_MAGIC 95549
-
-//
-// Lots of the following helper code taken from corresponding functions in src/node.
-//
-#define ASCII_DOT (0x2e)
-#define ASCII_ZERO (0x30)
-#define ASCII_a (0x41)
-#define ASCII_z (0x5a)
-#define ASCII_A (0x61)
-#define ASCII_Z (0x7a)
-#define ASCII_COLON (0x3a)
-#define ASCII_ZERO (0x30)
 
 using namespace ns3;
 
@@ -61,54 +40,6 @@ struct in6_ifreq
     uint32_t ifr6_prefixlen;   //!< IPv6 prefix length
     int32_t ifr6_ifindex;      //!< interface index
 };
-
-char
-AsciiToLowCase(char c)
-{
-    if (c >= ASCII_a && c <= ASCII_z)
-    {
-        return c;
-    }
-    else if (c >= ASCII_A && c <= ASCII_Z)
-    {
-        return c + (ASCII_a - ASCII_A);
-    }
-    else
-    {
-        return c;
-    }
-}
-
-void
-AsciiToMac48(const char* str, uint8_t addr[6])
-{
-    int i = 0;
-    while (*str != 0 && i < 6)
-    {
-        uint8_t byte = 0;
-        while (*str != ASCII_COLON && *str != 0)
-        {
-            byte <<= 4;
-            char low = AsciiToLowCase(*str);
-            if (low >= ASCII_a)
-            {
-                byte |= low - ASCII_a + 10;
-            }
-            else
-            {
-                byte |= low - ASCII_ZERO;
-            }
-            str++;
-        }
-        addr[i] = byte;
-        i++;
-        if (*str == 0)
-        {
-            break;
-        }
-        str++;
-    }
-}
 
 void
 SetIpv4(const char* deviceName, const char* ip, const char* netmask)
@@ -189,7 +120,7 @@ SetMacAddress(int fd, const char* mac)
     memset(&ifr, 0, sizeof(struct ifreq));
 
     ifr.ifr_hwaddr.sa_family = 1; // this is ARPHRD_ETHER from if_arp.h
-    AsciiToMac48(mac, (uint8_t*)ifr.ifr_hwaddr.sa_data);
+    Mac48Address(mac).CopyTo((uint8_t*)ifr.ifr_hwaddr.sa_data);
     ABORT_IF(ioctl(fd, SIOCSIFHWADDR, &ifr) == -1, "Could not set MAC address", true);
     LOG("Set device MAC address to " << mac);
 }
@@ -216,8 +147,8 @@ SetUp(char* deviceName)
 int
 CreateTap(char* deviceName,
           const char* mac,
-          const int ifftap,
-          const int iffpi,
+          bool ifftap,
+          bool iffpi,
           const char* ip4,
           const char* netmask,
           const char* ip6,
@@ -293,8 +224,8 @@ main(int argc, char* argv[])
     char* mac = nullptr;
     char* netmask = nullptr;
     char* path = nullptr;
-    int tap = false;
-    int pi = false;
+    bool tap = false;
+    bool pi = false;
     int prefix = -1;
 
     while ((c = getopt(argc, argv, "vd:i:m:n:I:P:thp:")) != -1)

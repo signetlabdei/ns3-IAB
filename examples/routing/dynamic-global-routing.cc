@@ -1,16 +1,5 @@
 /*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Contributed by:  Luis Cortes (cortes@gatech.edu)
  */
@@ -152,8 +141,8 @@ main(int argc, char* argv[])
     onoff.SetAttribute("PacketSize", UintegerValue(50));
 
     ApplicationContainer apps = onoff.Install(c.Get(1));
-    apps.Start(Seconds(1.0));
-    apps.Stop(Seconds(10.0));
+    apps.Start(Seconds(1));
+    apps.Stop(Seconds(10));
 
     // Create a second OnOff application to send UDP datagrams of size
     // 210 bytes at a rate of 448 Kb/s
@@ -164,21 +153,21 @@ main(int argc, char* argv[])
     onoff2.SetAttribute("PacketSize", UintegerValue(50));
 
     ApplicationContainer apps2 = onoff2.Install(c.Get(1));
-    apps2.Start(Seconds(11.0));
-    apps2.Stop(Seconds(16.0));
+    apps2.Start(Seconds(11));
+    apps2.Stop(Seconds(16));
 
     // Create an optional packet sink to receive these packets
     PacketSinkHelper sink("ns3::UdpSocketFactory",
                           Address(InetSocketAddress(Ipv4Address::GetAny(), port)));
     apps = sink.Install(c.Get(6));
-    apps.Start(Seconds(1.0));
-    apps.Stop(Seconds(10.0));
+    apps.Start(Seconds(1));
+    apps.Stop(Seconds(10));
 
     PacketSinkHelper sink2("ns3::UdpSocketFactory",
                            Address(InetSocketAddress(Ipv4Address::GetAny(), port)));
     apps2 = sink2.Install(c.Get(6));
-    apps2.Start(Seconds(11.0));
-    apps2.Stop(Seconds(16.0));
+    apps2.Start(Seconds(11));
+    apps2.Stop(Seconds(16));
 
     AsciiTraceHelper ascii;
     Ptr<OutputStreamWrapper> stream = ascii.CreateFileStream("dynamic-global-routing.tr");

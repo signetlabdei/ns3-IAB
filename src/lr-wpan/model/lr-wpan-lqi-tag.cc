@@ -1,27 +1,18 @@
 /*
  * Copyright (c) 2013 Fraunhofer FKIE
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author:
  *  Sascha Alexander Jopen <jopen@cs.uni-bonn.de>
  */
 #include "lr-wpan-lqi-tag.h"
 
-#include <ns3/integer.h>
+#include "ns3/integer.h"
 
 namespace ns3
+{
+namespace lrwpan
 {
 
 NS_OBJECT_ENSURE_REGISTERED(LrWpanLqiTag);
@@ -29,7 +20,8 @@ NS_OBJECT_ENSURE_REGISTERED(LrWpanLqiTag);
 TypeId
 LrWpanLqiTag::GetTypeId()
 {
-    static TypeId tid = TypeId("ns3::LrWpanLqiTag")
+    static TypeId tid = TypeId("ns3::lrwpan::LrWpanLqiTag")
+                            .AddDeprecatedName("ns3::LrWpanLqiTag")
                             .SetParent<Tag>()
                             .SetGroupName("LrWpan")
                             .AddConstructor<LrWpanLqiTag>()
@@ -93,4 +85,5 @@ LrWpanLqiTag::Get() const
     return m_lqi;
 }
 
+} // namespace lrwpan
 } // namespace ns3

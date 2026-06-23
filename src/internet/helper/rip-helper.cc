@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2016 Universita' di Firenze, Italy
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Tommaso Pecorella <tommaso.pecorella@unifi.it>
  */
@@ -56,20 +45,18 @@ RipHelper::Create(Ptr<Node> node) const
 {
     Ptr<Rip> rip = m_factory.Create<Rip>();
 
-    std::map<Ptr<Node>, std::set<uint32_t>>::const_iterator it = m_interfaceExclusions.find(node);
+    auto it = m_interfaceExclusions.find(node);
 
     if (it != m_interfaceExclusions.end())
     {
         rip->SetInterfaceExclusions(it->second);
     }
 
-    std::map<Ptr<Node>, std::map<uint32_t, uint8_t>>::const_iterator iter =
-        m_interfaceMetrics.find(node);
+    auto iter = m_interfaceMetrics.find(node);
 
     if (iter != m_interfaceMetrics.end())
     {
-        std::map<uint32_t, uint8_t>::const_iterator subiter;
-        for (subiter = iter->second.begin(); subiter != iter->second.end(); subiter++)
+        for (auto subiter = iter->second.begin(); subiter != iter->second.end(); subiter++)
         {
             rip->SetInterfaceMetric(subiter->first, subiter->second);
         }
@@ -90,7 +77,7 @@ RipHelper::AssignStreams(NodeContainer c, int64_t stream)
 {
     int64_t currentStream = stream;
     Ptr<Node> node;
-    for (NodeContainer::Iterator i = c.Begin(); i != c.End(); ++i)
+    for (auto i = c.Begin(); i != c.End(); ++i)
     {
         node = (*i);
         Ptr<Ipv4> ipv4 = node->GetObject<Ipv4>();
@@ -160,7 +147,7 @@ RipHelper::SetDefaultRouter(Ptr<Node> node, Ipv4Address nextHop, uint32_t interf
 void
 RipHelper::ExcludeInterface(Ptr<Node> node, uint32_t interface)
 {
-    std::map<Ptr<Node>, std::set<uint32_t>>::iterator it = m_interfaceExclusions.find(node);
+    auto it = m_interfaceExclusions.find(node);
 
     if (it == m_interfaceExclusions.end())
     {

@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2008 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -24,8 +13,8 @@
 #include "type-id.h"
 
 /**
- * \file
- * \ingroup object
+ * @file
+ * @ingroup object
  * ns3::ObjectFactory class declaration.
  */
 
@@ -35,14 +24,14 @@ namespace ns3
 class AttributeValue;
 
 /**
- * \ingroup object
+ * @ingroup object
  *
- * \brief Instantiate subclasses of ns3::Object.
+ * @brief Instantiate subclasses of ns3::Object.
  *
  * This class can also hold a set of attributes to set
  * automatically during the object construction.
  *
- * \see attribute_ObjectFactory
+ * @see attribute_ObjectFactory
  */
 class ObjectFactory
 {
@@ -57,9 +46,9 @@ class ObjectFactory
     /**
      * Construct a factory for a specific TypeId by name.
      *
-     * \tparam Args \deduced Template type parameter pack for the sequence of name-value pairs
-     * \param [in] typeId The name of the TypeId this factory should create.
-     * \param [in] args A sequence of name-value pairs of additional attributes to set.
+     * @tparam Args \deduced Template type parameter pack for the sequence of name-value pairs
+     * @param [in] typeId The name of the TypeId this factory should create.
+     * @param [in] args A sequence of name-value pairs of additional attributes to set.
      *
      * The args sequence can be made of any number of pairs, each consisting of a
      * name (of std::string type) followed by a value (of const AttributeValue & type).
@@ -71,7 +60,7 @@ class ObjectFactory
     /**
      * Set the TypeId of the Objects to be created by this factory.
      *
-     * \param [in] tid The TypeId of the object to instantiate.
+     * @param [in] tid The TypeId of the object to instantiate.
      */
     void SetTypeId(TypeId tid);
     void SetTypeId(std::string tid);
@@ -80,17 +69,17 @@ class ObjectFactory
     /**
      * Check if the ObjectFactory has been configured with a TypeId
      *
-     * \return true if a TypeId has been configured to the ObjectFactory
+     * @return true if a TypeId has been configured to the ObjectFactory
      */
     bool IsTypeIdSet() const;
 
     /**
      * Set an attribute to be set during construction.
      *
-     * \tparam Args \deduced Template type parameter pack for the sequence of name-value pairs
-     * \param [in] name The name of the attribute to set.
-     * \param [in] value The value of the attribute to set.
-     * \param [in] args A sequence of name-value pairs of additional attributes to set.
+     * @tparam Args \deduced Template type parameter pack for the sequence of name-value pairs
+     * @param [in] name The name of the attribute to set.
+     * @param [in] value The value of the attribute to set.
+     * @param [in] args A sequence of name-value pairs of additional attributes to set.
      *
      * The args sequence can be made of any number of pairs, each consisting of a
      * name (of std::string type) followed by a value (of const AttributeValue & type).
@@ -108,14 +97,14 @@ class ObjectFactory
 
     /**
      * Get the TypeId which will be created by this ObjectFactory.
-     * \returns The currently-selected TypeId.
+     * @returns The currently-selected TypeId.
      */
     TypeId GetTypeId() const;
 
     /**
      * Create an Object instance of the configured TypeId.
      *
-     * \returns A new object instance.
+     * @returns A new object instance.
      */
     Ptr<Object> Create() const;
     /**
@@ -125,8 +114,8 @@ class ObjectFactory
      * returning a pointer of the requested type to the user. This method
      * is really syntactical sugar.
      *
-     * \tparam T \explicit The requested Object type.
-     * \returns A new object instance.
+     * @tparam T \explicit The requested Object type.
+     * @returns A new object instance.
      */
     template <typename T>
     Ptr<T> Create() const;
@@ -135,8 +124,8 @@ class ObjectFactory
     /**
      * Set an attribute to be set during construction.
      *
-     * \param [in] name The name of the attribute to set.
-     * \param [in] value The value of the attribute to set.
+     * @param [in] name The name of the attribute to set.
+     * @param [in] value The value of the attribute to set.
      */
     void DoSet(const std::string& name, const AttributeValue& value);
     /**
@@ -145,9 +134,9 @@ class ObjectFactory
      * The configuration will be printed as a string with the form
      * "<TypeId-name>[<attribute-name>=<attribute-value>|...]"
      *
-     * \param [in,out] os The stream.
-     * \param [in] factory The ObjectFactory.
-     * \returns The stream.
+     * @param [in,out] os The stream.
+     * @param [in] factory The ObjectFactory.
+     * @returns The stream.
      */
     friend std::ostream& operator<<(std::ostream& os, const ObjectFactory& factory);
     /**
@@ -156,9 +145,9 @@ class ObjectFactory
      * The configuration should be in the form
      * "<TypeId-name>[<attribute-name>=<attribute-value>|...]"
      *
-     * \param [in,out] is The input stream.
-     * \param [out] factory The factory to configure as described by the stream.
-     * \return The stream.
+     * @param [in,out] is The input stream.
+     * @param [out] factory The factory to configure as described by the stream.
+     * @return The stream.
      */
     friend std::istream& operator>>(std::istream& is, ObjectFactory& factory);
 
@@ -175,16 +164,18 @@ std::ostream& operator<<(std::ostream& os, const ObjectFactory& factory);
 std::istream& operator>>(std::istream& is, ObjectFactory& factory);
 
 /**
- * \ingroup object
+ * @ingroup object
  * Allocate an Object on the heap and initialize with a set of attributes.
  *
- * \tparam T \explicit The requested Object type.
- * \tparam Args \deduced The type of the sequence of name-value pairs.
- * \param [in] args A sequence of name-value pairs of the attributes to set.
- * \returns A pointer to a newly allocated object.
+ * @tparam T \explicit The requested Object type.
+ * @tparam Args \deduced The type of the sequence of name-value pairs.
+ * @param [in] args A sequence of name-value pairs of the attributes to set.
+ * @returns A pointer to a newly allocated object.
  *
  * The args sequence can be made of any number of pairs, each consisting of a
  * name (of std::string type) followed by a value (of const AttributeValue & type).
+ *
+ * @hidecaller
  */
 template <typename T, typename... Args>
 Ptr<T> CreateObjectWithAttributes(Args... args);
@@ -205,7 +196,11 @@ Ptr<T>
 ObjectFactory::Create() const
 {
     Ptr<Object> object = Create();
-    return object->GetObject<T>();
+    auto obj = object->GetObject<T>();
+    NS_ASSERT_MSG(obj != nullptr,
+                  "ObjectFactory::Create error: incompatible types ("
+                      << T::GetTypeId().GetName() << " and " << object->GetInstanceTypeId() << ")");
+    return obj;
 }
 
 template <typename... Args>

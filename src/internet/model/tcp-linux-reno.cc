@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2019 NITK Surathkal
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Apoorva Bhargava <apoorvabhargava13@gmail.com>
  *         Mohit P. Tahiliani <tahiliani@nitk.edu.in>
@@ -36,7 +25,18 @@ TcpLinuxReno::GetTypeId()
     static TypeId tid = TypeId("ns3::TcpLinuxReno")
                             .SetParent<TcpCongestionOps>()
                             .SetGroupName("Internet")
-                            .AddConstructor<TcpLinuxReno>();
+                            .AddConstructor<TcpLinuxReno>()
+                            .AddAttribute("BetaLoss",
+                                          "Beta for multiplicative decrease",
+                                          DoubleValue(0.5),
+                                          MakeDoubleAccessor(&TcpLinuxReno::m_betaLoss),
+                                          MakeDoubleChecker<double>(0.0, 1.0))
+                            .AddAttribute("BetaEcn",
+                                          "Beta for multiplicative decrease for ABE",
+                                          DoubleValue(0.7), // According to RFC 8511 (ABE)
+                                          MakeDoubleAccessor(&TcpLinuxReno::m_betaEcn),
+                                          MakeDoubleChecker<double>(0.0, 1.0));
+
     return tid;
 }
 
@@ -78,6 +78,13 @@ void
 TcpLinuxReno::CongestionAvoidance(Ptr<TcpSocketState> tcb, uint32_t segmentsAcked)
 {
     NS_LOG_FUNCTION(this << tcb << segmentsAcked);
+
+    if (m_suppressIncreaseIfCwndLimited && !tcb->m_isCwndLimited)
+    {
+        NS_LOG_DEBUG("No increase because current cwnd " << tcb->m_cWnd
+                                                         << " is not limiting the flow");
+        return;
+    }
 
     uint32_t w = tcb->m_cWnd / tcb->m_segmentSize;
 
@@ -140,14 +147,26 @@ TcpLinuxReno::GetSsThresh(Ptr<const TcpSocketState> state, uint32_t bytesInFligh
 {
     NS_LOG_FUNCTION(this << state << bytesInFlight);
 
-    // In Linux, it is written as:  return max(tp->snd_cwnd >> 1U, 2U);
-    return std::max<uint32_t>(2 * state->m_segmentSize, state->m_cWnd / 2);
+    if (state->m_abeEnabled && state->m_ecnState == TcpSocketState::ECN_ECE_RCVD)
+    {
+        return std::max<uint32_t>(2 * state->m_segmentSize,
+                                  state->m_cWnd * m_betaEcn); // According to RFC 8511 (ABE)
+    }
+
+    return std::max<uint32_t>(2 * state->m_segmentSize, state->m_cWnd * m_betaLoss);
 }
 
 Ptr<TcpCongestionOps>
 TcpLinuxReno::Fork()
 {
     return CopyObject<TcpLinuxReno>(this);
+}
+
+void
+TcpLinuxReno::SetSuppressIncreaseIfCwndLimited(bool value)
+{
+    NS_LOG_FUNCTION(this << value);
+    m_suppressIncreaseIfCwndLimited = value;
 }
 
 } // namespace ns3

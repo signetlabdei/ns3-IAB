@@ -5,9 +5,9 @@ import copy
 # Path to the ns-3 installation folder 
 ns_path = './'  
 # Name of the simulation script
-ns_script = 'iab-inmarsat-scenario-1'
+ns_script = 'iab-full-scenario'
 # Path where the output of the simulations will be saved
-ns_res_path = './results-inmarsat-scen-1'
+ns_res_path = './results-full-scenario'
 # Needed for the codebook files. There should not be the need to change this
 CB_PATH_PREFIX_HOME = os.path.abspath(ns_path) + '/src/mmwave/model/Codebooks'
 # Grid of source rates which will be simulated
@@ -53,9 +53,7 @@ params_grid = {
     # The MTs' noise figure
     "mtNoiseFigure": 5.0,   # [dB]
     # Whether to enable the optional shadowing term of the TR 38.901 channel model
-    "enableShadowing": False,
-    # Whether to enable HARQ
-    "harqEnabled": True
+    "enableShadowing": False
 }
 
 overall_list = sem.list_param_combinations(params_grid)

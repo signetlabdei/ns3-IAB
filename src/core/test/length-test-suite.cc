@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2019 Lawrence Livermore National Laboratory
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Mathew Bielejeski<bielejeski1@llnl.gov>
  */
@@ -34,20 +23,19 @@
 #include <functional>
 #include <initializer_list>
 #include <iomanip>
-#include <limits>
 #include <map>
 #include <sstream>
 #include <string>
 
 /**
- * \file
- * \ingroup length-tests
+ * @file
+ * @ingroup length-tests
  * Length class tests.
  */
 
 /**
- * \ingroup core-tests length
- * \defgroup length-tests Length test suite
+ * @ingroup core-tests length
+ * @defgroup length-tests Length test suite
  */
 
 using namespace ns3;
@@ -80,8 +68,8 @@ class LengthTestCase : public TestCase
     /**
      * Helper function to compare results with false
      *
-     * \param condition The boolean condition to test
-     * \param msg The message to print if the test fails
+     * @param condition The boolean condition to test
+     * @param msg The message to print if the test fails
      */
     void AssertFalse(bool condition, std::string msg)
     {
@@ -91,8 +79,8 @@ class LengthTestCase : public TestCase
     /**
      * Helper function to compare results with true
      *
-     * \param condition The boolean condition to test
-     * \param msg The message to print if the test fails
+     * @param condition The boolean condition to test
+     * @param msg The message to print if the test fails
      */
     void AssertTrue(bool condition, std::string msg)
     {
@@ -136,10 +124,10 @@ class LengthTestCase : public TestCase
 
     /**
      * Test that a length object can be constructed from a string
-     * \param unitValue  //!< Value to test.
-     * \param meterValue //!< Reference value [m].
-     * \param tolerance  //!< Tolerance.
-     * \param symbols    //!< Unit symbols.
+     * @param unitValue  //!< Value to test.
+     * @param meterValue //!< Reference value [m].
+     * @param tolerance  //!< Tolerance.
+     * @param symbols    //!< Unit symbols.
      */
     void TestConstructLengthFromString(double unitValue,
                                        double meterValue,
@@ -244,12 +232,12 @@ class LengthTestCase : public TestCase
      * Generic function for testing serialization of a Length object in
      * various units
      *
-     * \tparam T Type of the length unit that should be output during serialization
+     * @tparam T Type of the length unit that should be output during serialization
      *
-     * \param l Length object to serialize
-     * \param unit Unit that the length value will be converted to before serialization
-     * \param expectedOutput Expected result of the serialization
-     * \param context Included in the error message if the test fails
+     * @param l Length object to serialize
+     * @param unit Unit that the length value will be converted to before serialization
+     * @param expectedOutput Expected result of the serialization
+     * @param context Included in the error message if the test fails
      */
     template <class T>
     void TestLengthSerialization(const Length& l,
@@ -314,6 +302,10 @@ class LengthTestCase : public TestCase
     void TestModReturnsNonZero();
     /** @} */
 
+    /**
+     * Call graph was not generated because of its size.
+     * @hidecallgraph
+     */
     void DoRun() override;
 };
 
@@ -1418,7 +1410,7 @@ LengthTestCase::DoRun()
 }
 
 /**
- * \ingroup length-tests
+ * @ingroup length-tests
  *
  * Test case for LengthValue attribute
  */
@@ -1446,8 +1438,8 @@ class LengthValueTestCase : public TestCase
     {
       public:
         /**
-         * \brief Get the type ID.
-         * \return The object TypeId.
+         * @brief Get the type ID.
+         * @return The object TypeId.
          */
         static TypeId GetTypeId();
 
@@ -1590,7 +1582,7 @@ LengthValueTestCase::DoRun()
 }
 
 /**
- * \ingroup length-tests
+ * @ingroup length-tests
  * The Test Suite that runs the test case
  */
 class LengthTestSuite : public TestSuite
@@ -1605,8 +1597,8 @@ class LengthTestSuite : public TestSuite
 LengthTestSuite::LengthTestSuite()
     : TestSuite("length")
 {
-    AddTestCase(new LengthTestCase(), TestCase::QUICK);
-    AddTestCase(new LengthValueTestCase(), TestCase::QUICK);
+    AddTestCase(new LengthTestCase(), TestCase::Duration::QUICK);
+    AddTestCase(new LengthValueTestCase(), TestCase::Duration::QUICK);
 }
 
 /**

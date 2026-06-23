@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2016 Sébastien Deronne
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Sébastien Deronne <sebastien.deronne@gmail.com>
  */
@@ -60,6 +49,25 @@ WifiInformationElementId
 HtOperation::ElementId() const
 {
     return IE_HT_OPERATION;
+}
+
+void
+HtOperation::Print(std::ostream& os) const
+{
+    os << "HT Operation=[Primary Channel: " << +m_primaryChannel
+       << ", Secondary Channel Offset: " << +m_secondaryChannelOffset
+       << ", STA Channel Width: " << +m_staChannelWidth << ", HT Protection: " << +m_htProtection
+       << ", OBSS NON HT STAs Present: " << +m_obssNonHtStasPresent
+       << ", L-SIG TXOP Protection Full Support: " << +m_lSigTxopProtectionFullSupport
+       << ", RX Highest Supported Data Rate: " << m_rxHighestSupportedDataRate << ", MCS Set: {";
+    for (uint8_t i = 0; i < MAX_SUPPORTED_MCS; i++)
+    {
+        if (IsSupportedMcs(i))
+        {
+            os << +i << " ";
+        }
+    }
+    os << "}]";
 }
 
 uint16_t
@@ -263,11 +271,7 @@ HtOperation::GetPhase() const
 bool
 HtOperation::IsSupportedMcs(uint8_t mcs) const
 {
-    if (m_rxMcsBitmask[mcs] == 1)
-    {
-        return true;
-    }
-    return false;
+    return m_rxMcsBitmask[mcs] == 1;
 }
 
 uint16_t
@@ -434,8 +438,8 @@ HtOperation::SerializeInformationField(Buffer::Iterator start) const
     start.WriteU8(GetInformationSubset1());
     start.WriteU16(GetInformationSubset2());
     start.WriteU16(GetInformationSubset3());
-    start.WriteHtolsbU64(GetBasicMcsSet1());
-    start.WriteHtolsbU64(GetBasicMcsSet2());
+    start.WriteU64(GetBasicMcsSet1());
+    start.WriteU64(GetBasicMcsSet2());
 }
 
 uint16_t
@@ -446,36 +450,14 @@ HtOperation::DeserializeInformationField(Buffer::Iterator start, uint16_t length
     uint8_t informationsubset1 = i.ReadU8();
     uint16_t informationsubset2 = i.ReadU16();
     uint16_t informationsubset3 = i.ReadU16();
-    uint64_t mcsset1 = i.ReadLsbtohU64();
-    uint64_t mcsset2 = i.ReadLsbtohU64();
+    uint64_t mcsset1 = i.ReadU64();
+    uint64_t mcsset2 = i.ReadU64();
     SetPrimaryChannel(primarychannel);
     SetInformationSubset1(informationsubset1);
     SetInformationSubset2(informationsubset2);
     SetInformationSubset3(informationsubset3);
     SetBasicMcsSet(mcsset1, mcsset2);
     return length;
-}
-
-std::ostream&
-operator<<(std::ostream& os, const HtOperation& htOperation)
-{
-    os << bool(htOperation.GetPrimaryChannel()) << "|" << +htOperation.GetSecondaryChannelOffset()
-       << "|" << bool(htOperation.GetStaChannelWidth()) << "|" << bool(htOperation.GetRifsMode())
-       << "|" << +htOperation.GetHtProtection() << "|" << bool(htOperation.GetNonGfHtStasPresent())
-       << "|" << bool(htOperation.GetObssNonHtStasPresent()) << "|"
-       << bool(htOperation.GetDualBeacon()) << "|" << bool(htOperation.GetDualCtsProtection())
-       << "|" << bool(htOperation.GetStbcBeacon()) << "|"
-       << bool(htOperation.GetLSigTxopProtectionFullSupport()) << "|"
-       << bool(htOperation.GetPcoActive()) << "|" << bool(htOperation.GetPhase()) << "|"
-       << htOperation.GetRxHighestSupportedDataRate() << "|"
-       << bool(htOperation.GetTxMcsSetDefined()) << "|" << bool(htOperation.GetTxRxMcsSetUnequal())
-       << "|" << +htOperation.GetTxMaxNSpatialStreams() << "|"
-       << bool(htOperation.GetTxUnequalModulation()) << "|";
-    for (uint8_t i = 0; i < MAX_SUPPORTED_MCS; i++)
-    {
-        os << htOperation.IsSupportedMcs(i) << " ";
-    }
-    return os;
 }
 
 } // namespace ns3

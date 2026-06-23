@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 IITP RAS
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Based on
  *      NS-2 AODV model developed by the CMU/MONARCH group and optimized and
@@ -38,16 +27,16 @@ namespace ns3
 namespace aodv
 {
 /**
- * \ingroup aodv
+ * @ingroup aodv
  *
- * \brief Unique packets identification cache used for simple duplicate detection.
+ * @brief Unique packets identification cache used for simple duplicate detection.
  */
 class IdCache
 {
   public:
     /**
      * constructor
-     * \param lifetime the lifetime for added entries
+     * @param lifetime the lifetime for added entries
      */
     IdCache(Time lifetime)
         : m_lifetime(lifetime)
@@ -56,21 +45,21 @@ class IdCache
 
     /**
      * Check that entry (addr, id) exists in cache. Add entry, if it doesn't exist.
-     * \param addr the IP address
-     * \param id the cache entry ID
-     * \returns true if the pair exists
+     * @param addr the IP address
+     * @param id the cache entry ID
+     * @returns true if the pair exists
      */
     bool IsDuplicate(Ipv4Address addr, uint32_t id);
     /// Remove all expired entries
     void Purge();
     /**
-     * \returns number of entries in cache
+     * @returns number of entries in cache
      */
     uint32_t GetSize();
 
     /**
      * Set lifetime for future added entries.
-     * \param lifetime the lifetime for entries
+     * @param lifetime the lifetime for entries
      */
     void SetLifetime(Time lifetime)
     {
@@ -79,7 +68,7 @@ class IdCache
 
     /**
      * Return lifetime for existing entries in cache
-     * \returns the lifetime
+     * @returns the lifetime
      */
     Time GetLifeTime() const
     {
@@ -99,17 +88,17 @@ class IdCache
     };
 
     /**
-     * \brief IsExpired structure
+     * @brief IsExpired structure
      */
     struct IsExpired
     {
         /**
-         * \brief Check if the entry is expired
+         * @brief Check if the entry is expired
          *
-         * \param u UniqueId entry
-         * \return true if expired, false otherwise
+         * @param u UniqueId entry
+         * @return true if expired, false otherwise
          */
-        bool operator()(const struct UniqueId& u) const
+        bool operator()(const UniqueId& u) const
         {
             return (u.m_expire < Simulator::Now());
         }

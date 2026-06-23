@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2008 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #include "ns3/ipv4-address-generator.h"
@@ -22,9 +11,9 @@
 using namespace ns3;
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv4 network number Test
+ * @brief IPv4 network number Test
  */
 class NetworkNumberAllocatorTestCase : public TestCase
 {
@@ -82,9 +71,9 @@ NetworkNumberAllocatorTestCase::DoRun()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv4 address allocator Test
+ * @brief IPv4 address allocator Test
  */
 class AddressAllocatorTestCase : public TestCase
 {
@@ -139,9 +128,9 @@ AddressAllocatorTestCase::DoTeardown()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv4 network and address allocator Test
+ * @brief IPv4 network and address allocator Test
  */
 class NetworkAndAddressTestCase : public TestCase
 {
@@ -210,9 +199,9 @@ NetworkAndAddressTestCase::DoRun()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv4 AddressGenerator example (sort of) Test
+ * @brief IPv4 AddressGenerator example (sort of) Test
  */
 class ExampleAddressGeneratorTestCase : public TestCase
 {
@@ -268,9 +257,9 @@ ExampleAddressGeneratorTestCase::DoRun()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv4 address collision Test
+ * @brief IPv4 address collision Test
  */
 class AddressCollisionTestCase : public TestCase
 {
@@ -323,26 +312,36 @@ AddressCollisionTestCase::DoRun()
     Ipv4AddressGenerator::AddAllocated("0.0.0.16");
 
     Ipv4AddressGenerator::TestMode();
+    bool allocated = Ipv4AddressGenerator::IsAddressAllocated("0.0.0.21");
+    NS_TEST_EXPECT_MSG_EQ(allocated, false, "0.0.0.21 should not be already allocated");
     bool added = Ipv4AddressGenerator::AddAllocated("0.0.0.21");
     NS_TEST_EXPECT_MSG_EQ(added, true, "400");
 
+    allocated = Ipv4AddressGenerator::IsAddressAllocated("0.0.0.4");
+    NS_TEST_EXPECT_MSG_EQ(allocated, true, "0.0.0.4 should be already allocated");
     added = Ipv4AddressGenerator::AddAllocated("0.0.0.4");
     NS_TEST_EXPECT_MSG_EQ(added, false, "401");
 
+    allocated = Ipv4AddressGenerator::IsAddressAllocated("0.0.0.9");
+    NS_TEST_EXPECT_MSG_EQ(allocated, true, "0.0.0.9 should be already allocated");
     added = Ipv4AddressGenerator::AddAllocated("0.0.0.9");
     NS_TEST_EXPECT_MSG_EQ(added, false, "402");
 
+    allocated = Ipv4AddressGenerator::IsAddressAllocated("0.0.0.16");
+    NS_TEST_EXPECT_MSG_EQ(allocated, true, "0.0.0.16 should be already allocated");
     added = Ipv4AddressGenerator::AddAllocated("0.0.0.16");
     NS_TEST_EXPECT_MSG_EQ(added, false, "403");
 
+    allocated = Ipv4AddressGenerator::IsAddressAllocated("0.0.0.21");
+    NS_TEST_EXPECT_MSG_EQ(allocated, true, "0.0.0.21 should be already allocated");
     added = Ipv4AddressGenerator::AddAllocated("0.0.0.21");
     NS_TEST_EXPECT_MSG_EQ(added, false, "404");
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv4 Address Generator TestSuite
+ * @brief IPv4 Address Generator TestSuite
  */
 class Ipv4AddressGeneratorTestSuite : public TestSuite
 {
@@ -353,13 +352,13 @@ class Ipv4AddressGeneratorTestSuite : public TestSuite
 };
 
 Ipv4AddressGeneratorTestSuite::Ipv4AddressGeneratorTestSuite()
-    : TestSuite("ipv4-address-generator", UNIT)
+    : TestSuite("ipv4-address-generator", Type::UNIT)
 {
-    AddTestCase(new NetworkNumberAllocatorTestCase(), TestCase::QUICK);
-    AddTestCase(new AddressAllocatorTestCase(), TestCase::QUICK);
-    AddTestCase(new NetworkAndAddressTestCase(), TestCase::QUICK);
-    AddTestCase(new ExampleAddressGeneratorTestCase(), TestCase::QUICK);
-    AddTestCase(new AddressCollisionTestCase(), TestCase::QUICK);
+    AddTestCase(new NetworkNumberAllocatorTestCase(), TestCase::Duration::QUICK);
+    AddTestCase(new AddressAllocatorTestCase(), TestCase::Duration::QUICK);
+    AddTestCase(new NetworkAndAddressTestCase(), TestCase::Duration::QUICK);
+    AddTestCase(new ExampleAddressGeneratorTestCase(), TestCase::Duration::QUICK);
+    AddTestCase(new AddressCollisionTestCase(), TestCase::Duration::QUICK);
 }
 
 static Ipv4AddressGeneratorTestSuite

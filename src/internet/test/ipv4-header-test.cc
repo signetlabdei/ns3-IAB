@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2010 Hajime Tazaki
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: John Abraham <john.abraham@gatech.edu>
  * Adapted from: ipv4-raw-test.cc
@@ -52,9 +41,9 @@
 using namespace ns3;
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv4 Header Test
+ * @brief IPv4 Header Test
  */
 class Ipv4HeaderTest : public TestCase
 {
@@ -62,11 +51,11 @@ class Ipv4HeaderTest : public TestCase
     Ipv4Header m_receivedHeader;  //!< Received header.
 
     /**
-     * \brief Send a packet with specific DSCP and ECN fields.
-     * \param socket The source socket.
-     * \param to The destination address.
-     * \param dscp The DSCP field.
-     * \param ecn The ECN field.
+     * @brief Send a packet with specific DSCP and ECN fields.
+     * @param socket The source socket.
+     * @param to The destination address.
+     * @param dscp The DSCP field.
+     * @param ecn The ECN field.
      */
     void DoSendData_IpHdr_Dscp(Ptr<Socket> socket,
                                std::string to,
@@ -74,11 +63,11 @@ class Ipv4HeaderTest : public TestCase
                                Ipv4Header::EcnType ecn);
 
     /**
-     * \brief Send a packet with specific DSCP and ECN fields.
-     * \param socket The source socket.
-     * \param to The destination address.
-     * \param dscp The DSCP field.
-     * \param ecn The ECN field.
+     * @brief Send a packet with specific DSCP and ECN fields.
+     * @param socket The source socket.
+     * @param to The destination address.
+     * @param dscp The DSCP field.
+     * @param ecn The ECN field.
      */
     void SendData_IpHdr_Dscp(Ptr<Socket> socket,
                              std::string to,
@@ -90,15 +79,15 @@ class Ipv4HeaderTest : public TestCase
     Ipv4HeaderTest();
 
     /**
-     * \brief Receives a packet.
-     * \param socket The receiving socket.
-     * \param packet The packet.
-     * \param from The source address.
+     * @brief Receives a packet.
+     * @param socket The receiving socket.
+     * @param packet The packet.
+     * @param from The source address.
      */
     void ReceivePacket(Ptr<Socket> socket, Ptr<Packet> packet, const Address& from);
     /**
-     * \brief Receives a packet.
-     * \param socket The receiving socket.
+     * @brief Receives a packet.
+     * @param socket The receiving socket.
      */
     void ReceivePkt(Ptr<Socket> socket);
 };
@@ -291,17 +280,17 @@ Ipv4HeaderTest::DoRun()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv4 Header TestSuite
+ * @brief IPv4 Header TestSuite
  */
 class Ipv4HeaderTestSuite : public TestSuite
 {
   public:
     Ipv4HeaderTestSuite()
-        : TestSuite("ipv4-header", UNIT)
+        : TestSuite("ipv4-header", Type::UNIT)
     {
-        AddTestCase(new Ipv4HeaderTest, TestCase::QUICK);
+        AddTestCase(new Ipv4HeaderTest, TestCase::Duration::QUICK);
     }
 };
 

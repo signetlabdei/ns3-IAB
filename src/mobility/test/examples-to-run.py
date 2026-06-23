@@ -1,5 +1,4 @@
 #! /usr/bin/env python3
-## -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding: utf-8; -*-
 
 # A list of C++ examples to run in order to ensure that they remain
 # buildable and runnable over time.  Each tuple in the list contains
@@ -13,6 +12,11 @@ cpp_examples = [
     ("main-random-walk", "True", "True"),
     ("reference-point-group-mobility-example --useHelper=0", "True", "True"),
     ("reference-point-group-mobility-example --useHelper=1", "True", "True"),
+    ("leo-circular-orbit-tracing-example", "True", "True"),
+    ("leo-antenna-orientation", "True", "True"),
+    ("leo-antenna-orientation --resolution=1ms", "True", "True"),
+    ("leo-antenna-orientation --ns3::LeoCircularOrbitMobilityModel::Speed=8000", "True", "True"),
+    ("leo-antenna-orientation --duration=10000s", "True", "True"),
 ]
 
 # A list of Python examples to run in order to ensure that they remain

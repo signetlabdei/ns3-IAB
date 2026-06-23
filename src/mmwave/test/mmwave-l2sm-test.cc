@@ -278,9 +278,9 @@ MmWaveL2smEesmTestCase::DoRun ()
 class MmWaveTestL2smEesm : public TestSuite
 {
 public:
-  MmWaveTestL2smEesm () : TestSuite ("mmwave-l2sm-test", UNIT)
+  MmWaveTestL2smEesm () : TestSuite ("mmwave-l2sm-test", TestSuite::Type::UNIT)
   {
-    AddTestCase (new MmWaveL2smEesmTestCase ("First test"), QUICK);
+    AddTestCase (new MmWaveL2smEesmTestCase ("First test"), TestCase::Duration::QUICK);
   }
 };
 

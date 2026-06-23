@@ -3,18 +3,7 @@
  * Copyright (c) 2013 Universita' di Firenze
  * Copyright (c) 2022 Jadavpur University
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: David Gross <gdavid.devel@gmail.com>
  *         Sebastien Vincent <vincent@clarinet.u-strasbg.fr>
@@ -33,7 +22,6 @@
 #include "ns3/applications-module.h"
 #include "ns3/core-module.h"
 #include "ns3/csma-module.h"
-#include "ns3/internet-apps-module.h"
 #include "ns3/internet-module.h"
 #include "ns3/ipv6-routing-table-entry.h"
 #include "ns3/ipv6-static-routing-helper.h"
@@ -126,8 +114,8 @@ main(int argc, char** argv)
     // Create an UDP Echo server on n2
     UdpEchoServerHelper echoServer(42);
     ApplicationContainer serverApps = echoServer.Install(n2);
-    serverApps.Start(Seconds(0.0));
-    serverApps.Stop(Seconds(30.0));
+    serverApps.Start(Seconds(0));
+    serverApps.Stop(Seconds(30));
 
     uint32_t maxPacketCount = 5;
 
@@ -137,16 +125,16 @@ main(int argc, char** argv)
     echoClient.SetAttribute("PacketSize", UintegerValue(packetSizeN1));
     echoClient.SetAttribute("MaxPackets", UintegerValue(maxPacketCount));
     ApplicationContainer clientAppsN1 = echoClient.Install(n1);
-    clientAppsN1.Start(Seconds(2.0));
-    clientAppsN1.Stop(Seconds(10.0));
+    clientAppsN1.Start(Seconds(2));
+    clientAppsN1.Stop(Seconds(10));
 
     // Create an UDP Echo client on n0 to send UDP packets to n2 via r0 and r1
     uint32_t packetSizeN2 = 4000; // Packet should fragment as intermediate link MTU is 1500
     echoClient.SetAttribute("PacketSize", UintegerValue(packetSizeN2));
     echoClient.SetAttribute("MaxPackets", UintegerValue(maxPacketCount));
     ApplicationContainer clientAppsN2 = echoClient.Install(n1);
-    clientAppsN2.Start(Seconds(11.0));
-    clientAppsN2.Stop(Seconds(20.0));
+    clientAppsN2.Start(Seconds(11));
+    clientAppsN2.Stop(Seconds(20));
 
     AsciiTraceHelper ascii;
     csma.EnableAsciiAll(ascii.CreateFileStream("fragmentation-ipv6-PMTU.tr"));

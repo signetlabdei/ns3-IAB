@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2007 INRIA, Gustavo Carneiro
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Gustavo Carneiro <gjcarneiro@gmail.com>,
  *          Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
@@ -31,8 +20,8 @@
 #include <vector>
 
 /**
- * \file
- * \ingroup object
+ * @file
+ * @ingroup object
  * ns3::Object class declaration, which is the root of the Object hierarchy
  * and Aggregation.
  */
@@ -46,14 +35,14 @@ class AttributeValue;
 class TraceSourceAccessor;
 
 /**
- * \ingroup core
- * \defgroup object Object
- * \brief Base classes which provide memory management and object aggregation.
+ * @ingroup core
+ * @defgroup object Object
+ * @brief Base classes which provide memory management and object aggregation.
  */
 
 /**
- * \ingroup object
- * \ingroup ptr
+ * @ingroup object
+ * @ingroup ptr
  * Standard Object deleter, used by SimpleRefCount
  * to delete an Object when the reference count drops to zero.
  */
@@ -65,14 +54,14 @@ struct ObjectDeleter
      * Delete implementation, forwards to the Object::DoDelete()
      * method.
      *
-     * \param [in] object The Object to delete.
+     * @param [in] object The Object to delete.
      */
     inline static void Delete(Object* object);
 };
 
 /**
- * \ingroup object
- * \brief A base class which provides memory management and object aggregation
+ * @ingroup object
+ * @brief A base class which provides memory management and object aggregation
  *
  * The memory management scheme is based on reference-counting with
  * dispose-like functionality to break the reference cycles.
@@ -84,23 +73,26 @@ struct ObjectDeleter
  * all its aggregates. The DoDispose() method is always automatically
  * invoked from the Unref() method before destroying the Object,
  * even if the user did not call Dispose() directly.
+ *
+ * Inheritance graph was not generated because of its size.
+ * @hideinheritancegraph
  */
 class Object : public SimpleRefCount<Object, ObjectBase, ObjectDeleter>
 {
   public:
     /**
-     * \brief Register this type.
-     * \return The Object TypeId.
+     * @brief Register this type.
+     * @return The Object TypeId.
      */
     static TypeId GetTypeId();
 
     /**
-     * \brief Iterate over the Objects aggregated to an ns3::Object.
+     * @brief Iterate over the Objects aggregated to an ns3::Object.
      *
      * This iterator does not allow you to iterate over the parent
      * Object used to call Object::GetAggregateIterator.
      *
-     * \note This is a java-style iterator.
+     * @note This is a java-style iterator.
      */
     class AggregateIterator
     {
@@ -111,7 +103,7 @@ class Object : public SimpleRefCount<Object, ObjectBase, ObjectDeleter>
         /**
          * Check if there are more Aggregates to iterate over.
          *
-         * \returns \c true if Next() can be called and return a non-null
+         * @returns \c true if Next() can be called and return a non-null
          *          pointer, \c false otherwise.
          */
         bool HasNext() const;
@@ -119,7 +111,7 @@ class Object : public SimpleRefCount<Object, ObjectBase, ObjectDeleter>
         /**
          * Get the next Aggregated Object.
          *
-         * \returns The next aggregated Object.
+         * @returns The next aggregated Object.
          */
         Ptr<const Object> Next();
 
@@ -132,27 +124,30 @@ class Object : public SimpleRefCount<Object, ObjectBase, ObjectDeleter>
          * This is private, with Object as friend, so only Objects can create
          * useful AggregateIterators.
          *
-         * \param [in] object The Object whose Aggregates should be iterated over.
+         * @param [in] object The Object whose Aggregates should be iterated over.
          */
         AggregateIterator(Ptr<const Object> object);
         Ptr<const Object> m_object; //!< Parent Object.
         uint32_t m_current;         //!< Current position in parent's aggregates.
+        /// Iterator to the unidirectional aggregates.
+        std::vector<Ptr<Object>>::const_iterator m_uniAggrIter;
     };
 
-    /** Constructor. */
+    /** @hidecaller */
     Object();
     /** Destructor. */
     ~Object() override;
 
-    TypeId GetInstanceTypeId() const override;
+    TypeId GetInstanceTypeId() const final;
 
     /**
      * Get a pointer to the requested aggregated Object.  If the type of object
      * requested is ns3::Object, a Ptr to the calling object is returned.
      *
-     * \tparam T \explicit The type of the aggregated Object to retrieve.
-     * \returns A pointer to the requested Object, or zero
+     * @tparam T \explicit The type of the aggregated Object to retrieve.
+     * @returns A pointer to the requested Object, or zero
      *          if it could not be found.
+     * @hidecaller
      */
     template <typename T>
     inline Ptr<T> GetObject() const;
@@ -160,10 +155,11 @@ class Object : public SimpleRefCount<Object, ObjectBase, ObjectDeleter>
      * Get a pointer to the requested aggregated Object by TypeId.  If the
      * TypeId argument is ns3::Object, a Ptr to the calling object is returned.
      *
-     * \tparam T \explicit The type of the aggregated Object to retrieve.
-     * \param [in] tid The TypeId of the requested Object.
-     * \returns A pointer to the requested Object with the specified TypeId,
+     * @tparam T \explicit The type of the aggregated Object to retrieve.
+     * @param [in] tid The TypeId of the requested Object.
+     * @returns A pointer to the requested Object with the specified TypeId,
      *          or zero if it could not be found.
+     * @hidecaller
      */
     template <typename T>
     Ptr<T> GetObject(TypeId tid) const;
@@ -175,7 +171,7 @@ class Object : public SimpleRefCount<Object, ObjectBase, ObjectDeleter>
      * After calling this method, this Object is expected to be
      * totally unusable except for the Ref() and Unref() methods.
      *
-     * \note You can call Dispose() many times on the same Object or
+     * @note You can call Dispose() many times on the same Object or
      * different Objects aggregated together, and DoDispose() will be
      * called only once for each aggregated Object.
      *
@@ -185,7 +181,7 @@ class Object : public SimpleRefCount<Object, ObjectBase, ObjectDeleter>
     /**
      * Aggregate two Objects together.
      *
-     * \param [in] other The other Object pointer
+     * @param [in] other The other Object pointer
      *
      * This method aggregates the two Objects together: after this
      * method returns, it becomes possible to call GetObject()
@@ -200,9 +196,47 @@ class Object : public SimpleRefCount<Object, ObjectBase, ObjectDeleter>
     void AggregateObject(Ptr<Object> other);
 
     /**
+     * Aggregate an Object to another Object.
+     *
+     * @param [in] other The other Object pointer
+     *
+     * This method aggregates the an object to another Object:
+     * after this method returns, it becomes possible to call GetObject()
+     * on the aggregating Object to get the other, but not vice-versa.
+     *
+     * This method calls the virtual method NotifyNewAggregates() to
+     * notify all aggregated Objects that they have been aggregated
+     * together.
+     *
+     * This method is useful only if there is the need to aggregate an
+     * object to more than one object at the same time, and should be avoided
+     * if not strictly necessary.
+     * In particular, objects aggregated with this method should be destroyed
+     * only after making sure that the objects they are aggregated to are
+     * destroyed as well. However, the destruction of the aggregating objects
+     * will take care of the unidirectional aggregated objects gracefully.
+     *
+     * Beware that an object aggregated to another with this function
+     * behaves differently than other aggregates in the following ways.
+     * Suppose that Object B is aggregated unidirectionally:
+     *   - It can be aggregated unidirectionally to more than one objects
+     *     (e.g., A1 and A2).
+     *   - It is not possible to call GetObject on B to find an aggregate of
+     *     object A1 or A2.
+     *   - When A1 or A2 are initialized, B is initialized, whichever happens first.
+     *   - When A1 or A2 are destroyed, B is destroyed, whichever happens last.
+     *   - If B is initialized, A1 and A2 are unaffected.
+     *   - If B is forcefully destroyed, A1 and A2 are unaffected.
+     *
+     *
+     * \sa AggregateObject()
+     */
+    void UnidirectionalAggregateObject(Ptr<Object> other);
+
+    /**
      * Get an iterator to the Objects aggregated to this one.
      *
-     * \returns An iterator to the first Object aggregated to this
+     * @returns An iterator to the first Object aggregated to this
      *          Object.
      *
      * If no Objects are aggregated to this Object, then, the returned
@@ -226,8 +260,8 @@ class Object : public SimpleRefCount<Object, ObjectBase, ObjectDeleter>
     /**
      * Check if the object has been initialized.
      *
-     * \brief Check if the object has been initialized.
-     * \returns \c true if the object has been initialized.
+     * @brief Check if the object has been initialized.
+     * @returns \c true if the object has been initialized.
      */
     bool IsInitialized() const;
 
@@ -272,12 +306,14 @@ class Object : public SimpleRefCount<Object, ObjectBase, ObjectDeleter>
      * DoDispose() method.
      *
      * It is safe to call GetObject() from within this method.
+     *
+     * @hidecaller
      */
     virtual void DoDispose();
     /**
      * Copy an Object.
      *
-     * \param [in] o the Object to copy.
+     * @param [in] o the Object to copy.
      *
      * Allow subclasses to implement a copy constructor.
      *
@@ -300,26 +336,26 @@ class Object : public SimpleRefCount<Object, ObjectBase, ObjectDeleter>
     /**
      * Copy an Object.
      *
-     * \tparam T \deduced The type of the Object being copied.
-     * \param [in] object A pointer to the object to copy.
-     * \returns A copy of the input object.
+     * @tparam T \deduced The type of the Object being copied.
+     * @param [in] object A pointer to the object to copy.
+     * @returns A copy of the input object.
      *
      * This method invoke the copy constructor of the input object
      * and returns the new instance.
      */
-    /**@{*/
     template <typename T>
     friend Ptr<T> CopyObject(Ptr<T> object);
+
+    /** @copydoc CopyObject(Ptr<T>) */
     template <typename T>
     friend Ptr<T> CopyObject(Ptr<const T> object);
-    /**@}*/
 
     /**
      * Set the TypeId and construct all Attributes of an Object.
      *
-     * \tparam T \deduced The type of the Object to complete.
-     * \param [in] object The uninitialized object pointer.
-     * \return The derived object.
+     * @tparam T \deduced The type of the Object to complete.
+     * @param [in] object The uninitialized object pointer.
+     * @return The derived object.
      */
     template <typename T>
     friend Ptr<T> CompleteConstruct(T* object);
@@ -354,19 +390,19 @@ class Object : public SimpleRefCount<Object, ObjectBase, ObjectDeleter>
     /**
      * Find an Object of TypeId tid in the aggregates of this Object.
      *
-     * \param [in] tid The TypeId we're looking for
-     * \return The matching Object, if it is found
+     * @param [in] tid The TypeId we're looking for
+     * @return The matching Object, if it is found
      */
     Ptr<Object> DoGetObject(TypeId tid) const;
     /**
      * Verify that this Object is still live, by checking it's reference count.
-     * \return \c true if the reference count is non zero.
+     * @return \c true if the reference count is non zero.
      */
     bool Check() const;
     /**
      * Check if any aggregated Objects have non-zero reference counts.
      *
-     * \return \c true if any of our aggregates have non zero reference count.
+     * @return \c true if any of our aggregates have non zero reference count.
      *
      * In some cases, when an event is scheduled against a subclass of
      * Object, and if no one owns a reference directly to this Object, the
@@ -379,7 +415,7 @@ class Object : public SimpleRefCount<Object, ObjectBase, ObjectDeleter>
     /**
      * Set the TypeId of this Object.
 
-     * \param [in] tid The TypeId value to set.
+     * @param [in] tid The TypeId value to set.
      *
      * Invoked from ns3::CreateObject only.
      * Initialize the \c m_tid member variable to
@@ -389,7 +425,7 @@ class Object : public SimpleRefCount<Object, ObjectBase, ObjectDeleter>
     /**
      * Initialize all member variables registered as Attributes of this TypeId.
      *
-     * \param [in] attributes The attribute values used to initialize
+     * @param [in] attributes The attribute values used to initialize
      *        the member variables of this Object's instance.
      *
      * Invoked from ns3::ObjectFactory::Create and ns3::CreateObject only.
@@ -401,10 +437,10 @@ class Object : public SimpleRefCount<Object, ObjectBase, ObjectDeleter>
     /**
      * Keep the list of aggregates in most-recently-used order
      *
-     * \param [in,out] aggregates The list of aggregated Objects.
-     * \param [in] i The most recently used entry in the list.
+     * @param [in,out] aggregates The list of aggregated Objects.
+     * @param [in] i The most recently used entry in the list.
      */
-    void UpdateSortedArray(struct Aggregates* aggregates, uint32_t i) const;
+    void UpdateSortedArray(Aggregates* aggregates, uint32_t i) const;
     /**
      * Attempt to delete this Object.
      *
@@ -435,7 +471,18 @@ class Object : public SimpleRefCount<Object, ObjectBase, ObjectDeleter>
      * array.  The array is shared by all aggregated Objects
      * so the size of the array is indirectly a reference count.
      */
-    struct Aggregates* m_aggregates;
+    Aggregates* m_aggregates;
+
+    /**
+     * An array of unidirectional aggregates, i.e., objects that are
+     * aggregated to the current object, but not vice-versa.
+     *
+     * This is useful (and suggested) only for Objects that should
+     * be aggregated to multiple other Objects, where the normal
+     * Aggregation would create an issue.
+     */
+    std::vector<Ptr<Object>> m_unidirectionalAggregates;
+
     /**
      * The number of times the Object was accessed with a
      * call to GetObject().
@@ -490,7 +537,7 @@ Object::GetObject() const
  * Specialization of \link Object::GetObject () \endlink for
  * objects of type ns3::Object.
  *
- * \returns A Ptr to the calling object.
+ * @returns A Ptr to the calling object.
  */
 template <>
 inline Ptr<Object>
@@ -515,8 +562,8 @@ Object::GetObject(TypeId tid) const
  * Specialization of \link Object::GetObject (TypeId tid) \endlink for
  * objects of type ns3::Object.
  *
- * \param [in] tid The TypeId of the requested Object.
- * \returns A Ptr to the calling object.
+ * @param [in] tid The TypeId of the requested Object.
+ * @returns A Ptr to the calling object.
  */
 template <>
 inline Ptr<Object>
@@ -564,15 +611,16 @@ CompleteConstruct(T* object)
 }
 
 /**
- * \ingroup object
+ * @ingroup object
  * @{
  */
 /**
  * Create an object by type, with varying number of constructor parameters.
  *
- * \tparam T \explicit The type of the derived object to construct.
- * \param [in] args Arguments to pass to the constructor.
- * \return The derived object.
+ * @tparam T \explicit The type of the derived object to construct.
+ * @param [in] args Arguments to pass to the constructor.
+ * @return The derived object.
+ * @hidecaller
  */
 template <typename T, typename... Args>
 Ptr<T>

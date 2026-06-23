@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #include "channel-list.h"
@@ -31,24 +20,24 @@ namespace ns3
 NS_LOG_COMPONENT_DEFINE("ChannelList");
 
 /**
- * \ingroup network
+ * @ingroup network
  *
- * \brief private implementation detail of the ChannelList API.
+ * @brief private implementation detail of the ChannelList API.
  */
 class ChannelListPriv : public Object
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
     ChannelListPriv();
     ~ChannelListPriv() override;
 
     /**
-     * \param channel channel to add
-     * \returns index of channel in list.
+     * @param channel channel to add
+     * @returns index of channel in list.
      *
      * This method is called automatically from Channel::Channel so
      * the user has little reason to call it himself.
@@ -56,47 +45,47 @@ class ChannelListPriv : public Object
     uint32_t Add(Ptr<Channel> channel);
 
     /**
-     * \returns a C++ iterator located at the beginning of this
+     * @returns a C++ iterator located at the beginning of this
      *          list.
      */
     ChannelList::Iterator Begin() const;
     /**
-     * \returns a C++ iterator located at the end of this
+     * @returns a C++ iterator located at the end of this
      *          list.
      */
     ChannelList::Iterator End() const;
 
     /**
-     * \param n index of requested channel.
-     * \returns the Channel associated to index n.
+     * @param n index of requested channel.
+     * @returns the Channel associated to index n.
      */
     Ptr<Channel> GetChannel(uint32_t n);
 
     /**
-     * \returns the number of channels currently in the list.
+     * @returns the number of channels currently in the list.
      */
     uint32_t GetNChannels();
 
     /**
-     * \brief Get the channel list object
-     * \returns the channel list
+     * @brief Get the channel list object
+     * @returns the channel list
      */
     static Ptr<ChannelListPriv> Get();
 
   private:
     /**
-     * \brief Get the channel list object
-     * \returns the channel list
+     * @brief Get the channel list object
+     * @returns the channel list
      */
     static Ptr<ChannelListPriv>* DoGet();
 
     /**
-     * \brief Delete the channel list object
+     * @brief Delete the channel list object
      */
     static void Delete();
 
     /**
-     * \brief Dispose the channels in the list
+     * @brief Dispose the channels in the list
      */
     void DoDispose() override;
 
@@ -162,7 +151,7 @@ void
 ChannelListPriv::DoDispose()
 {
     NS_LOG_FUNCTION(this);
-    for (std::vector<Ptr<Channel>>::iterator i = m_channels.begin(); i != m_channels.end(); i++)
+    for (auto i = m_channels.begin(); i != m_channels.end(); i++)
     {
         Ptr<Channel> channel = *i;
         channel->Dispose();
@@ -178,6 +167,7 @@ ChannelListPriv::Add(Ptr<Channel> channel)
     NS_LOG_FUNCTION(this << channel);
     uint32_t index = m_channels.size();
     m_channels.push_back(channel);
+    Simulator::Schedule(TimeStep(0), &Channel::Initialize, channel);
     return index;
 }
 

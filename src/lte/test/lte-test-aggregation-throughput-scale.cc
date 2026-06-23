@@ -49,10 +49,10 @@ using namespace ns3;
 NS_LOG_COMPONENT_DEFINE ("LteAggregationThroughputScaleTest");
 
 LteAggregationThroughputScaleTestSuite::LteAggregationThroughputScaleTestSuite ()
-    : TestSuite ("lte-aggregation-throughput-scale", SYSTEM)
+    : TestSuite ("lte-aggregation-throughput-scale", TestSuite::Type::SYSTEM)
 {
   AddTestCase (new LteAggregationThroughputScaleTestCase ("Carrier aggregation throughput scale"),
-               TestCase::QUICK);
+               TestCase::Duration::QUICK);
 }
 
 static LteAggregationThroughputScaleTestSuite g_lteAggregationThroughputScaleTestSuite;

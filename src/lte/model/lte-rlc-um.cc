@@ -568,7 +568,7 @@ LteRlcUm::DoReceivePdu (LteMacSapUser::ReceivePduParameters rxPduParams)
   //    - if VR(UX) <= VR(UR); or
   //    - if VR(UX) falls outside of the reordering window and VR(UX) is not equal to VR(UH)::
   //        - stop and reset t-Reordering;
-  if (m_reorderingTimer.IsRunning ())
+  if (m_reorderingTimer.IsPending ())
     {
       NS_LOG_LOGIC ("Reordering timer is running");
 
@@ -583,7 +583,7 @@ LteRlcUm::DoReceivePdu (LteMacSapUser::ReceivePduParameters rxPduParams)
   //    - if VR(UH) > VR(UR):
   //        - start t-Reordering;
   //        - set VR(UX) to VR(UH).
-  if (!m_reorderingTimer.IsRunning ())
+  if (!m_reorderingTimer.IsPending ())
     {
       NS_LOG_LOGIC ("Reordering timer is not running");
 

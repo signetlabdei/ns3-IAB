@@ -1,40 +1,32 @@
 /*
  * Copyright (c) 2010 Andrea Sacco
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Andrea Sacco <andrea.sacco85@gmail.com>
  */
 
 #include "simple-device-energy-model.h"
 
-#include "ns3/energy-source.h"
+#include "energy-source.h"
+
 #include "ns3/log.h"
 #include "ns3/simulator.h"
 #include "ns3/trace-source-accessor.h"
 
 namespace ns3
 {
+namespace energy
+{
 
 NS_LOG_COMPONENT_DEFINE("SimpleDeviceEnergyModel");
-
 NS_OBJECT_ENSURE_REGISTERED(SimpleDeviceEnergyModel);
 
 TypeId
 SimpleDeviceEnergyModel::GetTypeId()
 {
-    static TypeId tid = TypeId("ns3::SimpleDeviceEnergyModel")
+    static TypeId tid = TypeId("ns3::energy::SimpleDeviceEnergyModel")
+                            .AddDeprecatedName("ns3::SimpleDeviceEnergyModel")
                             .SetParent<DeviceEnergyModel>()
                             .SetGroupName("Energy")
                             .AddConstructor<SimpleDeviceEnergyModel>()
@@ -49,7 +41,7 @@ SimpleDeviceEnergyModel::GetTypeId()
 SimpleDeviceEnergyModel::SimpleDeviceEnergyModel()
 {
     NS_LOG_FUNCTION(this);
-    m_lastUpdateTime = Seconds(0.0);
+    m_lastUpdateTime = Seconds(0);
     m_actualCurrentA = 0.0;
     m_source = nullptr;
 }
@@ -131,4 +123,5 @@ SimpleDeviceEnergyModel::DoGetCurrentA() const
     return m_actualCurrentA;
 }
 
+} // namespace energy
 } // namespace ns3

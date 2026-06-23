@@ -1,28 +1,18 @@
 /*
  * Copyright (c) 2013 Universita' di Firenze, Italy
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Tommaso Pecorella <tommaso.pecorella@unifi.it>
  */
 
 #include "error-channel.h"
 
+#include "simple-net-device.h"
+
 #include "ns3/log.h"
 #include "ns3/node.h"
 #include "ns3/packet.h"
-#include "ns3/simple-net-device.h"
 #include "ns3/simulator.h"
 
 namespace ns3
@@ -86,9 +76,7 @@ ErrorChannel::Send(Ptr<Packet> p,
                    Ptr<SimpleNetDevice> sender)
 {
     NS_LOG_FUNCTION(p << protocol << to << from << sender);
-    for (std::vector<Ptr<SimpleNetDevice>>::const_iterator i = m_devices.begin();
-         i != m_devices.end();
-         ++i)
+    for (auto i = m_devices.begin(); i != m_devices.end(); ++i)
     {
         Ptr<SimpleNetDevice> tmp = *i;
         if (tmp == sender)

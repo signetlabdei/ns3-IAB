@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2016 Natale Patriciello <natale.patriciello@gmail.com>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  */
 
@@ -28,9 +17,9 @@ using namespace ns3;
 NS_LOG_COMPONENT_DEFINE("TcpRttEstimationTestSuite");
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief Check Rtt calculations
+ * @brief Check Rtt calculations
  *
  * First check is that, for each ACK, we have a valid estimation of the RTT.
  * The second check is that, when updating RTT history, we should consider
@@ -41,10 +30,10 @@ class TcpRttEstimationTest : public TcpGeneralTest
 {
   public:
     /**
-     * \brief Constructor.
-     * \param desc Test description.
-     * \param enableTs Enable TimeStamp option.
-     * \param pktCount Packet number.
+     * @brief Constructor.
+     * @param desc Test description.
+     * @param enableTs Enable TimeStamp option.
+     * @param pktCount Packet number.
      */
     TcpRttEstimationTest(const std::string& desc, bool enableTs, uint32_t pktCount);
 
@@ -89,7 +78,7 @@ TcpRttEstimationTest::ConfigureEnvironment()
     TcpGeneralTest::ConfigureEnvironment();
     SetAppPktCount(m_pktCount);
     SetPropagationDelay(MilliSeconds(50));
-    SetTransmitStart(Seconds(2.0));
+    SetTransmitStart(Seconds(2));
     SetMTU(500);
 }
 
@@ -190,21 +179,21 @@ TcpRttEstimationTest::FinalChecks()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief Check Rtt calculations with packet losses.
+ * @brief Check Rtt calculations with packet losses.
  *
- * \see TcpRttEstimationTest
+ * @see TcpRttEstimationTest
  */
 class TcpRttEstimationWithLossTest : public TcpRttEstimationTest
 {
   public:
     /**
-     * \brief Constructor.
-     * \param desc Test description.
-     * \param enableTs Enable TimeStamp option.
-     * \param pktCount Packet number.
-     * \param toDrop List of packet to drop.
+     * @brief Constructor.
+     * @param desc Test description.
+     * @param enableTs Enable TimeStamp option.
+     * @param pktCount Packet number.
+     * @param toDrop List of packet to drop.
      */
     TcpRttEstimationWithLossTest(const std::string& desc,
                                  bool enableTs,
@@ -232,35 +221,33 @@ TcpRttEstimationWithLossTest::CreateReceiverErrorModel()
 {
     Ptr<TcpSeqErrorModel> errorModel = CreateObject<TcpSeqErrorModel>();
 
-    std::vector<uint32_t>::iterator it;
-
-    for (it = m_toDrop.begin(); it != m_toDrop.end(); ++it)
+    for (auto it = m_toDrop.begin(); it != m_toDrop.end(); ++it)
     {
-        errorModel->AddSeqToKill(SequenceNumber32((*it)));
+        errorModel->AddSeqToKill(SequenceNumber32(*it));
     }
 
     return errorModel;
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief TCP RTT estimation TestSuite
+ * @brief TCP RTT estimation TestSuite
  */
 class TcpRttEstimationTestSuite : public TestSuite
 {
   public:
     TcpRttEstimationTestSuite()
-        : TestSuite("tcp-rtt-estimation-test", UNIT)
+        : TestSuite("tcp-rtt-estimation-test", Type::UNIT)
     {
         AddTestCase(new TcpRttEstimationTest("RTT estimation, ts, no data", true, 0),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
         AddTestCase(new TcpRttEstimationTest("RTT estimation, no ts, no data", false, 0),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
         AddTestCase(new TcpRttEstimationTest("RTT estimation, ts, some data", true, 10),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
         AddTestCase(new TcpRttEstimationTest("RTT estimation, no ts, some data", false, 10),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
 
         std::vector<uint32_t> toDrop;
         toDrop.push_back(501);
@@ -270,13 +257,13 @@ class TcpRttEstimationTestSuite : public TestSuite
                                                      false,
                                                      10,
                                                      toDrop),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
         AddTestCase(new TcpRttEstimationWithLossTest("RTT estimation, ts,"
                                                      " some data, with retr",
                                                      true,
                                                      10,
                                                      toDrop),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
 
         toDrop.push_back(501);
         AddTestCase(new TcpRttEstimationWithLossTest("RTT estimation, no ts,"
@@ -284,13 +271,13 @@ class TcpRttEstimationTestSuite : public TestSuite
                                                      false,
                                                      10,
                                                      toDrop),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
         AddTestCase(new TcpRttEstimationWithLossTest("RTT estimation, ts,"
                                                      " some data, with retr",
                                                      true,
                                                      10,
                                                      toDrop),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
 
         toDrop.push_back(54001);
         toDrop.push_back(58001);
@@ -302,13 +289,13 @@ class TcpRttEstimationTestSuite : public TestSuite
                                                      false,
                                                      1000,
                                                      toDrop),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
         AddTestCase(new TcpRttEstimationWithLossTest("RTT estimation, ts,"
                                                      " a lot of data, with retr",
                                                      true,
                                                      1000,
                                                      toDrop),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
     }
 };
 

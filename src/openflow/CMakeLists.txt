@@ -14,6 +14,7 @@ find_external_library(
   HEADER_NAME openflow.h
   LIBRARY_NAME openflow
   SEARCH_PATHS ${NS3_WITH_OPENFLOW}
+  OUTPUT_VARIABLE "NS3_OPENFLOW_REASON"
 )
 
 if((NOT
@@ -47,7 +48,10 @@ if(NOT
   return()
 endif()
 
-include_directories(${openflow_INCLUDE_DIRS})
+include_directories(
+  SYSTEM
+  ${openflow_INCLUDE_DIRS}
+)
 add_definitions(
   -DNS3_OPENFLOW
   -DENABLE_OPENFLOW

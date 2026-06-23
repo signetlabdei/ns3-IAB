@@ -1,25 +1,14 @@
 /*
  *  Copyright 2013. Lawrence Livermore National Security, LLC.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Steven Smith <smith84@llnl.gov>
  */
 
 /**
- * \file
- * \ingroup mpi
+ * @file
+ * @ingroup mpi
  * Declaration of classes ns3::NullMessageSentBuffer and ns3::NullMessageMpiInterface.
  */
 
@@ -28,8 +17,8 @@
 
 #include "parallel-communication-interface.h"
 
-#include <ns3/buffer.h>
-#include <ns3/nstime.h>
+#include "ns3/buffer.h"
+#include "ns3/nstime.h"
 
 #include <list>
 #include <mpi.h>
@@ -43,9 +32,9 @@ class RemoteChannelBundle;
 class Packet;
 
 /**
- * \ingroup mpi
+ * @ingroup mpi
  *
- * \brief Interface between ns-3 and MPI for the Null Message
+ * @brief Interface between ns-3 and MPI for the Null Message
  * distributed simulation implementation.
  */
 class NullMessageMpiInterface : public ParallelCommunicationInterface, Object
@@ -53,7 +42,7 @@ class NullMessageMpiInterface : public ParallelCommunicationInterface, Object
   public:
     /**
      * Register this type.
-     * \return The object TypeId.
+     * @return The object TypeId.
      */
     static TypeId GetTypeId();
 
@@ -78,23 +67,23 @@ class NullMessageMpiInterface : public ParallelCommunicationInterface, Object
      * collaborators are private to restrict use.
      * It is not intended for state to be shared.
      */
-    friend ns3::RemoteChannelBundle;
-    friend ns3::NullMessageSimulatorImpl;
+    friend class ns3::RemoteChannelBundle;
+    friend class ns3::NullMessageSimulatorImpl;
 
     /**
-     * \brief Send a Null Message to across the specified bundle.
+     * @brief Send a Null Message to across the specified bundle.
      *
      * Null Messages are sent when a packet has not been sent across
      * this bundle in order to allow time advancement on the remote
      * MPI task.
      *
-     * \param [in] guaranteeUpdate Lower bound time on the next
+     * @param [in] guaranteeUpdate Lower bound time on the next
      * possible event from this MPI task to the remote MPI task across
      * the bundle.  Remote task may execute events up to this time.
      *
-     * \param [in] bundle The bundle of links between two ranks.
+     * @param [in] bundle The bundle of links between two ranks.
      *
-     * \internal The Null Message MPI buffer format uses the same packet
+     * @internal The Null Message MPI buffer format uses the same packet
      * metadata format as sending a normal packet with the time,
      * destination node, and destination device set to zero.  Using the
      * same packet metadata simplifies receive logic.
@@ -116,7 +105,7 @@ class NullMessageMpiInterface : public ParallelCommunicationInterface, Object
     static void TestSendComplete();
 
     /**
-     * \brief Initialize send and receive buffers.
+     * @brief Initialize send and receive buffers.
      *
      * This method should be called after all links have been added to the RemoteChannelBundle
      * manager to setup any required send and receive buffers.
@@ -130,7 +119,7 @@ class NullMessageMpiInterface : public ParallelCommunicationInterface, Object
      * only check for received messages complete, and return
      * all messages that are queued up locally.
      *
-     * \param [in] blocking Whether this call should block.
+     * @param [in] blocking Whether this call should block.
      */
     static void ReceiveMessages(bool blocking = false);
 

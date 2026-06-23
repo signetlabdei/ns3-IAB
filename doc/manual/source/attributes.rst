@@ -221,7 +221,7 @@ or more abstractly, using an object factory, you can create a
 :cpp:class:`Node` object without even knowing the concrete C++ type::
 
     ObjectFactory factory;
-    const std::string typeId = "ns3::Node'';
+    const std::string typeId = "ns3::Node";
     factory.SetTypeId(typeId);
     Ptr<Object> node = factory.Create <Object>();
 
@@ -440,7 +440,7 @@ The :cpp:func:`AddAttribute()` method is performing a number of things for the
 
 * Binding the (usually private) member variable :cpp:member:`m_maxSize`
   to a public string ``"MaxSize"``.
-* Providing a default value (0 packets).
+* Providing a default value (100 packets).
 * Providing some help text defining the meaning of the value.
 * Providing a "Checker" (not used in this example) that can be used to set
   bounds on the allowable range of values.
@@ -788,12 +788,20 @@ consistently to allow correct operation. To this end we do allow for consistency
 checking *when the attribute is used* (*cf*. ``NS_ASSERT_MSG``
 or ``NS_ABORT_MSG``).
 
-In general, the attribute code to assign values to the underlying class member
-variables is executed after an object is constructed. But what if you need the
-values assigned before the constructor body executes, because you need them in
-the logic of the constructor? There is a way to do this, used for example in the
-class :cpp:class:`ConfigStore`: call :cpp:func:`ObjectBase::ConstructSelf()` as
-follows::
+For classes deriving from the :cpp:class:`Object` class, the attribute code to assign initial
+values to the underlying class member variables is executed after an object is constructed.
+Therefore, you cannot access the values assigned to the attributes of an object from within
+its constructor. Instead, you can override :cpp:func:`ObjectBase::NotifyConstructionCompleted()`
+and access the values assigned to the attributes of the object from within that function.
+A practical example of how this is used can be found in the ns-3 class :cpp:class:`RttEstimator`
+in the `internet` module.
+
+For classes deriving directly from :cpp:class:`ObjectBase`, it is instead needed to explicitly
+call :cpp:func:`ObjectBase::ConstructSelf()` to assign initial values to the class attributes.
+Such a call can be made in the class constructor, in which case the values assigned to the
+attributes are accessible from within its constructor. There are not many examples of this usage
+in the ns-3 codebase because most classes with attributes typically derive from :cpp:class:`Object`.
+One example is the :cpp:class:`ConfigStore` class, whose constructor is shown as follows::
 
     ConfigStore::ConfigStore()
     {
@@ -801,10 +809,13 @@ follows::
       // continue on with constructor.
     }
 
-Beware that the object and all its derived classes must also implement
-a :cpp:func:`GetInstanceTypeId()` method. Otherwise
-the :cpp:func:`ObjectBase::ConstructSelf()` will not be able to read
-the attributes.
+Classes that derive from :cpp:class:`Object` can not implement (i.e., specialize)
+a :cpp:func:`GetInstanceTypeId()` method; this method is marked `final`
+in :cpp:class:`Object`.  However, classes that instead derive from
+:cpp:class:`ObjectBase` directly (in ns-3, this is usually packet headers and tags),
+must implement :cpp:func:`GetInstanceTypeId()`.  It is recommended that this
+method simply return the value provided by :cpp:func:`GetTypeId()`; see the class
+:cpp:class:`EthernetHeader` in `src/network/utils` directory as an example.
 
 Adding Attributes
 +++++++++++++++++
@@ -893,7 +904,7 @@ in the ``my-mobility.cc`` implementation file::
         .AddAttribute("Time",
                       "Change current direction and speed after moving for this delay.",
                       // etc (more parameters).
-                      TimeValue(Seconds(1.0)),
+                      TimeValue(Seconds(1)),
                       MakeTimeAccessor(&MyMobility::m_modeTime),
                       MakeTimeChecker())
         ;

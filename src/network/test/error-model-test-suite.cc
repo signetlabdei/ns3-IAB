@@ -2,18 +2,7 @@
  * Copyright (c) 2007 University of Washington
  * Copyright (c) 2013 ResiliNets, ITTC, University of Kansas
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  */
 
@@ -79,8 +68,8 @@ BuildSimpleTopology(Ptr<Node> a,
 }
 
 /**
- * \ingroup network-test
- * \ingroup tests
+ * @ingroup network-test
+ * @ingroup tests
  *
  * ErrorModel unit tests.
  */
@@ -94,16 +83,16 @@ class ErrorModelSimple : public TestCase
     void DoRun() override;
     /**
      * Receive form a NetDevice
-     * \param nd The NetDevice.
-     * \param p The received packet.
-     * \param protocol The protocol received.
-     * \param addr The sender address.
-     * \return True on success.
+     * @param nd The NetDevice.
+     * @param p The received packet.
+     * @param protocol The protocol received.
+     * @param addr The sender address.
+     * @return True on success.
      */
     bool Receive(Ptr<NetDevice> nd, Ptr<const Packet> p, uint16_t protocol, const Address& addr);
     /**
      * Register a Drop
-     * \param p The dropped packet
+     * @param p The dropped packet
      */
     void DropEvent(Ptr<const Packet> p);
 
@@ -182,8 +171,8 @@ ErrorModelSimple::DoRun()
 }
 
 /**
- * \ingroup network-test
- * \ingroup tests
+ * @ingroup network-test
+ * @ingroup tests
  *
  * BurstErrorModel unit tests.
  */
@@ -197,16 +186,16 @@ class BurstErrorModelSimple : public TestCase
     void DoRun() override;
     /**
      * Receive form a NetDevice
-     * \param nd The NetDevice.
-     * \param p The received packet.
-     * \param protocol The protocol received.
-     * \param addr The sender address.
-     * \return True on success.
+     * @param nd The NetDevice.
+     * @param p The received packet.
+     * @param protocol The protocol received.
+     * @param addr The sender address.
+     * @return True on success.
      */
     bool Receive(Ptr<NetDevice> nd, Ptr<const Packet> p, uint16_t protocol, const Address& addr);
     /**
      * Register a Drop
-     * \param p The dropped packet
+     * @param p The dropped packet
      */
     void DropEvent(Ptr<const Packet> p);
 
@@ -289,10 +278,10 @@ BurstErrorModelSimple::DoRun()
 }
 
 /**
- * \ingroup network-test
- * \ingroup tests
+ * @ingroup network-test
+ * @ingroup tests
  *
- * \brief ErrorModel TestSuite
+ * @brief ErrorModel TestSuite
  *
  *  This is the start of an error model test suite.  For starters, this is
  *  just testing that the SimpleNetDevice is working but this can be
@@ -305,10 +294,10 @@ class ErrorModelTestSuite : public TestSuite
 };
 
 ErrorModelTestSuite::ErrorModelTestSuite()
-    : TestSuite("error-model", UNIT)
+    : TestSuite("error-model", Type::UNIT)
 {
-    AddTestCase(new ErrorModelSimple, TestCase::QUICK);
-    AddTestCase(new BurstErrorModelSimple, TestCase::QUICK);
+    AddTestCase(new ErrorModelSimple, TestCase::Duration::QUICK);
+    AddTestCase(new BurstErrorModelSimple, TestCase::Duration::QUICK);
 }
 
 // Do not forget to allocate an instance of this TestSuite

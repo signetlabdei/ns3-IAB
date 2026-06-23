@@ -1,22 +1,12 @@
 /*
  * Copyright (c) 2017
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Sebastien Deronne <sebastien.deronne@gmail.com>
  */
 
+#include "ns3/attribute-container.h"
 #include "ns3/boolean.h"
 #include "ns3/command-line.h"
 #include "ns3/config.h"
@@ -30,6 +20,7 @@
 #include "ns3/ssid.h"
 #include "ns3/tuple.h"
 #include "ns3/udp-client-server-helper.h"
+#include "ns3/udp-server.h"
 #include "ns3/uinteger.h"
 #include "ns3/yans-wifi-channel.h"
 #include "ns3/yans-wifi-helper.h"
@@ -53,8 +44,8 @@ NS_LOG_COMPONENT_DEFINE("wifi-backward-compatibility");
 /**
  * Convert a string (e.g., "80211a") to a pair {WifiStandard, WifiPhyBand}
  *
- * \param version The WiFi standard version.
- * \return a pair of WifiStandard, WifiPhyBand
+ * @param version The WiFi standard version.
+ * @return a pair of WifiStandard, WifiPhyBand
  */
 std::pair<WifiStandard, WifiPhyBand>
 ConvertStringToStandardAndBand(std::string version)
@@ -112,17 +103,17 @@ ConvertStringToStandardAndBand(std::string version)
 int
 main(int argc, char* argv[])
 {
-    uint32_t payloadSize = 1472; // bytes
-    double simulationTime = 10;  // seconds
-    std::string apVersion = "80211a";
-    std::string staVersion = "80211n_5GHZ";
-    std::string apRaa = "Minstrel";
-    std::string staRaa = "MinstrelHt";
-    bool apHasTraffic = false;
-    bool staHasTraffic = true;
+    uint32_t payloadSize{1472}; // bytes
+    Time simulationTime{"10s"};
+    std::string apVersion{"80211a"};
+    std::string staVersion{"80211n_5GHZ"};
+    std::string apRaa{"Minstrel"};
+    std::string staRaa{"MinstrelHt"};
+    bool apHasTraffic{false};
+    bool staHasTraffic{true};
 
     CommandLine cmd(__FILE__);
-    cmd.AddValue("simulationTime", "Simulation time in seconds", simulationTime);
+    cmd.AddValue("simulationTime", "Simulation time", simulationTime);
     cmd.AddValue("apVersion",
                  "The standard version used by the AP: 80211a, 80211b, 80211g, 80211p, "
                  "80211n_2_4GHZ, 80211n_5GHZ, 80211ac, 80211ax_2_4GHZ or 80211ax_5GHZ",
@@ -149,7 +140,10 @@ main(int argc, char* argv[])
     WifiMacHelper mac;
     WifiHelper wifi;
     Ssid ssid = Ssid("ns3");
-    TupleValue<UintegerValue, UintegerValue, EnumValue, UintegerValue> channelValue;
+    AttributeContainerValue<
+        TupleValue<UintegerValue, UintegerValue, EnumValue<WifiPhyBand>, UintegerValue>,
+        ';'>
+        channelValue;
 
     const auto& [staStandard, staBand] = ConvertStringToStandardAndBand(staVersion);
     wifi.SetStandard(staStandard);
@@ -159,7 +153,7 @@ main(int argc, char* argv[])
 
     // Workaround needed as long as we do not fully support channel bonding
     uint16_t width = (staVersion == "80211ac" ? 20 : 0);
-    channelValue.Set(WifiPhy::ChannelTuple{0, width, staBand, 0});
+    channelValue.Set(WifiPhy::ChannelSegments{{0, width, staBand, 0}});
     phy.Set("ChannelSettings", channelValue);
 
     NetDeviceContainer staDevice;
@@ -173,7 +167,7 @@ main(int argc, char* argv[])
 
     // Workaround needed as long as we do not fully support channel bonding
     width = (apVersion == "80211ac" ? 20 : 0);
-    channelValue.Set(WifiPhy::ChannelTuple{0, width, apBand, 0});
+    channelValue.Set(WifiPhy::ChannelSegments{{0, width, apBand, 0}});
     phy.Set("ChannelSettings", channelValue);
 
     NetDeviceContainer apDevice;
@@ -202,13 +196,13 @@ main(int argc, char* argv[])
 
     UdpServerHelper apServer(9);
     ApplicationContainer apServerApp = apServer.Install(wifiApNode.Get(0));
-    apServerApp.Start(Seconds(0.0));
-    apServerApp.Stop(Seconds(simulationTime + 1));
+    apServerApp.Start(Seconds(0));
+    apServerApp.Stop(simulationTime + Seconds(1));
 
     UdpServerHelper staServer(5001);
     ApplicationContainer staServerApp = staServer.Install(wifiStaNode.Get(0));
-    staServerApp.Start(Seconds(0.0));
-    staServerApp.Stop(Seconds(simulationTime + 1));
+    staServerApp.Start(Seconds(0));
+    staServerApp.Stop(simulationTime + Seconds(1));
 
     if (apHasTraffic)
     {
@@ -217,8 +211,8 @@ main(int argc, char* argv[])
         apClient.SetAttribute("Interval", TimeValue(Time("0.00001")));   // packets/s
         apClient.SetAttribute("PacketSize", UintegerValue(payloadSize)); // bytes
         ApplicationContainer apClientApp = apClient.Install(wifiApNode.Get(0));
-        apClientApp.Start(Seconds(1.0));
-        apClientApp.Stop(Seconds(simulationTime + 1));
+        apClientApp.Start(Seconds(1));
+        apClientApp.Stop(simulationTime + Seconds(1));
     }
 
     if (staHasTraffic)
@@ -228,22 +222,22 @@ main(int argc, char* argv[])
         staClient.SetAttribute("Interval", TimeValue(Time("0.00001")));   // packets/s
         staClient.SetAttribute("PacketSize", UintegerValue(payloadSize)); // bytes
         ApplicationContainer staClientApp = staClient.Install(wifiStaNode.Get(0));
-        staClientApp.Start(Seconds(1.0));
-        staClientApp.Stop(Seconds(simulationTime + 1));
+        staClientApp.Start(Seconds(1));
+        staClientApp.Stop(simulationTime + Seconds(1));
     }
 
     Ipv4GlobalRoutingHelper::PopulateRoutingTables();
 
-    Simulator::Stop(Seconds(simulationTime + 1));
+    Simulator::Stop(simulationTime + Seconds(1));
     Simulator::Run();
 
-    uint64_t rxBytes;
+    double rxBytes;
     double throughput;
     bool error = false;
     if (apHasTraffic)
     {
         rxBytes = payloadSize * DynamicCast<UdpServer>(staServerApp.Get(0))->GetReceived();
-        throughput = (rxBytes * 8) / (simulationTime * 1000000.0); // Mbit/s
+        throughput = (rxBytes * 8) / simulationTime.GetMicroSeconds(); // Mbit/s
         std::cout << "AP Throughput: " << throughput << " Mbit/s" << std::endl;
         if (throughput == 0)
         {
@@ -253,7 +247,7 @@ main(int argc, char* argv[])
     if (staHasTraffic)
     {
         rxBytes = payloadSize * DynamicCast<UdpServer>(apServerApp.Get(0))->GetReceived();
-        throughput = (rxBytes * 8) / (simulationTime * 1000000.0); // Mbit/s
+        throughput = (rxBytes * 8) / simulationTime.GetMicroSeconds(); // Mbit/s
         std::cout << "STA Throughput: " << throughput << " Mbit/s" << std::endl;
         if (throughput == 0)
         {

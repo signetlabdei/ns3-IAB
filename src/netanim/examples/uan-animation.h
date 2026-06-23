@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2010 Andrea Sacco
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Andrea Sacco <andrea.sacco85@gmail.com>
  */
@@ -26,8 +15,8 @@
 using namespace ns3;
 
 /**
- * \class NetAnimExperiment
- * \brief Helper class for UAN CW MAC example
+ * @class NetAnimExperiment
+ * @brief Helper class for UAN CW MAC example
  *
  */
 class NetAnimExperiment
@@ -35,24 +24,24 @@ class NetAnimExperiment
   public:
     /**
      * Run function
-     * \param uan the UAN helper
+     * @param uan the UAN helper
      */
     void Run(UanHelper& uan);
     /**
      * Receive packet function
-     * \param socket the socket to receive from
+     * @param socket the socket to receive from
      */
     void ReceivePacket(Ptr<Socket> socket);
     /**
      * Update positions function
-     * \param nodes the collection of nodes
+     * @param nodes the collection of nodes
      */
     void UpdatePositions(NodeContainer& nodes) const;
     /// Reset data function
     void ResetData();
     /**
      * Increment CW function
-     * \param cw the CW
+     * @param cw the CW
      */
     void IncrementCw(uint32_t cw);
     uint32_t m_numNodes;   ///< number of nodes

@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2011 Yufei Cheng
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Yufei Cheng   <yfcheng@ittc.ku.edu>
  *
@@ -58,6 +47,7 @@
 #include "ns3/udp-header.h"
 #include "ns3/uinteger.h"
 
+#include <algorithm>
 #include <ctime>
 #include <list>
 #include <map>
@@ -124,9 +114,9 @@ DsrOptions::ContainAddressAfter(Ipv4Address ipv4Address,
                                 std::vector<Ipv4Address>& nodeList)
 {
     NS_LOG_FUNCTION(this << ipv4Address << destAddress);
-    std::vector<Ipv4Address>::iterator it = find(nodeList.begin(), nodeList.end(), destAddress);
+    auto it = find(nodeList.begin(), nodeList.end(), destAddress);
 
-    for (std::vector<Ipv4Address>::iterator i = it; i != nodeList.end(); ++i)
+    for (auto i = it; i != nodeList.end(); ++i)
     {
         if ((ipv4Address == (*i)) && ((*i) != nodeList.back()))
         {
@@ -140,9 +130,9 @@ std::vector<Ipv4Address>
 DsrOptions::CutRoute(Ipv4Address ipv4Address, std::vector<Ipv4Address>& nodeList)
 {
     NS_LOG_FUNCTION(this << ipv4Address);
-    std::vector<Ipv4Address>::iterator it = find(nodeList.begin(), nodeList.end(), ipv4Address);
+    auto it = find(nodeList.begin(), nodeList.end(), ipv4Address);
     std::vector<Ipv4Address> cutRoute;
-    for (std::vector<Ipv4Address>::iterator i = it; i != nodeList.end(); ++i)
+    for (auto i = it; i != nodeList.end(); ++i)
     {
         cutRoute.push_back(*i);
     }
@@ -164,18 +154,10 @@ bool
 DsrOptions::ReverseRoutes(std::vector<Ipv4Address>& vec)
 {
     NS_LOG_FUNCTION(this);
-    std::vector<Ipv4Address> vec2(vec);
-    vec.clear(); // To ensure vec is empty before start
-    for (std::vector<Ipv4Address>::reverse_iterator ri = vec2.rbegin(); ri != vec2.rend(); ++ri)
-    {
-        vec.push_back(*ri);
-    }
 
-    if ((vec.size() == vec2.size()) && (vec.front() == vec2.back()))
-    {
-        return true;
-    }
-    return false;
+    std::reverse(vec.begin(), vec.end());
+
+    return true;
 }
 
 Ipv4Address
@@ -190,23 +172,22 @@ DsrOptions::SearchNextHop(Ipv4Address ipv4Address, std::vector<Ipv4Address>& vec
         nextHop = vec[1];
         return nextHop;
     }
-    else
+
+    if (ipv4Address == vec.back())
     {
-        if (ipv4Address == vec.back())
+        NS_LOG_DEBUG("We have reached to the final destination " << ipv4Address << " "
+                                                                 << vec.back());
+        return ipv4Address;
+    }
+    for (auto i = vec.begin(); i != vec.end(); ++i)
+    {
+        if (ipv4Address == (*i))
         {
-            NS_LOG_DEBUG("We have reached to the final destination " << ipv4Address << " "
-                                                                     << vec.back());
-            return ipv4Address;
-        }
-        for (std::vector<Ipv4Address>::const_iterator i = vec.begin(); i != vec.end(); ++i)
-        {
-            if (ipv4Address == (*i))
-            {
-                nextHop = *(++i);
-                return nextHop;
-            }
+            nextHop = *(++i);
+            return nextHop;
         }
     }
+
     NS_LOG_DEBUG("next hop address not found, route corrupted");
     Ipv4Address none = "0.0.0.0";
     return none;
@@ -223,17 +204,16 @@ DsrOptions::ReverseSearchNextHop(Ipv4Address ipv4Address, std::vector<Ipv4Addres
         nextHop = vec[0];
         return nextHop;
     }
-    else
+
+    for (auto ri = vec.rbegin(); ri != vec.rend(); ++ri)
     {
-        for (std::vector<Ipv4Address>::reverse_iterator ri = vec.rbegin(); ri != vec.rend(); ++ri)
+        if (ipv4Address == (*ri))
         {
-            if (ipv4Address == (*ri))
-            {
-                nextHop = *(++ri);
-                return nextHop;
-            }
+            nextHop = *(++ri);
+            return nextHop;
         }
     }
+
     NS_LOG_DEBUG("next hop address not found, route corrupted");
     Ipv4Address none = "0.0.0.0";
     return none;
@@ -246,7 +226,7 @@ DsrOptions::ReverseSearchNextTwoHop(Ipv4Address ipv4Address, std::vector<Ipv4Add
     Ipv4Address nextTwoHop;
     NS_LOG_DEBUG("The vector size " << vec.size());
     NS_ASSERT(vec.size() > 2);
-    for (std::vector<Ipv4Address>::reverse_iterator ri = vec.rbegin(); ri != vec.rend(); ++ri)
+    for (auto ri = vec.rbegin(); ri != vec.rend(); ++ri)
     {
         if (ipv4Address == (*ri))
         {
@@ -273,7 +253,7 @@ DsrOptions::PrintVector(std::vector<Ipv4Address>& vec)
     else
     {
         NS_LOG_DEBUG("Print all the elements in a vector");
-        for (std::vector<Ipv4Address>::const_iterator i = vec.begin(); i != vec.end(); ++i)
+        for (auto i = vec.begin(); i != vec.end(); ++i)
         {
             NS_LOG_DEBUG("The ip address " << *i);
         }
@@ -284,17 +264,13 @@ bool
 DsrOptions::IfDuplicates(std::vector<Ipv4Address>& vec, std::vector<Ipv4Address>& vec2)
 {
     NS_LOG_FUNCTION(this);
-    for (std::vector<Ipv4Address>::const_iterator i = vec.begin(); i != vec.end(); ++i)
+    for (auto i = vec.begin(); i != vec.end(); ++i)
     {
-        for (std::vector<Ipv4Address>::const_iterator j = vec2.begin(); j != vec2.end(); ++j)
+        for (auto j = vec2.begin(); j != vec2.end(); ++j)
         {
             if ((*i) == (*j))
             {
                 return true;
-            }
-            else
-            {
-                continue;
             }
         }
     }
@@ -305,15 +281,11 @@ bool
 DsrOptions::CheckDuplicates(Ipv4Address ipv4Address, std::vector<Ipv4Address>& vec)
 {
     NS_LOG_FUNCTION(this << ipv4Address);
-    for (std::vector<Ipv4Address>::const_iterator i = vec.begin(); i != vec.end(); ++i)
+    for (auto i = vec.begin(); i != vec.end(); ++i)
     {
         if ((*i) == ipv4Address)
         {
             return true;
-        }
-        else
-        {
-            continue;
         }
     }
     return false;
@@ -328,38 +300,29 @@ DsrOptions::RemoveDuplicates(std::vector<Ipv4Address>& vec)
     std::vector<Ipv4Address> vec2(vec); // declare vec2 as a copy of the vec
     PrintVector(vec2);                  // Print all the ip address in the route
     vec.clear();                        // clear vec
-    for (std::vector<Ipv4Address>::const_iterator i = vec2.begin(); i != vec2.end(); ++i)
+    for (auto i = vec2.begin(); i != vec2.end(); ++i)
     {
         if (vec.empty())
         {
             vec.push_back(*i);
             continue;
         }
-        else
+
+        for (auto j = vec.begin(); j != vec.end(); ++j)
         {
-            for (std::vector<Ipv4Address>::iterator j = vec.begin(); j != vec.end(); ++j)
+            if ((*i) == (*j))
             {
-                if ((*i) == (*j))
+                if ((j + 1) != vec.end())
                 {
-                    if ((j + 1) != vec.end())
-                    {
-                        vec.erase(j + 1, vec.end()); // Automatic shorten the route
-                        break;
-                    }
-                    else
-                    {
-                        break;
-                    }
+                    vec.erase(j + 1, vec.end()); // Automatic shorten the route
                 }
-                else if (j == (vec.end() - 1))
-                {
-                    vec.push_back(*i);
-                    break;
-                }
-                else
-                {
-                    continue;
-                }
+
+                break;
+            }
+            else if (j == (vec.end() - 1))
+            {
+                vec.push_back(*i);
+                break;
             }
         }
     }
@@ -514,12 +477,6 @@ DsrOptionRreq::GetTypeId()
     return tid;
 }
 
-TypeId
-DsrOptionRreq::GetInstanceTypeId() const
-{
-    return GetTypeId();
-}
-
 DsrOptionRreq::DsrOptionRreq()
 {
     NS_LOG_FUNCTION_NOARGS();
@@ -572,8 +529,8 @@ DsrOptionRreq::Process(Ptr<Packet> packet,
     Ptr<Packet> p =
         packet->Copy(); // Note: The packet here doesn't contain the fixed size dsr header
     /*
-     * \brief Get the number of routers' address field before removing the header
-     * \peek the packet and get the value
+     * @brief Get the number of routers' address field before removing the header
+     * @peek the packet and get the value
      */
     uint8_t buf[2];
     p->CopyData(buf, sizeof(buf));
@@ -705,9 +662,7 @@ DsrOptionRreq::Process(Ptr<Packet> packet,
                 std::vector<Ipv4Address> changeRoute(nodeList);
                 changeRoute.push_back(ipv4Address); // push back our own address
                 m_finalRoute.clear();               // get a clear route vector
-                for (std::vector<Ipv4Address>::iterator i = changeRoute.begin();
-                     i != changeRoute.end();
-                     ++i)
+                for (auto i = changeRoute.begin(); i != changeRoute.end(); ++i)
                 {
                     m_finalRoute.push_back(*i); // Get the full route from source to destination
                 }
@@ -783,7 +738,7 @@ DsrOptionRreq::Process(Ptr<Packet> packet,
                     //   {
                     //     dsr->UseExtends (m_finalRoute);
                     //   }
-                    sourceRoute.SetSegmentsLeft((m_finalRoute.size() - 2));
+                    sourceRoute.SetSegmentsLeft(m_finalRoute.size() - 2);
                     // The salvage value here is 0
                     sourceRoute.SetSalvage(0);
                     Ipv4Address nextHop =
@@ -831,8 +786,7 @@ DsrOptionRreq::Process(Ptr<Packet> packet,
             /**
              * push back the intermediate node address from the source to this node
              */
-            for (std::vector<Ipv4Address>::iterator i = saveRoute.begin(); i != saveRoute.end();
-                 ++i)
+            for (auto i = saveRoute.begin(); i != saveRoute.end(); ++i)
             {
                 m_finalRoute.push_back(*i);
             }
@@ -840,7 +794,7 @@ DsrOptionRreq::Process(Ptr<Packet> packet,
              * push back the route vector we found in our route cache to destination, including this
              * node's address
              */
-            for (std::vector<Ipv4Address>::iterator j = ip.begin(); j != ip.end(); ++j)
+            for (auto j = ip.begin(); j != ip.end(); ++j)
             {
                 m_finalRoute.push_back(*j);
             }
@@ -889,7 +843,7 @@ DsrOptionRreq::Process(Ptr<Packet> packet,
                     //   {
                     //     dsr->UseExtends (saveRoute);
                     //   }
-                    sourceRoute.SetSegmentsLeft((saveRoute.size() - 2));
+                    sourceRoute.SetSegmentsLeft(saveRoute.size() - 2);
                     uint8_t salvage = 0;
                     sourceRoute.SetSalvage(salvage);
                     Ipv4Address nextHop =
@@ -1058,12 +1012,6 @@ DsrOptionRrep::~DsrOptionRrep()
     NS_LOG_FUNCTION_NOARGS();
 }
 
-TypeId
-DsrOptionRrep::GetInstanceTypeId() const
-{
-    return GetTypeId();
-}
-
 uint8_t
 DsrOptionRrep::GetOptionNumber() const
 {
@@ -1152,7 +1100,7 @@ DsrOptionRrep::Process(Ptr<Packet> packet,
             DsrOptionSRHeader sourceRoute;
             NS_LOG_DEBUG("The route length " << nodeList.size());
             sourceRoute.SetNodesAddress(nodeList);
-            sourceRoute.SetSegmentsLeft((nodeList.size() - 2));
+            sourceRoute.SetSegmentsLeft(nodeList.size() - 2);
             sourceRoute.SetSalvage(0);
             Ipv4Address nextHop = SearchNextHop(ipv4Address, nodeList); // Get the next hop address
             NS_LOG_DEBUG("The nextHop address " << nextHop);
@@ -1279,12 +1227,6 @@ DsrOptionSR::DsrOptionSR()
 DsrOptionSR::~DsrOptionSR()
 {
     NS_LOG_FUNCTION_NOARGS();
-}
-
-TypeId
-DsrOptionSR::GetInstanceTypeId() const
-{
-    return GetTypeId();
 }
 
 uint8_t
@@ -1415,7 +1357,7 @@ DsrOptionSR::Process(Ptr<Packet> packet,
 
         // Get the option type value
         uint32_t size = p->GetSize();
-        uint8_t* data = new uint8_t[size];
+        auto data = new uint8_t[size];
         p->CopyData(data, size);
         uint8_t optionType = 0;
         optionType = *(data);
@@ -1559,12 +1501,6 @@ DsrOptionRerr::~DsrOptionRerr()
     NS_LOG_FUNCTION_NOARGS();
 }
 
-TypeId
-DsrOptionRerr::GetInstanceTypeId() const
-{
-    return GetTypeId();
-}
-
 uint8_t
 DsrOptionRerr::GetOptionNumber() const
 {
@@ -1586,7 +1522,7 @@ DsrOptionRerr::Process(Ptr<Packet> packet,
                          << (uint32_t)protocol << isPromisc);
     Ptr<Packet> p = packet->Copy();
     uint32_t size = p->GetSize();
-    uint8_t* data = new uint8_t[size];
+    auto data = new uint8_t[size];
     p->CopyData(data, size);
     uint8_t errorType = *(data + 2);
     /*
@@ -1634,12 +1570,12 @@ DsrOptionRerr::Process(Ptr<Packet> packet,
         /*
          * Remove the route error header from the packet, and get the error type
          */
-        DsrOptionRerrUnsupportHeader rerrUnsupport;
-        p->RemoveHeader(rerrUnsupport);
+        DsrOptionRerrUnsupportedHeader rerrUnsupported;
+        p->RemoveHeader(rerrUnsupported);
 
-        /// \todo This is for the other two error options, not supporting for now
-        // uint32_t rerrSize = rerrUnsupport.GetSerializedSize();
-        // uint32_t serialized = DoSendError (p, rerrUnsupport, rerrSize, ipv4Address, protocol);
+        /// @todo This is for the other two error options, not supporting for now
+        // uint32_t rerrSize = rerrUnsupported.GetSerializedSize();
+        // uint32_t serialized = DoSendError (p, rerrUnsupported, rerrSize, ipv4Address, protocol);
         uint32_t serialized = 0;
         return serialized;
     }
@@ -1752,12 +1688,6 @@ DsrOptionAckReq::~DsrOptionAckReq()
     NS_LOG_FUNCTION_NOARGS();
 }
 
-TypeId
-DsrOptionAckReq::GetInstanceTypeId() const
-{
-    return GetTypeId();
-}
-
 uint8_t
 DsrOptionAckReq::GetOptionNumber() const
 {
@@ -1788,7 +1718,7 @@ DsrOptionAckReq::Process(Ptr<Packet> packet,
     DsrOptionAckReqHeader ackReq;
     p->RemoveHeader(ackReq);
     /*
-     * Get the node with ip address and get the dsr extension and reoute cache objects
+     * Get the node with ip address and get the dsr extension and route cache objects
      */
     Ptr<Node> node = GetNodeWithAddress(ipv4Address);
     Ptr<dsr::DsrRouting> dsr = node->GetObject<dsr::DsrRouting>();
@@ -1818,12 +1748,6 @@ DsrOptionAck::DsrOptionAck()
 DsrOptionAck::~DsrOptionAck()
 {
     NS_LOG_FUNCTION_NOARGS();
-}
-
-TypeId
-DsrOptionAck::GetInstanceTypeId() const
-{
-    return GetTypeId();
 }
 
 uint8_t

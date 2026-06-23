@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2011 Adrian Sai-wah Tam
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Adrian Sai-wah Tam <adrian.sw.tam@gmail.com>
  */
@@ -20,14 +9,15 @@
 #ifndef TCP_OPTION_TS_H
 #define TCP_OPTION_TS_H
 
-#include "ns3/tcp-option.h"
+#include "tcp-option.h"
+
 #include "ns3/timer.h"
 
 namespace ns3
 {
 
 /**
- * \ingroup tcp
+ * @ingroup tcp
  *
  * Defines the TCP option of kind 8 (timestamp option) as in \RFC{1323}
  */
@@ -39,11 +29,10 @@ class TcpOptionTS : public TcpOption
     ~TcpOptionTS() override;
 
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
-    TypeId GetInstanceTypeId() const override;
 
     void Print(std::ostream& os) const override;
     void Serialize(Buffer::Iterator start) const override;
@@ -53,28 +42,28 @@ class TcpOptionTS : public TcpOption
     uint32_t GetSerializedSize() const override;
 
     /**
-     * \brief Get the timestamp stored in the Option
-     * \return the timestamp
+     * @brief Get the timestamp stored in the Option
+     * @return the timestamp
      */
     uint32_t GetTimestamp() const;
     /**
-     * \brief Get the timestamp echo stored in the Option
-     * \return the timestamp echo
+     * @brief Get the timestamp echo stored in the Option
+     * @return the timestamp echo
      */
     uint32_t GetEcho() const;
     /**
-     * \brief Set the timestamp stored in the Option
-     * \param ts the timestamp
+     * @brief Set the timestamp stored in the Option
+     * @param ts the timestamp
      */
     void SetTimestamp(uint32_t ts);
     /**
-     * \brief Set the timestamp echo stored in the Option
-     * \param ts the timestamp echo
+     * @brief Set the timestamp echo stored in the Option
+     * @param ts the timestamp echo
      */
     void SetEcho(uint32_t ts);
 
     /**
-     * \brief Return an uint32_t value which represent "now"
+     * @brief Return an uint32_t value which represent "now"
      *
      * The value returned is usually used as Timestamp option for the
      * TCP header; when the value will be echoed back, calculating the RTT
@@ -84,19 +73,19 @@ class TcpOptionTS : public TcpOption
      * is implemented in OS, we use milliseconds. Any change to this must be
      * reflected to EstimateRttFromTs.
      *
-     * \see EstimateRttFromTs
-     * \return The Timestamp value to use
+     * @see EstimateRttFromTs
+     * @return The Timestamp value to use
      */
     static uint32_t NowToTsValue();
 
     /**
-     * \brief Estimate the Time elapsed from a TS echo value
+     * @brief Estimate the Time elapsed from a TS echo value
      *
      * The echoTime should be a value returned from NowToTsValue.
      *
-     * \param echoTime Echoed value from other side
-     * \see NowToTsValue
-     * \return The measured RTT
+     * @param echoTime Echoed value from other side
+     * @see NowToTsValue
+     * @return The measured RTT
      */
     static Time ElapsedTimeFromTsValue(uint32_t echoTime);
 

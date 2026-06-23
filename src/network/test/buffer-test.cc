@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2010 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@cutebugs.net>
  */
@@ -25,13 +14,13 @@
 using namespace ns3;
 
 /**
- * \ingroup network
- * \defgroup network-test Network module unit tests
+ * @ingroup network
+ * @defgroup network-test Network module unit tests
  */
 
 /**
- * \ingroup network-test
- * \ingroup tests
+ * @ingroup network-test
+ * @ingroup tests
  *
  * Buffer unit tests.
  */
@@ -40,9 +29,9 @@ class BufferTest : public TestCase
   private:
     /**
      * Checks the buffer content
-     * \param b The buffer to check
-     * \param n The number of bytes to check
-     * \param array The array of bytes that should be in the buffer
+     * @param b The buffer to check
+     * @param n The number of bytes to check
+     * @param array The array of bytes that should be in the buffer
      */
     void EnsureWrittenBytes(Buffer b, uint32_t n, uint8_t array[]);
 
@@ -172,15 +161,9 @@ BufferTest::DoRun()
     buff64.AddAtStart(8);
     i = buff64.Begin();
     i.WriteU64(0x0123456789ABCDEFLLU);
-    i = buff64.Begin();
-    NS_TEST_ASSERT_MSG_EQ(i.ReadU64(), 0x0123456789abcdefLLU, "Could not read expected value");
-    i = buff64.Begin();
-    i.WriteHtolsbU64(0x0123456789ABCDEFLLU);
     ENSURE_WRITTEN_BYTES(buff64, 8, 0xef, 0xcd, 0xab, 0x89, 0x67, 0x45, 0x23, 0x01);
     i = buff64.Begin();
-    NS_TEST_ASSERT_MSG_EQ(i.ReadLsbtohU64(),
-                          0x0123456789abcdefLLU,
-                          "Could not read expected value");
+    NS_TEST_ASSERT_MSG_EQ(i.ReadU64(), 0x0123456789abcdefLLU, "Could not read expected value");
     i = buff64.Begin();
     i.WriteHtonU64(0x0123456789ABCDEFLLU);
     ENSURE_WRITTEN_BYTES(buff64, 8, 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef);
@@ -363,7 +346,7 @@ BufferTest::DoRun()
     NS_TEST_ASSERT_MSG_EQ(sizeBuffer, ct.size(), "Buffer bad size");
     const uint8_t* evilBuffer = buffer.PeekData();
     NS_TEST_ASSERT_MSG_NE(evilBuffer, 0, "Buffer PeekData failed");
-    uint8_t* cBuf = (uint8_t*)malloc(sizeBuffer);
+    auto cBuf = (uint8_t*)malloc(sizeBuffer);
     uint32_t copyLen = buffer.CopyData(cBuf, sizeBuffer);
     NS_TEST_ASSERT_MSG_EQ(copyLen, sizeBuffer, "CopyData return bad size");
     for (uint32_t i = 0; i < sizeBuffer; i++)
@@ -396,10 +379,10 @@ BufferTest::DoRun()
 }
 
 /**
- * \ingroup network-test
- * \ingroup tests
+ * @ingroup network-test
+ * @ingroup tests
  *
- * \brief Buffer TestSuite
+ * @brief Buffer TestSuite
  */
 class BufferTestSuite : public TestSuite
 {
@@ -408,9 +391,9 @@ class BufferTestSuite : public TestSuite
 };
 
 BufferTestSuite::BufferTestSuite()
-    : TestSuite("buffer", UNIT)
+    : TestSuite("buffer", Type::UNIT)
 {
-    AddTestCase(new BufferTest, TestCase::QUICK);
+    AddTestCase(new BufferTest, TestCase::Duration::QUICK);
 }
 
 static BufferTestSuite g_bufferTestSuite; //!< Static variable for test initialization

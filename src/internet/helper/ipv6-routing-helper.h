@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2008 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -32,9 +21,9 @@ class Ipv6RoutingProtocol;
 class Node;
 
 /**
- * \ingroup ipv6Helpers
+ * @ingroup ipv6Helpers
  *
- * \brief A factory to create ns3::Ipv6RoutingProtocol objects
+ * @brief A factory to create ns3::Ipv6RoutingProtocol objects
  *
  * For each new routing protocol created as a subclass of
  * ns3::Ipv6RoutingProtocol, you need to create a subclass of
@@ -46,13 +35,13 @@ class Ipv6RoutingHelper
 {
   public:
     /**
-     * \brief Destroy an Ipv6 Ipv6RoutingHelper.
+     * @brief Destroy an Ipv6 Ipv6RoutingHelper.
      */
     virtual ~Ipv6RoutingHelper();
 
     /**
-     * \brief virtual constructor
-     * \returns pointer to clone of this Ipv6RoutingHelper
+     * @brief virtual constructor
+     * @returns pointer to clone of this Ipv6RoutingHelper
      *
      * This method is mainly for internal use by the other helpers;
      * clients are expected to free the dynamic memory allocated by this method
@@ -60,16 +49,16 @@ class Ipv6RoutingHelper
     virtual Ipv6RoutingHelper* Copy() const = 0;
 
     /**
-     * \param node the node within which the new routing protocol will run
-     * \returns a newly-created routing protocol
+     * @param node the node within which the new routing protocol will run
+     * @returns a newly-created routing protocol
      */
     virtual Ptr<Ipv6RoutingProtocol> Create(Ptr<Node> node) const = 0;
 
     /**
-     * \brief prints the routing tables of all nodes at a particular time.
-     * \param printTime the time at which the routing table is supposed to be printed.
-     * \param stream The output stream object to use
-     * \param unit The time unit to be used in the report
+     * @brief prints the routing tables of all nodes at a particular time.
+     * @param printTime the time at which the routing table is supposed to be printed.
+     * @param stream The output stream object to use
+     * @param unit The time unit to be used in the report
      *
      * This method calls the PrintRoutingTable() method of the
      * Ipv6RoutingProtocol stored in the Ipv6 object, for all nodes at the
@@ -80,10 +69,10 @@ class Ipv6RoutingHelper
                                        Time::Unit unit = Time::S);
 
     /**
-     * \brief prints the routing tables of all nodes at regular intervals specified by user.
-     * \param printInterval the time interval for which the routing table is supposed to be printed.
-     * \param stream The output stream object to use
-     * \param unit The time unit to be used in the report
+     * @brief prints the routing tables of all nodes at regular intervals specified by user.
+     * @param printInterval the time interval for which the routing table is supposed to be printed.
+     * @param stream The output stream object to use
+     * @param unit The time unit to be used in the report
      *
      * This method calls the PrintRoutingTable() method of the
      * Ipv6RoutingProtocol stored in the Ipv6 object, for all nodes at the
@@ -94,11 +83,11 @@ class Ipv6RoutingHelper
                                           Time::Unit unit = Time::S);
 
     /**
-     * \brief prints the routing tables of a node at a particular time.
-     * \param printTime the time at which the routing table is supposed to be printed.
-     * \param node The node ptr for which we need the routing table to be printed
-     * \param stream The output stream object to use
-     * \param unit The time unit to be used in the report
+     * @brief prints the routing tables of a node at a particular time.
+     * @param printTime the time at which the routing table is supposed to be printed.
+     * @param node The node ptr for which we need the routing table to be printed
+     * @param stream The output stream object to use
+     * @param unit The time unit to be used in the report
      *
      * This method calls the PrintRoutingTable() method of the
      * Ipv6RoutingProtocol stored in the Ipv6 object, for the selected node
@@ -110,11 +99,11 @@ class Ipv6RoutingHelper
                                     Time::Unit unit = Time::S);
 
     /**
-     * \brief prints the routing tables of a node at regular intervals specified by user.
-     * \param printInterval the time interval for which the routing table is supposed to be printed.
-     * \param node The node ptr for which we need the routing table to be printed
-     * \param stream The output stream object to use
-     * \param unit The time unit to be used in the report
+     * @brief prints the routing tables of a node at regular intervals specified by user.
+     * @param printInterval the time interval for which the routing table is supposed to be printed.
+     * @param node The node ptr for which we need the routing table to be printed
+     * @param stream The output stream object to use
+     * @param unit The time unit to be used in the report
      *
      * This method calls the PrintRoutingTable() method of the
      * Ipv6RoutingProtocol stored in the Ipv6 object, for the selected node
@@ -126,15 +115,15 @@ class Ipv6RoutingHelper
                                        Time::Unit unit = Time::S);
 
     /**
-     * \brief prints the neighbor cache of all nodes at a particular time.
-     * \param printTime the time at which the neighbor cache is supposed to be printed.
-     * \param stream The output stream object to use
-     * \param unit The time unit to be used in the report
+     * @brief prints the neighbor cache of all nodes at a particular time.
+     * @param printTime the time at which the neighbor cache is supposed to be printed.
+     * @param stream The output stream object to use
+     * @param unit The time unit to be used in the report
      *
      * This method calls the PrintNdiscCache() method of the
      * NdiscCache associated with each Ipv6Interface stored in the Ipv6 object, for all nodes at the
      * specified time. The output format is similar to:
-     * \verbatim
+     * @verbatim
        2001:db8::f00d:beef:cafe dev 1 lladdr 00-06-00:00:00:00:00:02 REACHABLE
        \endverbatim
      * Note that the MAC address is printed as "type"-"size"-"actual address"
@@ -144,16 +133,16 @@ class Ipv6RoutingHelper
                                         Time::Unit unit = Time::S);
 
     /**
-     * \brief prints the neighbor cache of all nodes at regular intervals specified by user.
-     * \param printInterval the time interval for which the neighbor cache is supposed to be
+     * @brief prints the neighbor cache of all nodes at regular intervals specified by user.
+     * @param printInterval the time interval for which the neighbor cache is supposed to be
      printed.
-     * \param stream The output stream object to use
-     * \param unit The time unit to be used in the report
+     * @param stream The output stream object to use
+     * @param unit The time unit to be used in the report
      *
      * This method calls the PrintNdiscCache() method of the
      * NdiscCache associated with each Ipv6Interface stored in the Ipv6 object, for all nodes at the
      * specified time. The output format is similar to:
-     * \verbatim
+     * @verbatim
        2001:db8::f00d:beef:cafe dev 1 lladdr 00-06-00:00:00:00:00:02 REACHABLE
        \endverbatim
      * Note that the MAC address is printed as "type"-"size"-"actual address"
@@ -163,16 +152,16 @@ class Ipv6RoutingHelper
                                            Time::Unit unit = Time::S);
 
     /**
-     * \brief prints the neighbor cache of a node at a particular time.
-     * \param printTime the time at which the neighbor cache is supposed to be printed.
-     * \param node The node ptr for which we need the neighbor cache to be printed
-     * \param stream The output stream object to use
-     * \param unit The time unit to be used in the report
+     * @brief prints the neighbor cache of a node at a particular time.
+     * @param printTime the time at which the neighbor cache is supposed to be printed.
+     * @param node The node ptr for which we need the neighbor cache to be printed
+     * @param stream The output stream object to use
+     * @param unit The time unit to be used in the report
      *
      * This method calls the PrintNdiscCache() method of the
      * NdiscCache associated with each Ipv6Interface stored in the Ipv6 object, for all nodes at the
      * specified time. The output format is similar to:
-     * \verbatim
+     * @verbatim
        2001:db8::f00d:beef:cafe dev 1 lladdr 00-06-00:00:00:00:00:02 REACHABLE
        \endverbatim
      * Note that the MAC address is printed as "type"-"size"-"actual address"
@@ -183,17 +172,17 @@ class Ipv6RoutingHelper
                                      Time::Unit unit = Time::S);
 
     /**
-     * \brief prints the neighbor cache of a node at regular intervals specified by user.
-     * \param printInterval the time interval for which the neighbor cache is supposed to be
+     * @brief prints the neighbor cache of a node at regular intervals specified by user.
+     * @param printInterval the time interval for which the neighbor cache is supposed to be
      printed.
-     * \param node The node ptr for which we need the neighbor cache to be printed
-     * \param stream The output stream object to use
-     * \param unit The time unit to be used in the report
+     * @param node The node ptr for which we need the neighbor cache to be printed
+     * @param stream The output stream object to use
+     * @param unit The time unit to be used in the report
      *
      * This method calls the PrintNdiscCache() method of the
      * NdiscCache associated with each Ipv6Interface stored in the Ipv6 object, for all nodes at the
      * specified time. The output format is similar to:
-     * \verbatim
+     * @verbatim
        2001:db8::f00d:beef:cafe dev 1 lladdr 00-06-00:00:00:00:00:02 REACHABLE
        \endverbatim
      * Note that the MAC address is printed as "type"-"size"-"actual address"
@@ -204,23 +193,23 @@ class Ipv6RoutingHelper
                                         Time::Unit unit = Time::S);
 
     /**
-     * \brief Request a specified routing protocol &lt;T&gt; from Ipv6RoutingProtocol protocol
+     * @brief Request a specified routing protocol &lt;T&gt; from Ipv6RoutingProtocol protocol
      *
      * If protocol is Ipv6ListRouting, then protocol will be searched in the list,
      * otherwise a simple DynamicCast will be performed
      *
-     * \param protocol Smart pointer to Ipv6RoutingProtocol object
-     * \return a Smart Pointer to the requested protocol (zero if the protocol can't be found)
+     * @param protocol Smart pointer to Ipv6RoutingProtocol object
+     * @return a Smart Pointer to the requested protocol (zero if the protocol can't be found)
      */
     template <class T>
     static Ptr<T> GetRouting(Ptr<Ipv6RoutingProtocol> protocol);
 
   private:
     /**
-     * \brief prints the routing tables of a node.
-     * \param node The node ptr for which we need the routing table to be printed
-     * \param stream The output stream object to use
-     * \param unit The time unit to be used in the report
+     * @brief prints the routing tables of a node.
+     * @param node The node ptr for which we need the routing table to be printed
+     * @param stream The output stream object to use
+     * @param unit The time unit to be used in the report
      *
      * This method calls the PrintRoutingTable() method of the
      * Ipv6RoutingProtocol stored in the Ipv6 object;
@@ -229,11 +218,11 @@ class Ipv6RoutingHelper
     static void Print(Ptr<Node> node, Ptr<OutputStreamWrapper> stream, Time::Unit unit);
 
     /**
-     * \brief prints the routing tables of a node at regular intervals specified by user.
-     * \param printInterval the time interval for which the routing table is supposed to be printed.
-     * \param node The node ptr for which we need the routing table to be printed
-     * \param stream The output stream object to use
-     * \param unit The time unit to be used in the report
+     * @brief prints the routing tables of a node at regular intervals specified by user.
+     * @param printInterval the time interval for which the routing table is supposed to be printed.
+     * @param node The node ptr for which we need the routing table to be printed
+     * @param stream The output stream object to use
+     * @param unit The time unit to be used in the report
      *
      * This method calls the PrintRoutingTable() method of the
      * Ipv6RoutingProtocol stored in the Ipv6 object, for the selected node
@@ -245,15 +234,15 @@ class Ipv6RoutingHelper
                            Time::Unit unit);
 
     /**
-     * \brief prints the neighbor cache of a node.
-     * \param node The node ptr for which we need the neighbor cache to be printed
-     * \param stream The output stream object to use
-     * \param unit The time unit to be used in the report
+     * @brief prints the neighbor cache of a node.
+     * @param node The node ptr for which we need the neighbor cache to be printed
+     * @param stream The output stream object to use
+     * @param unit The time unit to be used in the report
      *
      * This method calls the PrintNdiscCache() method of the
      * NdiscCache associated with each Ipv6Interface stored in the Ipv6 object, for all nodes at the
      * specified time. The output format is similar to:
-     * \verbatim
+     * @verbatim
        2001:db8::f00d:beef:cafe dev 1 lladdr 00-06-00:00:00:00:00:02 REACHABLE
        \endverbatim
      * Note that the MAC address is printed as "type"-"size"-"actual address"
@@ -263,17 +252,17 @@ class Ipv6RoutingHelper
                                 Time::Unit unit = Time::S);
 
     /**
-     * \brief prints the neighbor cache of a node at regular intervals specified by user.
-     * \param printInterval the time interval for which the neighbor cache is supposed to be
+     * @brief prints the neighbor cache of a node at regular intervals specified by user.
+     * @param printInterval the time interval for which the neighbor cache is supposed to be
      printed.
-     * \param node The node ptr for which we need the neighbor cache to be printed
-     * \param stream The output stream object to use
-     * \param unit The time unit to be used in the report
+     * @param node The node ptr for which we need the neighbor cache to be printed
+     * @param stream The output stream object to use
+     * @param unit The time unit to be used in the report
      *
      * This method calls the PrintNdiscCache() method of the
      * NdiscCache associated with each Ipv6Interface stored in the Ipv6 object, for all nodes at the
      * specified time. The output format is similar to:
-     * \verbatim
+     * @verbatim
        2001:db8::f00d:beef:cafe dev 1 lladdr 00-06-00:00:00:00:00:02 REACHABLE
        \endverbatim
      * Note that the MAC address is printed as "type"-"size"-"actual address"

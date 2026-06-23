@@ -56,7 +56,7 @@ using namespace ns3;
 
 NS_LOG_COMPONENT_DEFINE ("LteTestMimo");
 
-LenaTestMimoSuite::LenaTestMimoSuite () : TestSuite ("lte-mimo", SYSTEM)
+LenaTestMimoSuite::LenaTestMimoSuite () : TestSuite ("lte-mimo", TestSuite::Type::SYSTEM)
 {
   NS_LOG_INFO ("creating LenaMimoTestCase");
 
@@ -70,13 +70,13 @@ LenaTestMimoSuite::LenaTestMimoSuite () : TestSuite ("lte-mimo", SYSTEM)
   estThrDl.push_back (183600); // interval 2 : estimated throughput for TxMode 2
   estThrDl.push_back (193400); // interval 3 : estimated throughput for TxMode 3
   AddTestCase (new LenaMimoTestCase (300, estThrDl, "ns3::RrFfMacScheduler", true),
-               TestCase::QUICK);
+               TestCase::Duration::QUICK);
   AddTestCase (new LenaMimoTestCase (300, estThrDl, "ns3::PfFfMacScheduler", true),
-               TestCase::QUICK);
+               TestCase::Duration::QUICK);
   AddTestCase (new LenaMimoTestCase (300, estThrDl, "ns3::RrFfMacScheduler", false),
-               TestCase::QUICK);
+               TestCase::Duration::QUICK);
   AddTestCase (new LenaMimoTestCase (300, estThrDl, "ns3::PfFfMacScheduler", false),
-               TestCase::QUICK);
+               TestCase::Duration::QUICK);
 }
 
 static LenaTestMimoSuite lenaTestMimoSuite;

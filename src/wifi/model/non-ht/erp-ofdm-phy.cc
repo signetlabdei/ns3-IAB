@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2020 Orange Labs
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Rediet <getachew.redieteab@orange.com>
  *          Sébastien Deronne <sebastien.deronne@gmail.com> (for logic ported from wifi-phy)
@@ -29,6 +18,9 @@
 #include "ns3/wifi-psdu.h"
 
 #include <array>
+
+#undef NS_LOG_APPEND_CONTEXT
+#define NS_LOG_APPEND_CONTEXT WIFI_PHY_NS_LOG_APPEND_CONTEXT(m_wifiPhy)
 
 namespace ns3
 {
@@ -63,13 +55,13 @@ static const std::array<uint64_t, 8> s_erpOfdmRatesBpsList =
 /**
  * Get the array of possible ERP OFDM rates.
  *
- * \return the ERP OFDM rates in bits per second
+ * @return the ERP OFDM rates in bits per second
  */
 const std::array<uint64_t, 8>&
 GetErpOfdmRatesBpsList()
 {
     return s_erpOfdmRatesBpsList;
-};
+}
 
 ErpOfdmPhy::ErpOfdmPhy()
     : OfdmPhy(OFDM_PHY_DEFAULT, false) // don't add OFDM modes to list
@@ -116,9 +108,7 @@ ErpOfdmPhy::BuildPpdu(const WifiConstPsduMap& psdus,
     return Create<ErpOfdmPpdu>(
         psdus.begin()->second,
         txVector,
-        m_wifiPhy->GetOperatingChannel().GetPrimaryChannelCenterFrequency(
-            txVector.GetChannelWidth()),
-        m_wifiPhy->GetPhyBand(),
+        m_wifiPhy->GetOperatingChannel(),
         m_wifiPhy->GetLatestPhyEntity()->ObtainNextUid(
             txVector)); // use latest PHY entity to handle MU-RTS sent with non-HT rate
 }
@@ -164,7 +154,7 @@ ErpOfdmPhy::GetErpOfdmRate(uint64_t rate)
     {                                                                                              \
         static WifiMode mode = CreateErpOfdmMode(#x, f);                                           \
         return mode;                                                                               \
-    };
+    }
 
 GET_ERP_OFDM_MODE(ErpOfdmRate6Mbps, true)
 GET_ERP_OFDM_MODE(ErpOfdmRate9Mbps, false)
@@ -207,7 +197,7 @@ ErpOfdmPhy::GetConstellationSize(const std::string& name)
 }
 
 uint64_t
-ErpOfdmPhy::GetPhyRate(const std::string& name, uint16_t channelWidth)
+ErpOfdmPhy::GetPhyRate(const std::string& name, MHz_u channelWidth)
 {
     WifiCodeRate codeRate = GetCodeRate(name);
     uint16_t constellationSize = GetConstellationSize(name);
@@ -228,7 +218,7 @@ ErpOfdmPhy::GetDataRateFromTxVector(const WifiTxVector& txVector, uint16_t /* st
 }
 
 uint64_t
-ErpOfdmPhy::GetDataRate(const std::string& name, uint16_t channelWidth)
+ErpOfdmPhy::GetDataRate(const std::string& name, MHz_u channelWidth)
 {
     WifiCodeRate codeRate = GetCodeRate(name);
     uint16_t constellationSize = GetConstellationSize(name);
@@ -244,7 +234,7 @@ ErpOfdmPhy::IsAllowed(const WifiTxVector& /*txVector*/)
 uint32_t
 ErpOfdmPhy::GetMaxPsduSize() const
 {
-    return 4095;
+    return WIFI_PSDU_MAX_LENGTH;
 }
 
 } // namespace ns3
@@ -262,7 +252,7 @@ class ConstructorErpOfdm
     {
         ns3::ErpOfdmPhy::InitializeModes();
         ns3::WifiPhy::AddStaticPhyEntity(ns3::WIFI_MOD_CLASS_ERP_OFDM,
-                                         ns3::Create<ns3::ErpOfdmPhy>());
+                                         std::make_shared<ns3::ErpOfdmPhy>());
     }
 } g_constructor_erp_ofdm; ///< the constructor for ERP-OFDM modes
 

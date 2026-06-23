@@ -1,27 +1,16 @@
 /*
  * Copyright (c) 2011,12 CTTC
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Nicola Baldo <nbaldo@cttc.es>
  */
 
-#include <ns3/double.h>
-#include <ns3/log.h>
-#include <ns3/parabolic-antenna-model.h>
-#include <ns3/simulator.h>
-#include <ns3/test.h>
+#include "ns3/double.h"
+#include "ns3/log.h"
+#include "ns3/parabolic-antenna-model.h"
+#include "ns3/simulator.h"
+#include "ns3/test.h"
 
 #include <cmath>
 #include <iostream>
@@ -33,9 +22,9 @@ using namespace ns3;
 NS_LOG_COMPONENT_DEFINE("TestParabolicAntennaModel");
 
 /**
- * \ingroup antenna-tests
+ * @ingroup antenna-tests
  *
- * \brief Test condition (equal to or less than)
+ * @brief Test condition (equal to or less than)
  */
 enum ParabolicAntennaModelGainTestCondition
 {
@@ -44,30 +33,30 @@ enum ParabolicAntennaModelGainTestCondition
 };
 
 /**
- * \ingroup antenna-tests
+ * @ingroup antenna-tests
  *
- * \brief ParabolicAntennaModel Test
+ * @brief ParabolicAntennaModel Test
  */
 class ParabolicAntennaModelTestCase : public TestCase
 {
   public:
     /**
      * Build the test name
-     * \param a Antenna angle
-     * \param b Beamwidth
-     * \param o Orientation
-     * \param g MaxGain
-     * \return the test name
+     * @param a Antenna angle
+     * @param b Beamwidth
+     * @param o Orientation
+     * @param g MaxGain
+     * @return the test name
      */
     static std::string BuildNameString(Angles a, double b, double o, double g);
     /**
      * Constructor
-     * \param a Antenna angle
-     * \param b Beamwidth
-     * \param o Orientation
-     * \param g MaxGain
-     * \param expectedGainDb Expected antenna gain
-     * \param cond Test condition
+     * @param a Antenna angle
+     * @param b Beamwidth
+     * @param o Orientation
+     * @param g MaxGain
+     * @param expectedGainDb Expected antenna gain
+     * @param cond Test condition
      */
     ParabolicAntennaModelTestCase(Angles a,
                                   double b,
@@ -92,8 +81,7 @@ ParabolicAntennaModelTestCase::BuildNameString(Angles a, double b, double o, dou
 {
     std::ostringstream oss;
     oss << "theta=" << a.GetInclination() << " , phi=" << a.GetAzimuth() << ", beamdwidth=" << b
-        << "deg"
-        << ", orientation=" << o << ", maxAttenuation=" << g << " dB";
+        << "deg, orientation=" << o << ", maxAttenuation=" << g << " dB";
     return oss.str();
 }
 
@@ -141,9 +129,9 @@ ParabolicAntennaModelTestCase::DoRun()
 }
 
 /**
- * \ingroup antenna-tests
+ * @ingroup antenna-tests
  *
- * \brief ParabolicAntennaModel TestSuite
+ * @brief ParabolicAntennaModel TestSuite
  */
 class ParabolicAntennaModelTestSuite : public TestSuite
 {
@@ -152,7 +140,7 @@ class ParabolicAntennaModelTestSuite : public TestSuite
 };
 
 ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
-    : TestSuite("parabolic-antenna-model", UNIT)
+    : TestSuite("parabolic-antenna-model", Type::UNIT)
 {
     // with a 60 deg beamwidth, gain is -20dB at +-77.460 degrees from boresight
     //                                                                         phi, theta,
@@ -166,7 +154,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                                   20,
                                                   0,
                                                   EQUAL),
-                TestCase::QUICK);
+                TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(30), DegreesToRadians(90)),
                                           60,
@@ -174,7 +162,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           20,
                                           -3,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(-30), DegreesToRadians(90)),
                                           60,
@@ -182,7 +170,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           20,
                                           -3,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(-90), DegreesToRadians(90)),
                                           60,
@@ -190,7 +178,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           20,
                                           -20,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(90), DegreesToRadians(90)),
                                           60,
@@ -198,7 +186,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           20,
                                           -20,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(100), DegreesToRadians(90)),
                                           60,
@@ -206,7 +194,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           20,
                                           -20,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(150), DegreesToRadians(90)),
                                           60,
@@ -214,7 +202,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           20,
                                           -20,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(180), DegreesToRadians(90)),
                                           60,
@@ -222,7 +210,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           20,
                                           -20,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(-100), DegreesToRadians(90)),
                                           60,
@@ -230,7 +218,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           20,
                                           -20,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(-150), DegreesToRadians(90)),
                                           60,
@@ -238,7 +226,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           20,
                                           -20,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(-180), DegreesToRadians(90)),
                                           60,
@@ -246,7 +234,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           20,
                                           -20,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
 
     // with a 60 deg beamwidth, gain is -10dB at +-54.772 degrees from boresight
     // test positive orientation
@@ -257,7 +245,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           10,
                                           0,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(90), DegreesToRadians(90)),
                                           60,
@@ -265,7 +253,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           10,
                                           -3,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(30), DegreesToRadians(90)),
                                           60,
@@ -273,7 +261,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           10,
                                           -3,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(-30), DegreesToRadians(90)),
                                           60,
@@ -281,7 +269,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           10,
                                           -10,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(150), DegreesToRadians(90)),
                                           60,
@@ -289,7 +277,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           10,
                                           -10,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(160), DegreesToRadians(90)),
                                           60,
@@ -297,7 +285,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           10,
                                           -10,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(210), DegreesToRadians(90)),
                                           60,
@@ -305,7 +293,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           10,
                                           -10,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(240), DegreesToRadians(90)),
                                           60,
@@ -313,7 +301,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           10,
                                           -10,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(-40), DegreesToRadians(90)),
                                           60,
@@ -321,7 +309,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           10,
                                           -10,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(-90), DegreesToRadians(90)),
                                           60,
@@ -329,7 +317,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           10,
                                           -10,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(-120), DegreesToRadians(90)),
                                           60,
@@ -337,7 +325,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           10,
                                           -10,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
 
     // test negative orientation and different beamwidths
     // with a 80 deg beamwidth, gain is -20dB at +- 73.030 degrees from boresight
@@ -348,7 +336,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           10,
                                           0,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(-110), DegreesToRadians(90)),
                                           80,
@@ -356,7 +344,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           10,
                                           -3,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(-190), DegreesToRadians(90)),
                                           80,
@@ -364,7 +352,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           10,
                                           -3,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(-70), DegreesToRadians(90)),
                                           80,
@@ -372,7 +360,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           10,
                                           -10,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(92), DegreesToRadians(90)),
                                           80,
@@ -380,7 +368,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           10,
                                           -10,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(-30), DegreesToRadians(90)),
                                           80,
@@ -388,14 +376,14 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           10,
                                           -10,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(0), DegreesToRadians(90)),
                                                   80,
                                                   -150,
                                                   10,
                                                   -10,
                                                   EQUAL),
-                TestCase::QUICK);
+                TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(60), DegreesToRadians(90)),
                                           80,
@@ -403,7 +391,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           10,
                                           -10,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(90), DegreesToRadians(90)),
                                           80,
@@ -411,7 +399,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           10,
                                           -10,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(30), DegreesToRadians(90)),
                                           80,
@@ -419,7 +407,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           10,
                                           -10,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
 
     // test elevation angle
     AddTestCase(new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(0), DegreesToRadians(88)),
@@ -428,7 +416,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                                   20,
                                                   0,
                                                   EQUAL),
-                TestCase::QUICK);
+                TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(30), DegreesToRadians(88)),
                                           60,
@@ -436,7 +424,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           20,
                                           -3,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(-30), DegreesToRadians(88)),
                                           60,
@@ -444,7 +432,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           20,
                                           -3,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(-90), DegreesToRadians(88)),
                                           60,
@@ -452,7 +440,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           20,
                                           -20,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(-180), DegreesToRadians(88)),
                                           60,
@@ -460,7 +448,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           20,
                                           -20,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(60), DegreesToRadians(93)),
                                           60,
@@ -468,7 +456,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           20,
                                           0,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(90), DegreesToRadians(93)),
                                           60,
@@ -476,7 +464,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           20,
                                           -3,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(30), DegreesToRadians(93)),
                                           60,
@@ -484,7 +472,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           20,
                                           -3,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(-120), DegreesToRadians(93)),
                                           60,
@@ -492,7 +480,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           20,
                                           -20,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(-150), DegreesToRadians(93)),
                                           100,
@@ -500,7 +488,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           10,
                                           0,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(-100), DegreesToRadians(93)),
                                           100,
@@ -508,7 +496,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           10,
                                           -3,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(-200), DegreesToRadians(93)),
                                           100,
@@ -516,7 +504,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           10,
                                           -3,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(-30), DegreesToRadians(93)),
                                           100,
@@ -524,7 +512,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           10,
                                           -10,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(90), DegreesToRadians(80.5)),
                                           100,
@@ -532,7 +520,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           10,
                                           -10,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(0), DegreesToRadians(80.5)),
                                           60,
@@ -540,7 +528,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           20,
                                           0,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(30), DegreesToRadians(80.5)),
                                           60,
@@ -548,7 +536,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           20,
                                           -3,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(-30), DegreesToRadians(80.5)),
                                           60,
@@ -556,7 +544,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           20,
                                           -3,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(100), DegreesToRadians(80.5)),
                                           60,
@@ -564,7 +552,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           20,
                                           -20,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(-150), DegreesToRadians(80.5)),
                                           100,
@@ -572,7 +560,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           30,
                                           0,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(-100), DegreesToRadians(80.5)),
                                           100,
@@ -580,7 +568,7 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           30,
                                           -3,
                                           EQUAL),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new ParabolicAntennaModelTestCase(Angles(DegreesToRadians(-200), DegreesToRadians(80.5)),
                                           100,
@@ -588,8 +576,8 @@ ParabolicAntennaModelTestSuite::ParabolicAntennaModelTestSuite()
                                           30,
                                           -3,
                                           EQUAL),
-        TestCase::QUICK);
-};
+        TestCase::Duration::QUICK);
+}
 
 /// Static variable for test initialization
 static ParabolicAntennaModelTestSuite g_staticParabolicAntennaModelTestSuiteInstance;

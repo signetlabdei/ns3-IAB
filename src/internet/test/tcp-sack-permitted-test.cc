@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2016 Natale Patriciello <natale.patriciello@gmail.com>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  */
 
@@ -28,15 +17,15 @@ using namespace ns3;
 NS_LOG_COMPONENT_DEFINE("SackPermittedTestSuite");
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief Test case for checking the SACK-PERMITTED option.
+ * @brief Test case for checking the SACK-PERMITTED option.
  *
  */
 class SackPermittedTestCase : public TcpGeneralTest
 {
   public:
-    /** \brief Configuration of the test */
+    /** @brief Configuration of the test */
     enum Configuration
     {
         DISABLED,
@@ -46,8 +35,8 @@ class SackPermittedTestCase : public TcpGeneralTest
     };
 
     /**
-     * \brief Constructor
-     * \param conf Test configuration.
+     * @brief Constructor
+     * @param conf Test configuration.
      * */
     SackPermittedTestCase(SackPermittedTestCase::Configuration conf);
 
@@ -101,17 +90,11 @@ SackPermittedTestCase::CreateSenderSocket(Ptr<Node> node)
     switch (m_configuration)
     {
     case DISABLED:
-        socket->SetAttribute("Sack", BooleanValue(false));
-        break;
-
     case ENABLED_RECEIVER:
         socket->SetAttribute("Sack", BooleanValue(false));
         break;
 
     case ENABLED_SENDER:
-        socket->SetAttribute("Sack", BooleanValue(true));
-        break;
-
     case ENABLED:
         socket->SetAttribute("Sack", BooleanValue(true));
         break;
@@ -203,24 +186,26 @@ SackPermittedTestCase::Tx(const Ptr<const Packet> p, const TcpHeader& h, SocketW
 }
 
 /**
- * \ingroup internet-test
- *  \ingroup tests
+ * @ingroup internet-test
+ * @ingroup tests
  *
  * The test case for testing the TCP SACK PERMITTED option.
  */
 class TcpSackPermittedTestSuite : public TestSuite
 {
   public:
-    /** \brief Constructor */
+    /** @brief Constructor */
     TcpSackPermittedTestSuite()
-        : TestSuite("tcp-sack-permitted", UNIT)
+        : TestSuite("tcp-sack-permitted", Type::UNIT)
     {
-        AddTestCase(new SackPermittedTestCase(SackPermittedTestCase::DISABLED), TestCase::QUICK);
+        AddTestCase(new SackPermittedTestCase(SackPermittedTestCase::DISABLED),
+                    TestCase::Duration::QUICK);
         AddTestCase(new SackPermittedTestCase(SackPermittedTestCase::ENABLED_RECEIVER),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
         AddTestCase(new SackPermittedTestCase(SackPermittedTestCase::ENABLED_SENDER),
-                    TestCase::QUICK);
-        AddTestCase(new SackPermittedTestCase(SackPermittedTestCase::ENABLED), TestCase::QUICK);
+                    TestCase::Duration::QUICK);
+        AddTestCase(new SackPermittedTestCase(SackPermittedTestCase::ENABLED),
+                    TestCase::Duration::QUICK);
     }
 };
 

@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2011 Yufei Cheng
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Yufei Cheng   <yfcheng@ittc.ku.edu>
  *
@@ -76,9 +65,7 @@ bool
 DsrPassiveBuffer::Enqueue(DsrPassiveBuffEntry& entry)
 {
     Purge();
-    for (std::vector<DsrPassiveBuffEntry>::const_iterator i = m_passiveBuffer.begin();
-         i != m_passiveBuffer.end();
-         ++i)
+    for (auto i = m_passiveBuffer.begin(); i != m_passiveBuffer.end(); ++i)
     {
         //      NS_LOG_INFO ("packet id " << i->GetPacket ()->GetUid () << " " << entry.GetPacket
         //      ()->GetUid () << " source " << i->GetSource () << " " << entry.GetSource ()
@@ -119,9 +106,7 @@ DsrPassiveBuffer::Enqueue(DsrPassiveBuffEntry& entry)
 bool
 DsrPassiveBuffer::AllEqual(DsrPassiveBuffEntry& entry)
 {
-    for (std::vector<DsrPassiveBuffEntry>::iterator i = m_passiveBuffer.begin();
-         i != m_passiveBuffer.end();
-         ++i)
+    for (auto i = m_passiveBuffer.begin(); i != m_passiveBuffer.end(); ++i)
     {
         //      NS_LOG_INFO ("packet id " << i->GetPacket ()->GetUid () << " " << entry.GetPacket
         //      ()->GetUid () << " source " << i->GetSource () << " " << entry.GetSource ()
@@ -156,9 +141,7 @@ DsrPassiveBuffer::Dequeue(Ipv4Address dst, DsrPassiveBuffEntry& entry)
     /*
      * Dequeue the entry with destination address dst
      */
-    for (std::vector<DsrPassiveBuffEntry>::iterator i = m_passiveBuffer.begin();
-         i != m_passiveBuffer.end();
-         ++i)
+    for (auto i = m_passiveBuffer.begin(); i != m_passiveBuffer.end(); ++i)
     {
         if (i->GetDestination() == dst)
         {
@@ -177,9 +160,7 @@ DsrPassiveBuffer::Find(Ipv4Address dst)
     /*
      * Make sure if the send buffer contains entry with certain dst
      */
-    for (std::vector<DsrPassiveBuffEntry>::const_iterator i = m_passiveBuffer.begin();
-         i != m_passiveBuffer.end();
-         ++i)
+    for (auto i = m_passiveBuffer.begin(); i != m_passiveBuffer.end(); ++i)
     {
         if (i->GetDestination() == dst)
         {
@@ -195,13 +176,13 @@ struct IsExpired
 {
     /**
      * Check for an expired entry
-     * \param e passive buffer entry
-     * \return true if equal
+     * @param e passive buffer entry
+     * @return true if equal
      */
     bool operator()(const DsrPassiveBuffEntry& e) const
     {
         // NS_LOG_DEBUG("Expire time for packet in req queue: "<<e.GetExpireTime ());
-        return (e.GetExpireTime() < Seconds(0));
+        return (e.GetExpireTime().IsStrictlyNegative());
     }
 };
 
@@ -213,9 +194,7 @@ DsrPassiveBuffer::Purge()
      */
     NS_LOG_DEBUG("The passive buffer size " << m_passiveBuffer.size());
     IsExpired pred;
-    for (std::vector<DsrPassiveBuffEntry>::iterator i = m_passiveBuffer.begin();
-         i != m_passiveBuffer.end();
-         ++i)
+    for (auto i = m_passiveBuffer.begin(); i != m_passiveBuffer.end(); ++i)
     {
         if (pred(*i))
         {

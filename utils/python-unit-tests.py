@@ -2,24 +2,20 @@
 
 # Copyright (C) 2008-2011 INESC Porto
 
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+# SPDX-License-Identifier: GPL-2.0-or-later
 
 # Author: Gustavo J. A. M. Carneiro <gjc@inescporto.pt>
 
 import unittest
-from ns import ns
+
+try:
+    from ns import ns
+except ModuleNotFoundError:
+    raise SystemExit(
+        "Error: ns3 Python module not found;"
+        " Python bindings may not be enabled"
+        " or your PYTHONPATH might not be properly configured"
+    )
 import sys
 
 UINT32_MAX = 0xFFFFFFFF
@@ -186,7 +182,7 @@ class TestSimulator(unittest.TestCase):
         @param self this object
         @return None
         """
-        ns.Config.SetDefault("ns3::OnOffApplication::PacketSize", ns.core.UintegerValue(123))
+        ns.Config.SetDefault("ns3::OnOffApplication::PacketSize", ns.UintegerValue(123))
         # hm.. no Config.Get?
 
     def testSocket(self):
@@ -196,7 +192,7 @@ class TestSimulator(unittest.TestCase):
         """
         nc = ns.NodeContainer(1)
         node = nc.Get(0)
-        internet = ns.CreateObject("InternetStackHelper")
+        internet = ns.InternetStackHelper()
         internet.Install(node)
         self._received_packet = None
 
@@ -210,13 +206,16 @@ class TestSimulator(unittest.TestCase):
             }
         """)
 
-        sink = ns.network.Socket.CreateSocket(node, ns.core.TypeId.LookupByName("ns3::UdpSocketFactory"))
-        sink.Bind(ns.network.InetSocketAddress(ns.network.Ipv4Address.GetAny(), 80).ConvertTo())
+        sink = ns.Socket.CreateSocket(node, ns.TypeId.LookupByName("ns3::UdpSocketFactory"))
+        sink.Bind(ns.InetSocketAddress(ns.Ipv4Address.GetAny(), 80).ConvertTo())
         sink.SetRecvCallback(ns.cppyy.gbl.make_rx_callback_test_socket(python_rx_callback))
 
-        source = ns.network.Socket.CreateSocket(node, ns.core.TypeId.LookupByName("ns3::UdpSocketFactory"))
-        source.SendTo(ns.network.Packet(19), 0,
-                      ns.network.InetSocketAddress(ns.network.Ipv4Address("127.0.0.1"), 80).ConvertTo())
+        source = ns.Socket.CreateSocket(node, ns.TypeId.LookupByName("ns3::UdpSocketFactory"))
+        source.SendTo(
+            ns.Packet(19),
+            0,
+            ns.InetSocketAddress(ns.Ipv4Address("127.0.0.1"), 80).ConvertTo(),
+        )
 
         ns.Simulator.Run()
         self.assertTrue(self._received_packet is not None)
@@ -230,28 +229,28 @@ class TestSimulator(unittest.TestCase):
         @param self this object
         @return None
         """
-        # Templated class DropTailQueue<Packet> in C++
-        queue = ns.CreateObject("DropTailQueue<Packet>")
-        queueSizeValue = ns.network.QueueSizeValue(ns.network.QueueSize("500p"))
+        # Templated class DropTailQueue[ns.Packet] in C++
+        queue = ns.CreateObject[ns.DropTailQueue[ns.Packet]]()
+        queueSizeValue = ns.QueueSizeValue(ns.QueueSize("500p"))
         queue.SetAttribute("MaxSize", queueSizeValue)
 
-        limit = ns.network.QueueSizeValue()
+        limit = ns.QueueSizeValue()
         queue.GetAttribute("MaxSize", limit)
-        self.assertEqual(limit.Get(), ns.network.QueueSize("500p"))
+        self.assertEqual(limit.Get(), ns.QueueSize("500p"))
 
         ## -- object pointer values
-        mobility = ns.CreateObject("RandomWaypointMobilityModel")
-        ptr = ns.CreateObject("PointerValue")
+        mobility = ns.CreateObject[ns.RandomWaypointMobilityModel]()
+        ptr = ns.PointerValue()
         mobility.GetAttribute("PositionAllocator", ptr)
-        self.assertEqual(ptr.GetObject(), ns.core.Ptr["Object"](ns.cppyy.nullptr))
+        self.assertEqual(ptr.GetObject(), ns.Ptr["Object"](ns.cppyy.nullptr))
 
-        pos = ns.mobility.ListPositionAllocator()
+        pos = ns.ListPositionAllocator()
         ptr.SetObject(pos)
         mobility.SetAttribute("PositionAllocator", ptr)
 
-        ptr2 = ns.CreateObject("PointerValue")
+        ptr2 = ns.PointerValue()
         mobility.GetAttribute("PositionAllocator", ptr2)
-        self.assertNotEqual(ptr.GetObject(), ns.core.Ptr["Object"](ns.cppyy.nullptr))
+        self.assertNotEqual(ptr.GetObject(), ns.Ptr["Object"](ns.cppyy.nullptr))
 
         # Delete Ptr<>'s on the python side to let C++ clean them
         del queue, mobility, ptr, ptr2
@@ -261,8 +260,8 @@ class TestSimulator(unittest.TestCase):
         @param self this object
         @return None
         """
-        csma = ns.CreateObject("CsmaNetDevice")
-        channel = ns.CreateObject("CsmaChannel")
+        csma = ns.CreateObject[ns.CsmaNetDevice]()
+        channel = ns.CreateObject[ns.CsmaChannel]()
         csma.Attach(channel)
 
         c1 = csma.GetChannel()
@@ -290,7 +289,7 @@ class TestSimulator(unittest.TestCase):
         @param self this object
         @return None
         """
-        from ctypes import c_bool, c_int, c_double, c_char_p, create_string_buffer
+        from ctypes import c_bool, c_char_p, c_double, c_int, create_string_buffer
 
         test1 = c_bool(True)
         test2 = c_int(42)
@@ -299,10 +298,10 @@ class TestSimulator(unittest.TestCase):
         test4Buffer = create_string_buffer(b"this is a test option", BUFFLEN)
         test4 = c_char_p(test4Buffer.raw)
 
-        cmd = ns.core.CommandLine(__file__)
+        cmd = ns.CommandLine(__file__)
         cmd.AddValue("Test1", "this is a test option", test1)
         cmd.AddValue("Test2", "this is a test option", test2)
-        cmd.AddValue("Test3", "this is a test option", test3)
+        cmd.AddValue["double"]("Test3", "this is a test option", test3)
         cmd.AddValue("Test4", "this is a test option", test4, BUFFLEN)
 
         cmd.Parse(["python"])
@@ -326,7 +325,7 @@ class TestSimulator(unittest.TestCase):
         """
 
         ## MyNode class
-        class MyNode(ns.network.Node):
+        class MyNode(ns.Node):
             def GetLocalTime(self) -> ns.Time:
                 return ns.Seconds(10)
 
@@ -342,21 +341,20 @@ class TestSimulator(unittest.TestCase):
         """
         ns.Simulator.Destroy()
 
-        nodes = ns.network.NodeContainer()
+        nodes = ns.NodeContainer()
         nodes.Create(2)
 
-        pointToPoint = ns.point_to_point.PointToPointHelper()
-        pointToPoint.SetDeviceAttribute("DataRate", ns.core.StringValue("5Mbps"))
-        pointToPoint.SetChannelAttribute("Delay", ns.core.StringValue("2ms"))
+        pointToPoint = ns.PointToPointHelper()
+        pointToPoint.SetDeviceAttribute("DataRate", ns.StringValue("5Mbps"))
+        pointToPoint.SetChannelAttribute("Delay", ns.StringValue("2ms"))
 
         devices = pointToPoint.Install(nodes)
 
-        stack = ns.internet.InternetStackHelper()
+        stack = ns.InternetStackHelper()
         stack.Install(nodes)
 
-        address = ns.internet.Ipv4AddressHelper()
-        address.SetBase(ns.network.Ipv4Address("10.1.1.0"),
-                        ns.network.Ipv4Mask("255.255.255.0"))
+        address = ns.Ipv4AddressHelper()
+        address.SetBase(ns.Ipv4Address("10.1.1.0"), ns.Ipv4Mask("255.255.255.0"))
 
         interfaces = address.Assign(devices)
 
@@ -375,7 +373,7 @@ class TestSimulator(unittest.TestCase):
         """)
 
         ## EchoServer application class
-        class EchoServer(ns.applications.Application):
+        class EchoServer(ns.Application):
             LOGGING = False
             ECHO_PORT = 1234
             socketToInstanceDict = {}
@@ -388,13 +386,17 @@ class TestSimulator(unittest.TestCase):
                 return None
                 """
                 super().__init__()
+                ## __python_owns__ flag indicates that Cppyy should not manage the lifetime of this variable
                 self.__python_owns__ = False  # Let C++ destroy this on Simulator::Destroy
                 ## Listen port for the server
                 self.port = port
                 ## Socket used by the server to listen to port
-                self.m_socket = ns.network.Socket.CreateSocket(node,
-                                                               ns.core.TypeId.LookupByName("ns3::UdpSocketFactory"))
-                self.m_socket.Bind(ns.network.InetSocketAddress(ns.network.Ipv4Address.GetAny(), self.port).ConvertTo())
+                self.m_socket = ns.Socket.CreateSocket(
+                    node, ns.TypeId.LookupByName("ns3::UdpSocketFactory")
+                )
+                self.m_socket.Bind(
+                    ns.InetSocketAddress(ns.Ipv4Address.GetAny(), self.port).ConvertTo()
+                )
                 self.m_socket.SetRecvCallback(ns.make_rx_callback(EchoServer._Receive))
                 EchoServer.socketToInstanceDict[self.m_socket] = self
 
@@ -415,13 +417,16 @@ class TestSimulator(unittest.TestCase):
                 self.m_socket.SendTo(packet, 0, address)
                 if EchoServer.LOGGING:
                     inetAddress = ns.InetSocketAddress.ConvertFrom(address)
-                    print("At time +{s}s server sent {b} bytes from {ip} port {port}"
-                          .format(s=ns.Simulator.Now().GetSeconds(),
-                                  b=packet.__deref__().GetSize(),
-                                  ip=inetAddress.GetIpv4(),
-                                  port=inetAddress.GetPort()),
-                          file=sys.stderr,
-                          flush=True)
+                    print(
+                        "At time +{s}s server sent {b} bytes from {ip} port {port}".format(
+                            s=ns.Simulator.Now().GetSeconds(),
+                            b=packet.__deref__().GetSize(),
+                            ip=inetAddress.GetIpv4(),
+                            port=inetAddress.GetPort(),
+                        ),
+                        file=sys.stderr,
+                        flush=True,
+                    )
 
             def Receive(self):
                 """! Function to receive a packet from an address
@@ -432,13 +437,16 @@ class TestSimulator(unittest.TestCase):
                 packet = self.m_socket.RecvFrom(address)
                 if EchoServer.LOGGING:
                     inetAddress = ns.InetSocketAddress.ConvertFrom(address)
-                    print("At time +{s}s server received {b} bytes from {ip} port {port}"
-                          .format(s=ns.Simulator.Now().GetSeconds(),
-                                  b=packet.__deref__().GetSize(),
-                                  ip=inetAddress.GetIpv4(),
-                                  port=inetAddress.GetPort()),
-                          file=sys.stderr,
-                          flush=True)
+                    print(
+                        "At time +{s}s server received {b} bytes from {ip} port {port}".format(
+                            s=ns.Simulator.Now().GetSeconds(),
+                            b=packet.__deref__().GetSize(),
+                            ip=inetAddress.GetIpv4(),
+                            port=inetAddress.GetPort(),
+                        ),
+                        file=sys.stderr,
+                        flush=True,
+                    )
                 event = ns.pythonMakeEventSend(EchoServer._Send, self.m_socket, packet, address)
                 ns.Simulator.Schedule(ns.Seconds(1), event)
 
@@ -469,22 +477,22 @@ class TestSimulator(unittest.TestCase):
 
         serverApps = ns.ApplicationContainer()
         serverApps.Add(echoServer)
-        serverApps.Start(ns.core.Seconds(1.0))
-        serverApps.Stop(ns.core.Seconds(10.0))
+        serverApps.Start(ns.Seconds(1))
+        serverApps.Stop(ns.Seconds(10))
 
         address = interfaces.GetAddress(1).ConvertTo()
-        echoClient = ns.applications.UdpEchoClientHelper(address, EchoServer.ECHO_PORT)
-        echoClient.SetAttribute("MaxPackets", ns.core.UintegerValue(10))
-        echoClient.SetAttribute("Interval", ns.core.TimeValue(ns.core.Seconds(1.0)))
-        echoClient.SetAttribute("PacketSize", ns.core.UintegerValue(101))
+        echoClient = ns.UdpEchoClientHelper(address, EchoServer.ECHO_PORT)
+        echoClient.SetAttribute("MaxPackets", ns.UintegerValue(10))
+        echoClient.SetAttribute("Interval", ns.TimeValue(ns.Seconds(1)))
+        echoClient.SetAttribute("PacketSize", ns.UintegerValue(101))
 
         clientApps = echoClient.Install(nodes.Get(0))
-        clientApps.Start(ns.core.Seconds(2.0))
-        clientApps.Stop(ns.core.Seconds(10.0))
+        clientApps.Start(ns.Seconds(2))
+        clientApps.Stop(ns.Seconds(10))
 
         ns.Simulator.Run()
         ns.Simulator.Destroy()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main(verbosity=1, failfast=True)

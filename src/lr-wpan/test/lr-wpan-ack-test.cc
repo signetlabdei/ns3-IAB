@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2014 Fraunhofer FKIE
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author:
  *  Sascha Alexander Jopen <jopen@cs.uni-bonn.de>
@@ -20,16 +9,16 @@
  *  Tommaso Pecorella <tommaso.pecorella@unifi.it>
  */
 
+#include "ns3/constant-position-mobility-model.h"
+#include "ns3/core-module.h"
+#include "ns3/log.h"
+#include "ns3/lr-wpan-module.h"
+#include "ns3/packet.h"
+#include "ns3/propagation-delay-model.h"
+#include "ns3/propagation-loss-model.h"
 #include "ns3/rng-seed-manager.h"
-#include <ns3/constant-position-mobility-model.h>
-#include <ns3/core-module.h>
-#include <ns3/log.h>
-#include <ns3/lr-wpan-module.h>
-#include <ns3/packet.h>
-#include <ns3/propagation-delay-model.h>
-#include <ns3/propagation-loss-model.h>
-#include <ns3/simulator.h>
-#include <ns3/single-model-spectrum-channel.h>
+#include "ns3/simulator.h"
+#include "ns3/single-model-spectrum-channel.h"
 
 #include <fstream>
 #include <iostream>
@@ -37,19 +26,20 @@
 #include <string>
 
 using namespace ns3;
+using namespace ns3::lrwpan;
 
 NS_LOG_COMPONENT_DEFINE("lr-wpan-ack-test");
 
 /**
- * \ingroup lr-wpan
- * \defgroup lr-wpan-test LrWpan module tests
+ * @ingroup lr-wpan
+ * @defgroup lr-wpan-test LrWpan module tests
  */
 
 /**
- * \ingroup lr-wpan-test
- * \ingroup tests
+ * @ingroup lr-wpan-test
+ * @ingroup tests
  *
- * \brief LrWpan ACK Test
+ * @brief LrWpan ACK Test
  */
 class LrWpanAckTestCase : public TestCase
 {
@@ -68,31 +58,31 @@ class LrWpanAckTestCase : public TestCase
     /**
      * Create test case
      *
-     * \param prefix Unique file names prefix
-     * \param mode   Test mode
+     * @param prefix Unique file names prefix
+     * @param mode   Test mode
      */
     LrWpanAckTestCase(const char* const prefix, TestMode_e mode);
 
     /**
-     * \brief Function called when DataIndication is hit on dev0.
-     * \param params The MCPS params.
-     * \param p the packet.
+     * @brief Function called when DataIndication is hit on dev0.
+     * @param params The MCPS params.
+     * @param p the packet.
      */
     void DataIndicationDev0(McpsDataIndicationParams params, Ptr<Packet> p);
     /**
-     * \brief Function called when DataIndication is hit on dev1.
-     * \param params The MCPS params.
-     * \param p the packet.
+     * @brief Function called when DataIndication is hit on dev1.
+     * @param params The MCPS params.
+     * @param p the packet.
      */
     void DataIndicationDev1(McpsDataIndicationParams params, Ptr<Packet> p);
     /**
-     * \brief Function called when DataConfirm is hit on dev0.
-     * \param params The MCPS params.
+     * @brief Function called when DataConfirm is hit on dev0.
+     * @param params The MCPS params.
      */
     void DataConfirmDev0(McpsDataConfirmParams params);
     /**
-     * \brief Function called when DataConfirm is hit on dev1.
-     * \param params The MCPS params.
+     * @brief Function called when DataConfirm is hit on dev1.
+     * @param params The MCPS params.
      */
     void DataConfirmDev1(McpsDataConfirmParams params);
 
@@ -168,6 +158,8 @@ LrWpanAckTestCase::DataConfirmDev1(McpsDataConfirmParams params)
 void
 LrWpanAckTestCase::DoRun()
 {
+    SetDataDir(NS_TEST_SOURCEDIR);
+
     // Test setup:
     // Two nodes well in communication range.
     // Node 1 sends a request packet to node 2 with ACK request bit set. Node 2
@@ -191,11 +183,13 @@ LrWpanAckTestCase::DoRun()
     std::string asciiPrefix;
 
     // Create 2 nodes, and a NetDevice for each one
-    Ptr<Node> n0 = CreateObject<Node>();
-    Ptr<Node> n1 = CreateObject<Node>();
-
-    m_dev0 = CreateObject<LrWpanNetDevice>();
-    m_dev1 = CreateObject<LrWpanNetDevice>();
+    NodeContainer nodes;
+    nodes.Create(2);
+    helper.SetPropagationDelayModel("ns3::ConstantSpeedPropagationDelayModel");
+    helper.AddPropagationLossModel("ns3::LogDistancePropagationLossModel");
+    NetDeviceContainer devices = helper.Install(nodes);
+    m_dev0 = devices.Get(0)->GetObject<LrWpanNetDevice>();
+    m_dev1 = devices.Get(1)->GetObject<LrWpanNetDevice>();
 
     // Make random variable stream assignment deterministic
     m_dev0->AssignStreams(0);
@@ -207,22 +201,6 @@ LrWpanAckTestCase::DoRun()
     // Add extended addresses.
     m_dev0->GetMac()->SetExtendedAddress(Mac64Address("00:00:00:00:00:00:00:01"));
     m_dev1->GetMac()->SetExtendedAddress(Mac64Address("00:00:00:00:00:00:00:02"));
-
-    // Each device must be attached to the same channel
-    Ptr<SingleModelSpectrumChannel> channel = CreateObject<SingleModelSpectrumChannel>();
-    Ptr<LogDistancePropagationLossModel> propModel =
-        CreateObject<LogDistancePropagationLossModel>();
-    Ptr<ConstantSpeedPropagationDelayModel> delayModel =
-        CreateObject<ConstantSpeedPropagationDelayModel>();
-    channel->AddPropagationLossModel(propModel);
-    channel->SetPropagationDelayModel(delayModel);
-
-    m_dev0->SetChannel(channel);
-    m_dev1->SetChannel(channel);
-
-    // To complete configuration, a LrWpanNetDevice must be added to a node
-    n0->AddDevice(m_dev0);
-    n1->AddDevice(m_dev1);
 
     Ptr<ConstantPositionMobilityModel> sender0Mobility =
         CreateObject<ConstantPositionMobilityModel>();
@@ -301,12 +279,14 @@ LrWpanAckTestCase::DoRun()
     }
     traceFile.close();
 
-    // Note: the packet being correctly sent includes receiving an ACK in case of for unicact
+    // Note: the packet being correctly sent includes receiving an ACK in case of for unicast
     // packets.
     NS_TEST_EXPECT_MSG_LT(m_requestTime,
                           m_replyTime,
                           "Sent the request before the reply (as expected)");
-    NS_TEST_EXPECT_MSG_GT(m_requestSentTime, Time(0), "The request was sent (as expected)");
+    NS_TEST_EXPECT_MSG_EQ(m_requestSentTime.IsStrictlyPositive(),
+                          true,
+                          "The request was sent (as expected)");
     NS_TEST_EXPECT_MSG_LT(m_requestSentTime,
                           m_replyArrivalTime,
                           "The request was sent before the reply arrived (as expected)");
@@ -324,10 +304,10 @@ LrWpanAckTestCase::DoRun()
 }
 
 /**
- * \ingroup lr-wpan-test
- * \ingroup tests
+ * @ingroup lr-wpan-test
+ * @ingroup tests
  *
- * \brief LrWpan ACK TestSuite
+ * @brief LrWpan ACK TestSuite
  */
 class LrWpanAckTestSuite : public TestSuite
 {
@@ -336,19 +316,19 @@ class LrWpanAckTestSuite : public TestSuite
 };
 
 LrWpanAckTestSuite::LrWpanAckTestSuite()
-    : TestSuite("lr-wpan-ack", UNIT)
+    : TestSuite("lr-wpan-ack", Type::UNIT)
 {
     AddTestCase(new LrWpanAckTestCase("short-unicast", LrWpanAckTestCase::SHORT_ADDRESS_UNICAST),
-                TestCase::QUICK);
+                TestCase::Duration::QUICK);
     AddTestCase(
         new LrWpanAckTestCase("short-multicast", LrWpanAckTestCase::SHORT_ADDRESS_MULTICAST),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new LrWpanAckTestCase("short-broadcast", LrWpanAckTestCase::SHORT_ADDRESS_BROADCAST),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
     AddTestCase(
         new LrWpanAckTestCase("extended-unicast", LrWpanAckTestCase::EXTENDED_ADDRESS_UNICAST),
-        TestCase::QUICK);
+        TestCase::Duration::QUICK);
 }
 
 static LrWpanAckTestSuite g_lrWpanAckTestSuite; //!< Static variable for test initialization

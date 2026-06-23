@@ -1,26 +1,18 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2010 The Boeing Company
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Gary Pei <guangyu.pei@boeing.com>
  */
 
-/*
+/**
+ * @file
+ * @ingroup wifi-test
+ * @ingroup tests
+ *
  * This program is used to generate plots found in the paper
- * G. Pei and Tom Henderson, "Validation of ns-3 802.11b PHY model",
+ * Guangyu Pei and Tom Henderson, "Validation of ns-3 802.11b PHY model",
  * available online at http://www.nsnam.org/~pei/80211b.pdf
  *
  * It can be compiled as a C program and relies on a library installation of
@@ -34,6 +26,13 @@
  *   gnuplot 80211b.plt
  */
 
+/**
+ * @ingroup wifi
+ * @defgroup wifi-test wifi module tests
+ */
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <gsl/gsl_cdf.h>
 #include <gsl/gsl_integration.h>
 #include <gsl/gsl_math.h>
@@ -44,17 +43,6 @@
 #define WLAN_SIR_perfect 10.0   // if SIR > 10dB, perfect reception
 #define WLAN_SIR_impossible 0.1 // if SIR < -10dB, impossible to receive
 
-/**
- * \ingroup wifi
- * \defgroup wifi-test wifi module tests
- */
-
-/**
- * \ingroup wifi-test
- * \ingroup tests
- *
- * \brief fn_parameter_t structure
- */
 typedef struct fn_parameter_t
 {
     double beta; ///< beta
@@ -285,3 +273,5 @@ main(int argc, char* argv[])
     }
     return 0;
 }
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */

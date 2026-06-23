@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2007 Georgia Tech Research Corporation
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  */
 
@@ -24,8 +13,8 @@
 #include <string>
 
 /**
- * \file
- * \ingroup attributeimpl
+ * @file
+ * @ingroup attributeimpl
  * ns3::TypeNameGet() function declarations.
  */
 
@@ -33,14 +22,14 @@ namespace ns3
 {
 
 /**
- * \ingroup attributeimpl
+ * @ingroup attributeimpl
  *
  * Type name strings for AttributeValue types.
  * Custom classes should add a template specialization of this function
- * using the macro \c TYPE_NAME_GET_DEFINE(T).
+ * using the macro \c TYPENAMEGET_DEFINE(T).
  *
- * \tparam T \explicit The type.
- * \returns The type name as a string.
+ * @tparam T \explicit The type.
+ * @returns The type name as a string.
  */
 template <typename T>
 std::string
@@ -51,11 +40,11 @@ TypeNameGet()
 }
 
 /**
- * \ingroup attributeimpl
+ * @ingroup attributeimpl
  *
  * Macro that defines a template specialization for \c TypeNameGet<T>() .
  *
- * \param T The type.
+ * @param T The type.
  */
 #define TYPENAMEGET_DEFINE(T)                                                                      \
     template <>                                                                                    \
@@ -65,9 +54,9 @@ TypeNameGet()
     }
 
 /**
- * \ingroup attributeimpl
+ * @ingroup attributeimpl
  * ns3::TypeNameGet() specialization for numeric types.
- * \returns The numeric type name as a string.
+ * @returns The numeric type name as a string.
  * @{
  */
 TYPENAMEGET_DEFINE(bool);

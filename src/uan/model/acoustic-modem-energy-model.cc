@@ -1,31 +1,21 @@
 /*
  * Copyright (c) 2010 Andrea Sacco
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Andrea Sacco <andrea.sacco85@gmail.com>
  */
 
 #include "acoustic-modem-energy-model.h"
 
+#include "uan-net-device.h"
+#include "uan-phy.h"
+
 #include "ns3/double.h"
 #include "ns3/energy-source.h"
 #include "ns3/log.h"
 #include "ns3/simulator.h"
 #include "ns3/trace-source-accessor.h"
-#include "ns3/uan-net-device.h"
-#include "ns3/uan-phy.h"
 
 namespace ns3
 {
@@ -39,7 +29,7 @@ AcousticModemEnergyModel::GetTypeId()
 {
     static TypeId tid =
         TypeId("ns3::AcousticModemEnergyModel")
-            .SetParent<DeviceEnergyModel>()
+            .SetParent<energy::DeviceEnergyModel>()
             .AddConstructor<AcousticModemEnergyModel>()
             .AddAttribute("TxPowerW",
                           "The modem Tx power in Watts",
@@ -77,7 +67,7 @@ AcousticModemEnergyModel::AcousticModemEnergyModel()
 {
     NS_LOG_FUNCTION(this);
     m_currentState = UanPhy::IDLE; // initially IDLE
-    m_lastUpdateTime = Seconds(0.0);
+    m_lastUpdateTime = Seconds(0);
     m_energyDepletionCallback.Nullify();
     m_node = nullptr;
     m_source = nullptr;
@@ -102,7 +92,7 @@ AcousticModemEnergyModel::GetNode() const
 }
 
 void
-AcousticModemEnergyModel::SetEnergySource(Ptr<EnergySource> source)
+AcousticModemEnergyModel::SetEnergySource(Ptr<energy::EnergySource> source)
 {
     NS_LOG_FUNCTION(this << source);
     NS_ASSERT(source);

@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2014 ResiliNets, ITTC, University of Kansas
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Truc Anh N Nguyen <trucanh524@gmail.com>
  * Modified by:   Pasquale Imputato <p.imputato@gmail.com>
@@ -47,7 +36,7 @@
  */
 
 #include "ns3/applications-module.h"
-#include "ns3/config-store-module.h"
+#include "ns3/config-store.h"
 #include "ns3/core-module.h"
 #include "ns3/enum.h"
 #include "ns3/error-model.h"
@@ -71,9 +60,9 @@ NS_LOG_COMPONENT_DEFINE("CoDelPfifoFastAsymmetricTest");
 /**
  * TCP Congestion window tracker.
  *
- * \param stream The output stream.
- * \param oldval Old value.
- * \param newval New value.
+ * @param stream The output stream.
+ * @param oldval Old value.
+ * @param newval New value.
  */
 static void
 CwndTracer(Ptr<OutputStreamWrapper> stream, uint32_t oldval, uint32_t newval)
@@ -84,7 +73,7 @@ CwndTracer(Ptr<OutputStreamWrapper> stream, uint32_t oldval, uint32_t newval)
 /**
  * Setup for TCP congestion window tracking.
  *
- * \param cwndTrFileName Congestion window output file name.
+ * @param cwndTrFileName Congestion window output file name.
  */
 static void
 TraceCwnd(std::string cwndTrFileName)
@@ -107,8 +96,8 @@ TraceCwnd(std::string cwndTrFileName)
 /**
  * Traffic Control Sojourn tracker.
  *
- * \param stream The output stream.
- * \param newval New value.
+ * @param stream The output stream.
+ * @param newval New value.
  */
 static void
 SojournTracer(Ptr<OutputStreamWrapper> stream, Time newval)
@@ -119,7 +108,7 @@ SojournTracer(Ptr<OutputStreamWrapper> stream, Time newval)
 /**
  * Setup for Traffic Control Sojourn time tracking.
  *
- * \param sojournTrFileName Sojourn time output file name.
+ * @param sojournTrFileName Sojourn time output file name.
  */
 static void
 TraceSojourn(std::string sojournTrFileName)
@@ -142,9 +131,9 @@ TraceSojourn(std::string sojournTrFileName)
 /**
  * Traffic Control Queue length tracker.
  *
- * \param stream The output stream.
- * \param oldval Old value.
- * \param newval New value.
+ * @param stream The output stream.
+ * @param oldval Old value.
+ * @param newval New value.
  */
 static void
 QueueLengthTracer(Ptr<OutputStreamWrapper> stream, uint32_t oldval, uint32_t newval)
@@ -155,7 +144,7 @@ QueueLengthTracer(Ptr<OutputStreamWrapper> stream, uint32_t oldval, uint32_t new
 /**
  * Setup for Traffic Control Queue length tracking.
  *
- * \param queueLengthTrFileName Queue length output file name.
+ * @param queueLengthTrFileName Queue length output file name.
  */
 static void
 TraceQueueLength(std::string queueLengthTrFileName)
@@ -178,8 +167,8 @@ TraceQueueLength(std::string queueLengthTrFileName)
 /**
  * Traffic control drop trace.
  *
- * \param stream The output stream.
- * \param item The dropped item.
+ * @param stream The output stream.
+ * @param item The dropped item.
  */
 static void
 EveryDropTracer(Ptr<OutputStreamWrapper> stream, Ptr<const QueueDiscItem> item)
@@ -190,7 +179,7 @@ EveryDropTracer(Ptr<OutputStreamWrapper> stream, Ptr<const QueueDiscItem> item)
 /**
  * Setup for Traffic Control drop tracking.
  *
- * \param everyDropTrFileName TC drop output file name.
+ * @param everyDropTrFileName TC drop output file name.
  */
 static void
 TraceEveryDrop(std::string everyDropTrFileName)
@@ -213,19 +202,19 @@ TraceEveryDrop(std::string everyDropTrFileName)
 /**
  * Traffic Control Dropping state trace.
  *
- * \param stream The output stream.
- * \param oldVal Old value.
- * \param newVal New value.
+ * @param stream The output stream.
+ * @param oldVal Old value.
+ * @param newVal New value.
  */
 static void
 DroppingStateTracer(Ptr<OutputStreamWrapper> stream, bool oldVal, bool newVal)
 {
-    if (oldVal == false && newVal == true)
+    if (!oldVal && newVal)
     {
         NS_LOG_INFO("Entering the dropping state");
         *stream->GetStream() << Simulator::Now().GetSeconds() << " ";
     }
-    else if (oldVal == true && newVal == false)
+    else if (oldVal && !newVal)
     {
         NS_LOG_INFO("Leaving the dropping state");
         *stream->GetStream() << Simulator::Now().GetSeconds() << std::endl;
@@ -235,7 +224,7 @@ DroppingStateTracer(Ptr<OutputStreamWrapper> stream, bool oldVal, bool newVal)
 /**
  * Setup for Traffic Control dropping tracking.
  *
- * \param dropStateTrFileName TC drop state output file name.
+ * @param dropStateTrFileName TC drop state output file name.
  */
 static void
 TraceDroppingState(std::string dropStateTrFileName)
@@ -258,10 +247,10 @@ TraceDroppingState(std::string dropStateTrFileName)
 /**
  * Create a Bulk Flow application
  *
- * \param remoteAddress Remote address.
- * \param sender Sender node.
- * \param pktSize Pakcet size.
- * \param stopTime Stop time.
+ * @param remoteAddress Remote address.
+ * @param sender Sender node.
+ * @param pktSize Packet size.
+ * @param stopTime Stop time.
  */
 void
 CreateBulkFlow(AddressValue remoteAddress, Ptr<Node> sender, uint32_t pktSize, float stopTime)
@@ -278,9 +267,9 @@ CreateBulkFlow(AddressValue remoteAddress, Ptr<Node> sender, uint32_t pktSize, f
 /**
  * Create a On Off Flow application.
  *
- * \param remoteAddress Remote address.
- * \param sender Sender node.
- * \param stopTime Stop time.
+ * @param remoteAddress Remote address.
+ * @param sender Sender node.
+ * @param stopTime Stop time.
  */
 void
 CreateOnOffFlow(AddressValue remoteAddress, Ptr<Node> sender, float stopTime)
@@ -323,7 +312,7 @@ main(int argc, char* argv[])
 
     CommandLine cmd(__FILE__);
     cmd.AddValue("serverCmtsDelay", "Link delay between server and CMTS", serverCmtsDelay);
-    cmd.AddValue("cmtsRouterDelay", "Link delay between CMTS and rounter", cmtsRouterDelay);
+    cmd.AddValue("cmtsRouterDelay", "Link delay between CMTS and router", cmtsRouterDelay);
     cmd.AddValue("routerHostDelay", "Link delay between router and host", routerHostDelay);
     cmd.AddValue("serverLanDataRate", "Server LAN net device data rate", serverLanDataRate);
     cmd.AddValue("cmtsLanDataRate", "CMTS LAN net device data rate", cmtsLanDataRate);

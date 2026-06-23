@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2007 Emmanuelle Laprise
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Emmanuelle Laprise <emmanuelle.laprise@bluekazoo.ca>
  */
@@ -27,7 +16,7 @@ namespace ns3
 class Socket;
 
 /**
- * \ingroup socket
+ * @ingroup socket
  *
  * This can be used as an interface in a node in order for the node to
  * generate PacketSockets that can connect to net devices.
@@ -36,8 +25,8 @@ class PacketSocketFactory : public SocketFactory
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
 
@@ -46,7 +35,7 @@ class PacketSocketFactory : public SocketFactory
     /**
      * Creates a PacketSocket and returns a pointer to it.
      *
-     * \return a pointer to the created socket
+     * @return a pointer to the created socket
      */
     Ptr<Socket> CreateSocket() override;
 };

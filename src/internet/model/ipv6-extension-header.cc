@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2007-2009 Strasbourg University
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: David Gross <gdavid.devel@gmail.com>
  */
@@ -118,7 +107,7 @@ Ipv6ExtensionHeader::Deserialize(Buffer::Iterator start)
     m_length = i.ReadU8();
 
     uint32_t dataLength = GetLength() - 2;
-    uint8_t* data = new uint8_t[dataLength];
+    auto data = new uint8_t[dataLength];
     i.Read(data, dataLength);
 
     if (dataLength > m_data.GetSize())
@@ -150,14 +139,14 @@ OptionField::~OptionField()
 uint32_t
 OptionField::GetSerializedSize() const
 {
-    return m_optionData.GetSize() + CalculatePad((Ipv6OptionHeader::Alignment){8, 0});
+    return m_optionData.GetSize() + CalculatePad(Ipv6OptionHeader::Alignment{8, 0});
 }
 
 void
 OptionField::Serialize(Buffer::Iterator start) const
 {
     start.Write(m_optionData.Begin(), m_optionData.End());
-    uint32_t fill = CalculatePad((Ipv6OptionHeader::Alignment){8, 0});
+    uint32_t fill = CalculatePad(Ipv6OptionHeader::Alignment{8, 0});
     NS_LOG_LOGIC("fill with " << fill << " bytes padding");
     switch (fill)
     {
@@ -175,7 +164,7 @@ OptionField::Serialize(Buffer::Iterator start) const
 uint32_t
 OptionField::Deserialize(Buffer::Iterator start, uint32_t length)
 {
-    uint8_t* buf = new uint8_t[length];
+    auto buf = new uint8_t[length];
     start.Read(buf, length);
     m_optionData = Buffer();
     m_optionData.AddAtEnd(length);
@@ -613,9 +602,7 @@ Ipv6ExtensionLooseRoutingHeader::Print(std::ostream& os) const
        << " typeRouting = " << (uint32_t)GetTypeRouting()
        << " segmentsLeft = " << (uint32_t)GetSegmentsLeft() << " ";
 
-    for (std::vector<Ipv6Address>::const_iterator it = m_routersAddress.begin();
-         it != m_routersAddress.end();
-         it++)
+    for (auto it = m_routersAddress.begin(); it != m_routersAddress.end(); it++)
     {
         os << *it << " ";
     }
@@ -643,9 +630,7 @@ Ipv6ExtensionLooseRoutingHeader::Serialize(Buffer::Iterator start) const
     i.WriteU8(GetSegmentsLeft());
     i.WriteU32(0);
 
-    for (VectorIpv6Address_t::const_iterator it = m_routersAddress.begin();
-         it != m_routersAddress.end();
-         it++)
+    for (auto it = m_routersAddress.begin(); it != m_routersAddress.end(); it++)
     {
         it->Serialize(buff);
         i.Write(buff, 16);
@@ -704,26 +689,26 @@ Ipv6ExtensionESPHeader::~Ipv6ExtensionESPHeader()
 void
 Ipv6ExtensionESPHeader::Print(std::ostream& os) const
 {
-    /** \todo */
+    /** @todo */
 }
 
 uint32_t
 Ipv6ExtensionESPHeader::GetSerializedSize() const
 {
-    /** \todo */
+    /** @todo */
     return 0;
 }
 
 void
 Ipv6ExtensionESPHeader::Serialize(Buffer::Iterator start) const
 {
-    /** \todo */
+    /** @todo */
 }
 
 uint32_t
 Ipv6ExtensionESPHeader::Deserialize(Buffer::Iterator start)
 {
-    /** \todo */
+    /** @todo */
     return 0;
 }
 
@@ -756,26 +741,26 @@ Ipv6ExtensionAHHeader::~Ipv6ExtensionAHHeader()
 void
 Ipv6ExtensionAHHeader::Print(std::ostream& os) const
 {
-    /** \todo */
+    /** @todo */
 }
 
 uint32_t
 Ipv6ExtensionAHHeader::GetSerializedSize() const
 {
-    /** \todo */
+    /** @todo */
     return 0;
 }
 
 void
 Ipv6ExtensionAHHeader::Serialize(Buffer::Iterator start) const
 {
-    /** \todo */
+    /** @todo */
 }
 
 uint32_t
 Ipv6ExtensionAHHeader::Deserialize(Buffer::Iterator start)
 {
-    /** \todo */
+    /** @todo */
     return 0;
 }
 

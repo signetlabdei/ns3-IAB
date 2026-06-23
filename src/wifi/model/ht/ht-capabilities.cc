@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2013
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Ghada Badawy <gbadawy@rim.com>
  *          Sébastien Deronne <sebastien.deronne@gmail.com>
@@ -95,6 +84,23 @@ WifiInformationElementId
 HtCapabilities::ElementId() const
 {
     return IE_HT_CAPABILITIES;
+}
+
+void
+HtCapabilities::Print(std::ostream& os) const
+{
+    os << "HT Capabilities=[LDPC: " << +m_ldpc
+       << ", Supported Channel Width: " << +m_supportedChannelWidth
+       << ", SGI 20MHz: " << +m_shortGuardInterval20 << ", SGI 40MHz: " << +m_shortGuardInterval40
+       << ", Supported MCS Set: {";
+    for (uint8_t i = 0; i < MAX_SUPPORTED_MCS; i++)
+    {
+        if (IsSupportedMcs(i))
+        {
+            os << +i << " ";
+        }
+    }
+    os << "}]";
 }
 
 void
@@ -222,11 +228,7 @@ HtCapabilities::GetMaxAmpduLength() const
 bool
 HtCapabilities::IsSupportedMcs(uint8_t mcs) const
 {
-    if (m_rxMcsBitmask[mcs] == 1)
-    {
-        return true;
-    }
-    return false;
+    return m_rxMcsBitmask[mcs] == 1;
 }
 
 uint8_t
@@ -238,7 +240,7 @@ HtCapabilities::GetRxHighestSupportedAntennas() const
 
         for (uint8_t mcs = (nRx - 1) * 8; mcs <= maxMcs; mcs++)
         {
-            if (IsSupportedMcs(mcs) == false)
+            if (!IsSupportedMcs(mcs))
             {
                 return (nRx - 1);
             }
@@ -477,10 +479,10 @@ void
 HtCapabilities::SerializeInformationField(Buffer::Iterator start) const
 {
     // write the corresponding value for each bit
-    start.WriteHtolsbU16(GetHtCapabilitiesInfo());
+    start.WriteU16(GetHtCapabilitiesInfo());
     start.WriteU8(GetAmpduParameters());
-    start.WriteHtolsbU64(GetSupportedMcsSet1());
-    start.WriteHtolsbU64(GetSupportedMcsSet2());
+    start.WriteU64(GetSupportedMcsSet1());
+    start.WriteU64(GetSupportedMcsSet2());
     start.WriteU16(GetExtendedHtCapabilities());
     start.WriteU32(GetTxBfCapabilities());
     start.WriteU8(GetAntennaSelectionCapabilities());
@@ -490,10 +492,10 @@ uint16_t
 HtCapabilities::DeserializeInformationField(Buffer::Iterator start, uint16_t length)
 {
     Buffer::Iterator i = start;
-    uint16_t htinfo = i.ReadLsbtohU16();
+    uint16_t htinfo = i.ReadU16();
     uint8_t ampduparam = i.ReadU8();
-    uint64_t mcsset1 = i.ReadLsbtohU64();
-    uint64_t mcsset2 = i.ReadLsbtohU64();
+    uint64_t mcsset1 = i.ReadU64();
+    uint64_t mcsset2 = i.ReadU64();
     uint16_t extendedcapabilities = i.ReadU16();
     uint32_t txbfcapabilities = i.ReadU32();
     uint8_t aselcapabilities = i.ReadU8();
@@ -504,18 +506,6 @@ HtCapabilities::DeserializeInformationField(Buffer::Iterator start, uint16_t len
     SetTxBfCapabilities(txbfcapabilities);
     SetAntennaSelectionCapabilities(aselcapabilities);
     return length;
-}
-
-std::ostream&
-operator<<(std::ostream& os, const HtCapabilities& htcapabilities)
-{
-    os << bool(htcapabilities.GetLdpc()) << "|" << bool(htcapabilities.GetSupportedChannelWidth())
-       << "|" << bool(htcapabilities.GetShortGuardInterval20()) << "|";
-    for (uint8_t i = 0; i < MAX_SUPPORTED_MCS; i++)
-    {
-        os << htcapabilities.IsSupportedMcs(i) << " ";
-    }
-    return os;
 }
 
 } // namespace ns3

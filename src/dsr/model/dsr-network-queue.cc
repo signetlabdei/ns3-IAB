@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2011 Yufei Cheng
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Yufei Cheng   <yfcheng@ittc.ku.edu>
  *
@@ -107,9 +96,7 @@ bool
 DsrNetworkQueue::FindPacketWithNexthop(Ipv4Address nextHop, DsrNetworkQueueEntry& entry)
 {
     Cleanup();
-    for (std::vector<DsrNetworkQueueEntry>::iterator i = m_dsrNetworkQueue.begin();
-         i != m_dsrNetworkQueue.end();
-         ++i)
+    for (auto i = m_dsrNetworkQueue.begin(); i != m_dsrNetworkQueue.end(); ++i)
     {
         if (i->GetNextHopAddress() == nextHop)
         {
@@ -125,9 +112,7 @@ bool
 DsrNetworkQueue::Find(Ipv4Address nextHop)
 {
     Cleanup();
-    for (std::vector<DsrNetworkQueueEntry>::iterator i = m_dsrNetworkQueue.begin();
-         i != m_dsrNetworkQueue.end();
-         ++i)
+    for (auto i = m_dsrNetworkQueue.begin(); i != m_dsrNetworkQueue.end(); ++i)
     {
         if (i->GetNextHopAddress() == nextHop)
         {
@@ -158,7 +143,7 @@ DsrNetworkQueue::Dequeue(DsrNetworkQueueEntry& entry)
 {
     NS_LOG_FUNCTION(this);
     Cleanup();
-    std::vector<DsrNetworkQueueEntry>::iterator i = m_dsrNetworkQueue.begin();
+    auto i = m_dsrNetworkQueue.begin();
     if (i == m_dsrNetworkQueue.end())
     {
         // no elements in array
@@ -182,8 +167,7 @@ DsrNetworkQueue::Cleanup()
 
     Time now = Simulator::Now();
     uint32_t n = 0;
-    for (std::vector<DsrNetworkQueueEntry>::iterator i = m_dsrNetworkQueue.begin();
-         i != m_dsrNetworkQueue.end();)
+    for (auto i = m_dsrNetworkQueue.begin(); i != m_dsrNetworkQueue.end();)
     {
         if (i->GetInsertedTimeStamp() + m_maxDelay > now)
         {

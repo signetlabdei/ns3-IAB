@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2007, 2008 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #ifndef POINT_TO_POINT_NET_DEVICE_H
@@ -39,7 +28,7 @@ class PointToPointChannel;
 class ErrorModel;
 
 /**
- * \defgroup point-to-point Point-To-Point Network Device
+ * @defgroup point-to-point Point-To-Point Network Device
  * This section documents the API of the ns-3 point-to-point module. For a
  * functional description, please refer to the ns-3 manual here:
  * http://www.nsnam.org/docs/models/html/point-to-point.html
@@ -48,9 +37,9 @@ class ErrorModel;
  */
 
 /**
- * \ingroup point-to-point
- * \class PointToPointNetDevice
- * \brief A Device for a Point to Point Network Link.
+ * @ingroup point-to-point
+ * @class PointToPointNetDevice
+ * @brief A Device for a Point to Point Network Link.
  *
  * This PointToPointNetDevice class specializes the NetDevice abstract
  * base class.  Together with a PointToPointChannel (and a peer
@@ -64,9 +53,9 @@ class PointToPointNetDevice : public NetDevice
 {
   public:
     /**
-     * \brief Get the TypeId
+     * @brief Get the TypeId
      *
-     * \return The TypeId for this class
+     * @return The TypeId for this class
      */
     static TypeId GetTypeId();
 
@@ -95,7 +84,7 @@ class PointToPointNetDevice : public NetDevice
      * set in the Attach () method from the corresponding field in the channel
      * to which the device is attached.  It can be overridden using this method.
      *
-     * \param bps the data rate at which this object operates
+     * @param bps the data rate at which this object operates
      */
     void SetDataRate(DataRate bps);
 
@@ -103,15 +92,15 @@ class PointToPointNetDevice : public NetDevice
      * Set the interframe gap used to separate packets.  The interframe gap
      * defines the minimum space required between packets sent by this device.
      *
-     * \param t the interframe gap time
+     * @param t the interframe gap time
      */
     void SetInterframeGap(Time t);
 
     /**
      * Attach the device to a channel.
      *
-     * \param ch Ptr to the channel to which this object is being attached.
-     * \return true if the operation was successful (always true actually)
+     * @param ch Ptr to the channel to which this object is being attached.
+     * @return true if the operation was successful (always true actually)
      */
     bool Attach(Ptr<PointToPointChannel> ch);
 
@@ -121,14 +110,14 @@ class PointToPointNetDevice : public NetDevice
      * The PointToPointNetDevice "owns" a queue that implements a queueing
      * method such as DropTailQueue or RedQueue
      *
-     * \param queue Ptr to the new queue.
+     * @param queue Ptr to the new queue.
      */
     void SetQueue(Ptr<Queue<Packet>> queue);
 
     /**
      * Get a copy of the attached Queue.
      *
-     * \returns Ptr to the queue.
+     * @returns Ptr to the queue.
      */
     Ptr<Queue<Packet>> GetQueue() const;
 
@@ -138,7 +127,7 @@ class PointToPointNetDevice : public NetDevice
      * The PointToPointNetDevice may optionally include an ErrorModel in
      * the packet receive chain.
      *
-     * \param em Ptr to the ErrorModel.
+     * @param em Ptr to the ErrorModel.
      */
     void SetReceiveErrorModel(Ptr<ErrorModel> em);
 
@@ -150,7 +139,7 @@ class PointToPointNetDevice : public NetDevice
      * used by the channel to indicate that the last bit of a packet has
      * arrived at the device.
      *
-     * \param p Ptr to the received packet.
+     * @param p Ptr to the received packet.
      */
     void Receive(Ptr<Packet> p);
 
@@ -200,20 +189,20 @@ class PointToPointNetDevice : public NetDevice
 
   protected:
     /**
-     * \brief Handler for MPI receive event
+     * @brief Handler for MPI receive event
      *
-     * \param p Packet received
+     * @param p Packet received
      */
     void DoMpiReceive(Ptr<Packet> p);
 
   private:
     /**
-     * \brief Dispose of the object
+     * @brief Dispose of the object
      */
     void DoDispose() override;
 
     /**
-     * \returns the address of the remote device connected to this device
+     * @returns the address of the remote device connected to this device
      * through the point to point channel.
      */
     Address GetRemote() const;
@@ -221,17 +210,17 @@ class PointToPointNetDevice : public NetDevice
     /**
      * Adds the necessary headers and trailers to a packet of data in order to
      * respect the protocol implemented by the agent.
-     * \param p packet
-     * \param protocolNumber protocol number
+     * @param p packet
+     * @param protocolNumber protocol number
      */
     void AddHeader(Ptr<Packet> p, uint16_t protocolNumber);
 
     /**
      * Removes, from a packet of data, all headers and trailers that
      * relate to the protocol implemented by the agent
-     * \param p Packet whose headers need to be processed
-     * \param param An integer parameter that can be set by the function
-     * \return Returns true if the packet should be forwarded up the
+     * @param p Packet whose headers need to be processed
+     * @param param An integer parameter that can be set by the function
+     * @return Returns true if the packet should be forwarded up the
      * protocol stack.
      */
     bool ProcessHeader(Ptr<Packet> p, uint16_t& param);
@@ -246,10 +235,10 @@ class PointToPointNetDevice : public NetDevice
      * started sending signals.  An event is scheduled for the time at which
      * the bits have been completely transmitted.
      *
-     * \see PointToPointChannel::TransmitStart ()
-     * \see TransmitComplete()
-     * \param p a reference to the packet to send
-     * \returns true if success, false on failure
+     * @see PointToPointChannel::TransmitStart ()
+     * @see TransmitComplete()
+     * @param p a reference to the packet to send
+     * @returns true if success, false on failure
      */
     bool TransmitStart(Ptr<Packet> p);
 
@@ -262,7 +251,7 @@ class PointToPointNetDevice : public NetDevice
     void TransmitComplete();
 
     /**
-     * \brief Make the link up and running
+     * @brief Make the link up and running
      *
      * It calls also the linkChange callback.
      */
@@ -304,7 +293,7 @@ class PointToPointNetDevice : public NetDevice
      * The Queue which this PointToPointNetDevice uses as a packet source.
      * Management of this Queue has been delegated to the PointToPointNetDevice
      * and it has the responsibility for deletion.
-     * \see class DropTailQueue
+     * @see class DropTailQueue
      */
     Ptr<Queue<Packet>> m_queue;
 
@@ -433,7 +422,7 @@ class PointToPointNetDevice : public NetDevice
     static const uint16_t DEFAULT_MTU = 1500; //!< Default MTU
 
     /**
-     * \brief The Maximum Transmission Unit
+     * @brief The Maximum Transmission Unit
      *
      * This corresponds to the maximum
      * number of bytes that can be transmitted as seen from higher layers.
@@ -445,16 +434,16 @@ class PointToPointNetDevice : public NetDevice
     Ptr<Packet> m_currentPkt; //!< Current packet processed
 
     /**
-     * \brief PPP to Ethernet protocol number mapping
-     * \param protocol A PPP protocol number
-     * \return The corresponding Ethernet protocol number
+     * @brief PPP to Ethernet protocol number mapping
+     * @param protocol A PPP protocol number
+     * @return The corresponding Ethernet protocol number
      */
     static uint16_t PppToEther(uint16_t protocol);
 
     /**
-     * \brief Ethernet to PPP protocol number mapping
-     * \param protocol An Ethernet protocol number
-     * \return The corresponding PPP protocol number
+     * @brief Ethernet to PPP protocol number mapping
+     * @param protocol An Ethernet protocol number
+     * @return The corresponding PPP protocol number
      */
     static uint16_t EtherToPpp(uint16_t protocol);
 };

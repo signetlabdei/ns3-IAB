@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2019 NITK Surathkal
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Cobalt, the CoDel - BLUE - Alternate Queueing discipline
  * Based on linux code.
@@ -121,9 +110,9 @@ CobaltQueueDisc::GetTypeId()
 /**
  * Performs a reciprocal divide, similar to the
  * Linux kernel reciprocal_divide function
- * \param A numerator
- * \param R reciprocal of the denominator B
- * \return the value of A/B
+ * @param A numerator
+ * @param R reciprocal of the denominator B
+ * @return the value of A/B
  */
 /* borrowed from the linux kernel */
 static inline uint32_t
@@ -134,7 +123,7 @@ ReciprocalDivide(uint32_t A, uint32_t R)
 
 /**
  * Returns the current time translated in CoDel time representation
- * \return the current time
+ * @return the current time
  */
 static int64_t
 CoDelGetTime()
@@ -359,7 +348,7 @@ CobaltQueueDisc::DoDequeue()
 {
     NS_LOG_FUNCTION(this);
 
-    while (1)
+    while (true)
     {
         Ptr<QueueDiscItem> item = GetInternalQueue(0)->Dequeue();
         if (!item)
@@ -542,7 +531,7 @@ CobaltQueueDisc::CobaltShouldDrop(Ptr<QueueDiscItem> item, int64_t now)
     if (m_pDrop)
     {
         double u = m_uv->GetValue();
-        drop = drop | (u < m_pDrop);
+        drop = drop || (u < m_pDrop);
     }
 
     /* Overload the drop_next field as an activity timeout */

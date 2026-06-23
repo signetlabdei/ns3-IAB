@@ -2,18 +2,7 @@
  * Copyright (c) 2007, 2014 University of Washington
  *               2015 Universita' degli Studi di Napoli Federico II
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors:  Stefano Avallone <stavallo@unina.it>
  *           Tom Henderson <tomhend@u.washington.edu>
@@ -22,13 +11,13 @@
 #ifndef PFIFO_FAST_H
 #define PFIFO_FAST_H
 
-#include "ns3/queue-disc.h"
+#include "queue-disc.h"
 
 namespace ns3
 {
 
 /**
- * \ingroup traffic-control
+ * @ingroup traffic-control
  *
  * Linux pfifo_fast is the default priority queue enabled on Linux
  * systems. Packets are enqueued in three FIFO droptail queues according
@@ -50,12 +39,12 @@ class PfifoFastQueueDisc : public QueueDisc
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
     /**
-     * \brief PfifoFastQueueDisc constructor
+     * @brief PfifoFastQueueDisc constructor
      *
      * Creates a queue with a depth of 1000 packets per band by default
      */

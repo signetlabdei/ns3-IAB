@@ -2,18 +2,7 @@
  * Copyright (c) 2008 INRIA
  * Copyright (c) 2009 MIRKO BANCHI
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  *          Mirko Banchi <mk.banchi@gmail.com>
@@ -25,14 +14,18 @@
 #include "ns3/ap-wifi-mac.h"
 #include "ns3/config.h"
 #include "ns3/eht-configuration.h"
+#include "ns3/eht-ppdu.h"
+#include "ns3/frame-capture-model.h"
 #include "ns3/he-configuration.h"
 #include "ns3/ht-configuration.h"
+#include "ns3/interference-helper.h"
 #include "ns3/log.h"
 #include "ns3/mobility-model.h"
 #include "ns3/names.h"
 #include "ns3/net-device-queue-interface.h"
 #include "ns3/obss-pd-algorithm.h"
 #include "ns3/pointer.h"
+#include "ns3/preamble-detection-model.h"
 #include "ns3/qos-txop.h"
 #include "ns3/qos-utils.h"
 #include "ns3/radiotap-header.h"
@@ -40,21 +33,51 @@
 #include "ns3/vht-configuration.h"
 #include "ns3/wifi-mac-queue.h"
 #include "ns3/wifi-mac-trailer.h"
-#include "ns3/wifi-net-device.h"
+#include "ns3/wifi-radio-energy-model.h"
+
+#include <bit>
+#include <memory>
 
 namespace ns3
 {
+
+namespace
+{
+/**
+ * Helper function to place the value to set in the correct bit(s) of a radiotap subfield.
+ *
+ * @param mask the mask of the corresponding subfield
+ * @param val the value the subfield should be set to
+ * @return the value placed at the correct position based on the mask
+ */
+uint32_t
+GetRadiotapField(uint32_t mask, uint32_t val)
+{
+    const auto shift = std::countr_zero(mask);
+    return (val << shift) & mask;
+}
+
+/// 320 MHz channelization map
+const std::map<MHz_u, RadiotapHeader::UsigCommonBw> channelization320MHzMap{
+    {MHz_u{6105}, RadiotapHeader::USIG_COMMON_BW_320MHZ_1},
+    {MHz_u{6425}, RadiotapHeader::USIG_COMMON_BW_320MHZ_1},
+    {MHz_u{6745}, RadiotapHeader::USIG_COMMON_BW_320MHZ_1},
+    {MHz_u{6265}, RadiotapHeader::USIG_COMMON_BW_320MHZ_2},
+    {MHz_u{6585}, RadiotapHeader::USIG_COMMON_BW_320MHZ_2},
+    {MHz_u{6905}, RadiotapHeader::USIG_COMMON_BW_320MHZ_2},
+};
+} // namespace
 
 NS_LOG_COMPONENT_DEFINE("WifiHelper");
 
 /**
  * ASCII trace PHY transmit sink with context
- * \param stream the output stream
- * \param context the context name
- * \param p the packet
- * \param mode the wifi mode
- * \param preamble the wifi preamble
- * \param txLevel the transmit power level
+ * @param stream the output stream
+ * @param context the context name
+ * @param p the packet
+ * @param mode the wifi mode
+ * @param preamble the wifi preamble
+ * @param txLevel the transmit power level
  */
 static void
 AsciiPhyTransmitSinkWithContext(Ptr<OutputStreamWrapper> stream,
@@ -74,11 +97,11 @@ AsciiPhyTransmitSinkWithContext(Ptr<OutputStreamWrapper> stream,
 
 /**
  * ASCII trace PHY transmit sink without context
- * \param stream the output stream
- * \param p the packet
- * \param mode the wifi mode
- * \param preamble the wifi preamble
- * \param txLevel the transmit power level
+ * @param stream the output stream
+ * @param p the packet
+ * @param mode the wifi mode
+ * @param preamble the wifi preamble
+ * @param txLevel the transmit power level
  */
 static void
 AsciiPhyTransmitSinkWithoutContext(Ptr<OutputStreamWrapper> stream,
@@ -97,12 +120,12 @@ AsciiPhyTransmitSinkWithoutContext(Ptr<OutputStreamWrapper> stream,
 
 /**
  * ASCII trace PHY receive sink with context
- * \param stream the output stream
- * \param context the context name
- * \param p the packet
- * \param snr the SNR
- * \param mode the wifi mode
- * \param preamble the wifi preamble
+ * @param stream the output stream
+ * @param context the context name
+ * @param p the packet
+ * @param snr the SNR
+ * @param mode the wifi mode
+ * @param preamble the wifi preamble
  */
 static void
 AsciiPhyReceiveSinkWithContext(Ptr<OutputStreamWrapper> stream,
@@ -122,11 +145,11 @@ AsciiPhyReceiveSinkWithContext(Ptr<OutputStreamWrapper> stream,
 
 /**
  * ASCII trace PHY receive sink without context
- * \param stream the output stream
- * \param p the packet
- * \param snr the SNR
- * \param mode the wifi mode
- * \param preamble the wifi preamble
+ * @param stream the output stream
+ * @param p the packet
+ * @param snr the SNR
+ * @param mode the wifi mode
+ * @param preamble the wifi preamble
  */
 static void
 AsciiPhyReceiveSinkWithoutContext(Ptr<OutputStreamWrapper> stream,
@@ -144,10 +167,11 @@ AsciiPhyReceiveSinkWithoutContext(Ptr<OutputStreamWrapper> stream,
 }
 
 WifiPhyHelper::WifiPhyHelper(uint8_t nLinks)
-    : m_pcapDlt(PcapHelper::DLT_IEEE802_11)
+    : m_pcapDlt{PcapHelper::DLT_IEEE802_11},
+      m_pcapType{PcapCaptureType::PCAP_PER_PHY}
 {
     NS_ABORT_IF(nLinks == 0);
-    m_phy.resize(nLinks);
+    m_phys.resize(nLinks);
     m_errorRateModel.resize(nLinks);
     m_frameCaptureModel.resize(nLinks);
     m_preambleDetectionModel.resize(nLinks);
@@ -162,7 +186,7 @@ WifiPhyHelper::~WifiPhyHelper()
 void
 WifiPhyHelper::Set(std::string name, const AttributeValue& v)
 {
-    for (auto& phy : m_phy)
+    for (auto& phy : m_phys)
     {
         phy.Set(name, v);
     }
@@ -171,28 +195,80 @@ WifiPhyHelper::Set(std::string name, const AttributeValue& v)
 void
 WifiPhyHelper::Set(uint8_t linkId, std::string name, const AttributeValue& v)
 {
-    m_phy.at(linkId).Set(name, v);
+    m_phys.at(linkId).Set(name, v);
 }
 
 void
 WifiPhyHelper::DisablePreambleDetectionModel()
 {
-    for (auto& preambleDetectionModel : m_preambleDetectionModel)
+    m_preambleDetectionModel.clear();
+    m_preambleDetectionModel.resize(m_phys.size());
+}
+
+Ptr<PcapFileWrapper>
+WifiPhyHelper::GetOrCreatePcapFile(const std::shared_ptr<PcapFilesInfo>& info, uint8_t phyId)
+{
+    uint8_t fileIdx;
+    switch (info->pcapType)
     {
-        preambleDetectionModel.SetTypeId(TypeId());
+    case WifiPhyHelper::PcapCaptureType::PCAP_PER_DEVICE:
+        fileIdx = 0;
+        break;
+    case WifiPhyHelper::PcapCaptureType::PCAP_PER_PHY:
+        fileIdx = phyId;
+        break;
+    case WifiPhyHelper::PcapCaptureType::PCAP_PER_LINK:
+        if (const auto linkId = info->device->GetMac()->GetLinkForPhy(phyId))
+        {
+            fileIdx = *linkId;
+            break;
+        }
+        return nullptr;
+    default:
+        NS_ABORT_MSG("Unexpected PCAP capture type");
+        return nullptr;
     }
+
+    if (!info->files.contains(fileIdx))
+    {
+        // file does not exist yet, create it
+        auto tmp = info->commonFilename;
+
+        // find the last point in the filename
+        auto pos = info->commonFilename.find_last_of('.');
+        // if not found, set pos to filename size
+        pos = (pos == std::string::npos) ? info->commonFilename.size() : pos;
+
+        // insert PHY/link ID only for multi-link devices, unless a single PCAP is generated for the
+        // device
+        if ((info->device->GetNPhys() > 1) && (info->pcapType != PcapCaptureType::PCAP_PER_DEVICE))
+        {
+            tmp.insert(pos, "-" + std::to_string(fileIdx));
+        }
+
+        PcapHelper pcapHelper;
+        auto file = pcapHelper.CreateFile(tmp, std::ios::out, info->pcapDlt);
+        info->files.emplace(fileIdx, file);
+    }
+
+    return info->files.at(fileIdx);
 }
 
 void
-WifiPhyHelper::PcapSniffTxEvent(Ptr<PcapFileWrapper> file,
+WifiPhyHelper::PcapSniffTxEvent(const std::shared_ptr<PcapFilesInfo>& info,
+                                uint8_t phyId,
                                 Ptr<const Packet> packet,
                                 uint16_t channelFreqMhz,
                                 WifiTxVector txVector,
                                 MpduInfo aMpdu,
                                 uint16_t staId)
 {
-    uint32_t dlt = file->GetDataLinkType();
-    switch (dlt)
+    auto file = GetOrCreatePcapFile(info, phyId);
+    if (!file)
+    {
+        return;
+    }
+    switch (info->pcapDlt)
     {
     case PcapHelper::DLT_IEEE802_11:
         file->Write(Simulator::Now(), packet);
@@ -203,19 +279,24 @@ WifiPhyHelper::PcapSniffTxEvent(Ptr<PcapFileWrapper> file,
     }
     case PcapHelper::DLT_IEEE802_11_RADIO: {
         Ptr<Packet> p = packet->Copy();
-        RadiotapHeader header;
-        GetRadiotapHeader(header, p, channelFreqMhz, txVector, aMpdu, staId);
+        const auto header = GetRadiotapHeader(p,
+                                              channelFreqMhz,
+                                              info->device->GetPhy(phyId)->GetPrimary20Index(),
+                                              txVector,
+                                              aMpdu,
+                                              staId);
         p->AddHeader(header);
         file->Write(Simulator::Now(), p);
         return;
     }
     default:
-        NS_ABORT_MSG("PcapSniffTxEvent(): Unexpected data link type " << dlt);
+        NS_ABORT_MSG("PcapSniffTxEvent(): Unexpected data link type " << info->pcapDlt);
     }
 }
 
 void
-WifiPhyHelper::PcapSniffRxEvent(Ptr<PcapFileWrapper> file,
+WifiPhyHelper::PcapSniffRxEvent(const std::shared_ptr<PcapFilesInfo>& info,
+                                uint8_t phyId,
                                 Ptr<const Packet> packet,
                                 uint16_t channelFreqMhz,
                                 WifiTxVector txVector,
@@ -223,8 +304,12 @@ WifiPhyHelper::PcapSniffRxEvent(Ptr<PcapFileWrapper> file,
                                 SignalNoiseDbm signalNoise,
                                 uint16_t staId)
 {
-    uint32_t dlt = file->GetDataLinkType();
-    switch (dlt)
+    auto file = GetOrCreatePcapFile(info, phyId);
+    if (!file)
+    {
+        return;
+    }
+    switch (info->pcapDlt)
     {
     case PcapHelper::DLT_IEEE802_11:
         file->Write(Simulator::Now(), packet);
@@ -235,308 +320,498 @@ WifiPhyHelper::PcapSniffRxEvent(Ptr<PcapFileWrapper> file,
     }
     case PcapHelper::DLT_IEEE802_11_RADIO: {
         Ptr<Packet> p = packet->Copy();
-        RadiotapHeader header;
-        GetRadiotapHeader(header, p, channelFreqMhz, txVector, aMpdu, staId, signalNoise);
+        const auto header = GetRadiotapHeader(p,
+                                              channelFreqMhz,
+                                              info->device->GetPhy(phyId)->GetPrimary20Index(),
+                                              txVector,
+                                              aMpdu,
+                                              staId,
+                                              signalNoise);
         p->AddHeader(header);
         file->Write(Simulator::Now(), p);
         return;
     }
     default:
-        NS_ABORT_MSG("PcapSniffRxEvent(): Unexpected data link type " << dlt);
+        NS_ABORT_MSG("PcapSniffRxEvent(): Unexpected data link type " << info->pcapDlt);
     }
 }
 
-void
-WifiPhyHelper::GetRadiotapHeader(RadiotapHeader& header,
-                                 Ptr<Packet> packet,
+RadiotapHeader
+WifiPhyHelper::GetRadiotapHeader(Ptr<Packet> packet,
                                  uint16_t channelFreqMhz,
-                                 WifiTxVector txVector,
+                                 uint8_t p20Index,
+                                 const WifiTxVector& txVector,
                                  MpduInfo aMpdu,
                                  uint16_t staId,
-                                 SignalNoiseDbm signalNoise)
+                                 std::optional<SignalNoiseDbm> signalNoise)
 {
-    header.SetAntennaSignalPower(signalNoise.signal);
-    header.SetAntennaNoisePower(signalNoise.noise);
-    GetRadiotapHeader(header, packet, channelFreqMhz, txVector, aMpdu, staId);
-}
+    RadiotapHeader header;
 
-void
-WifiPhyHelper::GetRadiotapHeader(RadiotapHeader& header,
-                                 Ptr<Packet> packet,
-                                 uint16_t channelFreqMhz,
-                                 WifiTxVector txVector,
-                                 MpduInfo aMpdu,
-                                 uint16_t staId)
-{
-    WifiPreamble preamble = txVector.GetPreambleType();
+    const auto preamble = txVector.GetPreambleType();
+    const auto modClass = txVector.GetModulationClass();
+    const auto channelWidth = txVector.GetChannelWidth();
+    const auto gi = txVector.GetGuardInterval();
 
-    uint8_t frameFlags = RadiotapHeader::FRAME_FLAG_NONE;
+    header.SetWifiHeader(IsEht(preamble) ? 2 : 1);
+
     header.SetTsft(Simulator::Now().GetMicroSeconds());
 
+    uint8_t frameFlags = RadiotapHeader::FRAME_FLAG_NONE;
     // Our capture includes the FCS, so we set the flag to say so.
     frameFlags |= RadiotapHeader::FRAME_FLAG_FCS_INCLUDED;
-
     if (preamble == WIFI_PREAMBLE_SHORT)
     {
         frameFlags |= RadiotapHeader::FRAME_FLAG_SHORT_PREAMBLE;
     }
-
-    if (txVector.GetGuardInterval() == 400)
+    if (gi.GetNanoSeconds() == 400)
     {
         frameFlags |= RadiotapHeader::FRAME_FLAG_SHORT_GUARD;
     }
-
     header.SetFrameFlags(frameFlags);
 
+    uint8_t mcs = 0;
+    uint8_t nss = 1;
     uint64_t rate = 0;
-    if (txVector.GetMode(staId).GetModulationClass() != WIFI_MOD_CLASS_HT &&
-        txVector.GetMode(staId).GetModulationClass() != WIFI_MOD_CLASS_VHT &&
-        txVector.GetMode(staId).GetModulationClass() != WIFI_MOD_CLASS_HE)
+    if (modClass < WIFI_MOD_CLASS_HT)
     {
-        rate = txVector.GetMode(staId).GetDataRate(txVector.GetChannelWidth(),
-                                                   txVector.GetGuardInterval(),
-                                                   1) *
-               txVector.GetNss(staId) / 500000;
+        rate = txVector.GetMode(staId).GetDataRate(channelWidth, gi, 1) * nss / 500000;
         header.SetRate(static_cast<uint8_t>(rate));
     }
+    else
+    {
+        mcs = txVector.GetMode(staId).GetMcsValue();
+        nss = txVector.GetNss(staId);
+    }
 
-    uint16_t channelFlags = 0;
+    RadiotapHeader::ChannelFields channelFields{.frequency = channelFreqMhz};
     switch (rate)
     {
     case 2:  // 1Mbps
     case 4:  // 2Mbps
     case 10: // 5Mbps
     case 22: // 11Mbps
-        channelFlags |= RadiotapHeader::CHANNEL_FLAG_CCK;
+        channelFields.flags |= RadiotapHeader::CHANNEL_FLAG_CCK;
         break;
     default:
-        channelFlags |= RadiotapHeader::CHANNEL_FLAG_OFDM;
+        channelFields.flags |= RadiotapHeader::CHANNEL_FLAG_OFDM;
         break;
     }
-
     if (channelFreqMhz < 2500)
     {
-        channelFlags |= RadiotapHeader::CHANNEL_FLAG_SPECTRUM_2GHZ;
+        channelFields.flags |= RadiotapHeader::CHANNEL_FLAG_SPECTRUM_2GHZ;
     }
     else
     {
-        channelFlags |= RadiotapHeader::CHANNEL_FLAG_SPECTRUM_5GHZ;
+        channelFields.flags |= RadiotapHeader::CHANNEL_FLAG_SPECTRUM_5GHZ;
+    }
+    header.SetChannelFields(channelFields);
+
+    if (signalNoise)
+    {
+        header.SetAntennaSignalPower(signalNoise->signal);
+        header.SetAntennaNoisePower(signalNoise->noise);
     }
 
-    header.SetChannelFrequencyAndFlags(channelFreqMhz, channelFlags);
-
-    if (txVector.GetMode(staId).GetModulationClass() == WIFI_MOD_CLASS_HT)
+    if (modClass == WIFI_MOD_CLASS_HT)
     {
-        uint8_t mcsKnown = RadiotapHeader::MCS_KNOWN_NONE;
-        uint8_t mcsFlags = RadiotapHeader::MCS_FLAGS_NONE;
+        RadiotapHeader::McsFields mcsFields{.mcs = mcs};
 
-        mcsKnown |= RadiotapHeader::MCS_KNOWN_INDEX;
+        mcsFields.known |= RadiotapHeader::MCS_KNOWN_INDEX | RadiotapHeader::MCS_KNOWN_BANDWIDTH |
+                           RadiotapHeader::MCS_KNOWN_GUARD_INTERVAL |
+                           RadiotapHeader::MCS_KNOWN_HT_FORMAT | RadiotapHeader::MCS_KNOWN_NESS |
+                           RadiotapHeader::MCS_KNOWN_FEC_TYPE | RadiotapHeader::MCS_KNOWN_STBC;
 
-        mcsKnown |= RadiotapHeader::MCS_KNOWN_BANDWIDTH;
-        if (txVector.GetChannelWidth() == 40)
+        if (channelWidth == MHz_u{40})
         {
-            mcsFlags |= RadiotapHeader::MCS_FLAGS_BANDWIDTH_40;
+            mcsFields.flags |= RadiotapHeader::MCS_FLAGS_BANDWIDTH_40;
         }
 
-        mcsKnown |= RadiotapHeader::MCS_KNOWN_GUARD_INTERVAL;
-        if (txVector.GetGuardInterval() == 400)
+        if (gi.GetNanoSeconds() == 400)
         {
-            mcsFlags |= RadiotapHeader::MCS_FLAGS_GUARD_INTERVAL;
+            mcsFields.flags |= RadiotapHeader::MCS_FLAGS_GUARD_INTERVAL;
         }
 
-        mcsKnown |= RadiotapHeader::MCS_KNOWN_HT_FORMAT;
-
-        mcsKnown |= RadiotapHeader::MCS_KNOWN_NESS;
-        if (txVector.GetNess() & 0x01) // bit 1
+        const auto ness = txVector.GetNess();
+        if (ness & 0x01) // bit 1
         {
-            mcsFlags |= RadiotapHeader::MCS_FLAGS_NESS_BIT_0;
+            mcsFields.flags |= RadiotapHeader::MCS_FLAGS_NESS_BIT_0;
         }
-        if (txVector.GetNess() & 0x02) // bit 2
+        if (ness & 0x02) // bit 2
         {
-            mcsKnown |= RadiotapHeader::MCS_KNOWN_NESS_BIT_1;
+            mcsFields.flags |= RadiotapHeader::MCS_KNOWN_NESS_BIT_1;
         }
 
-        mcsKnown |= RadiotapHeader::MCS_KNOWN_FEC_TYPE; // only BCC is currently supported
-
-        mcsKnown |= RadiotapHeader::MCS_KNOWN_STBC;
         if (txVector.IsStbc())
         {
-            mcsFlags |= RadiotapHeader::MCS_FLAGS_STBC_STREAMS;
+            mcsFields.flags |= RadiotapHeader::MCS_FLAGS_STBC_STREAMS;
         }
 
-        header.SetMcsFields(mcsKnown, mcsFlags, txVector.GetMode(staId).GetMcsValue());
+        header.SetMcsFields(mcsFields);
     }
 
     if (txVector.IsAggregation())
     {
-        uint16_t ampduStatusFlags = RadiotapHeader::A_MPDU_STATUS_NONE;
-        ampduStatusFlags |= RadiotapHeader::A_MPDU_STATUS_LAST_KNOWN;
+        RadiotapHeader::AmpduStatusFields ampduStatusFields{.referenceNumber = aMpdu.mpduRefNumber};
+        ampduStatusFields.flags |= RadiotapHeader::A_MPDU_STATUS_LAST_KNOWN;
         /* For PCAP file, MPDU Delimiter and Padding should be removed by the MAC Driver */
         AmpduSubframeHeader hdr;
         uint32_t extractedLength;
         packet->RemoveHeader(hdr);
         extractedLength = hdr.GetLength();
         packet = packet->CreateFragment(0, static_cast<uint32_t>(extractedLength));
-        if (aMpdu.type == LAST_MPDU_IN_AGGREGATE || (hdr.GetEof() == true && hdr.GetLength() > 0))
+        if (aMpdu.type == LAST_MPDU_IN_AGGREGATE || (hdr.GetEof() && hdr.GetLength() > 0))
         {
-            ampduStatusFlags |= RadiotapHeader::A_MPDU_STATUS_LAST;
+            ampduStatusFields.flags |= RadiotapHeader::A_MPDU_STATUS_LAST;
         }
-        header.SetAmpduStatus(aMpdu.mpduRefNumber, ampduStatusFlags, 1 /*CRC*/);
+        header.SetAmpduStatus(ampduStatusFields);
     }
 
-    if (txVector.GetMode(staId).GetModulationClass() == WIFI_MOD_CLASS_VHT)
+    if (modClass == WIFI_MOD_CLASS_VHT)
     {
-        uint16_t vhtKnown = RadiotapHeader::VHT_KNOWN_NONE;
-        uint8_t vhtFlags = RadiotapHeader::VHT_FLAGS_NONE;
-        uint8_t vhtBandwidth = 0;
-        uint8_t vhtMcsNss[4] = {0, 0, 0, 0};
-        uint8_t vhtCoding = 0;
-        uint8_t vhtGroupId = 0;
-        uint16_t vhtPartialAid = 0;
+        RadiotapHeader::VhtFields vhtFields{};
 
-        vhtKnown |= RadiotapHeader::VHT_KNOWN_STBC;
+        vhtFields.known |= RadiotapHeader::VHT_KNOWN_STBC;
         if (txVector.IsStbc())
         {
-            vhtFlags |= RadiotapHeader::VHT_FLAGS_STBC;
+            vhtFields.flags |= RadiotapHeader::VHT_FLAGS_STBC;
         }
 
-        vhtKnown |= RadiotapHeader::VHT_KNOWN_GUARD_INTERVAL;
-        if (txVector.GetGuardInterval() == 400)
+        vhtFields.known |= RadiotapHeader::VHT_KNOWN_GUARD_INTERVAL;
+        if (gi.GetNanoSeconds() == 400)
         {
-            vhtFlags |= RadiotapHeader::VHT_FLAGS_GUARD_INTERVAL;
+            vhtFields.flags |= RadiotapHeader::VHT_FLAGS_GUARD_INTERVAL;
         }
 
-        vhtKnown |= RadiotapHeader::VHT_KNOWN_BEAMFORMED; // Beamforming is currently not supported
-
-        vhtKnown |= RadiotapHeader::VHT_KNOWN_BANDWIDTH;
-        // not all bandwidth values are currently supported
-        if (txVector.GetChannelWidth() == 40)
+        vhtFields.known |=
+            RadiotapHeader::VHT_KNOWN_BEAMFORMED | RadiotapHeader::VHT_KNOWN_BANDWIDTH;
+        // TODO: bandwidths can be provided with sideband info
+        if (channelWidth == MHz_u{40})
         {
-            vhtBandwidth = 1;
+            vhtFields.bandwidth = 1;
         }
-        else if (txVector.GetChannelWidth() == 80)
+        else if (channelWidth == MHz_u{80})
         {
-            vhtBandwidth = 4;
+            vhtFields.bandwidth = 4;
         }
-        else if (txVector.GetChannelWidth() == 160)
+        else if (channelWidth == MHz_u{160})
         {
-            vhtBandwidth = 11;
+            vhtFields.bandwidth = 11;
         }
 
         // only SU PPDUs are currently supported
-        vhtMcsNss[0] |= (txVector.GetNss(staId) & 0x0f);
-        vhtMcsNss[0] |= ((txVector.GetMode(staId).GetMcsValue() << 4) & 0xf0);
+        vhtFields.mcsNss.at(0) |= (nss & 0x0f) | ((mcs << 4) & 0xf0);
 
-        header.SetVhtFields(vhtKnown,
-                            vhtFlags,
-                            vhtBandwidth,
-                            vhtMcsNss,
-                            vhtCoding,
-                            vhtGroupId,
-                            vhtPartialAid);
+        header.SetVhtFields(vhtFields);
     }
 
-    if (txVector.GetMode(staId).GetModulationClass() == WIFI_MOD_CLASS_HE)
+    if (modClass == WIFI_MOD_CLASS_HE)
     {
-        uint16_t data1 = RadiotapHeader::HE_DATA1_BSS_COLOR_KNOWN |
+        RadiotapHeader::HeFields heFields{};
+        heFields.data1 = RadiotapHeader::HE_DATA1_BSS_COLOR_KNOWN |
                          RadiotapHeader::HE_DATA1_DATA_MCS_KNOWN |
                          RadiotapHeader::HE_DATA1_BW_RU_ALLOC_KNOWN;
         if (preamble == WIFI_PREAMBLE_HE_ER_SU)
         {
-            data1 |= RadiotapHeader::HE_DATA1_FORMAT_EXT_SU;
+            heFields.data1 |= RadiotapHeader::HE_DATA1_FORMAT_EXT_SU;
         }
         else if (preamble == WIFI_PREAMBLE_HE_MU)
         {
-            data1 |= RadiotapHeader::HE_DATA1_FORMAT_MU;
-            data1 |= RadiotapHeader::HE_DATA1_SPTL_REUSE2_KNOWN;
+            heFields.data1 |=
+                RadiotapHeader::HE_DATA1_FORMAT_MU | RadiotapHeader::HE_DATA1_SPTL_REUSE2_KNOWN;
         }
         else if (preamble == WIFI_PREAMBLE_HE_TB)
         {
-            data1 |= RadiotapHeader::HE_DATA1_FORMAT_TRIG;
+            heFields.data1 |= RadiotapHeader::HE_DATA1_FORMAT_TRIG;
         }
 
-        uint16_t data2 = RadiotapHeader::HE_DATA2_GI_KNOWN;
+        heFields.data2 = RadiotapHeader::HE_DATA2_GI_KNOWN;
         if (preamble == WIFI_PREAMBLE_HE_MU || preamble == WIFI_PREAMBLE_HE_TB)
         {
-            data2 |= RadiotapHeader::HE_DATA2_RU_OFFSET_KNOWN;
-            // HeRu indices start at 1 whereas RadioTap starts at 0
-            data2 |= (((txVector.GetHeMuUserInfo(staId).ru.GetIndex() - 1) << 8) & 0x3f00);
-            data2 |= (((!txVector.GetHeMuUserInfo(staId).ru.GetPrimary80MHz()) << 15) & 0x8000);
+            NS_ASSERT(WifiRu::IsHe(txVector.GetHeMuUserInfo(staId).ru));
+            auto heRu = std::get<HeRu::RuSpec>(txVector.GetHeMuUserInfo(staId).ru);
+            heFields.data2 |=
+                RadiotapHeader::HE_DATA2_RU_OFFSET_KNOWN |
+                // HeRu indices start at 1 whereas RadioTap starts at 0
+                GetRadiotapField(RadiotapHeader::HE_DATA2_RU_OFFSET, heRu.GetIndex() - 1) |
+                GetRadiotapField(RadiotapHeader::HE_DATA2_PRISEC_80_SEC, !heRu.GetPrimary80MHz());
         }
 
-        uint16_t data3 = 0;
-        data3 |= (txVector.GetBssColor() & 0x003f);
-        data3 |= ((txVector.GetMode(staId).GetMcsValue() << 8) & 0x0f00);
+        heFields.data3 =
+            GetRadiotapField(RadiotapHeader::HE_DATA3_BSS_COLOR, txVector.GetBssColor()) |
+            GetRadiotapField(RadiotapHeader::HE_DATA3_DATA_MCS, mcs);
 
-        uint16_t data4 = 0;
-        if (preamble == WIFI_PREAMBLE_HE_MU)
-        {
-            data4 |= ((staId << 4) & 0x7ff0);
-        }
+        heFields.data4 = (preamble == WIFI_PREAMBLE_HE_MU)
+                             ? GetRadiotapField(RadiotapHeader::HE_DATA4_MU_STA_ID, staId)
+                             : 0;
 
-        uint16_t data5 = 0;
+        heFields.data5 = 0;
         if (preamble == WIFI_PREAMBLE_HE_MU || preamble == WIFI_PREAMBLE_HE_TB)
         {
-            HeRu::RuType ruType = txVector.GetHeMuUserInfo(staId).ru.GetRuType();
+            const auto ruType = WifiRu::GetRuType(txVector.GetHeMuUserInfo(staId).ru);
             switch (ruType)
             {
-            case HeRu::RU_26_TONE:
-                data5 |= RadiotapHeader::HE_DATA5_DATA_BW_RU_ALLOC_26T;
+            case RuType::RU_26_TONE:
+                heFields.data5 |= RadiotapHeader::HE_DATA5_DATA_BW_RU_ALLOC_26T;
                 break;
-            case HeRu::RU_52_TONE:
-                data5 |= RadiotapHeader::HE_DATA5_DATA_BW_RU_ALLOC_52T;
+            case RuType::RU_52_TONE:
+                heFields.data5 |= RadiotapHeader::HE_DATA5_DATA_BW_RU_ALLOC_52T;
                 break;
-            case HeRu::RU_106_TONE:
-                data5 |= RadiotapHeader::HE_DATA5_DATA_BW_RU_ALLOC_106T;
+            case RuType::RU_106_TONE:
+                heFields.data5 |= RadiotapHeader::HE_DATA5_DATA_BW_RU_ALLOC_106T;
                 break;
-            case HeRu::RU_242_TONE:
-                data5 |= RadiotapHeader::HE_DATA5_DATA_BW_RU_ALLOC_242T;
+            case RuType::RU_242_TONE:
+                heFields.data5 |= RadiotapHeader::HE_DATA5_DATA_BW_RU_ALLOC_242T;
                 break;
-            case HeRu::RU_484_TONE:
-                data5 |= RadiotapHeader::HE_DATA5_DATA_BW_RU_ALLOC_484T;
+            case RuType::RU_484_TONE:
+                heFields.data5 |= RadiotapHeader::HE_DATA5_DATA_BW_RU_ALLOC_484T;
                 break;
-            case HeRu::RU_996_TONE:
-                data5 |= RadiotapHeader::HE_DATA5_DATA_BW_RU_ALLOC_996T;
+            case RuType::RU_996_TONE:
+                heFields.data5 |= RadiotapHeader::HE_DATA5_DATA_BW_RU_ALLOC_996T;
                 break;
-            case HeRu::RU_2x996_TONE:
-                data5 |= RadiotapHeader::HE_DATA5_DATA_BW_RU_ALLOC_2x996T;
+            case RuType::RU_2x996_TONE:
+                heFields.data5 |= RadiotapHeader::HE_DATA5_DATA_BW_RU_ALLOC_2x996T;
                 break;
             default:
                 NS_ABORT_MSG("Unexpected RU type");
             }
         }
-        else if (txVector.GetChannelWidth() == 40)
+        else if (channelWidth == MHz_u{40})
         {
-            data5 |= RadiotapHeader::HE_DATA5_DATA_BW_RU_ALLOC_40MHZ;
+            heFields.data5 |= RadiotapHeader::HE_DATA5_DATA_BW_RU_ALLOC_40MHZ;
         }
-        else if (txVector.GetChannelWidth() == 80)
+        else if (channelWidth == MHz_u{80})
         {
-            data5 |= RadiotapHeader::HE_DATA5_DATA_BW_RU_ALLOC_80MHZ;
+            heFields.data5 |= RadiotapHeader::HE_DATA5_DATA_BW_RU_ALLOC_80MHZ;
         }
-        else if (txVector.GetChannelWidth() == 160)
+        else if (channelWidth == MHz_u{160})
         {
-            data5 |= RadiotapHeader::HE_DATA5_DATA_BW_RU_ALLOC_160MHZ;
+            heFields.data5 |= RadiotapHeader::HE_DATA5_DATA_BW_RU_ALLOC_160MHZ;
         }
-        if (txVector.GetGuardInterval() == 1600)
+        if (gi.GetNanoSeconds() == 1600)
         {
-            data5 |= RadiotapHeader::HE_DATA5_GI_1_6;
+            heFields.data5 |= RadiotapHeader::HE_DATA5_GI_1_6;
         }
-        else if (txVector.GetGuardInterval() == 3200)
+        else if (gi.GetNanoSeconds() == 3200)
         {
-            data5 |= RadiotapHeader::HE_DATA5_GI_3_2;
+            heFields.data5 |= RadiotapHeader::HE_DATA5_GI_3_2;
         }
 
-        header.SetHeFields(data1, data2, data3, data4, data5, 0);
+        header.SetHeFields(heFields);
     }
 
     if (preamble == WIFI_PREAMBLE_HE_MU)
     {
-        // TODO: fill in fields (everything is set to 0 so far)
-        std::array<uint8_t, 4> ruChannel1;
-        std::array<uint8_t, 4> ruChannel2;
-        header.SetHeMuFields(0, 0, ruChannel1, ruChannel2);
-        header.SetHeMuPerUserFields(0, 0, 0, 0);
+        RadiotapHeader::HeMuFields heMuFields{};
+        // TODO: fill in fields
+        header.SetHeMuFields(heMuFields);
+        RadiotapHeader::HeMuOtherUserFields heMuOtherUserFields{};
+        // TODO: fill in fields
+        header.SetHeMuOtherUserFields(heMuOtherUserFields);
     }
+
+    if (IsEht(preamble))
+    {
+        RadiotapHeader::UsigFields usigFields{};
+        usigFields.common = RadiotapHeader::USIG_COMMON_PHY_VER_KNOWN |
+                            RadiotapHeader::USIG_COMMON_BW_KNOWN |
+                            RadiotapHeader::USIG_COMMON_BSS_COLOR_KNOWN;
+        switch (static_cast<uint16_t>(channelWidth))
+        {
+        case 20:
+            usigFields.common |= GetRadiotapField(RadiotapHeader::USIG_COMMON_BW,
+                                                  RadiotapHeader::USIG_COMMON_BW_20MHZ);
+            break;
+        case 40:
+            usigFields.common |= GetRadiotapField(RadiotapHeader::USIG_COMMON_BW,
+                                                  RadiotapHeader::USIG_COMMON_BW_40MHZ);
+            break;
+        case 80:
+            usigFields.common |= GetRadiotapField(RadiotapHeader::USIG_COMMON_BW,
+                                                  RadiotapHeader::USIG_COMMON_BW_80MHZ);
+            break;
+        case 160:
+            usigFields.common |= GetRadiotapField(RadiotapHeader::USIG_COMMON_BW,
+                                                  RadiotapHeader::USIG_COMMON_BW_160MHZ);
+            break;
+        case 320:
+            usigFields.common |= GetRadiotapField(RadiotapHeader::USIG_COMMON_BW,
+                                                  channelization320MHzMap.at(channelFreqMhz));
+            break;
+        default:
+            NS_ABORT_MSG("Unexpected channel width");
+            break;
+        }
+        usigFields.common |=
+            GetRadiotapField(RadiotapHeader::USIG_COMMON_BSS_COLOR, txVector.GetBssColor());
+        if (preamble == WIFI_PREAMBLE_EHT_MU)
+        {
+            usigFields.mask = RadiotapHeader::USIG2_MU_B0_B1_PPDU_TYPE |
+                              RadiotapHeader::USIG2_MU_B9_B10_SIG_MCS |
+                              RadiotapHeader::USIG2_MU_B3_B7_PUNCTURED_INFO;
+            usigFields.value = GetRadiotapField(RadiotapHeader::USIG2_MU_B0_B1_PPDU_TYPE,
+                                                txVector.GetEhtPpduType()) |
+                               GetRadiotapField(RadiotapHeader::USIG2_MU_B9_B10_SIG_MCS,
+                                                txVector.GetSigBMode().GetMcsValue());
+            std::optional<bool> isLow80MHz;
+            if (txVector.IsDlMu() && channelWidth > MHz_u{80})
+            {
+                isLow80MHz = true;
+                // TODO: fix once EHT RUs are used
+            }
+            const auto puncturedChannelInfo =
+                EhtPpdu::GetPuncturedInfo(txVector.GetInactiveSubchannels(),
+                                          txVector.GetEhtPpduType(),
+                                          isLow80MHz);
+            usigFields.value |= GetRadiotapField(RadiotapHeader::USIG2_MU_B3_B7_PUNCTURED_INFO,
+                                                 puncturedChannelInfo);
+        }
+        else
+        {
+            usigFields.mask = RadiotapHeader::USIG2_TB_B0_B1_PPDU_TYPE;
+            usigFields.value = GetRadiotapField(RadiotapHeader::USIG2_TB_B0_B1_PPDU_TYPE,
+                                                txVector.GetEhtPpduType());
+        }
+        header.SetUsigFields(usigFields);
+    }
+
+    if (preamble == WIFI_PREAMBLE_EHT_MU)
+    {
+        RadiotapHeader::EhtFields ehtFields{};
+        ehtFields.known = RadiotapHeader::EHT_KNOWN_GI | RadiotapHeader::EHT_KNOWN_RU_MRU_SIZE_OM |
+                          RadiotapHeader::EHT_KNOWN_RU_MRU_INDEX_OM;
+        switch (gi.GetNanoSeconds())
+        {
+        case 800:
+            ehtFields.data.at(0) =
+                GetRadiotapField(RadiotapHeader::EHT_DATA0_GI, RadiotapHeader::EHT_DATA0_GI_800_NS);
+            break;
+        case 1600:
+            ehtFields.data.at(0) = GetRadiotapField(RadiotapHeader::EHT_DATA0_GI,
+                                                    RadiotapHeader::EHT_DATA0_GI_1600_NS);
+            break;
+        case 3200:
+            ehtFields.data.at(0) = GetRadiotapField(RadiotapHeader::EHT_DATA0_GI,
+                                                    RadiotapHeader::EHT_DATA0_GI_3200_NS);
+            break;
+        default:
+            NS_ABORT_MSG("Unexpected guard interval");
+            break;
+        }
+        ehtFields.data.at(1) = RadiotapHeader::EHT_DATA1_RU_ALLOC_CC_1_1_1_KNOWN;
+        const auto ruType = (txVector.GetEhtPpduType() == 1)
+                                ? WifiRu::GetRuType(channelWidth)
+                                : WifiRu::GetRuType(txVector.GetRu(staId));
+        switch (ruType)
+        {
+        case RuType::RU_26_TONE:
+            ehtFields.data.at(1) |= GetRadiotapField(RadiotapHeader::EHT_DATA1_RU_MRU_SIZE,
+                                                     RadiotapHeader::EHT_DATA1_RU_MRU_SIZE_26);
+            break;
+        case RuType::RU_52_TONE:
+            ehtFields.data.at(1) |= GetRadiotapField(RadiotapHeader::EHT_DATA1_RU_MRU_SIZE,
+                                                     RadiotapHeader::EHT_DATA1_RU_MRU_SIZE_52);
+            break;
+        case RuType::RU_106_TONE:
+            ehtFields.data.at(1) |= GetRadiotapField(RadiotapHeader::EHT_DATA1_RU_MRU_SIZE,
+                                                     RadiotapHeader::EHT_DATA1_RU_MRU_SIZE_106);
+            break;
+        case RuType::RU_242_TONE:
+            ehtFields.data.at(1) |= GetRadiotapField(RadiotapHeader::EHT_DATA1_RU_MRU_SIZE,
+                                                     RadiotapHeader::EHT_DATA1_RU_MRU_SIZE_242);
+            break;
+        case RuType::RU_484_TONE:
+            ehtFields.data.at(1) |= GetRadiotapField(RadiotapHeader::EHT_DATA1_RU_MRU_SIZE,
+                                                     RadiotapHeader::EHT_DATA1_RU_MRU_SIZE_484);
+            break;
+        case RuType::RU_996_TONE:
+            ehtFields.data.at(1) |= GetRadiotapField(RadiotapHeader::EHT_DATA1_RU_MRU_SIZE,
+                                                     RadiotapHeader::EHT_DATA1_RU_MRU_SIZE_996);
+            break;
+        case RuType::RU_2x996_TONE:
+            ehtFields.data.at(1) |= GetRadiotapField(RadiotapHeader::EHT_DATA1_RU_MRU_SIZE,
+                                                     RadiotapHeader::EHT_DATA1_RU_MRU_SIZE_2x996);
+            break;
+        case RuType::RU_4x996_TONE:
+            ehtFields.data.at(1) |= GetRadiotapField(RadiotapHeader::EHT_DATA1_RU_MRU_SIZE,
+                                                     RadiotapHeader::EHT_DATA1_RU_MRU_SIZE_4x996);
+            break;
+        default:
+            NS_ABORT_MSG("Unexpected RU type");
+            break;
+        }
+        const auto ruIndex =
+            (txVector.GetEhtPpduType() == 1) ? 1 : WifiRu::GetIndex(txVector.GetRu(staId));
+        const auto& ruAllocation = txVector.GetRuAllocation(p20Index);
+        ehtFields.data.at(1) |=
+            GetRadiotapField(RadiotapHeader::EHT_DATA1_RU_MRU_INDEX, ruIndex) |
+            GetRadiotapField(RadiotapHeader::EHT_DATA1_RU_ALLOC_CC_1_1_1, ruAllocation.at(0));
+        if (channelWidth >= MHz_u{40})
+        {
+            ehtFields.data.at(2) =
+                RadiotapHeader::EHT_DATA2_RU_ALLOC_CC_2_1_1_KNOWN |
+                GetRadiotapField(RadiotapHeader::EHT_DATA2_RU_ALLOC_CC_2_1_1, ruAllocation.at(1));
+        }
+        if (channelWidth >= MHz_u{80})
+        {
+            ehtFields.data.at(2) |=
+                RadiotapHeader::EHT_DATA2_RU_ALLOC_CC_1_1_2_KNOWN |
+                RadiotapHeader::EHT_DATA2_RU_ALLOC_CC_2_1_2_KNOWN |
+                GetRadiotapField(RadiotapHeader::EHT_DATA2_RU_ALLOC_CC_1_1_2, ruAllocation.at(2)) |
+                GetRadiotapField(RadiotapHeader::EHT_DATA2_RU_ALLOC_CC_2_1_2, ruAllocation.at(3));
+        }
+        if (channelWidth >= MHz_u{160})
+        {
+            ehtFields.data.at(3) =
+                RadiotapHeader::EHT_DATA3_RU_ALLOC_CC_1_2_1_KNOWN |
+                RadiotapHeader::EHT_DATA3_RU_ALLOC_CC_2_2_1_KNOWN |
+                RadiotapHeader::EHT_DATA3_RU_ALLOC_CC_1_2_2_KNOWN |
+                GetRadiotapField(RadiotapHeader::EHT_DATA3_RU_ALLOC_CC_1_2_1, ruAllocation.at(4)) |
+                GetRadiotapField(RadiotapHeader::EHT_DATA3_RU_ALLOC_CC_2_2_1, ruAllocation.at(5)) |
+                GetRadiotapField(RadiotapHeader::EHT_DATA3_RU_ALLOC_CC_1_2_2, ruAllocation.at(6));
+            ehtFields.data.at(4) =
+                RadiotapHeader::EHT_DATA4_RU_ALLOC_CC_2_2_2_KNOWN |
+                GetRadiotapField(RadiotapHeader::EHT_DATA4_RU_ALLOC_CC_2_2_2, ruAllocation.at(7));
+            ehtFields.known |= RadiotapHeader::EHT_KNOWN_PRIMARY_80;
+            const auto isLowP80 = p20Index < (channelWidth / MHz_u{40});
+            ehtFields.data.at(1) |=
+                GetRadiotapField(RadiotapHeader::EHT_DATA1_PRIMARY_80,
+                                 (isLowP80 ? RadiotapHeader::EHT_DATA1_PRIMARY_80_LOWEST
+                                           : RadiotapHeader::EHT_DATA1_PRIMARY_80_HIGHEST));
+        }
+        if (channelWidth >= MHz_u{320})
+        {
+            ehtFields.data.at(4) |=
+                RadiotapHeader::EHT_DATA4_RU_ALLOC_CC_1_2_3_KNOWN |
+                RadiotapHeader::EHT_DATA4_RU_ALLOC_CC_2_2_3_KNOWN |
+                GetRadiotapField(RadiotapHeader::EHT_DATA4_RU_ALLOC_CC_1_2_3, ruAllocation.at(8)) |
+                GetRadiotapField(RadiotapHeader::EHT_DATA4_RU_ALLOC_CC_2_2_3, ruAllocation.at(9));
+            ehtFields.data.at(5) =
+                RadiotapHeader::EHT_DATA5_RU_ALLOC_CC_1_2_4_KNOWN |
+                RadiotapHeader::EHT_DATA5_RU_ALLOC_CC_2_2_4_KNOWN |
+                RadiotapHeader::EHT_DATA5_RU_ALLOC_CC_1_2_5_KNOWN |
+                GetRadiotapField(RadiotapHeader::EHT_DATA5_RU_ALLOC_CC_1_2_4, ruAllocation.at(10)) |
+                GetRadiotapField(RadiotapHeader::EHT_DATA5_RU_ALLOC_CC_2_2_4, ruAllocation.at(11)) |
+                GetRadiotapField(RadiotapHeader::EHT_DATA5_RU_ALLOC_CC_1_2_5, ruAllocation.at(12));
+            ehtFields.data.at(6) =
+                RadiotapHeader::EHT_DATA6_RU_ALLOC_CC_2_2_5_KNOWN |
+                RadiotapHeader::EHT_DATA6_RU_ALLOC_CC_1_2_6_KNOWN |
+                RadiotapHeader::EHT_DATA6_RU_ALLOC_CC_2_2_6_KNOWN |
+                GetRadiotapField(RadiotapHeader::EHT_DATA6_RU_ALLOC_CC_2_2_5, ruAllocation.at(13)) |
+                GetRadiotapField(RadiotapHeader::EHT_DATA6_RU_ALLOC_CC_1_2_6, ruAllocation.at(14)) |
+                GetRadiotapField(RadiotapHeader::EHT_DATA6_RU_ALLOC_CC_2_2_6, ruAllocation.at(15));
+        }
+        uint32_t userInfo = RadiotapHeader::EHT_USER_INFO_STA_ID_KNOWN |
+                            RadiotapHeader::EHT_USER_INFO_MCS_KNOWN |
+                            RadiotapHeader::EHT_USER_INFO_NSS_KNOWN_O |
+                            RadiotapHeader::EHT_USER_INFO_DATA_FOR_USER |
+                            GetRadiotapField(RadiotapHeader::EHT_USER_INFO_STA_ID, staId) |
+                            GetRadiotapField(RadiotapHeader::EHT_USER_INFO_MCS, mcs) |
+                            GetRadiotapField(RadiotapHeader::EHT_USER_INFO_NSS_O, nss);
+        ehtFields.userInfo.push_back(userInfo);
+        header.SetEhtFields(ehtFields);
+    }
+
+    return header;
 }
 
 void
@@ -565,6 +840,18 @@ WifiPhyHelper::GetPcapDataLinkType() const
 }
 
 void
+WifiPhyHelper::SetPcapCaptureType(PcapCaptureType type)
+{
+    m_pcapType = type;
+}
+
+WifiPhyHelper::PcapCaptureType
+WifiPhyHelper::GetPcapCaptureType() const
+{
+    return m_pcapType;
+}
+
+void
 WifiPhyHelper::EnablePcapInternal(std::string prefix,
                                   Ptr<NetDevice> nd,
                                   bool promiscuous,
@@ -587,7 +874,6 @@ WifiPhyHelper::EnablePcapInternal(std::string prefix,
                     "WifiPhyHelper::EnablePcapInternal(): Phy layer in WifiNetDevice must be set");
 
     PcapHelper pcapHelper;
-
     std::string filename;
     if (explicitFilename)
     {
@@ -598,25 +884,15 @@ WifiPhyHelper::EnablePcapInternal(std::string prefix,
         filename = pcapHelper.GetFilenameFromDevice(prefix, device);
     }
 
-    uint8_t linkId = 0;
-    // find the last point in the filename
-    auto pos = filename.find_last_of('.');
-    // if not found, set pos to filename size
-    pos = (pos == std::string::npos) ? filename.size() : pos;
-
+    auto info = std::make_shared<PcapFilesInfo>(filename, m_pcapDlt, m_pcapType, device);
     for (auto& phy : device->GetPhys())
     {
-        std::string tmp = filename;
-        if (device->GetNPhys() > 1)
-        {
-            // insert LinkId only for multi-link devices
-            tmp.insert(pos, "-" + std::to_string(linkId++));
-        }
-        auto file = pcapHelper.CreateFile(tmp, std::ios::out, m_pcapDlt);
-        phy->TraceConnectWithoutContext("MonitorSnifferTx",
-                                        MakeBoundCallback(&WifiPhyHelper::PcapSniffTxEvent, file));
-        phy->TraceConnectWithoutContext("MonitorSnifferRx",
-                                        MakeBoundCallback(&WifiPhyHelper::PcapSniffRxEvent, file));
+        phy->TraceConnectWithoutContext(
+            "MonitorSnifferTx",
+            MakeBoundCallback(&WifiPhyHelper::PcapSniffTxEvent, info, phy->GetPhyId()));
+        phy->TraceConnectWithoutContext(
+            "MonitorSnifferRx",
+            MakeBoundCallback(&WifiPhyHelper::PcapSniffRxEvent, info, phy->GetPhyId()));
     }
 }
 
@@ -734,10 +1010,57 @@ WifiHelper::WifiHelper()
     m_ehtConfig.SetTypeId("ns3::EhtConfiguration");
 }
 
+namespace
+{
+/// Map strings to WifiStandard enum values
+const std::unordered_map<std::string, WifiStandard> WIFI_STANDARDS_NAME_MAP{
+    // clang-format off
+    {"802.11a",  WIFI_STANDARD_80211a},
+    {"11a",      WIFI_STANDARD_80211a},
+
+    {"802.11b",  WIFI_STANDARD_80211b},
+    {"11b",      WIFI_STANDARD_80211b},
+
+    {"802.11g",  WIFI_STANDARD_80211g},
+    {"11g",      WIFI_STANDARD_80211g},
+
+    {"802.11p",  WIFI_STANDARD_80211p},
+    {"11p",      WIFI_STANDARD_80211p},
+
+    {"802.11n",  WIFI_STANDARD_80211n},
+    {"11n",      WIFI_STANDARD_80211n},
+    {"HT",       WIFI_STANDARD_80211n},
+
+    {"802.11ac", WIFI_STANDARD_80211ac},
+    {"11ac",     WIFI_STANDARD_80211ac},
+    {"VHT",      WIFI_STANDARD_80211ac},
+
+    {"802.11ad", WIFI_STANDARD_80211ad},
+    {"11ad",     WIFI_STANDARD_80211ad},
+
+    {"802.11ax", WIFI_STANDARD_80211ax},
+    {"11ax",     WIFI_STANDARD_80211ax},
+    {"HE",       WIFI_STANDARD_80211ax},
+
+    {"802.11be", WIFI_STANDARD_80211be},
+    {"11be",     WIFI_STANDARD_80211be},
+    {"EHT",      WIFI_STANDARD_80211be},
+    // clang-format on
+};
+} // namespace
+
 void
 WifiHelper::SetStandard(WifiStandard standard)
 {
     m_standard = standard;
+}
+
+void
+WifiHelper::SetStandard(const std::string& standard)
+{
+    NS_ABORT_MSG_IF(!WIFI_STANDARDS_NAME_MAP.contains(standard),
+                    "Specified Wi-Fi standard " << standard << " is currently not supported");
+    SetStandard(WIFI_STANDARDS_NAME_MAP.at(standard));
 }
 
 void
@@ -759,7 +1082,7 @@ WifiHelper::Install(const WifiPhyHelper& phyHelper,
                     NodeContainer::Iterator last) const
 {
     NetDeviceContainer devices;
-    for (NodeContainer::Iterator i = first; i != last; ++i)
+    for (auto i = first; i != last; ++i)
     {
         Ptr<Node> node = *i;
         Ptr<WifiNetDevice> device = CreateObject<WifiNetDevice>();
@@ -877,105 +1200,118 @@ WifiHelper::Install(const WifiPhyHelper& phy, const WifiMacHelper& mac, std::str
 }
 
 void
-WifiHelper::EnableLogComponents()
+WifiHelper::EnableLogComponents(LogLevel logLevel)
 {
     LogComponentEnableAll(LOG_PREFIX_TIME);
     LogComponentEnableAll(LOG_PREFIX_NODE);
 
-    LogComponentEnable("AarfWifiManager", LOG_LEVEL_ALL);
-    LogComponentEnable("AarfcdWifiManager", LOG_LEVEL_ALL);
-    LogComponentEnable("AdhocWifiMac", LOG_LEVEL_ALL);
-    LogComponentEnable("AmrrWifiManager", LOG_LEVEL_ALL);
-    LogComponentEnable("ApWifiMac", LOG_LEVEL_ALL);
-    LogComponentEnable("AparfWifiManager", LOG_LEVEL_ALL);
-    LogComponentEnable("ArfWifiManager", LOG_LEVEL_ALL);
-    LogComponentEnable("BlockAckAgreement", LOG_LEVEL_ALL);
-    LogComponentEnable("RecipientBlockAckAgreement", LOG_LEVEL_ALL);
-    LogComponentEnable("BlockAckManager", LOG_LEVEL_ALL);
-    LogComponentEnable("CaraWifiManager", LOG_LEVEL_ALL);
-    LogComponentEnable("ChannelAccessManager", LOG_LEVEL_ALL);
-    LogComponentEnable("ConstantObssPdAlgorithm", LOG_LEVEL_ALL);
-    LogComponentEnable("ConstantRateWifiManager", LOG_LEVEL_ALL);
-    LogComponentEnable("ChannelAccessManager", LOG_LEVEL_ALL);
-    LogComponentEnable("DsssErrorRateModel", LOG_LEVEL_ALL);
-    LogComponentEnable("DsssPhy", LOG_LEVEL_ALL);
-    LogComponentEnable("DsssPpdu", LOG_LEVEL_ALL);
-    LogComponentEnable("EhtFrameExchangeManager", LOG_LEVEL_ALL);
-    LogComponentEnable("ErpOfdmPhy", LOG_LEVEL_ALL);
-    LogComponentEnable("ErpOfdmPpdu", LOG_LEVEL_ALL);
-    LogComponentEnable("EhtPhy", LOG_LEVEL_ALL);
-    LogComponentEnable("EhtPpdu", LOG_LEVEL_ALL);
-    LogComponentEnable("FrameExchangeManager", LOG_LEVEL_ALL);
-    LogComponentEnable("HeConfiguration", LOG_LEVEL_ALL);
-    LogComponentEnable("HeFrameExchangeManager", LOG_LEVEL_ALL);
-    LogComponentEnable("HePhy", LOG_LEVEL_ALL);
-    LogComponentEnable("HePpdu", LOG_LEVEL_ALL);
-    LogComponentEnable("HtConfiguration", LOG_LEVEL_ALL);
-    LogComponentEnable("HtFrameExchangeManager", LOG_LEVEL_ALL);
-    LogComponentEnable("HtPhy", LOG_LEVEL_ALL);
-    LogComponentEnable("HtPpdu", LOG_LEVEL_ALL);
-    LogComponentEnable("IdealWifiManager", LOG_LEVEL_ALL);
-    LogComponentEnable("InterferenceHelper", LOG_LEVEL_ALL);
-    LogComponentEnable("MacRxMiddle", LOG_LEVEL_ALL);
-    LogComponentEnable("MacTxMiddle", LOG_LEVEL_ALL);
-    LogComponentEnable("MinstrelHtWifiManager", LOG_LEVEL_ALL);
-    LogComponentEnable("MinstrelWifiManager", LOG_LEVEL_ALL);
-    LogComponentEnable("MpduAggregator", LOG_LEVEL_ALL);
-    LogComponentEnable("MsduAggregator", LOG_LEVEL_ALL);
-    LogComponentEnable("MultiUserScheduler", LOG_LEVEL_ALL);
-    LogComponentEnable("NistErrorRateModel", LOG_LEVEL_ALL);
-    LogComponentEnable("ObssPdAlgorithm", LOG_LEVEL_ALL);
-    LogComponentEnable("OfdmPhy", LOG_LEVEL_ALL);
-    LogComponentEnable("OnoeWifiManager", LOG_LEVEL_ALL);
-    LogComponentEnable("OriginatorBlockAckAgreement", LOG_LEVEL_ALL);
-    LogComponentEnable("OfdmPpdu", LOG_LEVEL_ALL);
-    LogComponentEnable("ParfWifiManager", LOG_LEVEL_ALL);
-    LogComponentEnable("PhyEntity", LOG_LEVEL_ALL);
-    LogComponentEnable("QosFrameExchangeManager", LOG_LEVEL_ALL);
-    LogComponentEnable("QosTxop", LOG_LEVEL_ALL);
-    LogComponentEnable("RraaWifiManager", LOG_LEVEL_ALL);
-    LogComponentEnable("RrMultiUserScheduler", LOG_LEVEL_ALL);
-    LogComponentEnable("RrpaaWifiManager", LOG_LEVEL_ALL);
-    LogComponentEnable("SimpleFrameCaptureModel", LOG_LEVEL_ALL);
-    LogComponentEnable("SpectrumWifiPhy", LOG_LEVEL_ALL);
-    LogComponentEnable("StaWifiMac", LOG_LEVEL_ALL);
-    LogComponentEnable("SupportedRates", LOG_LEVEL_ALL);
-    LogComponentEnable("TableBasedErrorRateModel", LOG_LEVEL_ALL);
-    LogComponentEnable("ThompsonSamplingWifiManager", LOG_LEVEL_ALL);
-    LogComponentEnable("ThresholdPreambleDetectionModel", LOG_LEVEL_ALL);
-    LogComponentEnable("Txop", LOG_LEVEL_ALL);
-    LogComponentEnable("VhtConfiguration", LOG_LEVEL_ALL);
-    LogComponentEnable("VhtFrameExchangeManager", LOG_LEVEL_ALL);
-    LogComponentEnable("VhtPhy", LOG_LEVEL_ALL);
-    LogComponentEnable("VhtPpdu", LOG_LEVEL_ALL);
-    LogComponentEnable("WifiAckManager", LOG_LEVEL_ALL);
-    LogComponentEnable("WifiAssocManager", LOG_LEVEL_ALL);
-    LogComponentEnable("WifiDefaultAckManager", LOG_LEVEL_ALL);
-    LogComponentEnable("WifiDefaultAssocManager", LOG_LEVEL_ALL);
-    LogComponentEnable("WifiDefaultProtectionManager", LOG_LEVEL_ALL);
-    LogComponentEnable("WifiMac", LOG_LEVEL_ALL);
-    LogComponentEnable("WifiMacQueue", LOG_LEVEL_ALL);
-    LogComponentEnable("WifiMpdu", LOG_LEVEL_ALL);
-    LogComponentEnable("WifiNetDevice", LOG_LEVEL_ALL);
-    LogComponentEnable("WifiPhyStateHelper", LOG_LEVEL_ALL);
-    LogComponentEnable("WifiPhy", LOG_LEVEL_ALL);
-    LogComponentEnable("WifiPhyOperatingChannel", LOG_LEVEL_ALL);
-    LogComponentEnable("WifiPpdu", LOG_LEVEL_ALL);
-    LogComponentEnable("WifiProtectionManager", LOG_LEVEL_ALL);
-    LogComponentEnable("WifiPsdu", LOG_LEVEL_ALL);
-    LogComponentEnable("WifiRadioEnergyModel", LOG_LEVEL_ALL);
-    LogComponentEnable("WifiRemoteStationManager", LOG_LEVEL_ALL);
-    LogComponentEnable("WifiSpectrumPhyInterface", LOG_LEVEL_ALL);
-    LogComponentEnable("WifiSpectrumSignalParameters", LOG_LEVEL_ALL);
-    LogComponentEnable("WifiTxCurrentModel", LOG_LEVEL_ALL);
-    LogComponentEnable("WifiTxParameters", LOG_LEVEL_ALL);
-    LogComponentEnable("WifiTxTimer", LOG_LEVEL_ALL);
-    LogComponentEnable("YansErrorRateModel", LOG_LEVEL_ALL);
-    LogComponentEnable("YansWifiChannel", LOG_LEVEL_ALL);
-    LogComponentEnable("YansWifiPhy", LOG_LEVEL_ALL);
+    LogComponentEnable("AarfWifiManager", logLevel);
+    LogComponentEnable("AarfcdWifiManager", logLevel);
+    LogComponentEnable("AdhocWifiMac", logLevel);
+    LogComponentEnable("AdvancedApEmlsrManager", logLevel);
+    LogComponentEnable("AdvancedEmlsrManager", logLevel);
+    LogComponentEnable("AmrrWifiManager", logLevel);
+    LogComponentEnable("ApEmlsrManager", logLevel);
+    LogComponentEnable("ApWifiMac", logLevel);
+    LogComponentEnable("AparfWifiManager", logLevel);
+    LogComponentEnable("ArfWifiManager", logLevel);
+    LogComponentEnable("BlockAckAgreement", logLevel);
+    LogComponentEnable("BlockAckManager", logLevel);
+    LogComponentEnable("CaraWifiManager", logLevel);
+    LogComponentEnable("ChannelAccessManager", logLevel);
+    LogComponentEnable("ConstantObssPdAlgorithm", logLevel);
+    LogComponentEnable("ConstantRateWifiManager", logLevel);
+    LogComponentEnable("DefaultApEmlsrManager", logLevel);
+    LogComponentEnable("DefaultEmlsrManager", logLevel);
+    LogComponentEnable("DefaultPowerSaveManager", logLevel);
+    LogComponentEnable("DsssErrorRateModel", logLevel);
+    LogComponentEnable("DsssPhy", logLevel);
+    LogComponentEnable("DsssPpdu", logLevel);
+    LogComponentEnable("EhtFrameExchangeManager", logLevel);
+    LogComponentEnable("EhtPhy", logLevel);
+    LogComponentEnable("EhtPpdu", logLevel);
+    LogComponentEnable("EmlsrManager", logLevel);
+    LogComponentEnable("ErpOfdmPhy", logLevel);
+    LogComponentEnable("ErpOfdmPpdu", logLevel);
+    LogComponentEnable("FrameExchangeManager", logLevel);
+    LogComponentEnable("GcrManager", logLevel);
+    LogComponentEnable("HeConfiguration", logLevel);
+    LogComponentEnable("HeFrameExchangeManager", logLevel);
+    LogComponentEnable("HePhy", logLevel);
+    LogComponentEnable("HePpdu", logLevel);
+    LogComponentEnable("HtConfiguration", logLevel);
+    LogComponentEnable("HtFrameExchangeManager", logLevel);
+    LogComponentEnable("HtPhy", logLevel);
+    LogComponentEnable("HtPpdu", logLevel);
+    LogComponentEnable("IdealWifiManager", logLevel);
+    LogComponentEnable("InterferenceHelper", logLevel);
+    LogComponentEnable("MacRxMiddle", logLevel);
+    LogComponentEnable("MacTxMiddle", logLevel);
+    LogComponentEnable("MinstrelHtWifiManager", logLevel);
+    LogComponentEnable("MinstrelWifiManager", logLevel);
+    LogComponentEnable("MpduAggregator", logLevel);
+    LogComponentEnable("MsduAggregator", logLevel);
+    LogComponentEnable("MultiUserScheduler", logLevel);
+    LogComponentEnable("NistErrorRateModel", logLevel);
+    LogComponentEnable("ObssPdAlgorithm", logLevel);
+    LogComponentEnable("OfdmPhy", logLevel);
+    LogComponentEnable("OfdmPpdu", logLevel);
+    LogComponentEnable("OnoeWifiManager", logLevel);
+    LogComponentEnable("OriginatorBlockAckAgreement", logLevel);
+    LogComponentEnable("ParfWifiManager", logLevel);
+    LogComponentEnable("PhyEntity", logLevel);
+    LogComponentEnable("PowerSaveManager", logLevel);
+    LogComponentEnable("QosFrameExchangeManager", logLevel);
+    LogComponentEnable("QosTxop", logLevel);
+    LogComponentEnable("RecipientBlockAckAgreement", logLevel);
+    LogComponentEnable("RrMultiUserScheduler", logLevel);
+    LogComponentEnable("RraaWifiManager", logLevel);
+    LogComponentEnable("RrpaaWifiManager", logLevel);
+    LogComponentEnable("SimpleFrameCaptureModel", logLevel);
+    LogComponentEnable("SpectrumWifiPhy", logLevel);
+    LogComponentEnable("StaWifiMac", logLevel);
+    LogComponentEnable("SupportedRates", logLevel);
+    LogComponentEnable("TableBasedErrorRateModel", logLevel);
+    LogComponentEnable("ThompsonSamplingWifiManager", logLevel);
+    LogComponentEnable("ThresholdPreambleDetectionModel", logLevel);
+    LogComponentEnable("Txop", logLevel);
+    LogComponentEnable("VhtConfiguration", logLevel);
+    LogComponentEnable("VhtFrameExchangeManager", logLevel);
+    LogComponentEnable("VhtPhy", logLevel);
+    LogComponentEnable("VhtPpdu", logLevel);
+    LogComponentEnable("WifiAckManager", logLevel);
+    LogComponentEnable("WifiAssocManager", logLevel);
+    LogComponentEnable("WifiDefaultAckManager", logLevel);
+    LogComponentEnable("WifiDefaultAssocManager", logLevel);
+    LogComponentEnable("WifiDefaultGcrManager", logLevel);
+    LogComponentEnable("WifiDefaultProtectionManager", logLevel);
+    LogComponentEnable("WifiMac", logLevel);
+    LogComponentEnable("WifiMacQueue", logLevel);
+    LogComponentEnable("WifiMpdu", logLevel);
+    LogComponentEnable("WifiNetDevice", logLevel);
+    LogComponentEnable("WifiPhyStateHelper", logLevel);
+    LogComponentEnable("WifiPhyOperatingChannel", logLevel);
+    LogComponentEnable("WifiPhy", logLevel);
+    LogComponentEnable("WifiPpdu", logLevel);
+    LogComponentEnable("WifiProtectionManager", logLevel);
+    LogComponentEnable("WifiPsdu", logLevel);
+    LogComponentEnable("WifiRadioEnergyModel", logLevel);
+    LogComponentEnable("WifiRemoteStationManager", logLevel);
+    LogComponentEnable("WifiSpectrumPhyInterface", logLevel);
+    LogComponentEnable("WifiSpectrumSignalParameters", logLevel);
+    LogComponentEnable("WifiSpectrumValueHelper", logLevel);
+    LogComponentEnable("WifiStaticSetupHelper", logLevel);
+    LogComponentEnable("WifiTxCurrentModel", logLevel);
+    LogComponentEnable("WifiTxParameters", logLevel);
+    LogComponentEnable("WifiTxTimer", logLevel);
+    LogComponentEnable("YansErrorRateModel", logLevel);
+    LogComponentEnable("YansWifiChannel", logLevel);
+    LogComponentEnable("YansWifiPhy", logLevel);
 
-    // From Spectrum
-    LogComponentEnable("WifiSpectrumValueHelper", LOG_LEVEL_ALL);
+    LogComponentEnable("Athstats", logLevel);
+    LogComponentEnable("WifiHelper", logLevel);
+    LogComponentEnable("SpectrumWifiHelper", logLevel);
+    LogComponentEnable("YansWifiHelper", logLevel);
 }
 
 int64_t
@@ -983,43 +1319,48 @@ WifiHelper::AssignStreams(NetDeviceContainer c, int64_t stream)
 {
     int64_t currentStream = stream;
     Ptr<NetDevice> netDevice;
-    for (NetDeviceContainer::Iterator i = c.Begin(); i != c.End(); ++i)
+    for (auto i = c.Begin(); i != c.End(); ++i)
     {
         netDevice = (*i);
-        Ptr<WifiNetDevice> wifi = DynamicCast<WifiNetDevice>(netDevice);
-        if (wifi)
+        if (auto wifi = DynamicCast<WifiNetDevice>(netDevice))
         {
             // Handle any random numbers in the PHY objects.
-            currentStream += wifi->GetPhy()->AssignStreams(currentStream);
+            for (auto& phy : wifi->GetPhys())
+            {
+                currentStream += phy->AssignStreams(currentStream);
+            }
 
             // Handle any random numbers in the station managers.
-            currentStream += wifi->GetRemoteStationManager()->AssignStreams(currentStream);
+            for (auto& manager : wifi->GetRemoteStationManagers())
+            {
+                currentStream += manager->AssignStreams(currentStream);
+            }
 
             // Handle any random numbers in the MAC objects.
-            Ptr<WifiMac> mac = wifi->GetMac();
+            auto mac = wifi->GetMac();
             PointerValue ptr;
             if (!mac->GetQosSupported())
             {
                 mac->GetAttribute("Txop", ptr);
-                Ptr<Txop> txop = ptr.Get<Txop>();
+                auto txop = ptr.Get<Txop>();
                 currentStream += txop->AssignStreams(currentStream);
             }
             else
             {
                 mac->GetAttribute("VO_Txop", ptr);
-                Ptr<QosTxop> vo_txop = ptr.Get<QosTxop>();
+                auto vo_txop = ptr.Get<QosTxop>();
                 currentStream += vo_txop->AssignStreams(currentStream);
 
                 mac->GetAttribute("VI_Txop", ptr);
-                Ptr<QosTxop> vi_txop = ptr.Get<QosTxop>();
+                auto vi_txop = ptr.Get<QosTxop>();
                 currentStream += vi_txop->AssignStreams(currentStream);
 
                 mac->GetAttribute("BE_Txop", ptr);
-                Ptr<QosTxop> be_txop = ptr.Get<QosTxop>();
+                auto be_txop = ptr.Get<QosTxop>();
                 currentStream += be_txop->AssignStreams(currentStream);
 
                 mac->GetAttribute("BK_Txop", ptr);
-                Ptr<QosTxop> bk_txop = ptr.Get<QosTxop>();
+                auto bk_txop = ptr.Get<QosTxop>();
                 currentStream += bk_txop->AssignStreams(currentStream);
             }
 

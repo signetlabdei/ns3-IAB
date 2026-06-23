@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2017 NITK Surathkal
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Shravya K.S. <shravya.ks0@gmail.com>
  *
@@ -20,9 +9,10 @@
 
 #include "tcp-dctcp.h"
 
+#include "tcp-socket-state.h"
+
 #include "ns3/abort.h"
 #include "ns3/log.h"
-#include "ns3/tcp-socket-state.h"
 
 namespace ns3
 {
@@ -120,6 +110,7 @@ TcpDctcp::Init(Ptr<TcpSocketState> tcb)
     tcb->m_useEcn = TcpSocketState::On;
     tcb->m_ecnMode = TcpSocketState::DctcpEcn;
     tcb->m_ectCodePoint = m_useEct0 ? TcpSocketState::Ect0 : TcpSocketState::Ect1;
+    SetSuppressIncreaseIfCwndLimited(false);
     m_initialized = true;
 }
 
@@ -142,7 +133,7 @@ TcpDctcp::PktsAcked(Ptr<TcpSocketState> tcb, uint32_t segmentsAcked, const Time&
     {
         m_ackedBytesEcn += segmentsAcked * tcb->m_segmentSize;
     }
-    if (m_nextSeqFlag == false)
+    if (!m_nextSeqFlag)
     {
         m_nextSeq = tcb->m_nextTxSequence;
         m_nextSeqFlag = true;
@@ -196,7 +187,7 @@ TcpDctcp::CeState0to1(Ptr<TcpSocketState> tcb)
         tcb->m_rxBuffer->SetNextRxSequence(tmpRcvNxt);
     }
 
-    if (m_priorRcvNxtFlag == false)
+    if (!m_priorRcvNxtFlag)
     {
         m_priorRcvNxtFlag = true;
     }
@@ -223,7 +214,7 @@ TcpDctcp::CeState1to0(Ptr<TcpSocketState> tcb)
         tcb->m_rxBuffer->SetNextRxSequence(tmpRcvNxt);
     }
 
-    if (m_priorRcvNxtFlag == false)
+    if (!m_priorRcvNxtFlag)
     {
         m_priorRcvNxtFlag = true;
     }

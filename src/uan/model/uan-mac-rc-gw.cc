@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Leonard Tracy <lentracy@gmail.com>
  */
@@ -84,7 +73,7 @@ UanMacRcGw::Clear()
         m_phy = nullptr;
     }
     m_propDelay.clear();
-    std::map<Mac8Address, AckData>::iterator it = m_ackData.begin();
+    auto it = m_ackData.begin();
     for (; it != m_ackData.end(); it++)
     {
         it->second.rxFrames.clear();
@@ -262,7 +251,7 @@ UanMacRcGw::ReceivePacket(Ptr<Packet> pkt, double /* sinr */, UanTxMode mode)
                 NS_LOG_DEBUG(Now().As(Time::S) << " GW storing reservation from " << ch.GetSrc()
                                                << " with length " << req.length);
                 m_requests.insert(std::make_pair(ch.GetSrc(), req));
-                std::map<Mac8Address, Time>::iterator it = m_propDelay.find(ch.GetSrc());
+                auto it = m_propDelay.find(ch.GetSrc());
                 if (it == m_propDelay.end())
                 {
                     m_sortedRes.insert(std::make_pair(m_maxDelta, ch.GetSrc()));
@@ -292,7 +281,7 @@ UanMacRcGw::ReceivePacket(Ptr<Packet> pkt, double /* sinr */, UanTxMode mode)
 void
 UanMacRcGw::StartCycle()
 {
-    uint32_t numRts = static_cast<uint32_t>(m_sortedRes.size());
+    auto numRts = static_cast<uint32_t>(m_sortedRes.size());
 
     if (numRts)
     {
@@ -306,10 +295,10 @@ UanMacRcGw::StartCycle()
     // Calculate dataRate
     uint32_t totalBytes = 0;
     uint32_t totalFrames = 0;
-    Time pDelay = Seconds(0);
+    Time pDelay;
     if (numRts > 0)
     {
-        std::map<Mac8Address, Request>::iterator rit = m_requests.begin();
+        auto rit = m_requests.begin();
         for (; rit != m_requests.end(); rit++)
         {
             totalBytes += (*rit).second.length;
@@ -408,7 +397,7 @@ UanMacRcGw::StartCycle()
     m_state = CTSING;
     Simulator::Schedule(nextEarliest, &UanMacRcGw::CycleStarted, this);
 
-    std::set<std::pair<Time, Mac8Address>>::iterator it = m_sortedRes.begin();
+    auto it = m_sortedRes.begin();
     Time minPdelay = (*it).first;
     Ptr<Packet> cts = Create<Packet>();
 
@@ -483,11 +472,11 @@ UanMacRcGw::EndCycle()
 {
     NS_LOG_DEBUG(Now().As(Time::S) << " GW Ending cycle");
 
-    Time nextAck = Seconds(0);
+    Time nextAck;
 
     Time ackTime = Seconds(m_ackSize * 8.0 / m_phy->GetMode(m_currentRateNum).GetDataRateBps());
 
-    std::map<Mac8Address, AckData>::iterator it = m_ackData.begin();
+    auto it = m_ackData.begin();
     for (; it != m_ackData.end(); it++)
     {
         Mac8Address dest = (*it).first;
@@ -507,7 +496,7 @@ UanMacRcGw::EndCycle()
         ch.SetType(UanMacRc::TYPE_ACK);
         UanHeaderRcAck ah;
         ah.SetFrameNo(data.frameNo);
-        std::list<uint32_t>::iterator nit = toNack.begin();
+        auto nit = toNack.begin();
         for (; nit != toNack.end(); nit++)
         {
             ah.AddNackedFrame(static_cast<uint8_t>(*nit));
@@ -598,7 +587,7 @@ UanMacRcGw::GetExpPdk()
 {
     uint32_t n = m_numNodes;
     std::vector<double> pds;
-    std::map<Mac8Address, Time>::iterator pdit = m_propDelay.begin();
+    auto pdit = m_propDelay.begin();
 
     for (; pdit != m_propDelay.end(); pdit++)
     {
@@ -664,7 +653,7 @@ UanMacRcGw::CompExpMinIndex(uint32_t n, uint32_t k)
     double sum = 0;
     for (uint32_t i = 1; i <= n - k + 1; i++)
     {
-        double nChK = static_cast<double>(NchooseK(n, k));
+        auto nChK = static_cast<double>(NchooseK(n, k));
         double p = (nChK > 0) ? (static_cast<double>(NchooseK(n - i, k - 1)) / nChK) : DBL_MAX;
         sum += p * i;
     }
@@ -674,7 +663,7 @@ UanMacRcGw::CompExpMinIndex(uint32_t n, uint32_t k)
 double
 UanMacRcGw::ComputePiK(uint32_t a, uint32_t n, uint32_t k)
 {
-    double nck = (double)NchooseK(n, k);
+    auto nck = (double)NchooseK(n, k);
     return nck * std::pow((std::exp((double)a / (double)n) - 1.0), (double)k) *
            std::exp(-((double)a));
 }
@@ -724,7 +713,7 @@ UanMacRcGw::FindOptA()
 {
     double tput = 0;
     uint32_t a = 1;
-    while (1)
+    while (true)
     {
         double newtput = ComputeExpS(a, m_frameSize);
         if (newtput < tput)

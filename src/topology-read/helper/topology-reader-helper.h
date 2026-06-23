@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2010 Universita' di Firenze, Italy
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Tommaso Pecorella (tommaso.pecorella@unifi.it)
  * Author: Valerio Sartini (valesar@gmail.com)
@@ -26,8 +15,8 @@
 #include <string>
 
 /**
- * \file
- * \ingroup topology
+ * @file
+ * @ingroup topology
  * ns3::TopologyHelper declaration.
  */
 
@@ -35,9 +24,9 @@ namespace ns3
 {
 
 /**
- * \ingroup topology
+ * @ingroup topology
  *
- * \brief Helper class which makes it easier to configure and use a generic TopologyReader.
+ * @brief Helper class which makes it easier to configure and use a generic TopologyReader.
  */
 class TopologyReaderHelper
 {
@@ -45,20 +34,20 @@ class TopologyReaderHelper
     TopologyReaderHelper();
 
     /**
-     * \brief Sets the input file name.
-     * \param [in] fileName The input file name.
+     * @brief Sets the input file name.
+     * @param [in] fileName The input file name.
      */
     void SetFileName(const std::string fileName);
 
     /**
-     * \brief Sets the input file type. Supported file types are "Orbis", "Inet", "Rocketfuel".
-     * \param [in] fileType The input file type.
+     * @brief Sets the input file type. Supported file types are "Orbis", "Inet", "Rocketfuel".
+     * @param [in] fileType The input file type.
      */
     void SetFileType(const std::string fileType);
 
     /**
-     * \brief Gets a Ptr<TopologyReader> to the actual TopologyReader.
-     * \return The created Topology Reader (or null if there was an error).
+     * @brief Gets a Ptr<TopologyReader> to the actual TopologyReader.
+     * @return The created Topology Reader (or null if there was an error).
      */
     Ptr<TopologyReader> GetTopologyReader();
 

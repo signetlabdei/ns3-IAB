@@ -2,18 +2,7 @@
  * Copyright (c) 2009 MIRKO BANCHI
  * Copyright (c) 2015 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Mirko Banchi <mk.banchi@gmail.com>
  *          Sebastien Deronne <sebastien.deronne@gmail.com>
@@ -37,6 +26,7 @@
 #include "ns3/ssid.h"
 #include "ns3/string.h"
 #include "ns3/udp-client-server-helper.h"
+#include "ns3/udp-server.h"
 #include "ns3/waveform-generator-helper.h"
 #include "ns3/waveform-generator.h"
 #include "ns3/wifi-net-device.h"
@@ -68,7 +58,7 @@
 // Users may vary the following command-line arguments in addition to the
 // attributes, global values, and default values typically available:
 //
-//    --simulationTime:  Simulation time in seconds [10]
+//    --simulationTime:  Simulation time [10s]
 //    --udp:             UDP if set to 1, TCP otherwise [true]
 //    --distance:        meters separation between nodes [50]
 //    --index:           restrict index to single value between 0 and 31 [256]
@@ -107,12 +97,12 @@ uint32_t g_samples;    //!< Number of samples
 /**
  * Monitor sniffer Rx trace
  *
- * \param packet The sensed packet.
- * \param channelFreqMhz The channel frequency [MHz].
- * \param txVector The Tx vector.
- * \param aMpdu The aMPDU.
- * \param signalNoise The signal and noise dBm.
- * \param staId The STA ID.
+ * @param packet The sensed packet.
+ * @param channelFreqMhz The channel frequency [MHz].
+ * @param txVector The Tx vector.
+ * @param aMpdu The aMPDU.
+ * @param signalNoise The signal and noise dBm.
+ * @param staId The STA ID.
  */
 void
 MonitorSniffRx(Ptr<const Packet> packet,
@@ -178,18 +168,18 @@ static_SpectrumModelWifi5190MHz_initializer static_SpectrumModelWifi5190MHz_init
 int
 main(int argc, char* argv[])
 {
-    bool udp = true;
-    double distance = 50;
-    double simulationTime = 10; // seconds
-    uint16_t index = 256;
-    std::string wifiType = "ns3::SpectrumWifiPhy";
-    std::string errorModelType = "ns3::NistErrorRateModel";
-    bool enablePcap = false;
-    const uint32_t tcpPacketSize = 1448;
-    double waveformPower = 0;
+    bool udp{true};
+    meter_u distance{50};
+    Time simulationTime{"10s"};
+    uint16_t index{256};
+    std::string wifiType{"ns3::SpectrumWifiPhy"};
+    std::string errorModelType{"ns3::NistErrorRateModel"};
+    bool enablePcap{false};
+    const uint32_t tcpPacketSize{1448};
+    Watt_u waveformPower{0};
 
     CommandLine cmd(__FILE__);
-    cmd.AddValue("simulationTime", "Simulation time in seconds", simulationTime);
+    cmd.AddValue("simulationTime", "Simulation time", simulationTime);
     cmd.AddValue("udp", "UDP if set to 1, TCP otherwise", udp);
     cmd.AddValue("distance", "meters separation between nodes", distance);
     cmd.AddValue("index", "restrict index to single value between 0 and 31", index);
@@ -467,30 +457,10 @@ main(int argc, char* argv[])
             apDevice = wifi.Install(spectrumPhy, mac, wifiApNode);
         }
 
-        if (i <= 7)
-        {
-            Config::Set("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/HtConfiguration/"
-                        "ShortGuardIntervalSupported",
-                        BooleanValue(false));
-        }
-        else if (i > 7 && i <= 15)
-        {
-            Config::Set("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/HtConfiguration/"
-                        "ShortGuardIntervalSupported",
-                        BooleanValue(true));
-        }
-        else if (i > 15 && i <= 23)
-        {
-            Config::Set("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/HtConfiguration/"
-                        "ShortGuardIntervalSupported",
-                        BooleanValue(false));
-        }
-        else
-        {
-            Config::Set("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/HtConfiguration/"
-                        "ShortGuardIntervalSupported",
-                        BooleanValue(true));
-        }
+        bool shortGuardIntervalSupported = (i > 7 && i <= 15) || (i > 23);
+        Config::Set("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/HtConfiguration/"
+                    "ShortGuardIntervalSupported",
+                    BooleanValue(shortGuardIntervalSupported));
 
         // mobility.
         MobilityHelper mobility;
@@ -528,16 +498,17 @@ main(int argc, char* argv[])
             uint16_t port = 9;
             UdpServerHelper server(port);
             serverApp = server.Install(wifiStaNode.Get(0));
-            serverApp.Start(Seconds(0.0));
-            serverApp.Stop(Seconds(simulationTime + 1));
+            serverApp.Start(Seconds(0));
+            serverApp.Stop(simulationTime + Seconds(1));
+            const auto packetInterval = payloadSize * 8.0 / (datarate * 1e6);
 
             UdpClientHelper client(staNodeInterface.GetAddress(0), port);
             client.SetAttribute("MaxPackets", UintegerValue(4294967295U));
-            client.SetAttribute("Interval", TimeValue(Time("0.0001"))); // packets/s
+            client.SetAttribute("Interval", TimeValue(Seconds(packetInterval)));
             client.SetAttribute("PacketSize", UintegerValue(payloadSize));
             ApplicationContainer clientApp = client.Install(wifiApNode.Get(0));
-            clientApp.Start(Seconds(1.0));
-            clientApp.Stop(Seconds(simulationTime + 1));
+            clientApp.Start(Seconds(1));
+            clientApp.Stop(simulationTime + Seconds(1));
         }
         else
         {
@@ -546,19 +517,19 @@ main(int argc, char* argv[])
             Address localAddress(InetSocketAddress(Ipv4Address::GetAny(), port));
             PacketSinkHelper packetSinkHelper("ns3::TcpSocketFactory", localAddress);
             serverApp = packetSinkHelper.Install(wifiStaNode.Get(0));
-            serverApp.Start(Seconds(0.0));
-            serverApp.Stop(Seconds(simulationTime + 1));
+            serverApp.Start(Seconds(0));
+            serverApp.Stop(simulationTime + Seconds(1));
 
             OnOffHelper onoff("ns3::TcpSocketFactory", Ipv4Address::GetAny());
             onoff.SetAttribute("OnTime", StringValue("ns3::ConstantRandomVariable[Constant=1]"));
             onoff.SetAttribute("OffTime", StringValue("ns3::ConstantRandomVariable[Constant=0]"));
             onoff.SetAttribute("PacketSize", UintegerValue(payloadSize));
-            onoff.SetAttribute("DataRate", DataRateValue(1000000000)); // bit/s
+            onoff.SetAttribute("DataRate", DataRateValue(datarate * 1e6));
             AddressValue remoteAddress(InetSocketAddress(staNodeInterface.GetAddress(0), port));
             onoff.SetAttribute("Remote", remoteAddress);
             ApplicationContainer clientApp = onoff.Install(wifiApNode.Get(0));
-            clientApp.Start(Seconds(1.0));
-            clientApp.Stop(Seconds(simulationTime + 1));
+            clientApp.Start(Seconds(1));
+            clientApp.Stop(simulationTime + Seconds(1));
         }
 
         // Configure waveform generator
@@ -607,39 +578,39 @@ main(int argc, char* argv[])
         Ptr<WifiPhy> wifiPhyPtr = staDevicePtr->GetObject<WifiNetDevice>()->GetPhy();
         if (i <= 15)
         {
-            NS_ABORT_MSG_IF(wifiPhyPtr->GetChannelWidth() != 20,
+            NS_ABORT_MSG_IF(wifiPhyPtr->GetChannelWidth() != MHz_u{20},
                             "Error: Channel width must be 20 MHz if MCS index <= 15");
             NS_ABORT_MSG_IF(
-                wifiPhyPtr->GetFrequency() != 5180,
+                wifiPhyPtr->GetFrequency() != MHz_u{5180},
                 "Error:  Wi-Fi nodes must be tuned to 5180 MHz to match the waveform generator");
         }
         else
         {
-            NS_ABORT_MSG_IF(wifiPhyPtr->GetChannelWidth() != 40,
+            NS_ABORT_MSG_IF(wifiPhyPtr->GetChannelWidth() != MHz_u{40},
                             "Error: Channel width must be 40 MHz if MCS index > 15");
             NS_ABORT_MSG_IF(
-                wifiPhyPtr->GetFrequency() != 5190,
+                wifiPhyPtr->GetFrequency() != MHz_u{5190},
                 "Error:  Wi-Fi nodes must be tuned to 5190 MHz to match the waveform generator");
         }
 
-        Simulator::Stop(Seconds(simulationTime + 1));
+        Simulator::Stop(simulationTime + Seconds(1));
         Simulator::Run();
 
-        double throughput = 0;
-        uint64_t totalPacketsThrough = 0;
+        auto throughput = 0.0;
+        auto totalPacketsThrough = 0.0;
         if (udp)
         {
             // UDP
             totalPacketsThrough = DynamicCast<UdpServer>(serverApp.Get(0))->GetReceived();
             throughput =
-                totalPacketsThrough * payloadSize * 8 / (simulationTime * 1000000.0); // Mbit/s
+                totalPacketsThrough * payloadSize * 8 / simulationTime.GetMicroSeconds(); // Mbit/s
         }
         else
         {
             // TCP
-            uint64_t totalBytesRx = DynamicCast<PacketSink>(serverApp.Get(0))->GetTotalRx();
+            auto totalBytesRx = DynamicCast<PacketSink>(serverApp.Get(0))->GetTotalRx();
             totalPacketsThrough = totalBytesRx / tcpPacketSize;
-            throughput = totalBytesRx * 8 / (simulationTime * 1000000.0); // Mbit/s
+            throughput = totalBytesRx * 8 / simulationTime.GetMicroSeconds(); // Mbit/s
         }
         std::cout << std::setw(5) << i << std::setw(6) << (i % 8) << std::setprecision(2)
                   << std::fixed << std::setw(10) << datarate << std::setw(12) << throughput

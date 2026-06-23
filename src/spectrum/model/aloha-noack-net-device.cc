@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2010 CTTC
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Nicola Baldo <nbaldo@cttc.es>
  */
@@ -38,10 +27,10 @@ namespace ns3
 NS_LOG_COMPONENT_DEFINE("AlohaNoackNetDevice");
 
 /**
- * \brief Output stream operator
- * \param os output stream
- * \param state the state to print
- * \return an output stream
+ * @brief Output stream operator
+ * @param os output stream
+ * @param state the state to print
+ * @return an output stream
  */
 std::ostream&
 operator<<(std::ostream& os, AlohaNoackNetDevice::State state)
@@ -206,7 +195,7 @@ Address
 AlohaNoackNetDevice::GetBroadcast() const
 {
     NS_LOG_FUNCTION(this);
-    return Mac48Address("ff:ff:ff:ff:ff:ff");
+    return Mac48Address::GetBroadcast();
 }
 
 bool
@@ -374,7 +363,7 @@ AlohaNoackNetDevice::SendFrom(Ptr<Packet> packet,
         else
         {
             NS_LOG_LOGIC("enqueueing new packet");
-            if (m_queue->Enqueue(packet) == false)
+            if (!m_queue->Enqueue(packet))
             {
                 m_macTxDropTrace(packet);
                 sendOk = false;
@@ -385,7 +374,7 @@ AlohaNoackNetDevice::SendFrom(Ptr<Packet> packet,
     {
         NS_LOG_LOGIC("deferring TX, enqueueing new packet");
         NS_ASSERT(m_queue);
-        if (m_queue->Enqueue(packet) == false)
+        if (!m_queue->Enqueue(packet))
         {
             m_macTxDropTrace(packet);
             sendOk = false;
@@ -426,7 +415,7 @@ AlohaNoackNetDevice::NotifyTransmissionEnd(Ptr<const Packet>)
     NS_ASSERT_MSG(m_state == TX, "TX end notified while state != TX");
     m_state = IDLE;
     NS_ASSERT(m_queue);
-    if (m_queue->IsEmpty() == false)
+    if (!m_queue->IsEmpty())
     {
         Ptr<Packet> p = m_queue->Dequeue();
         NS_ASSERT(p);

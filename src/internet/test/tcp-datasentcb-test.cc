@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2015 Natale Patriciello <natale.patriciello@gmail.com>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  */
 
@@ -27,17 +16,17 @@ using namespace ns3;
 NS_LOG_COMPONENT_DEFINE("TcpDatSentCbTest");
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief Socket that the 50% of the times saves the entire packet in the buffer,
+ * @brief Socket that the 50% of the times saves the entire packet in the buffer,
  * while in the other 50% saves only half the packet.
  */
 class TcpSocketHalfAck : public TcpSocketMsgBase
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
 
@@ -88,9 +77,9 @@ TcpSocketHalfAck::ReceivedData(Ptr<Packet> packet, const TcpHeader& tcpHeader)
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief Data Sent callback test
+ * @brief Data Sent callback test
  *
  * The rationale of this test is to check if the dataSent callback advertises
  * to the application all the transmitted bytes. We know in advance how many
@@ -103,9 +92,9 @@ class TcpDataSentCbTestCase : public TcpGeneralTest
   public:
     /**
      * Constructor.
-     * \param desc Test description.
-     * \param size Packet size.
-     * \param packets Number of packets.
+     * @param desc Test description.
+     * @param size Packet size.
+     * @param packets Number of packets.
      */
     TcpDataSentCbTestCase(const std::string& desc, uint32_t size, uint32_t packets)
         : TcpGeneralTest(desc),
@@ -161,26 +150,26 @@ TcpDataSentCbTestCase::CreateReceiverSocket(Ptr<Node> node)
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief TestSuite: Data Sent callback
+ * @brief TestSuite: Data Sent callback
  */
 class TcpDataSentCbTestSuite : public TestSuite
 {
   public:
     TcpDataSentCbTestSuite()
-        : TestSuite("tcp-datasentcb", UNIT)
+        : TestSuite("tcp-datasentcb", Type::UNIT)
     {
         AddTestCase(new TcpDataSentCbTestCase("Check the data sent callback", 500, 10),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
         AddTestCase(new TcpDataSentCbTestCase("Check the data sent callback", 100, 100),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
         AddTestCase(new TcpDataSentCbTestCase("Check the data sent callback", 1000, 50),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
         AddTestCase(new TcpDataSentCbTestCase("Check the data sent callback", 855, 18),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
         AddTestCase(new TcpDataSentCbTestCase("Check the data sent callback", 1243, 59),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
     }
 };
 

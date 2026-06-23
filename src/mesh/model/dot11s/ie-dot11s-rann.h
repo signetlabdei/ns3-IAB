@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2008,2009 IITP RAS
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Kirill Andreev <andreev@iitp.ru>
  */
@@ -28,8 +17,8 @@ namespace ns3
 namespace dot11s
 {
 /**
- * \ingroup dot11s
- * \brief Root announcement (RANN) element
+ * @ingroup dot11s
+ * @brief Root announcement (RANN) element
  */
 class IeRann : public WifiInformationElement
 {
@@ -38,71 +27,71 @@ class IeRann : public WifiInformationElement
     ~IeRann() override;
     /**
      * Set flags field
-     * \param flags the flags value to set
+     * @param flags the flags value to set
      */
     void SetFlags(uint8_t flags);
     /**
      * Set hop count value to number of hops from the originating root mesh
      * STA to the mesh STA transmitting this element
-     * \param hopcount the hop count
+     * @param hopcount the hop count
      */
     void SetHopcount(uint8_t hopcount);
     /**
      * Set TTL value to the remaining number of hops allowed
-     * \param ttl the TTL
+     * @param ttl the TTL
      */
     void SetTTL(uint8_t ttl);
     /**
      * Set originator address value
-     * \param originator_address the originator MAC address
+     * @param originator_address the originator MAC address
      */
     void SetOriginatorAddress(Mac48Address originator_address);
     /**
      * Set destination sequence number value
-     * \param dest_seq_number the destination sequence number
+     * @param dest_seq_number the destination sequence number
      */
     void SetDestSeqNumber(uint32_t dest_seq_number);
     /**
      * Set metric value to cumulative metric from originating root mesh STA
      * to the mesh STA transmitting the announcement
-     * \param metric the metric to set
+     * @param metric the metric to set
      */
     void SetMetric(uint32_t metric);
     /**
      * Get flags value
-     * \returns the flags
+     * @returns the flags
      */
     uint8_t GetFlags() const;
     /**
      * Get hop count value
-     * \returns the hop count
+     * @returns the hop count
      */
     uint8_t GetHopcount() const;
     /**
      * Get TTL value
-     * \returns the TTL
+     * @returns the TTL
      */
     uint8_t GetTtl() const;
     /**
      * Get originator address value
-     * \returns the MAC address of the originator
+     * @returns the MAC address of the originator
      */
     Mac48Address GetOriginatorAddress();
     /**
      * Get destination sequence number value
-     * \returns the destination sequence number
+     * @returns the destination sequence number
      */
     uint32_t GetDestSeqNumber() const;
     /**
      * Get metric value
-     * \returns the metric
+     * @returns the metric
      */
     uint32_t GetMetric() const;
     /// Decrement TTL function
     void DecrementTtl();
     /**
      * Increment metric
-     * \param metric the value to increment
+     * @param metric the value to increment
      */
     void IncrementMetric(uint32_t metric);
 
@@ -124,9 +113,9 @@ class IeRann : public WifiInformationElement
     /**
      * equality operator
      *
-     * \param a lhs
-     * \param b rhs
-     * \returns true if equal
+     * @param a lhs
+     * @param b rhs
+     * @returns true if equal
      */
     friend bool operator==(const IeRann& a, const IeRann& b);
 };

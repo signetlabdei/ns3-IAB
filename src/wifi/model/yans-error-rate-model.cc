@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2005,2006 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  *          Sébastien Deronne <sebastien.deronne@gmail.com>
@@ -49,10 +38,10 @@ YansErrorRateModel::YansErrorRateModel()
 }
 
 double
-YansErrorRateModel::GetBpskBer(double snr, uint32_t signalSpread, uint64_t phyRate) const
+YansErrorRateModel::GetBpskBer(double snr, MHz_u signalSpread, uint64_t phyRate) const
 {
     NS_LOG_FUNCTION(this << snr << signalSpread << phyRate);
-    double EbNo = snr * signalSpread / phyRate;
+    double EbNo = snr * signalSpread * 1e6 / phyRate;
     double z = std::sqrt(EbNo);
     double ber = 0.5 * erfc(z);
     NS_LOG_INFO("bpsk snr=" << snr << " ber=" << ber);
@@ -62,11 +51,11 @@ YansErrorRateModel::GetBpskBer(double snr, uint32_t signalSpread, uint64_t phyRa
 double
 YansErrorRateModel::GetQamBer(double snr,
                               unsigned int m,
-                              uint32_t signalSpread,
+                              MHz_u signalSpread,
                               uint64_t phyRate) const
 {
     NS_LOG_FUNCTION(this << snr << m << signalSpread << phyRate);
-    double EbNo = snr * signalSpread / phyRate;
+    double EbNo = snr * signalSpread * 1e6 / phyRate;
     double z = std::sqrt((1.5 * log2(m) * EbNo) / (m - 1.0));
     double z1 = ((1.0 - 1.0 / std::sqrt(m)) * erfc(z));
     double z2 = 1 - std::pow((1 - z1), 2);
@@ -147,7 +136,7 @@ YansErrorRateModel::CalculatePd(double ber, unsigned int d) const
 double
 YansErrorRateModel::GetFecBpskBer(double snr,
                                   uint64_t nbits,
-                                  uint32_t signalSpread,
+                                  MHz_u signalSpread,
                                   uint64_t phyRate,
                                   uint32_t dFree,
                                   uint32_t adFree) const
@@ -168,7 +157,7 @@ YansErrorRateModel::GetFecBpskBer(double snr,
 double
 YansErrorRateModel::GetFecQamBer(double snr,
                                  uint64_t nbits,
-                                 uint32_t signalSpread,
+                                 MHz_u signalSpread,
                                  uint64_t phyRate,
                                  uint32_t m,
                                  uint32_t dFree,
@@ -206,10 +195,10 @@ YansErrorRateModel::DoGetChunkSuccessRate(WifiMode mode,
     if (mode.GetModulationClass() >= WIFI_MOD_CLASS_ERP_OFDM)
     {
         uint64_t phyRate;
-        if ((txVector.IsMu() && (staId == SU_STA_ID)) || (mode != txVector.GetMode()))
+        if ((txVector.IsMu() && (staId == SU_STA_ID)) || (mode != txVector.GetMode(staId)))
         {
-            phyRate = mode.GetPhyRate(txVector.GetChannelWidth() >= 40
-                                          ? 20
+            phyRate = mode.GetPhyRate(txVector.GetChannelWidth() >= MHz_u{40}
+                                          ? MHz_u{20}
                                           : txVector.GetChannelWidth()); // This is the PHY header
         }
         else
@@ -222,19 +211,19 @@ YansErrorRateModel::DoGetChunkSuccessRate(WifiMode mode,
             {
                 return GetFecBpskBer(snr,
                                      nbits,
-                                     txVector.GetChannelWidth() * 1000000, // signal spread
-                                     phyRate,                              // PHY rate
-                                     10,                                   // dFree
-                                     11);                                  // adFree
+                                     txVector.GetChannelWidth(), // signal spread
+                                     phyRate,                    // PHY rate
+                                     10,                         // dFree
+                                     11);                        // adFree
             }
             else
             {
                 return GetFecBpskBer(snr,
                                      nbits,
-                                     txVector.GetChannelWidth() * 1000000, // signal spread
-                                     phyRate,                              // PHY rate
-                                     5,                                    // dFree
-                                     8);                                   // adFree
+                                     txVector.GetChannelWidth(), // signal spread
+                                     phyRate,                    // PHY rate
+                                     5,                          // dFree
+                                     8);                         // adFree
             }
         }
         else if (mode.GetConstellationSize() == 4)
@@ -243,23 +232,23 @@ YansErrorRateModel::DoGetChunkSuccessRate(WifiMode mode,
             {
                 return GetFecQamBer(snr,
                                     nbits,
-                                    txVector.GetChannelWidth() * 1000000, // signal spread
-                                    phyRate,                              // PHY rate
-                                    4,                                    // m
-                                    10,                                   // dFree
-                                    11,                                   // adFree
-                                    0);                                   // adFreePlusOne
+                                    txVector.GetChannelWidth(), // signal spread
+                                    phyRate,                    // PHY rate
+                                    4,                          // m
+                                    10,                         // dFree
+                                    11,                         // adFree
+                                    0);                         // adFreePlusOne
             }
             else
             {
                 return GetFecQamBer(snr,
                                     nbits,
-                                    txVector.GetChannelWidth() * 1000000, // signal spread
-                                    phyRate,                              // PHY rate
-                                    4,                                    // m
-                                    5,                                    // dFree
-                                    8,                                    // adFree
-                                    31);                                  // adFreePlusOne
+                                    txVector.GetChannelWidth(), // signal spread
+                                    phyRate,                    // PHY rate
+                                    4,                          // m
+                                    5,                          // dFree
+                                    8,                          // adFree
+                                    31);                        // adFreePlusOne
             }
         }
         else if (mode.GetConstellationSize() == 16)
@@ -268,23 +257,23 @@ YansErrorRateModel::DoGetChunkSuccessRate(WifiMode mode,
             {
                 return GetFecQamBer(snr,
                                     nbits,
-                                    txVector.GetChannelWidth() * 1000000, // signal spread
-                                    phyRate,                              // PHY rate
-                                    16,                                   // m
-                                    10,                                   // dFree
-                                    11,                                   // adFree
-                                    0);                                   // adFreePlusOne
+                                    txVector.GetChannelWidth(), // signal spread
+                                    phyRate,                    // PHY rate
+                                    16,                         // m
+                                    10,                         // dFree
+                                    11,                         // adFree
+                                    0);                         // adFreePlusOne
             }
             else
             {
                 return GetFecQamBer(snr,
                                     nbits,
-                                    txVector.GetChannelWidth() * 1000000, // signal spread
-                                    phyRate,                              // PHY rate
-                                    16,                                   // m
-                                    5,                                    // dFree
-                                    8,                                    // adFree
-                                    31);                                  // adFreePlusOne
+                                    txVector.GetChannelWidth(), // signal spread
+                                    phyRate,                    // PHY rate
+                                    16,                         // m
+                                    5,                          // dFree
+                                    8,                          // adFree
+                                    31);                        // adFreePlusOne
             }
         }
         else if (mode.GetConstellationSize() == 64)
@@ -293,35 +282,35 @@ YansErrorRateModel::DoGetChunkSuccessRate(WifiMode mode,
             {
                 return GetFecQamBer(snr,
                                     nbits,
-                                    txVector.GetChannelWidth() * 1000000, // signal spread
-                                    phyRate,                              // PHY rate
-                                    64,                                   // m
-                                    6,                                    // dFree
-                                    1,                                    // adFree
-                                    16);                                  // adFreePlusOne
+                                    txVector.GetChannelWidth(), // signal spread
+                                    phyRate,                    // PHY rate
+                                    64,                         // m
+                                    6,                          // dFree
+                                    1,                          // adFree
+                                    16);                        // adFreePlusOne
             }
             if (mode.GetCodeRate() == WIFI_CODE_RATE_5_6)
             {
                 // Table B.32  in Pâl Frenger et al., "Multi-rate Convolutional Codes".
                 return GetFecQamBer(snr,
                                     nbits,
-                                    txVector.GetChannelWidth() * 1000000, // signal spread
-                                    phyRate,                              // PHY rate
-                                    64,                                   // m
-                                    4,                                    // dFree
-                                    14,                                   // adFree
-                                    69);                                  // adFreePlusOne
+                                    txVector.GetChannelWidth(), // signal spread
+                                    phyRate,                    // PHY rate
+                                    64,                         // m
+                                    4,                          // dFree
+                                    14,                         // adFree
+                                    69);                        // adFreePlusOne
             }
             else
             {
                 return GetFecQamBer(snr,
                                     nbits,
-                                    txVector.GetChannelWidth() * 1000000, // signal spread
-                                    phyRate,                              // PHY rate
-                                    64,                                   // m
-                                    5,                                    // dFree
-                                    8,                                    // adFree
-                                    31);                                  // adFreePlusOne
+                                    txVector.GetChannelWidth(), // signal spread
+                                    phyRate,                    // PHY rate
+                                    64,                         // m
+                                    5,                          // dFree
+                                    8,                          // adFree
+                                    31);                        // adFreePlusOne
             }
         }
         else if (mode.GetConstellationSize() == 256)
@@ -330,24 +319,24 @@ YansErrorRateModel::DoGetChunkSuccessRate(WifiMode mode,
             {
                 return GetFecQamBer(snr,
                                     nbits,
-                                    txVector.GetChannelWidth() * 1000000, // signal spread
-                                    phyRate,                              // PHY rate
-                                    256,                                  // m
-                                    4,                                    // dFree
-                                    14,                                   // adFree
-                                    69                                    // adFreePlusOne
+                                    txVector.GetChannelWidth(), // signal spread
+                                    phyRate,                    // PHY rate
+                                    256,                        // m
+                                    4,                          // dFree
+                                    14,                         // adFree
+                                    69                          // adFreePlusOne
                 );
             }
             else
             {
                 return GetFecQamBer(snr,
                                     nbits,
-                                    txVector.GetChannelWidth() * 1000000, // signal spread
-                                    phyRate,                              // PHY rate
-                                    256,                                  // m
-                                    5,                                    // dFree
-                                    8,                                    // adFree
-                                    31                                    // adFreePlusOne
+                                    txVector.GetChannelWidth(), // signal spread
+                                    phyRate,                    // PHY rate
+                                    256,                        // m
+                                    5,                          // dFree
+                                    8,                          // adFree
+                                    31                          // adFreePlusOne
                 );
             }
         }
@@ -357,24 +346,24 @@ YansErrorRateModel::DoGetChunkSuccessRate(WifiMode mode,
             {
                 return GetFecQamBer(snr,
                                     nbits,
-                                    txVector.GetChannelWidth() * 1000000, // signal spread
-                                    phyRate,                              // PHY rate
-                                    1024,                                 // m
-                                    4,                                    // dFree
-                                    14,                                   // adFree
-                                    69                                    // adFreePlusOne
+                                    txVector.GetChannelWidth(), // signal spread
+                                    phyRate,                    // PHY rate
+                                    1024,                       // m
+                                    4,                          // dFree
+                                    14,                         // adFree
+                                    69                          // adFreePlusOne
                 );
             }
             else
             {
                 return GetFecQamBer(snr,
                                     nbits,
-                                    txVector.GetChannelWidth() * 1000000, // signal spread
-                                    phyRate,                              // PHY rate
-                                    1024,                                 // m
-                                    5,                                    // dFree
-                                    8,                                    // adFree
-                                    31                                    // adFreePlusOne
+                                    txVector.GetChannelWidth(), // signal spread
+                                    phyRate,                    // PHY rate
+                                    1024,                       // m
+                                    5,                          // dFree
+                                    8,                          // adFree
+                                    31                          // adFreePlusOne
                 );
             }
         }
@@ -384,24 +373,24 @@ YansErrorRateModel::DoGetChunkSuccessRate(WifiMode mode,
             {
                 return GetFecQamBer(snr,
                                     nbits,
-                                    txVector.GetChannelWidth() * 1000000, // signal spread
-                                    phyRate,                              // PHY rate
-                                    4096,                                 // m
-                                    4,                                    // dFree
-                                    14,                                   // adFree
-                                    69                                    // adFreePlusOne
+                                    txVector.GetChannelWidth(), // signal spread
+                                    phyRate,                    // PHY rate
+                                    4096,                       // m
+                                    4,                          // dFree
+                                    14,                         // adFree
+                                    69                          // adFreePlusOne
                 );
             }
             else
             {
                 return GetFecQamBer(snr,
                                     nbits,
-                                    txVector.GetChannelWidth() * 1000000, // signal spread
-                                    phyRate,                              // PHY rate
-                                    4096,                                 // m
-                                    5,                                    // dFree
-                                    8,                                    // adFree
-                                    31                                    // adFreePlusOne
+                                    txVector.GetChannelWidth(), // signal spread
+                                    phyRate,                    // PHY rate
+                                    4096,                       // m
+                                    5,                          // dFree
+                                    8,                          // adFree
+                                    31                          // adFreePlusOne
                 );
             }
         }

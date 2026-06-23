@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2010 Hajime Tazaki
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Hajime Tazaki <tazaki@sfc.wide.ad.jp>
  */
@@ -53,9 +42,9 @@
 using namespace ns3;
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv4 PacketInfoTag Test
+ * @brief IPv4 PacketInfoTag Test
  */
 class Ipv4PacketInfoTagTest : public TestCase
 {
@@ -66,14 +55,14 @@ class Ipv4PacketInfoTagTest : public TestCase
     void DoRun() override;
 
     /**
-     * \brief Receive callback.
-     * \param socket Receiving socket.
+     * @brief Receive callback.
+     * @param socket Receiving socket.
      */
     void RxCb(Ptr<Socket> socket);
     /**
-     * \brief Send data.
-     * \param socket Sending socket.
-     * \param to Destination address.
+     * @brief Send data.
+     * @param socket Sending socket.
+     * @param to Destination address.
      */
     void DoSendData(Ptr<Socket> socket, std::string to);
 };
@@ -207,9 +196,9 @@ Ipv4PacketInfoTagTest::DoRun()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv4 PacketInfoTag TestSuite
+ * @brief IPv4 PacketInfoTag TestSuite
  */
 class Ipv4PacketInfoTagTestSuite : public TestSuite
 {
@@ -220,9 +209,9 @@ class Ipv4PacketInfoTagTestSuite : public TestSuite
 };
 
 Ipv4PacketInfoTagTestSuite::Ipv4PacketInfoTagTestSuite()
-    : TestSuite("ipv4-packet-info-tag", UNIT)
+    : TestSuite("ipv4-packet-info-tag", Type::UNIT)
 {
-    AddTestCase(new Ipv4PacketInfoTagTest(), TestCase::QUICK);
+    AddTestCase(new Ipv4PacketInfoTagTest(), TestCase::Duration::QUICK);
 }
 
 static Ipv4PacketInfoTagTestSuite g_packetinfotagTests; //!< Static variable for test initialization

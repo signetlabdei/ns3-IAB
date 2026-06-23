@@ -1,19 +1,7 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2022
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Sharan Naribole <sharan.naribole@gmail.com>
  */
@@ -21,7 +9,7 @@
 #ifndef EHT_OPERATION_H
 #define EHT_OPERATION_H
 
-#include <ns3/wifi-information-element.h>
+#include "ns3/wifi-information-element.h"
 
 #include <optional>
 #include <vector>
@@ -55,8 +43,8 @@ constexpr uint8_t WIFI_DEFAULT_GRP_BU_IND_LIMIT = 0;
 constexpr uint8_t WIFI_DEFAULT_GRP_BU_EXP = 0;
 
 /**
- * \brief EHT Operation Information Element
- * \ingroup wifi
+ * @brief EHT Operation Information Element
+ * @ingroup wifi
  *
  * This class serializes and deserializes
  * the EHT Operation Information Element
@@ -86,14 +74,14 @@ class EhtOperation : public WifiInformationElement
         /**
          * Serialize the EHT Operation Parameters subfield
          *
-         * \param start iterator pointing to where the subfield should be written to
+         * @param start iterator pointing to where the subfield should be written to
          */
         void Serialize(Buffer::Iterator& start) const;
         /**
          * Deserialize the EHT Operation Parameters subfield
          *
-         * \param start iterator pointing to where the subfield should be read from
-         * \return the number of octets read
+         * @param start iterator pointing to where the subfield should be read from
+         * @return the number of octets read
          */
         uint16_t Deserialize(Buffer::Iterator start);
     };
@@ -121,15 +109,15 @@ class EhtOperation : public WifiInformationElement
         /**
          * Serialize the EHT Operation Information subfield
          *
-         * \param start iterator pointing to where the subfield should be written to
+         * @param start iterator pointing to where the subfield should be written to
          */
         void Serialize(Buffer::Iterator& start) const;
         /**
          * Deserialize the EHT Operation Information subfield
          *
-         * \param start iterator pointing to where the subfield should be read from
-         * \param disabledSubchBmPresent EHT Operation Param Disabled Subchannel Bitmap Present
-         * \return the number of octets read
+         * @param start iterator pointing to where the subfield should be read from
+         * @param disabledSubchBmPresent EHT Operation Param Disabled Subchannel Bitmap Present
+         * @return the number of octets read
          */
         uint16_t Deserialize(Buffer::Iterator start, bool disabledSubchBmPresent);
     };
@@ -146,14 +134,14 @@ class EhtOperation : public WifiInformationElement
         /**
          * Serialize the Basic EHT-MCS and NSS Set subfield
          *
-         * \param start iterator pointing to where the subfield should be written to
+         * @param start iterator pointing to where the subfield should be written to
          */
         void Serialize(Buffer::Iterator& start) const;
         /**
          * Deserialize the Basic EHT-MCS and NSS Set subfield
          *
-         * \param start iterator pointing to where the subfield should be read from
-         * \return the number of octets read
+         * @param start iterator pointing to where the subfield should be read from
+         * @return the number of octets read
          */
         uint16_t Deserialize(Buffer::Iterator start);
     };
@@ -161,19 +149,20 @@ class EhtOperation : public WifiInformationElement
     EhtOperation();
     WifiInformationElementId ElementId() const override;
     WifiInformationElementId ElementIdExt() const override;
+    void Print(std::ostream& os) const override;
 
     /**
      * Set the max Rx NSS for input MCS index range
-     * \param maxNss the maximum supported Rx NSS for MCS group
-     * \param mcsStart MCS index start
-     * \param mcsEnd MCS index end
+     * @param maxNss the maximum supported Rx NSS for MCS group
+     * @param mcsStart MCS index start
+     * @param mcsEnd MCS index end
      */
     void SetMaxRxNss(uint8_t maxNss, uint8_t mcsStart, uint8_t mcsEnd);
     /**
      * Set the max Tx NSS for input MCS index range
-     * \param maxNss the maximum supported Rx NSS for MCS group
-     * \param mcsStart MCS index start
-     * \param mcsEnd MCS index end
+     * @param maxNss the maximum supported Rx NSS for MCS group
+     * @param mcsStart MCS index start
+     * @param mcsEnd MCS index end
      */
     void SetMaxTxNss(uint8_t maxNss, uint8_t mcsStart, uint8_t mcsEnd);
 
@@ -186,16 +175,6 @@ class EhtOperation : public WifiInformationElement
     void SerializeInformationField(Buffer::Iterator start) const override;
     uint16_t DeserializeInformationField(Buffer::Iterator start, uint16_t length) override;
 };
-
-/**
- * output stream output operator
- *
- * \param os output stream
- * \param ehtOperation the EHT operation
- *
- * \returns output stream
- */
-std::ostream& operator<<(std::ostream& os, const EhtOperation& ehtOperation);
 
 } // namespace ns3
 

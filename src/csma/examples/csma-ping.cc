@@ -1,16 +1,5 @@
 /*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 // Network topology
@@ -41,8 +30,8 @@ NS_LOG_COMPONENT_DEFINE("CsmaPingExample");
 /**
  * Rx sink
  *
- * \param p The packer.
- * \param ad The sender address.
+ * @param p The packer.
+ * @param ad The sender address.
  */
 static void
 SinkRx(Ptr<const Packet> p, const Address& ad)
@@ -53,9 +42,9 @@ SinkRx(Ptr<const Packet> p, const Address& ad)
 /**
  * Ping RTT trace sink
  *
- * \param context The context.
- * \param seqNo The Sequence Number.
- * \param rtt The RTT.
+ * @param context The context.
+ * @param seqNo The Sequence Number.
+ * @param rtt The RTT.
  */
 static void
 PingRtt(std::string context, uint16_t seqNo, Time rtt)
@@ -100,20 +89,20 @@ main(int argc, char* argv[])
 
     NS_LOG_INFO("Create Source");
     Config::SetDefault("ns3::Ipv4RawSocketImpl::Protocol", StringValue("2"));
-    InetSocketAddress dst = InetSocketAddress(addresses.GetAddress(3));
+    InetSocketAddress dst(addresses.GetAddress(3));
     OnOffHelper onoff = OnOffHelper("ns3::Ipv4RawSocketFactory", dst);
     onoff.SetConstantRate(DataRate(15000));
     onoff.SetAttribute("PacketSize", UintegerValue(1200));
 
     ApplicationContainer apps = onoff.Install(c.Get(0));
-    apps.Start(Seconds(1.0));
-    apps.Stop(Seconds(10.0));
+    apps.Start(Seconds(1));
+    apps.Stop(Seconds(10));
 
     NS_LOG_INFO("Create Sink.");
     PacketSinkHelper sink = PacketSinkHelper("ns3::Ipv4RawSocketFactory", dst);
     apps = sink.Install(c.Get(3));
-    apps.Start(Seconds(0.0));
-    apps.Stop(Seconds(11.0));
+    apps.Start(Seconds(0));
+    apps.Stop(Seconds(11));
 
     NS_LOG_INFO("Create pinger");
     PingHelper ping(addresses.GetAddress(2));
@@ -122,8 +111,8 @@ main(int argc, char* argv[])
     pingers.Add(c.Get(1));
     pingers.Add(c.Get(3));
     apps = ping.Install(pingers);
-    apps.Start(Seconds(2.0));
-    apps.Stop(Seconds(5.0));
+    apps.Start(Seconds(2));
+    apps.Stop(Seconds(5));
 
     NS_LOG_INFO("Configure Tracing.");
     // first, pcap tracing in non-promiscuous mode

@@ -2,18 +2,7 @@
  * Copyright (c) 2011 UPB
  * Copyright (c) 2017 NITK Surathkal
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Radu Lupu <rlupu@elcom.pub.ro>
  *         Ankit Deepak <adadeepak8@gmail.com>
@@ -39,17 +28,17 @@ class Packet;
 class RandomVariableStream;
 
 /**
- * \ingroup dhcp
+ * @ingroup dhcp
  *
- * \class DhcpClient
- * \brief Implements the functionality of a DHCP client
+ * @class DhcpClient
+ * @brief Implements the functionality of a DHCP client
  */
 class DhcpClient : public Application
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
 
@@ -57,43 +46,38 @@ class DhcpClient : public Application
     ~DhcpClient() override;
 
     /**
-     * \brief Constructor
-     * \param netDevice the NetDevice DHCP should work on
+     * @brief Constructor
+     * @param netDevice the NetDevice DHCP should work on
      */
     DhcpClient(Ptr<NetDevice> netDevice);
 
     /**
-     * \brief Get the the NetDevice DHCP should work on
-     * \return the NetDevice DHCP should work on
+     * @brief Get the the NetDevice DHCP should work on
+     * @return the NetDevice DHCP should work on
      */
     Ptr<NetDevice> GetDhcpClientNetDevice();
 
     /**
-     * \brief Set the NetDevice DHCP should work on
-     * \param netDevice the NetDevice DHCP should work on
+     * @brief Set the NetDevice DHCP should work on
+     * @param netDevice the NetDevice DHCP should work on
      */
     void SetDhcpClientNetDevice(Ptr<NetDevice> netDevice);
 
     /**
-     * \brief Get the IPv4Address of current DHCP server
-     * \return Ipv4Address of current DHCP server
+     * @brief Get the IPv4Address of current DHCP server
+     * @return Ipv4Address of current DHCP server
      */
     Ipv4Address GetDhcpServer();
 
-    /**
-     * Assign a fixed random variable stream number to the random variables
-     * used by this model. Return the number of streams (possibly zero) that
-     * have been assigned.
-     *
-     * \param stream First stream index to use
-     * \return the number of stream indices assigned by this model
-     */
-    int64_t AssignStreams(int64_t stream);
+    int64_t AssignStreams(int64_t stream) override;
 
   protected:
     void DoDispose() override;
 
   private:
+    void StartApplication() override;
+    void StopApplication() override;
+
     /// client states
     enum States
     {
@@ -104,58 +88,48 @@ class DhcpClient : public Application
 
     static const int DHCP_PEER_PORT = 67; //!< DHCP server port
 
-    /*
-     * \brief Starts the DHCP client application
-     */
-    void StartApplication() override;
-
-    /*
-     * \brief Stops the DHCP client application
-     */
-    void StopApplication() override;
-
     /**
-     * \brief Handles changes in LinkState
+     * @brief Handles changes in LinkState
      */
     void LinkStateHandler();
 
     /**
-     * \brief Handles incoming packets from the network
-     * \param socket Socket bound to port 68 of the DHCP client
+     * @brief Handles incoming packets from the network
+     * @param socket Socket bound to port 68 of the DHCP client
      */
     void NetHandler(Ptr<Socket> socket);
 
     /**
-     * \brief Sends DHCP DISCOVER and changes the client state to WAIT_OFFER
+     * @brief Sends DHCP DISCOVER and changes the client state to WAIT_OFFER
      */
     void Boot();
 
     /**
-     * \brief Stores DHCP offers in m_offerList
-     * \param header DhcpHeader of the DHCP OFFER message
+     * @brief Stores DHCP offers in m_offerList
+     * @param header DhcpHeader of the DHCP OFFER message
      */
     void OfferHandler(DhcpHeader header);
 
     /**
-     * \brief Selects an OFFER from m_offerList
+     * @brief Selects an OFFER from m_offerList
      */
     void Select();
 
     /**
-     * \brief Sends the DHCP REQUEST message and changes the client state to WAIT_ACK
+     * @brief Sends the DHCP REQUEST message and changes the client state to WAIT_ACK
      */
     void Request();
 
     /**
-     * \brief Receives the DHCP ACK and configures IP address of the client.
+     * @brief Receives the DHCP ACK and configures IP address of the client.
      *        It also triggers the timeout, renew and rebind events.
-     * \param header DhcpHeader of the DHCP ACK message
-     * \param from   Address of DHCP server that sent the DHCP ACK
+     * @param header DhcpHeader of the DHCP ACK message
+     * @param from   Address of DHCP server that sent the DHCP ACK
      */
     void AcceptAck(DhcpHeader header, Address from);
 
     /**
-     * \brief Remove the current DHCP information and restart the process
+     * @brief Remove the current DHCP information and restart the process
      */
     void RemoveAndStart();
 
@@ -166,7 +140,7 @@ class DhcpClient : public Application
     Ipv4Address m_remoteAddress;  //!< Initially set to 255.255.255.255 to start DHCP
     Ipv4Address m_offeredAddress; //!< Address offered to the client
     Ipv4Address m_myAddress;      //!< Address assigned to the client
-    Address m_chaddr;         //!< chaddr of the interface (stored as an Address for convenience).
+    DhcpChaddr m_chaddr{};    //!< chaddr of the interface (stored as an Address for convenience).
     Ipv4Mask m_myMask;        //!< Mask of the address assigned
     Ipv4Address m_server;     //!< Address of the DHCP server
     Ipv4Address m_gateway;    //!< Address of the gateway

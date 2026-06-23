@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2019 Ritsumeikan University, Shiga, Japan.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Alberto Gallegos Ramonet <ramonet@fc.ritsumei.ac.jp>
  */
@@ -79,15 +68,15 @@
 using namespace ns3;
 
 /**
- * \ingroup internet-apps
- * \defgroup icmp-test ICMP protocol tests
+ * @ingroup internet-apps
+ * @defgroup icmp-test ICMP protocol tests
  */
 
 /**
- * \ingroup icmp-test
- * \ingroup tests
+ * @ingroup icmp-test
+ * @ingroup tests
  *
- * \brief ICMP  Echo Reply Test
+ * @brief ICMP  Echo Reply Test
  */
 class IcmpEchoReplyTestCase : public TestCase
 {
@@ -97,13 +86,13 @@ class IcmpEchoReplyTestCase : public TestCase
 
     /**
      * Send data
-     * \param socket output socket
-     * \param dst destination address
+     * @param socket output socket
+     * @param dst destination address
      */
     void SendData(Ptr<Socket> socket, Ipv4Address dst);
     /**
      * Receive data
-     * \param socket input socket
+     * @param socket input socket
      */
     void ReceivePkt(Ptr<Socket> socket);
 
@@ -213,10 +202,10 @@ IcmpEchoReplyTestCase::DoRun()
 }
 
 /**
- * \ingroup icmp-test
- * \ingroup tests
+ * @ingroup icmp-test
+ * @ingroup tests
  *
- * \brief ICMP Time Exceed Reply Test
+ * @brief ICMP Time Exceed Reply Test
  */
 class IcmpTimeExceedTestCase : public TestCase
 {
@@ -226,13 +215,13 @@ class IcmpTimeExceedTestCase : public TestCase
 
     /**
      * Send data
-     * \param socket output socket
-     * \param dst destination address
+     * @param socket output socket
+     * @param dst destination address
      */
     void SendData(Ptr<Socket> socket, Ipv4Address dst);
     /**
      * Receive data
-     * \param socket input socket
+     * @param socket input socket
      */
     void ReceivePkt(Ptr<Socket> socket);
 
@@ -358,10 +347,10 @@ IcmpTimeExceedTestCase::DoRun()
 }
 
 /**
- * \ingroup icmp-test
- * \ingroup tests
+ * @ingroup icmp-test
+ * @ingroup tests
  *
- * \brief ICMPV6  Echo Reply Test
+ * @brief ICMPV6  Echo Reply Test
  */
 class IcmpV6EchoReplyTestCase : public TestCase
 {
@@ -371,13 +360,13 @@ class IcmpV6EchoReplyTestCase : public TestCase
 
     /**
      * Send data
-     * \param socket output socket
-     * \param dst destination address
+     * @param socket output socket
+     * @param dst destination address
      */
     void SendData(Ptr<Socket> socket, Ipv6Address dst);
     /**
      * Receive data
-     * \param socket input socket
+     * @param socket input socket
      */
     void ReceivePkt(Ptr<Socket> socket);
 
@@ -399,7 +388,7 @@ void
 IcmpV6EchoReplyTestCase::SendData(Ptr<Socket> socket, Ipv6Address dst)
 {
     Ptr<Packet> p = Create<Packet>();
-    Icmpv6Echo echo(1);
+    Icmpv6Echo echo(true);
     echo.SetSeq(1);
     echo.SetId(0XB1ED);
     p->AddHeader(echo);
@@ -496,10 +485,10 @@ IcmpV6EchoReplyTestCase::DoRun()
 }
 
 /**
- * \ingroup icmp-test
- * \ingroup tests
+ * @ingroup icmp-test
+ * @ingroup tests
  *
- * \brief ICMPV6  Time Exceed response test
+ * @brief ICMPV6  Time Exceed response test
  */
 class IcmpV6TimeExceedTestCase : public TestCase
 {
@@ -509,13 +498,13 @@ class IcmpV6TimeExceedTestCase : public TestCase
 
     /**
      * Send data
-     * \param socket output socket
-     * \param dst destination address
+     * @param socket output socket
+     * @param dst destination address
      */
     void SendData(Ptr<Socket> socket, Ipv6Address dst);
     /**
      * Receive data
-     * \param socket input socket
+     * @param socket input socket
      */
     void ReceivePkt(Ptr<Socket> socket);
 
@@ -537,7 +526,7 @@ void
 IcmpV6TimeExceedTestCase::SendData(Ptr<Socket> socket, Ipv6Address dst)
 {
     Ptr<Packet> p = Create<Packet>();
-    Icmpv6Echo echo(1);
+    Icmpv6Echo echo(true);
     echo.SetSeq(1);
     echo.SetId(0XB1ED);
     p->AddHeader(echo);
@@ -651,10 +640,10 @@ IcmpV6TimeExceedTestCase::DoRun()
 }
 
 /**
- * \ingroup icmp-test
- * \ingroup tests
+ * @ingroup icmp-test
+ * @ingroup tests
  *
- * \brief ICMP TestSuite
+ * @brief ICMP TestSuite
  */
 
 class IcmpTestSuite : public TestSuite
@@ -664,12 +653,12 @@ class IcmpTestSuite : public TestSuite
 };
 
 IcmpTestSuite::IcmpTestSuite()
-    : TestSuite("icmp", UNIT)
+    : TestSuite("icmp", Type::UNIT)
 {
-    AddTestCase(new IcmpEchoReplyTestCase, TestCase::QUICK);
-    AddTestCase(new IcmpTimeExceedTestCase, TestCase::QUICK);
-    AddTestCase(new IcmpV6EchoReplyTestCase, TestCase::QUICK);
-    AddTestCase(new IcmpV6TimeExceedTestCase, TestCase::QUICK);
+    AddTestCase(new IcmpEchoReplyTestCase, TestCase::Duration::QUICK);
+    AddTestCase(new IcmpTimeExceedTestCase, TestCase::Duration::QUICK);
+    AddTestCase(new IcmpV6EchoReplyTestCase, TestCase::Duration::QUICK);
+    AddTestCase(new IcmpV6TimeExceedTestCase, TestCase::Duration::QUICK);
 }
 
 static IcmpTestSuite icmpTestSuite; //!< Static variable for test initialization

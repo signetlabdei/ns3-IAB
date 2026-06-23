@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2005,2006 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -24,8 +13,8 @@
 #include <stdint.h>
 
 /**
- * \file
- * \ingroup events
+ * @file
+ * @ingroup events
  * ns3::EventImpl declarations.
  */
 
@@ -33,8 +22,8 @@ namespace ns3
 {
 
 /**
- * \ingroup events
- * \brief A simulation event.
+ * @ingroup events
+ * @brief A simulation event.
  *
  * Each subclass of this base class represents a simulation event. The
  * Invoke() method will be called by the simulation engine
@@ -61,7 +50,7 @@ class EventImpl : public SimpleRefCount<EventImpl>
      */
     void Cancel();
     /**
-     * \returns true if the event has been canceled.
+     * @returns true if the event has been canceled.
      *
      * Checked by the simulation engine before calling Invoke().
      */

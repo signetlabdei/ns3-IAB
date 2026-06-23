@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2013
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Ghada Badawy <gbadawy@gmail.com>
  */
@@ -26,8 +15,8 @@ namespace ns3
 {
 
 /**
- * \ingroup wifi
- * \brief Headers for A-MPDU subframes
+ * @ingroup wifi
+ * @brief Headers for A-MPDU subframes
  */
 class AmpduSubframeHeader : public Header
 {
@@ -36,8 +25,8 @@ class AmpduSubframeHeader : public Header
     ~AmpduSubframeHeader() override;
 
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
 
@@ -50,25 +39,25 @@ class AmpduSubframeHeader : public Header
     /**
      * Set the length field.
      *
-     * \param length in bytes
+     * @param length in bytes
      */
     void SetLength(uint16_t length);
     /**
      * Set the EOF field.
      *
-     * \param eof set EOF field if true
+     * @param eof set EOF field if true
      */
     void SetEof(bool eof);
     /**
      * Return the length field.
      *
-     * \return the length field in bytes
+     * @return the length field in bytes
      */
     uint16_t GetLength() const;
     /**
      * Return the EOF field.
      *
-     * \return the EOF field
+     * @return the EOF field
      */
     bool GetEof() const;
     /**
@@ -76,7 +65,7 @@ class AmpduSubframeHeader : public Header
      * signature field is correct, i.e. corresponds to the
      * unique pattern 0x4E.
      *
-     * \return true if the signature is valid, false otherwise
+     * @return true if the signature is valid, false otherwise
      */
     bool IsSignatureValid() const;
 

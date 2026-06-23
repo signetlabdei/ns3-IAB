@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2018 NITK Surathkal
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Viyom Mittal <viyommittal@gmail.com>
  *         Vivek Jain <jain.vivek.anand@gmail.com>
@@ -33,22 +22,21 @@ using namespace ns3;
 NS_LOG_COMPONENT_DEFINE("TcpPrrRecoveryTestSuite");
 
 /**
- * \brief PRR Recovery algorithm test
+ * @brief PRR Recovery algorithm test
  */
 class PrrRecoveryTest : public TestCase
 {
   public:
     /**
-     * \brief Constructor.
-     * \param cWnd Congestion window.
-     * \param segmentSize Segment size.
-     * \param ssThresh Slow Start Threshold.
-     * \param unAckDataCount Unacknowledged data at the start of recovery.
-     * \param bytesInFlight Current bytes in flight.
-     * \param m_deliveredBytes Bytes SACKed on last acknowledgment.
-     * \param bytesSent Bytes sent while in recovery phase.
-     * \param reductionBound Type of reduction bound to be used.
-     * \param name Test description.
+     * @brief Constructor.
+     * @param cWnd Congestion window.
+     * @param segmentSize Segment size.
+     * @param ssThresh Slow Start Threshold.
+     * @param unAckDataCount Unacknowledged data at the start of recovery.
+     * @param bytesInFlight Current bytes in flight.
+     * @param m_deliveredBytes Bytes SACKed on last acknowledgment.
+     * @param bytesSent Bytes sent while in recovery phase.
+     * @param name Test description.
      */
     PrrRecoveryTest(uint32_t cWnd,
                     uint32_t segmentSize,
@@ -57,20 +45,18 @@ class PrrRecoveryTest : public TestCase
                     uint32_t bytesInFlight,
                     uint32_t m_deliveredBytes,
                     uint32_t bytesSent,
-                    const std::string& reductionBound,
                     const std::string& name);
 
   private:
     void DoRun() override;
 
-    uint32_t m_cWnd;                    //!< Congestion window.
-    uint32_t m_segmentSize;             //!< Segment size.
-    uint32_t m_ssThresh;                //!< Slow Start Threshold.
-    uint32_t m_unAckDataCount;          //!< Unacknowledged data at the start of recovery.
-    uint32_t m_bytesInFlight;           //!< Current bytes in flight.
-    uint32_t m_deliveredBytes;          //!< Bytes SACKed on last acknowledgment.
-    uint32_t m_bytesSent;               //!< Bytes sent while in recovery phase.
-    const std::string m_reductionBound; //!< Type of reduction bound to be used.
+    uint32_t m_cWnd;           //!< Congestion window.
+    uint32_t m_segmentSize;    //!< Segment size.
+    uint32_t m_ssThresh;       //!< Slow Start Threshold.
+    uint32_t m_unAckDataCount; //!< Unacknowledged data at the start of recovery.
+    uint32_t m_bytesInFlight;  //!< Current bytes in flight.
+    uint32_t m_deliveredBytes; //!< Bytes SACKed on last acknowledgment.
+    uint32_t m_bytesSent;      //!< Bytes sent while in recovery phase.
 
     Ptr<TcpSocketState> m_state; //!< TCP socket state.
 };
@@ -82,7 +68,6 @@ PrrRecoveryTest::PrrRecoveryTest(uint32_t cWnd,
                                  uint32_t bytesInFlight,
                                  uint32_t deliveredBytes,
                                  uint32_t bytesSent,
-                                 const std::string& reductionBound,
                                  const std::string& name)
     : TestCase(name),
       m_cWnd(cWnd),
@@ -91,8 +76,7 @@ PrrRecoveryTest::PrrRecoveryTest(uint32_t cWnd,
       m_unAckDataCount(unAckDataCount),
       m_bytesInFlight(bytesInFlight),
       m_deliveredBytes(deliveredBytes),
-      m_bytesSent(bytesSent),
-      m_reductionBound(reductionBound)
+      m_bytesSent(bytesSent)
 {
 }
 
@@ -108,7 +92,6 @@ PrrRecoveryTest::DoRun()
     m_state->m_bytesInFlight = m_bytesInFlight;
 
     Ptr<TcpPrrRecovery> recovery = CreateObject<TcpPrrRecovery>();
-    recovery->SetAttribute("ReductionBound", StringValue(m_reductionBound));
 
     recovery->EnterRecovery(m_state, 3, m_unAckDataCount, 0);
 
@@ -125,7 +108,7 @@ PrrRecoveryTest::DoRun()
     m_bytesInFlight += m_state->m_cWnd.Get() - m_cWnd;
     m_state->m_bytesInFlight = m_bytesInFlight;
     m_cWnd = m_state->m_cWnd.Get();
-    recovery->DoRecovery(m_state, m_deliveredBytes);
+    recovery->DoRecovery(m_state, m_deliveredBytes, false);
 
     if (m_bytesInFlight > m_state->m_ssThresh)
     {
@@ -144,15 +127,15 @@ PrrRecoveryTest::DoRun()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief PRR Recovery TestSuite
+ * @brief PRR Recovery TestSuite
  */
 class PrrRecoveryTestSuite : public TestSuite
 {
   public:
     PrrRecoveryTestSuite()
-        : TestSuite("tcp-prr-recovery-test", UNIT)
+        : TestSuite("tcp-prr-recovery-test", Type::UNIT)
     {
         AddTestCase(new PrrRecoveryTest(
                         3000,
@@ -162,9 +145,8 @@ class PrrRecoveryTestSuite : public TestSuite
                         3000,
                         500,
                         1000,
-                        "SSRB",
                         "Prr test on cWnd when bytesInFlight is greater than ssThresh with SSRB"),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
         AddTestCase(new PrrRecoveryTest(
                         1000,
                         500,
@@ -173,9 +155,8 @@ class PrrRecoveryTestSuite : public TestSuite
                         1000,
                         500,
                         1000,
-                        "SSRB",
                         "Prr test on cWnd when bytesInFlight is lower than ssThresh with SSRB"),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
         AddTestCase(new PrrRecoveryTest(
                         3000,
                         500,
@@ -184,9 +165,8 @@ class PrrRecoveryTestSuite : public TestSuite
                         3000,
                         500,
                         1000,
-                        "CRB",
                         "Prr test on cWnd when bytesInFlight is greater than ssThresh with CRB"),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
         AddTestCase(new PrrRecoveryTest(
                         1000,
                         500,
@@ -195,9 +175,8 @@ class PrrRecoveryTestSuite : public TestSuite
                         1000,
                         500,
                         1000,
-                        "CRB",
                         "Prr test on cWnd when bytesInFlight is lower than ssThresh with CRB"),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
     }
 };
 

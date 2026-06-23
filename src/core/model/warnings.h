@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2022 Universita' di Firenze, Italy
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Tommaso Pecorella <tommaso.pecorella@unifi.it>
  */
@@ -21,41 +10,76 @@
 #define NS3_WARNINGS_H
 
 /**
- * \ingroup core
- * \def NS_WARNING_POP
+ * @defgroup warnings Compiler warnings
+ * @ingroup core
+ *
+ * Macros useful to silence compiler warnings on selected code parts.
+ */
+
+/**
+ * @ingroup warnings
+ * @def NS_WARNING_POP
  * Pops the diagnostic warning list from the stack, restoring it to the previous state.
  * \sa NS_WARNING_PUSH
  */
 
 /**
- * \ingroup core
- * \def NS_WARNING_PUSH
+ * @ingroup warnings
+ * @def NS_WARNING_PUSH
  * Push the diagnostic warning list to the stack, allowing it to be restored later.
  * \sa NS_WARNING_POP
  */
 
 /**
- * \ingroup core
- * \def NS_WARNING_SILENCE_DEPRECATED
+ * @ingroup warnings
+ * @def NS_WARNING_SILENCE_DEPRECATED
  * Silences the "-Wdeprecated-declarations" warnings.
  * \sa NS_WARNING_POP
  */
 
 /**
- * \ingroup core
- * \def NS_WARNING_PUSH_DEPRECATED
+ * @ingroup warnings
+ * @def NS_WARNING_SILENCE_MAYBE_UNINITIALIZED
+ * Silences GCC "-Wmaybe-uninitialized" warnings.
+ * \sa NS_WARNING_POP
+ */
+
+/**
+ * @ingroup warnings
+ * @def NS_WARNING_PUSH_DEPRECATED
  * Save the current warning list and disables the ones about deprecated functions and classes.
  *
  * This macro can be used to silence deprecation warnings and should be used as a last resort
  * to silence the compiler for very specific lines of code.
  * The typical pattern is:
- * \code
+ * @code
  *   NS_WARNING_PUSH_DEPRECATED;
  *   // call to a function or class that has been deprecated.
  *   NS_WARNING_POP;
- * \endcode
+ * @endcode
+ *
+ * This macro is equivalent to
+ * @code
+ *   NS_WARNING_PUSH;
+ *   NS_WARNING_SILENCE_DEPRECATED;
+ * @endcode
  *
  * Its use is, of course, not suggested unless strictly necessary.
+ */
+
+/**
+ * @ingroup warnings
+ * @def NS_WARNING_PUSH_MAYBE_UNINITIALIZED
+ * Save the current warning list and disables the ones about possible uninitialized variables.
+ *
+ *
+ * This macro is equivalent to
+ * @code
+ *   NS_WARNING_PUSH;
+ *   NS_WARNING_SILENCE_MAYBE_UNINITIALIZED;
+ * @endcode
+ *
+ * \sa NS_WARNING_PUSH_DEPRECATED
  */
 
 #if defined(_MSC_VER)
@@ -79,8 +103,20 @@
 
 #endif
 
+// GCC-specific - Apple's clang pretends to be both...
+#if defined(__GNUC__) && !defined(__clang__)
+#define NS_WARNING_SILENCE_MAYBE_UNINITIALIZED                                                     \
+    _Pragma("GCC diagnostic ignored \"-Wmaybe-uninitialized\"")
+#else
+#define NS_WARNING_SILENCE_MAYBE_UNINITIALIZED
+#endif
+
 #define NS_WARNING_PUSH_DEPRECATED                                                                 \
     NS_WARNING_PUSH;                                                                               \
     NS_WARNING_SILENCE_DEPRECATED
+
+#define NS_WARNING_PUSH_MAYBE_UNINITIALIZED                                                        \
+    NS_WARNING_PUSH;                                                                               \
+    NS_WARNING_SILENCE_MAYBE_UNINITIALIZED
 
 #endif /* NS3_WARNINGS_H */

@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Marco Miozzo  <marco.miozzo@cttc.es>
  *
@@ -21,7 +10,7 @@
 #ifndef OH_BUILDINGS_PROPAGATION_LOSS_MODEL_H_
 #define OH_BUILDINGS_PROPAGATION_LOSS_MODEL_H_
 
-#include <ns3/buildings-propagation-loss-model.h>
+#include "buildings-propagation-loss-model.h"
 
 namespace ns3
 {
@@ -29,28 +18,29 @@ namespace ns3
 class OkumuraHataPropagationLossModel;
 
 /**
- * \ingroup propagation
+ * @ingroup buildings
+ * @ingroup propagation
  *
  *  this model combines the OkumuraHata model with the BuildingsPropagationLossModel
  *
- *  \warning This model works with MobilityBuildingInfo only
+ *  @warning This model works with MobilityBuildingInfo only
  *
  */
 class OhBuildingsPropagationLossModel : public BuildingsPropagationLossModel
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return The object TypeId.
+     * @brief Get the type ID.
+     * @return The object TypeId.
      */
     static TypeId GetTypeId();
     OhBuildingsPropagationLossModel();
     ~OhBuildingsPropagationLossModel() override;
 
     /**
-     * \param a the mobility model of the source
-     * \param b the mobility model of the destination
-     * \returns the propagation loss (in dBm)
+     * @param a the mobility model of the source
+     * @param b the mobility model of the destination
+     * @returns the propagation loss (in dBm)
      */
     double GetLoss(Ptr<MobilityModel> a, Ptr<MobilityModel> b) const override;
 

@@ -1,16 +1,5 @@
 /*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Sébastien Deronne <sebastien.deronne@gmail.com>
  */
@@ -41,6 +30,7 @@
 #include "ns3/config.h"
 #include "ns3/double.h"
 #include "ns3/gnuplot.h"
+#include "ns3/ht-phy.h"
 #include "ns3/internet-stack-helper.h"
 #include "ns3/ipv4-address-helper.h"
 #include "ns3/ipv4-global-routing-helper.h"
@@ -51,6 +41,7 @@
 #include "ns3/ssid.h"
 #include "ns3/string.h"
 #include "ns3/udp-client-server-helper.h"
+#include "ns3/udp-server.h"
 #include "ns3/uinteger.h"
 #include "ns3/yans-wifi-channel.h"
 #include "ns3/yans-wifi-helper.h"
@@ -69,17 +60,17 @@ main(int argc, char* argv[])
         "HtMcs24", "HtMcs25", "HtMcs26", "HtMcs27", "HtMcs28", "HtMcs29", "HtMcs30", "HtMcs31",
     };
 
-    bool udp = true;
-    double simulationTime = 5; // seconds
-    double frequency = 5.0;    // whether 2.4 or 5.0 GHz
-    double step = 5;           // meters
-    bool shortGuardInterval = false;
-    bool channelBonding = false;
-    bool preambleDetection = true;
+    bool udp{true};
+    Time simulationTime{"5s"};
+    double frequency{5.0}; // whether 2.4 or 5.0 GHz
+    double step{5};        // meters
+    bool shortGuardInterval{false};
+    bool channelBonding{false};
+    bool preambleDetection{true};
 
     CommandLine cmd(__FILE__);
     cmd.AddValue("step", "Granularity of the results to be plotted in meters", step);
-    cmd.AddValue("simulationTime", "Simulation time per step (in seconds)", simulationTime);
+    cmd.AddValue("simulationTime", "Simulation time per step", simulationTime);
     cmd.AddValue("channelBonding",
                  "Enable/disable channel bonding (channel width = 20 MHz if false, channel width = "
                  "40 MHz if true)",
@@ -212,6 +203,10 @@ main(int argc, char* argv[])
             apNodeInterface = address.Assign(apDevice);
 
             /* Setting applications */
+            const auto maxLoad = HtPhy::GetDataRate(i,
+                                                    channelBonding ? MHz_u{40} : MHz_u{20},
+                                                    NanoSeconds(shortGuardInterval ? 400 : 800),
+                                                    nStreams);
             ApplicationContainer serverApp;
             if (udp)
             {
@@ -219,16 +214,17 @@ main(int argc, char* argv[])
                 uint16_t port = 9;
                 UdpServerHelper server(port);
                 serverApp = server.Install(wifiStaNode.Get(0));
-                serverApp.Start(Seconds(0.0));
-                serverApp.Stop(Seconds(simulationTime + 1));
+                serverApp.Start(Seconds(0));
+                serverApp.Stop(simulationTime + Seconds(1));
+                const auto packetInterval = payloadSize * 8.0 / maxLoad;
 
                 UdpClientHelper client(staNodeInterface.GetAddress(0), port);
                 client.SetAttribute("MaxPackets", UintegerValue(4294967295U));
-                client.SetAttribute("Interval", TimeValue(Time("0.00001"))); // packets/s
+                client.SetAttribute("Interval", TimeValue(Seconds(packetInterval)));
                 client.SetAttribute("PacketSize", UintegerValue(payloadSize));
                 ApplicationContainer clientApp = client.Install(wifiApNode.Get(0));
-                clientApp.Start(Seconds(1.0));
-                clientApp.Stop(Seconds(simulationTime + 1));
+                clientApp.Start(Seconds(1));
+                clientApp.Stop(simulationTime + Seconds(1));
             }
             else
             {
@@ -237,8 +233,8 @@ main(int argc, char* argv[])
                 Address localAddress(InetSocketAddress(Ipv4Address::GetAny(), port));
                 PacketSinkHelper packetSinkHelper("ns3::TcpSocketFactory", localAddress);
                 serverApp = packetSinkHelper.Install(wifiStaNode.Get(0));
-                serverApp.Start(Seconds(0.0));
-                serverApp.Stop(Seconds(simulationTime + 1));
+                serverApp.Start(Seconds(0));
+                serverApp.Stop(simulationTime + Seconds(1));
 
                 OnOffHelper onoff("ns3::TcpSocketFactory", Ipv4Address::GetAny());
                 onoff.SetAttribute("OnTime",
@@ -246,34 +242,34 @@ main(int argc, char* argv[])
                 onoff.SetAttribute("OffTime",
                                    StringValue("ns3::ConstantRandomVariable[Constant=0]"));
                 onoff.SetAttribute("PacketSize", UintegerValue(payloadSize));
-                onoff.SetAttribute("DataRate", DataRateValue(1000000000)); // bit/s
+                onoff.SetAttribute("DataRate", DataRateValue(maxLoad));
                 AddressValue remoteAddress(InetSocketAddress(staNodeInterface.GetAddress(0), port));
                 onoff.SetAttribute("Remote", remoteAddress);
                 ApplicationContainer clientApp = onoff.Install(wifiApNode.Get(0));
-                clientApp.Start(Seconds(1.0));
-                clientApp.Stop(Seconds(simulationTime + 1));
+                clientApp.Start(Seconds(1));
+                clientApp.Stop(simulationTime + Seconds(1));
             }
 
             Ipv4GlobalRoutingHelper::PopulateRoutingTables();
 
-            Simulator::Stop(Seconds(simulationTime + 1));
+            Simulator::Stop(simulationTime + Seconds(1));
             Simulator::Run();
 
             double throughput = 0;
             if (udp)
             {
                 // UDP
-                uint64_t totalPacketsThrough =
+                double totalPacketsThrough =
                     DynamicCast<UdpServer>(serverApp.Get(0))->GetReceived();
-                throughput =
-                    totalPacketsThrough * payloadSize * 8 / (simulationTime * 1000000.0); // Mbit/s
+                throughput = totalPacketsThrough * payloadSize * 8 /
+                             simulationTime.GetMicroSeconds(); // Mbit/s
             }
             else
             {
                 // TCP
-                uint64_t totalPacketsThrough =
+                double totalPacketsThrough =
                     DynamicCast<PacketSink>(serverApp.Get(0))->GetTotalRx();
-                throughput = totalPacketsThrough * 8 / (simulationTime * 1000000.0); // Mbit/s
+                throughput = totalPacketsThrough * 8 / simulationTime.GetMicroSeconds(); // Mbit/s
             }
             dataset.Add(d, throughput);
             std::cout << throughput << " Mbit/s" << std::endl;

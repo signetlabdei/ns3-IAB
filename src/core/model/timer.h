@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2007 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -21,12 +10,11 @@
 
 #include "event-id.h"
 #include "fatal-error.h"
-#include "int-to-type.h"
 #include "nstime.h"
 
 /**
- * \file
- * \ingroup timer
+ * @file
+ * @ingroup timer
  * ns3::Timer class declaration.
  */
 
@@ -34,8 +22,8 @@ namespace ns3
 {
 
 /**
- * \ingroup core
- * \defgroup timer Virtual Time Timer and Watchdog
+ * @ingroup core
+ * @defgroup timer Virtual Time Timer and Watchdog
  *
  * The Timer and Watchdog objects both facilitate scheduling functions
  * to execute a specified virtual time in the future.
@@ -50,11 +38,16 @@ namespace ns3
  * Timer is destroyed.
  */
 
+namespace internal
+{
+
 class TimerImpl;
 
+} // namespace internal
+
 /**
- * \ingroup timer
- * \brief A simple virtual Timer class
+ * @ingroup timer
+ * @brief A simple virtual Timer class
  *
  * A (virtual time) timer is used to hold together a delay, a function to invoke
  * when the delay expires, and a set of arguments to pass to the function
@@ -68,7 +61,7 @@ class TimerImpl;
  * management policies. These policies are specified at construction time
  * and cannot be changed after.
  *
- * \see Watchdog for a simpler interface for a watchdog timer.
+ * @see Watchdog for a simpler interface for a watchdog timer.
  */
 class Timer
 {
@@ -118,15 +111,15 @@ class Timer
      */
     Timer();
     /**
-     * \param [in] destroyPolicy the event lifetime management policies
+     * @param [in] destroyPolicy the event lifetime management policies
      * to use for destroy events
      */
     Timer(DestroyPolicy destroyPolicy);
     ~Timer();
 
     /**
-     * \tparam FN \deduced The type of the function.
-     * \param [in] fn the function
+     * @tparam FN \deduced The type of the function.
+     * @param [in] fn the function
      *
      * Store this function in this Timer for later use by Timer::Schedule.
      */
@@ -134,10 +127,10 @@ class Timer
     void SetFunction(FN fn);
 
     /**
-     * \tparam MEM_PTR \deduced The type of the class member function.
-     * \tparam OBJ_PTR \deduced The type of the class instance pointer.
-     * \param [in] memPtr the member function pointer
-     * \param [in] objPtr the pointer to object
+     * @tparam MEM_PTR \deduced The type of the class member function.
+     * @tparam OBJ_PTR \deduced The type of the class instance pointer.
+     * @param [in] memPtr the member function pointer
+     * @param [in] objPtr the pointer to object
      *
      * Store this function and object in this Timer for later use by
      * Timer::Schedule.
@@ -146,8 +139,8 @@ class Timer
     void SetFunction(MEM_PTR memPtr, OBJ_PTR objPtr);
 
     /**
-     * \tparam Ts \deduced Argument types
-     * \param [in] args arguments
+     * @tparam Ts \deduced Argument types
+     * @param [in] args arguments
      *
      * Store these arguments in this Timer for later use by Timer::Schedule.
      */
@@ -155,17 +148,17 @@ class Timer
     void SetArguments(Ts... args);
 
     /**
-     * \param [in] delay The delay
+     * @param [in] delay The delay
      *
      * The next call to Schedule will schedule the timer with this delay.
      */
     void SetDelay(const Time& delay);
     /**
-     * \returns The currently-configured delay for the next Schedule.
+     * @returns The currently-configured delay for the next Schedule.
      */
     Time GetDelay() const;
     /**
-     * \returns The amount of time left until this timer expires.
+     * @returns The amount of time left until this timer expires.
      *
      * This method returns zero if the timer is in EXPIRED state.
      */
@@ -181,31 +174,31 @@ class Timer
      */
     void Remove();
     /**
-     * \return \c true if there is no currently-running event,
+     * @return \c true if there is no currently-running event,
      * \c false otherwise.
      */
     bool IsExpired() const;
     /**
-     * \return \c true if there is a currently-running event,
+     * @return \c true if there is a currently-running event,
      * \c false otherwise.
      */
     bool IsRunning() const;
     /**
-     * \returns \c true if this timer was suspended and not yet resumed,
+     * @returns \c true if this timer was suspended and not yet resumed,
      * \c false otherwise.
      */
     bool IsSuspended() const;
     /**
-     * \returns The current state of the timer.
+     * @returns The current state of the timer.
      */
-    enum Timer::State GetState() const;
+    Timer::State GetState() const;
     /**
      * Schedule a new event using the currently-configured delay, function,
      * and arguments.
      */
     void Schedule();
     /**
-     * \param [in] delay the delay to use
+     * @param [in] delay the delay to use
      *
      * Schedule a new event using the specified delay (ignore the delay set by
      * Timer::SetDelay), function, and arguments.
@@ -233,16 +226,13 @@ class Timer
     void Resume();
 
   private:
-    /** Internal bit marking the suspended state. */
-    enum InternalSuspended
-    {
-        TIMER_SUSPENDED = (1 << 7) /** Timer suspended. */
-    };
+    /** Internal bit marking the suspended timer state */
+    static constexpr auto TIMER_SUSPENDED{1 << 7};
 
     /**
      * Bitfield for Timer State, DestroyPolicy and InternalSuspended.
      *
-     * \internal
+     * @internal
      * The DestroyPolicy, State and InternalSuspended state are stored
      * in this single bitfield.  The State uses the low-order bits,
      * so the other users of the bitfield have to be careful in defining
@@ -257,7 +247,7 @@ class Timer
      * The timer implementation, which contains the bound callback
      * function and arguments.
      */
-    TimerImpl* m_impl;
+    internal::TimerImpl* m_impl;
     /** The amount of time left on the Timer while it is suspended. */
     Time m_delayLeft;
 };
@@ -278,7 +268,7 @@ void
 Timer::SetFunction(FN fn)
 {
     delete m_impl;
-    m_impl = MakeTimerImpl(fn);
+    m_impl = internal::MakeTimerImpl(fn);
 }
 
 template <typename MEM_PTR, typename OBJ_PTR>
@@ -286,7 +276,7 @@ void
 Timer::SetFunction(MEM_PTR memPtr, OBJ_PTR objPtr)
 {
     delete m_impl;
-    m_impl = MakeTimerImpl(memPtr, objPtr);
+    m_impl = internal::MakeTimerImpl(memPtr, objPtr);
 }
 
 template <typename... Ts>

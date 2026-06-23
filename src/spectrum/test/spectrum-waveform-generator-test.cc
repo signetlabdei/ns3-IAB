@@ -1,33 +1,22 @@
 /*
  * Copyright (c) 2011 CTTC
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Luis Pacheco <luisbelem@gmail.com>
  */
-#include <ns3/core-module.h>
-#include <ns3/spectrum-module.h>
-#include <ns3/test.h>
+#include "ns3/core-module.h"
+#include "ns3/spectrum-module.h"
+#include "ns3/test.h"
 
 NS_LOG_COMPONENT_DEFINE("WaveformGeneratorTest");
 
 using namespace ns3;
 
 /**
- * \ingroup spectrum-tests
+ * @ingroup spectrum-tests
  *
- * \brief Waveform generator Test
+ * @brief Waveform generator Test
  */
 class WaveformGeneratorTestCase : public TestCase
 {
@@ -35,9 +24,9 @@ class WaveformGeneratorTestCase : public TestCase
     /**
      * Constructor
      *
-     * \param period waveform period (seconds)
-     * \param dutyCycle waveform duty cycle
-     * \param stop stop time (seconds)
+     * @param period waveform period (seconds)
+     * @param dutyCycle waveform duty cycle
+     * @param stop stop time (seconds)
      */
     WaveformGeneratorTestCase(double period, double dutyCycle, double stop);
     ~WaveformGeneratorTestCase() override;
@@ -47,7 +36,7 @@ class WaveformGeneratorTestCase : public TestCase
 
     /**
      * Trace if the waveform is active
-     * \param newPkt unused.
+     * @param newPkt unused.
      */
     void TraceWave(Ptr<const Packet> newPkt);
     double m_period;    //!< waveform period (seconds)
@@ -104,10 +93,10 @@ WaveformGeneratorTestCase::DoRun()
     wave->TraceConnectWithoutContext("TxStart",
                                      MakeCallback(&WaveformGeneratorTestCase::TraceWave, this));
 
-    Simulator::Schedule(Seconds(1.0), &WaveformGenerator::Start, wave);
+    Simulator::Schedule(Seconds(1), &WaveformGenerator::Start, wave);
     Simulator::Schedule(Seconds(m_stop), &WaveformGenerator::Stop, wave);
 
-    Simulator::Stop(Seconds(3.0));
+    Simulator::Stop(Seconds(3));
     Simulator::Run();
 
     NS_TEST_ASSERT_MSG_EQ(m_fails, 0, "Wave started after the stop method was called");
@@ -116,9 +105,9 @@ WaveformGeneratorTestCase::DoRun()
 }
 
 /**
- * \ingroup spectrum-tests
+ * @ingroup spectrum-tests
  *
- * \brief Waveform generator TestSuite
+ * @brief Waveform generator TestSuite
  */
 class WaveformGeneratorTestSuite : public TestSuite
 {
@@ -127,14 +116,14 @@ class WaveformGeneratorTestSuite : public TestSuite
 };
 
 WaveformGeneratorTestSuite::WaveformGeneratorTestSuite()
-    : TestSuite("waveform-generator", SYSTEM)
+    : TestSuite("waveform-generator", Type::SYSTEM)
 {
     NS_LOG_INFO("creating WaveformGeneratorTestSuite");
 
     // Stop while wave is active
-    AddTestCase(new WaveformGeneratorTestCase(1.0, 0.5, 1.2), TestCase::QUICK);
+    AddTestCase(new WaveformGeneratorTestCase(1.0, 0.5, 1.2), TestCase::Duration::QUICK);
     // Stop after wave
-    AddTestCase(new WaveformGeneratorTestCase(1.0, 0.5, 1.7), TestCase::QUICK);
+    AddTestCase(new WaveformGeneratorTestCase(1.0, 0.5, 1.7), TestCase::Duration::QUICK);
 }
 
 /// Static variable for test initialization

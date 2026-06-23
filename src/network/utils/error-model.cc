@@ -2,18 +2,7 @@
  * Copyright (c) 2007 University of Washington
  * Copyright (c) 2013 ResiliNets, ITTC, University of Kansas
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  *
  * This file incorporates work covered by the following copyright and
@@ -160,7 +149,7 @@ RateErrorModel::GetTypeId()
             .AddAttribute("ErrorUnit",
                           "The error unit",
                           EnumValue(ERROR_UNIT_BYTE),
-                          MakeEnumAccessor(&RateErrorModel::m_unit),
+                          MakeEnumAccessor<ErrorUnit>(&RateErrorModel::m_unit),
                           MakeEnumChecker(ERROR_UNIT_BIT,
                                           "ERROR_UNIT_BIT",
                                           ERROR_UNIT_BYTE,
@@ -471,7 +460,7 @@ ListErrorModel::DoCorrupt(Ptr<Packet> p)
         return false;
     }
     auto uid = p->GetUid();
-    for (PacketListCI i = m_packetList.begin(); i != m_packetList.end(); i++)
+    for (auto i = m_packetList.begin(); i != m_packetList.end(); i++)
     {
         if (uid == *i)
         {
@@ -538,7 +527,7 @@ ReceiveListErrorModel::DoCorrupt(Ptr<Packet> p)
         return false;
     }
     m_timesInvoked += 1;
-    for (PacketListCI i = m_packetList.begin(); i != m_packetList.end(); i++)
+    for (auto i = m_packetList.begin(); i != m_packetList.end(); i++)
     {
         if (m_timesInvoked - 1 == *i)
         {

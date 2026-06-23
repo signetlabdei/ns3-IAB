@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2018 Universita' degli Studi di Napoli Federico II
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #ifndef ARP_QUEUE_DISC_ITEM_H
@@ -27,8 +16,8 @@ namespace ns3
 {
 
 /**
- * \ingroup arp
- * \ingroup traffic-control
+ * @ingroup arp
+ * @ingroup traffic-control
  *
  * ArpQueueDiscItem is a subclass of QueueDiscItem which stores ARP packets.
  * Header and payload are kept separate to allow the queue disc to hash the
@@ -38,11 +27,11 @@ class ArpQueueDiscItem : public QueueDiscItem
 {
   public:
     /**
-     * \brief Create an ARP queue disc item containing an ARP packet.
-     * \param p the packet included in the created item.
-     * \param addr the destination MAC address
-     * \param protocol the protocol number
-     * \param header the ARP header
+     * @brief Create an ARP queue disc item containing an ARP packet.
+     * @param p the packet included in the created item.
+     * @param addr the destination MAC address
+     * @param protocol the protocol number
+     * @param header the ARP header
      */
     ArpQueueDiscItem(Ptr<Packet> p,
                      const Address& addr,
@@ -58,37 +47,37 @@ class ArpQueueDiscItem : public QueueDiscItem
     ArpQueueDiscItem& operator=(const ArpQueueDiscItem&) = delete;
 
     /**
-     * \return the correct packet size (header plus payload).
+     * @return the correct packet size (header plus payload).
      */
     uint32_t GetSize() const override;
 
     /**
-     * \return the header stored in this item..
+     * @return the header stored in this item..
      */
     const ArpHeader& GetHeader() const;
 
     /**
-     * \brief Add the header to the packet
+     * @brief Add the header to the packet
      */
     void AddHeader() override;
 
     /**
-     * \brief Print the item contents.
-     * \param os output stream in which the data should be printed.
+     * @brief Print the item contents.
+     * @param os output stream in which the data should be printed.
      */
     void Print(std::ostream& os) const override;
 
     /**
-     * \brief Inherited from the base class, but we cannot mark ARP packets
-     * \return false
+     * @brief Inherited from the base class, but we cannot mark ARP packets
+     * @return false
      */
     bool Mark() override;
 
     /**
-     * \brief Computes the hash of the packet's 5-tuple
+     * @brief Computes the hash of the packet's 5-tuple
      *
-     * \param perturbation hash perturbation value
-     * \return the hash of the packet's 5-tuple
+     * @param perturbation hash perturbation value
+     * @return the hash of the packet's 5-tuple
      */
     uint32_t Hash(uint32_t perturbation) const override;
 

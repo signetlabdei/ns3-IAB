@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2010 Hemanth Narra
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Hemanth Narra <hemanth@ittc.ku.com>, written after OlsrHelper by Mathieu Lacage
  * <mathieu.lacage@sophia.inria.fr>
@@ -40,8 +29,8 @@
 namespace ns3
 {
 /**
- * \ingroup dsdv
- * \brief Helper class that adds DSDV routing to nodes.
+ * @ingroup dsdv
+ * @brief Helper class that adds DSDV routing to nodes.
  */
 class DsdvHelper : public Ipv4RoutingHelper
 {
@@ -49,7 +38,7 @@ class DsdvHelper : public Ipv4RoutingHelper
     DsdvHelper();
     ~DsdvHelper() override;
     /**
-     * \returns pointer to clone of this DsdvHelper
+     * @returns pointer to clone of this DsdvHelper
      *
      * This method is mainly for internal use by the other helpers;
      * clients are expected to free the dynamic memory allocated by this method
@@ -57,16 +46,16 @@ class DsdvHelper : public Ipv4RoutingHelper
     DsdvHelper* Copy() const override;
 
     /**
-     * \param node the node on which the routing protocol will run
-     * \returns a newly-created routing protocol
+     * @param node the node on which the routing protocol will run
+     * @returns a newly-created routing protocol
      *
      * This method will be called by ns3::InternetStackHelper::Install
      *
      */
     Ptr<Ipv4RoutingProtocol> Create(Ptr<Node> node) const override;
     /**
-     * \param name the name of the attribute to set
-     * \param value the value of the attribute to set.
+     * @param name the name of the attribute to set
+     * @param value the value of the attribute to set.
      *
      * This method controls the attributes of ns3::dsdv::RoutingProtocol
      */

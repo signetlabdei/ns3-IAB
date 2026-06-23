@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2012 University of Washington, 2012 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Alina Quereilhac <alina.quereilhac@inria.fr>
  *
@@ -28,10 +17,10 @@
 //  |  fd-net-device |--------------|  fd-net-device |
 //  +----------------+              +----------------+
 //
-// This example is aimed at measuring the thoughput of the FdNetDevice
+// This example is aimed at measuring the throughput of the FdNetDevice
 // in a pure simulation. For this purpose two FdNetDevices, attached to
 // different nodes but in a same simulation, are connected using a socket pair.
-// TCP traffic is sent at a saturating data rate. Then the thoughput can
+// TCP traffic is sent at a saturating data rate. Then the throughput can
 // be obtained from the generated .pcap files.
 //
 // Steps to run the experiment:
@@ -105,8 +94,8 @@ main(int argc, char* argv[])
     Address sinkLocalAddress(InetSocketAddress(serverIp, sinkPort));
     PacketSinkHelper sinkHelper("ns3::TcpSocketFactory", sinkLocalAddress);
     ApplicationContainer sinkApp = sinkHelper.Install(serverNode);
-    sinkApp.Start(Seconds(0.0));
-    sinkApp.Stop(Seconds(40.0));
+    sinkApp.Start(Seconds(0));
+    sinkApp.Stop(Seconds(40));
     fd.EnablePcap("rt-fd2fd-onoff-server", serverDevice);
 
     // client
@@ -118,11 +107,11 @@ main(int argc, char* argv[])
     onoff.SetAttribute("DataRate", DataRateValue(dataRate));
     onoff.SetAttribute("PacketSize", UintegerValue(packetSize));
     ApplicationContainer clientApps = onoff.Install(clientNode);
-    clientApps.Start(Seconds(1.0));
-    clientApps.Stop(Seconds(39.0));
+    clientApps.Start(Seconds(1));
+    clientApps.Stop(Seconds(39));
     fd.EnablePcap("rt-fd2fd-onoff-client", clientDevice);
 
-    Simulator::Stop(Seconds(40.0));
+    Simulator::Stop(Seconds(40));
     Simulator::Run();
     Simulator::Destroy();
 

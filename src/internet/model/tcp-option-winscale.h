@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2011 Adrian Sai-wah Tam
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Adrian Sai-wah Tam <adrian.sw.tam@gmail.com>
  * Documentation, test cases: Natale Patriciello <natale.patriciello@gmail.com>
@@ -21,15 +10,15 @@
 #ifndef TCP_OPTION_WINSCALE_H
 #define TCP_OPTION_WINSCALE_H
 
-#include "ns3/tcp-option.h"
+#include "tcp-option.h"
 
 namespace ns3
 {
 
 /**
- * \ingroup tcp
+ * @ingroup tcp
  *
- * \brief Defines the TCP option of kind 3 (window scale option) as in \RFC{1323}
+ * @brief Defines the TCP option of kind 3 (window scale option) as in \RFC{1323}
  *
  * For more efficient use of high bandwidth networks, a larger TCP window size
  * may be used. The TCP window size field controls the flow of data and its
@@ -51,11 +40,10 @@ class TcpOptionWinScale : public TcpOption
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
-    TypeId GetInstanceTypeId() const override;
 
     TcpOptionWinScale();
     ~TcpOptionWinScale() override;
@@ -68,17 +56,17 @@ class TcpOptionWinScale : public TcpOption
     uint32_t GetSerializedSize() const override;
 
     /**
-     * \brief Get the scale value (uint8_t)
-     * \return The scale value
+     * @brief Get the scale value (uint8_t)
+     * @return The scale value
      */
     uint8_t GetScale() const;
 
     /**
-     * \brief Set the scale option
+     * @brief Set the scale option
      *
      * The scale option SHOULD be <= 14 (as \RFC{1323}).
      *
-     * \param scale Scale factor
+     * @param scale Scale factor
      */
     void SetScale(uint8_t scale);
 

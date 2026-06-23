@@ -2,18 +2,7 @@
  * Copyright (c) 2011 Adrian Sai-wah Tam
  * Copyright (c) 2015 ResiliNets, ITTC, University of Kansas
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Original Author: Adrian Sai-wah Tam <adrian.sw.tam@gmail.com>
  * Documentation, test cases: Truc Anh N. Nguyen   <annguyen@ittc.ku.edu>
@@ -25,14 +14,15 @@
 #ifndef TCP_OPTION_SACK_H
 #define TCP_OPTION_SACK_H
 
+#include "tcp-option.h"
+
 #include "ns3/sequence-number.h"
-#include "ns3/tcp-option.h"
 
 namespace ns3
 {
 
 /**
- * \brief Defines the TCP option of kind 5 (selective acknowledgment option) as
+ * @brief Defines the TCP option of kind 5 (selective acknowledgment option) as
  * in \RFC{2018}
  *
  * TCP SACK Option is used by a receiver to report non-contiguous blocks of data
@@ -50,11 +40,10 @@ class TcpOptionSack : public TcpOption
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
-    TypeId GetInstanceTypeId() const override;
 
     typedef std::pair<SequenceNumber32, SequenceNumber32> SackBlock; //!< SACK block definition
     typedef std::list<SackBlock> SackList;                           //!< SACK list definition
@@ -70,25 +59,25 @@ class TcpOptionSack : public TcpOption
     uint32_t GetSerializedSize() const override;
 
     /**
-     * \brief Add a SACK block
-     * \param s the SACK block to be added
+     * @brief Add a SACK block
+     * @param s the SACK block to be added
      */
     void AddSackBlock(SackBlock s);
 
     /**
-     * \brief Count the total number of SACK blocks
-     * \return the total number of SACK blocks
+     * @brief Count the total number of SACK blocks
+     * @return the total number of SACK blocks
      */
     uint32_t GetNumSackBlocks() const;
 
     /**
-     * \brief Clear the SACK list
+     * @brief Clear the SACK list
      */
     void ClearSackList();
 
     /**
-     * \brief Get the SACK list
-     * \return the SACK list
+     * @brief Get the SACK list
+     * @return the SACK list
      */
     SackList GetSackList() const;
 
@@ -99,18 +88,18 @@ class TcpOptionSack : public TcpOption
 };
 
 /**
- * \brief Output operator.
- * \param os The output stream.
- * \param sackOption the option to print.
- * \returns The output stream.
+ * @brief Output operator.
+ * @param os The output stream.
+ * @param sackOption the option to print.
+ * @returns The output stream.
  */
 std::ostream& operator<<(std::ostream& os, const TcpOptionSack& sackOption);
 
 /**
- * \brief Output operator.
- * \param os The output stream.
- * \param sackBlock the block to print.
- * \returns The output stream.
+ * @brief Output operator.
+ * @param os The output stream.
+ * @param sackBlock the block to print.
+ * @returns The output stream.
  */
 std::ostream& operator<<(std::ostream& os, const TcpOptionSack::SackBlock& sackBlock);
 

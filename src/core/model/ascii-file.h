@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2012 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mitch Watrous (watrous@u.washington.edu)
  *
@@ -30,7 +19,7 @@ namespace ns3
 {
 
 /**
- * \brief A class representing an ascii file.
+ * @brief A class representing an ascii file.
  *
  * This class represents an ascii file
  */
@@ -41,19 +30,19 @@ class AsciiFile
     ~AsciiFile();
 
     /**
-     * \return true if the 'fail' bit is set in the underlying iostream, false otherwise.
+     * @return true if the 'fail' bit is set in the underlying iostream, false otherwise.
      */
     bool Fail() const;
     /**
-     * \return true if the 'eof' bit is set in the underlying iostream, false otherwise.
+     * @return true if the 'eof' bit is set in the underlying iostream, false otherwise.
      */
     bool Eof() const;
 
     /**
      * Create a new ascii file or open an existing ascii file.
      *
-     * \param filename String containing the name of the file.
-     * \param mode the access mode for the file.
+     * @param filename String containing the name of the file.
+     * @param mode the access mode for the file.
      */
     void Open(const std::string& filename, std::ios::openmode mode);
 
@@ -63,21 +52,21 @@ class AsciiFile
     void Close();
 
     /**
-     * \brief Read next line from file
+     * @brief Read next line from file
      *
-     * \param line    [out] line from file
+     * @param line    [out] line from file
      *
      */
     void Read(std::string& line);
 
     /**
-     * \brief Compare two ASCII files line-by-line
+     * @brief Compare two ASCII files line-by-line
      *
-     * \return true if files are different, false otherwise
+     * @return true if files are different, false otherwise
      *
-     * \param  f1         First ASCII file name
-     * \param  f2         Second ASCII file name
-     * \param  lineNumber   [out] Line number of first different line.
+     * @param  f1         First ASCII file name
+     * @param  f2         Second ASCII file name
+     * @param  lineNumber   [out] Line number of first different line.
      */
     static bool Diff(const std::string& f1, const std::string& f2, uint64_t& lineNumber);
 

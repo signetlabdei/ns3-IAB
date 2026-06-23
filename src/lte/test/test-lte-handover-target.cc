@@ -374,7 +374,7 @@ public:
 };
 
 LteHandoverTargetTestSuite::LteHandoverTargetTestSuite ()
-    : TestSuite ("lte-handover-target", SYSTEM)
+    : TestSuite ("lte-handover-target", TestSuite::Type::SYSTEM)
 {
   // LogComponentEnable ("LteHandoverTargetTest", LOG_PREFIX_ALL);
   // LogComponentEnable ("LteHandoverTargetTest", LOG_LEVEL_ALL);
@@ -392,11 +392,11 @@ LteHandoverTargetTestSuite::LteHandoverTargetTestSuite ()
   AddTestCase (new LteHandoverTargetTestCase ("4 cells and A2-A4-RSRQ algorithm",
                                               Vector (20, 40, 0), 2, 2, 1, 3,
                                               "ns3::A2A4RsrqHandoverAlgorithm"),
-               TestCase::QUICK);
+               TestCase::Duration::QUICK);
   AddTestCase (new LteHandoverTargetTestCase ("4 cells and strongest cell algorithm",
                                               Vector (20, 40, 0), 2, 2, 1, 3,
                                               "ns3::A3RsrpHandoverAlgorithm"),
-               TestCase::QUICK);
+               TestCase::Duration::QUICK);
 
   /*
    *    4 --- 5 --- 6
@@ -407,11 +407,11 @@ LteHandoverTargetTestSuite::LteHandoverTargetTestSuite ()
   AddTestCase (new LteHandoverTargetTestCase ("6 cells and A2-A4-RSRQ algorithm",
                                               Vector (150, 90, 0), 3, 2, 5, 2,
                                               "ns3::A2A4RsrqHandoverAlgorithm"),
-               TestCase::EXTENSIVE);
+               TestCase::Duration::EXTENSIVE);
   AddTestCase (new LteHandoverTargetTestCase ("6 cells and strongest cell algorithm",
                                               Vector (150, 90, 0), 3, 2, 5, 2,
                                               "ns3::A3RsrpHandoverAlgorithm"),
-               TestCase::EXTENSIVE);
+               TestCase::Duration::EXTENSIVE);
 
 } // end of LteHandoverTargetTestSuite ()
 

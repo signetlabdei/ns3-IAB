@@ -1,29 +1,19 @@
 //
 // Copyright (c) 2009 INESC Porto
 //
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License version 2 as
-// published by the Free Software Foundation;
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+// SPDX-License-Identifier: GPL-2.0-only
 //
 // Author: Gustavo J. A. M. Carneiro  <gjc@inescporto.pt> <gjcarneiro@gmail.com>
 // Modifications: Tommaso Pecorella <tommaso.pecorella@unifi.it>
 //
 
-#include "ns3/ipv6-flow-probe.h"
+#include "ipv6-flow-probe.h"
+
+#include "flow-monitor.h"
+#include "ipv6-flow-classifier.h"
 
 #include "ns3/config.h"
 #include "ns3/flow-id-tag.h"
-#include "ns3/flow-monitor.h"
-#include "ns3/ipv6-flow-classifier.h"
 #include "ns3/log.h"
 #include "ns3/node.h"
 #include "ns3/packet.h"
@@ -39,9 +29,9 @@ NS_LOG_COMPONENT_DEFINE("Ipv6FlowProbe");
 //////////////////////////////////////
 
 /**
- * \ingroup flow-monitor
+ * @ingroup flow-monitor
  *
- * \brief Tag used to allow a fast identification of the packet
+ * @brief Tag used to allow a fast identification of the packet
  *
  * This tag is added by FlowMonitor when a packet is seen for
  * the first time, and it is then used to classify the packet in
@@ -51,8 +41,8 @@ class Ipv6FlowProbeTag : public Tag
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
     TypeId GetInstanceTypeId() const override;
@@ -62,40 +52,40 @@ class Ipv6FlowProbeTag : public Tag
     void Print(std::ostream& os) const override;
     Ipv6FlowProbeTag();
     /**
-     * \brief Constructor
-     * \param flowId the flow identifier
-     * \param packetId the packet identifier
-     * \param packetSize the packet size
+     * @brief Constructor
+     * @param flowId the flow identifier
+     * @param packetId the packet identifier
+     * @param packetSize the packet size
      */
     Ipv6FlowProbeTag(uint32_t flowId, uint32_t packetId, uint32_t packetSize);
     /**
-     * \brief Set the flow identifier
-     * \param flowId the flow identifier
+     * @brief Set the flow identifier
+     * @param flowId the flow identifier
      */
     void SetFlowId(uint32_t flowId);
     /**
-     * \brief Set the packet identifier
-     * \param packetId the packet identifier
+     * @brief Set the packet identifier
+     * @param packetId the packet identifier
      */
     void SetPacketId(uint32_t packetId);
     /**
-     * \brief Set the packet size
-     * \param packetSize the packet size
+     * @brief Set the packet size
+     * @param packetSize the packet size
      */
     void SetPacketSize(uint32_t packetSize);
     /**
-     * \brief Set the flow identifier
-     * \returns the flow identifier
+     * @brief Set the flow identifier
+     * @returns the flow identifier
      */
     uint32_t GetFlowId() const;
     /**
-     * \brief Set the packet identifier
-     * \returns the packet identifier
+     * @brief Set the packet identifier
+     * @returns the packet identifier
      */
     uint32_t GetPacketId() const;
     /**
-     * \brief Get the packet size
-     * \returns the packet size
+     * @brief Get the packet size
+     * @returns the packet size
      */
     uint32_t GetPacketSize() const;
 

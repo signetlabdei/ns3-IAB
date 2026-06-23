@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 IITP RAS
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Pavel Boyko <boyko@iitp.ru>
  */
@@ -29,14 +18,14 @@ using namespace ns3;
 using namespace dot11s;
 
 /**
- * \ingroup mesh-test
- * \defgroup dot11s-test dot11s sub-module tests
+ * @ingroup mesh-test
+ * @defgroup dot11s-test dot11s sub-module tests
  */
 
 /**
- * \ingroup dot11s-test
+ * @ingroup dot11s-test
  *
- * \brief Built-in self test for MeshHeader
+ * @brief Built-in self test for MeshHeader
  */
 struct MeshHeaderTest : public TestCase
 {
@@ -93,9 +82,9 @@ MeshHeaderTest::DoRun()
 }
 
 /**
- * \ingroup mesh-test
+ * @ingroup mesh-test
  *
- * \brief Unit test for HwmpRtable
+ * @brief Unit test for HwmpRtable
  */
 class HwmpRtableTest : public TestCase
 {
@@ -186,8 +175,7 @@ HwmpRtableTest::TestExpire()
 void
 HwmpRtableTest::TestPrecursorAdd()
 {
-    for (std::vector<Mac48Address>::const_iterator i = precursors.begin(); i != precursors.end();
-         i++)
+    for (auto i = precursors.begin(); i != precursors.end(); i++)
     {
         table->AddPrecursor(dst, iface, *i, Seconds(100));
         // Check that duplicates are filtered
@@ -275,9 +263,9 @@ PeerLinkFrameStartTest::DoRun()
 }
 
 /**
- * \ingroup mesh-test
+ * @ingroup mesh-test
  *
- * \brief Dot11s Test Suite
+ * @brief Dot11s Test Suite
  */
 class Dot11sTestSuite : public TestSuite
 {
@@ -286,11 +274,11 @@ class Dot11sTestSuite : public TestSuite
 };
 
 Dot11sTestSuite::Dot11sTestSuite()
-    : TestSuite("devices-mesh-dot11s", UNIT)
+    : TestSuite("devices-mesh-dot11s", Type::UNIT)
 {
-    AddTestCase(new MeshHeaderTest, TestCase::QUICK);
-    AddTestCase(new HwmpRtableTest, TestCase::QUICK);
-    AddTestCase(new PeerLinkFrameStartTest, TestCase::QUICK);
+    AddTestCase(new MeshHeaderTest, TestCase::Duration::QUICK);
+    AddTestCase(new HwmpRtableTest, TestCase::Duration::QUICK);
+    AddTestCase(new PeerLinkFrameStartTest, TestCase::Duration::QUICK);
 }
 
 static Dot11sTestSuite g_dot11sTestSuite; ///< the test suite

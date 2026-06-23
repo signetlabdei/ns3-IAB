@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2020 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Rohan Patidar <rpatidar@uw.edu>
  *          Sébastien Deronne <sebastien.deronne@gmail.com>
@@ -36,8 +25,8 @@
 namespace ns3
 {
 
-static const double SNR_PRECISION = 2;                         //!< precision for SNR
-static const double TABLED_BASED_ERROR_MODEL_PRECISION = 1e-5; //!< precision for PER
+static const double SNR_PRECISION = 2;                        //!< precision for SNR
+static const double TABLE_BASED_ERROR_MODEL_PRECISION = 1e-5; //!< precision for PER
 
 NS_OBJECT_ENSURE_REGISTERED(TableBasedErrorRateModel);
 
@@ -76,12 +65,12 @@ TableBasedErrorRateModel::~TableBasedErrorRateModel()
     m_fallbackErrorModel = nullptr;
 }
 
-double
-TableBasedErrorRateModel::RoundSnr(double snr, double precision) const
+dB_u
+TableBasedErrorRateModel::RoundSnr(dB_u snr, double precision) const
 {
     NS_LOG_FUNCTION(this << snr);
-    double multiplier = std::round(std::pow(10.0, precision));
-    return std::floor(snr * multiplier + 0.5) / multiplier;
+    const auto multiplier = std::round(std::pow(10.0, precision));
+    return dB_u{std::floor(snr * multiplier + 0.5) / multiplier};
 }
 
 std::optional<uint8_t>
@@ -156,8 +145,8 @@ TableBasedErrorRateModel::DoGetChunkSuccessRate(WifiMode mode,
                                                 uint16_t staId) const
 {
     NS_LOG_FUNCTION(this << mode << txVector << snr << nbits << +numRxAntennas << field << staId);
-    uint64_t size = std::max<uint64_t>(1, (nbits / 8));
-    double roundedSnr = RoundSnr(RatioToDb(snr), SNR_PRECISION);
+    const auto size = std::max<uint64_t>(1, (nbits / 8)); // in bytes
+    const auto roundedSnr = RoundSnr(RatioToDb(snr), SNR_PRECISION);
     uint8_t mcs;
     if (auto ret = GetMcsForMode(mode); ret.has_value())
     {
@@ -189,13 +178,12 @@ TableBasedErrorRateModel::DoGetChunkSuccessRate(WifiMode mode,
     auto errorTable = (ldpc ? AwgnErrorTableLdpc1458
                             : (size < m_threshold ? AwgnErrorTableBcc32 : AwgnErrorTableBcc1458));
     const auto& itVector = errorTable[mcs];
-    auto itTable = std::find_if(itVector.cbegin(),
-                                itVector.cend(),
-                                [&roundedSnr](const std::pair<double, double>& element) {
-                                    return element.first == roundedSnr;
-                                });
-    double minSnr = itVector.cbegin()->first;
-    double maxSnr = (--itVector.cend())->first;
+    auto itTable =
+        std::find_if(itVector.cbegin(), itVector.cend(), [&roundedSnr](const auto& element) {
+            return element.first == roundedSnr;
+        });
+    const auto minSnr = itVector.cbegin()->first;
+    const auto maxSnr = (--itVector.cend())->first;
     double per;
     if (itTable == itVector.cend())
     {
@@ -211,8 +199,8 @@ TableBasedErrorRateModel::DoGetChunkSuccessRate(WifiMode mode,
         {
             double a = 0.0;
             double b = 0.0;
-            double previousSnr = 0.0;
-            double nextSnr = 0.0;
+            dB_u previousSnr{0.0};
+            dB_u nextSnr{0.0};
             for (auto i = itVector.cbegin(); i != itVector.cend(); ++i)
             {
                 if (i->first < roundedSnr)
@@ -244,7 +232,7 @@ TableBasedErrorRateModel::DoGetChunkSuccessRate(WifiMode mode,
         per = (1.0 - std::pow((1 - per), (static_cast<double>(size) / tableSize)));
     }
 
-    if (per < TABLED_BASED_ERROR_MODEL_PRECISION)
+    if (per < TABLE_BASED_ERROR_MODEL_PRECISION)
     {
         per = 0.0;
     }

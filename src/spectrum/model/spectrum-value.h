@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 CTTC
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Nicola Baldo <nbaldo@cttc.es>
  */
@@ -20,9 +9,10 @@
 #ifndef SPECTRUM_VALUE_H
 #define SPECTRUM_VALUE_H
 
-#include <ns3/ptr.h>
-#include <ns3/simple-ref-count.h>
-#include <ns3/spectrum-model.h>
+#include "spectrum-model.h"
+
+#include "ns3/ptr.h"
+#include "ns3/simple-ref-count.h"
 
 #include <ostream>
 #include <vector>
@@ -34,9 +24,9 @@ namespace ns3
 typedef std::vector<double> Values;
 
 /**
- * \ingroup spectrum
+ * @ingroup spectrum
  *
- * \brief Set of values corresponding to a given SpectrumModel
+ * @brief Set of values corresponding to a given SpectrumModel
  *
  * This class implements a Function Space which can represent any
  * function \f$ g: F \in {\sf
@@ -153,15 +143,59 @@ class SpectrumValue : public SimpleRefCount<SpectrumValue>
     Values::iterator ValuesEnd();
 
     /**
-     * \brief Get the number of values stored in the array
-     * \return the values array size
+     * @brief Get the number of values stored in the array
+     * @return the values array size
      */
     uint32_t GetValuesN() const;
 
     /**
-     * \brief Get the value element at the position
-     * \param pos position
-     * \return the value element in that position (with bounds checking)
+     * Directly set the values using the std::vector<double>
+     * @param values a reference to the std::vector<double>
+     */
+    inline void SetValues(Values& values)
+    {
+        NS_ASSERT_MSG(
+            values.size() == m_spectrumModel->GetNumBands(),
+            "Values size does not correspond to the SpectrumModel in use by this SpectrumValue.");
+        m_values = values;
+    }
+
+    /**
+     * Directly set the values by moving the values from the input std::vector<double>
+     * @param values a reference to the std::vector<double> to be moved
+     */
+    inline void SetValues(Values&& values)
+    {
+        NS_ASSERT_MSG(
+            values.size() == m_spectrumModel->GetNumBands(),
+            "Values size does not correspond to the SpectrumModel in use by this SpectrumValue.");
+        m_values = std::move(values);
+    }
+
+    /**
+     * @brief Provides the direct access to the underlying std::vector<double>
+     * that stores the spectrum values.
+     * @return a reference to the stored values
+     */
+    inline Values& GetValues()
+    {
+        return m_values;
+    }
+
+    /**
+     * @brief Provides the direct read-only access to the underlying std::vector<double>
+     * that stores the spectrum values.
+     * @return a const reference to the stored values
+     */
+    inline const Values& GetValues() const
+    {
+        return m_values;
+    }
+
+    /**
+     * @brief Get the value element at the position
+     * @param pos position
+     * @return the value element in that position (with bounds checking)
      */
     const double& ValuesAt(uint32_t pos) const;
 
@@ -284,6 +318,26 @@ class SpectrumValue : public SimpleRefCount<SpectrumValue>
      * @return the value of *this / rhs
      */
     friend SpectrumValue operator/(double lhs, const SpectrumValue& rhs);
+
+    /**
+     * Compare two spectrum values
+     *
+     * @param lhs Left Hand Side of the operator
+     * @param rhs Right Hand Side of the operator
+     *
+     * @return true if lhs and rhs SpectruValues are equal
+     */
+    friend bool operator==(const SpectrumValue& lhs, const SpectrumValue& rhs);
+
+    /**
+     * Compare two spectrum values
+     *
+     * @param lhs Left Hand Side of the operator
+     * @param rhs Right Hand Side of the operator
+     *
+     * @return true if lhs and rhs SpectruValues are not equal
+     */
+    friend bool operator!=(const SpectrumValue& lhs, const SpectrumValue& rhs);
 
     /**
      * unary plus operator
@@ -499,52 +553,53 @@ class SpectrumValue : public SimpleRefCount<SpectrumValue>
     /**
      *  TracedCallback signature for SpectrumValue.
      *
-     * \param [in] value Value of the traced variable.
-     * \deprecated The non-const \c Ptr<SpectrumPhy> argument
+     * @param [in] value Value of the traced variable.
+     * @deprecated The non-const \c Ptr<SpectrumPhy> argument
      * is deprecated and will be changed to \c Ptr<const SpectrumPhy>
      * in a future release.
      */
+    // NS_DEPRECATED() - tag for future removal
     typedef void (*TracedCallback)(Ptr<SpectrumValue> value);
 
   private:
     /**
      * Add a SpectrumValue (element to element addition)
-     * \param x SpectrumValue
+     * @param x SpectrumValue
      */
     void Add(const SpectrumValue& x);
     /**
      * Add a flat value to all the current elements
-     * \param s flat value
+     * @param s flat value
      */
     void Add(double s);
     /**
      * Subtracts a SpectrumValue (element by element subtraction)
-     * \param x SpectrumValue
+     * @param x SpectrumValue
      */
     void Subtract(const SpectrumValue& x);
     /**
      * Subtracts a flat value to all the current elements
-     * \param s flat value
+     * @param s flat value
      */
     void Subtract(double s);
     /**
      * Multiplies for a SpectrumValue (element to element multiplication)
-     * \param x SpectrumValue
+     * @param x SpectrumValue
      */
     void Multiply(const SpectrumValue& x);
     /**
      * Multiplies for a flat value to all the current elements
-     * \param s flat value
+     * @param s flat value
      */
     void Multiply(double s);
     /**
      * Divides by a SpectrumValue (element to element division)
-     * \param x SpectrumValue
+     * @param x SpectrumValue
      */
     void Divide(const SpectrumValue& x);
     /**
      * Divides by a flat value to all the current elements
-     * \param s flat value
+     * @param s flat value
      */
     void Divide(double s);
     /**
@@ -553,25 +608,25 @@ class SpectrumValue : public SimpleRefCount<SpectrumValue>
     void ChangeSign();
     /**
      * Shift the values to the left
-     * \param n number of positions to shift
+     * @param n number of positions to shift
      */
     void ShiftLeft(int n);
     /**
      * Shift the values to the right
-     * \param n number of positions to shift
+     * @param n number of positions to shift
      */
     void ShiftRight(int n);
     /**
      * Modifies each element so that it each element is raised to the exponent
      *
-     * \param exp the exponent
+     * @param exp the exponent
      */
     void Pow(double exp);
     /**
      * Modifies each element so that it is
      * the base raised to each element value
      *
-     * \param base the base
+     * @param base the base
      */
     void Exp(double base);
     /**

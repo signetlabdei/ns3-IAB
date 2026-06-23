@@ -17,3 +17,5 @@ This chapter describes the development ecosystem generally used to create new mo
    documentation
    profiling
    working-with-gitlab-ci-local
+   working-with-docker
+   working-with-cilicon

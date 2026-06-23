@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Leonard Tracy <lentracy@gmail.com>
  */
@@ -31,7 +20,7 @@ class UanPhy;
 class UanTxMode;
 
 /**
- * \ingroup uan
+ * @ingroup uan
  *
  * ALOHA MAC Protocol, the simplest MAC protocol for wireless networks.
  *
@@ -48,7 +37,7 @@ class UanMacAloha : public UanMac
     ~UanMacAloha() override;
     /**
      * Register this type.
-     * \return The TypeId.
+     * @return The TypeId.
      */
     static TypeId GetTypeId();
 
@@ -70,24 +59,23 @@ class UanMacAloha : public UanMac
     /**
      * Receive packet from lower layer (passed to PHY as callback).
      *
-     * \param pkt Packet being received.
-     * \param sinr SINR of received packet.
-     * \param txMode Mode of received packet.
+     * @param pkt Packet being received.
+     * @param sinr SINR of received packet.
+     * @param txMode Mode of received packet.
      */
     void RxPacketGood(Ptr<Packet> pkt, double sinr, UanTxMode txMode);
 
     /**
      * Packet received at lower layer in error.
      *
-     * \param pkt Packet received in error.
-     * \param sinr SINR of received packet.
+     * @param pkt Packet received in error.
+     * @param sinr SINR of received packet.
      */
     void RxPacketError(Ptr<Packet> pkt, double sinr);
 
   protected:
     void DoDispose() override;
-
-}; // class UanMacAloha
+};
 
 } // namespace ns3
 

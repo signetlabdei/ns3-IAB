@@ -59,7 +59,6 @@ public:
    * \brief GetInstanceTypeId
    * \return the instance typeid
    */
-  TypeId GetInstanceTypeId () const override;
 
   /**
    * \brief MmWaveAmc constructor, not to be used!

@@ -74,7 +74,7 @@ MmWaveAmc::GetTypeId (void)
           .SetParent<Object> ()
           .AddAttribute ("AmcModel", "AMC model used to assign CQI",
                          EnumValue (MmWaveAmc::ErrorModel),
-                         MakeEnumAccessor (&MmWaveAmc::SetAmcModel, &MmWaveAmc::GetAmcModel),
+                         MakeEnumAccessor<MmWaveAmc::AmcModel> (&MmWaveAmc::SetAmcModel, &MmWaveAmc::GetAmcModel),
                          MakeEnumChecker (MmWaveAmc::ErrorModel, "ErrorModel",
                                           MmWaveAmc::ShannonModel, "ShannonModel"))
           .AddAttribute ("Ber",
@@ -92,12 +92,6 @@ MmWaveAmc::GetTypeId (void)
               MakeTypeIdChecker ())
           .AddConstructor<MmWaveAmc> ();
   return tid;
-}
-
-TypeId
-MmWaveAmc::GetInstanceTypeId () const
-{
-  return MmWaveAmc::GetTypeId ();
 }
 
 void

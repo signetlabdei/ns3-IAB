@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2010 Hajime Tazaki
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Hajime Tazaki <tazaki@sfc.wide.ad.jp>
  */
@@ -30,9 +19,9 @@ class Node;
 class Packet;
 
 /**
- * \ingroup ipv6
+ * @ingroup ipv6
  *
- * \brief This class implements a tag that carries socket ancillary
+ * @brief This class implements a tag that carries socket ancillary
  * data to the socket interface. This is used like
  * socket option of IP_PKTINFO/IPV6_PKTINFO in \RFC{3542}
  *
@@ -50,64 +39,64 @@ class Ipv6PacketInfoTag : public Tag
     Ipv6PacketInfoTag();
 
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
 
     /**
-     * \brief Set the tag's address
+     * @brief Set the tag's address
      *
-     * \param addr the address
+     * @param addr the address
      */
     void SetAddress(Ipv6Address addr);
 
     /**
-     * \brief Get the tag's address
+     * @brief Get the tag's address
      *
-     * \returns the address
+     * @returns the address
      */
     Ipv6Address GetAddress() const;
 
     /**
-     * \brief Set the tag's receiving interface
+     * @brief Set the tag's receiving interface
      *
-     * \param ifindex the interface index
+     * @param ifindex the interface index
      */
     void SetRecvIf(uint32_t ifindex);
 
     /**
-     * \brief Get the tag's receiving interface
+     * @brief Get the tag's receiving interface
      *
-     * \returns the interface index
+     * @returns the interface index
      */
     uint32_t GetRecvIf() const;
 
     /**
-     * \brief Set the tag's Hop Limit
+     * @brief Set the tag's Hop Limit
      *
-     * \param ttl the hop limit
+     * @param ttl the hop limit
      */
     void SetHoplimit(uint8_t ttl);
 
     /**
-     * \brief Get the tag's Hop Limit
+     * @brief Get the tag's Hop Limit
      *
-     * \returns the Hop Limit
+     * @returns the Hop Limit
      */
     uint8_t GetHoplimit() const;
 
     /**
-     * \brief Set the tag's Traffic Class
+     * @brief Set the tag's Traffic Class
      *
-     * \param tclass the Traffic Class
+     * @param tclass the Traffic Class
      */
     void SetTrafficClass(uint8_t tclass);
 
     /**
-     * \brief Get the tag's Traffic Class
+     * @brief Get the tag's Traffic Class
      *
-     * \returns the Traffic Class
+     * @returns the Traffic Class
      */
     uint8_t GetTrafficClass() const;
 

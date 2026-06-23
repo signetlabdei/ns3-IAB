@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2014 Universidad de la República - Uruguay
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Matias Richart <mrichart@fing.edu.uy>
  */
@@ -52,7 +41,7 @@
  * To enable the log of rate and power changes:
  * \code{.sh}
  *   export NS_LOG=PowerAdaptationInterference=level_info
- * \endcode
+ * @endcode
  */
 
 #include "ns3/command-line.h"
@@ -83,111 +72,111 @@ NS_LOG_COMPONENT_DEFINE("PowerAdaptationInterference");
 static const uint32_t packetSize = 1420;
 
 /**
- * \brief Class to collect node statistics.
+ * @brief Class to collect node statistics.
  */
 class NodeStatistics
 {
   public:
     /**
-     * \brief Constructor.
+     * @brief Constructor.
      *
-     * \param aps Access points
-     * \param stas WiFi Stations.
+     * @param aps Access points
+     * @param stas WiFi Stations.
      */
     NodeStatistics(NetDeviceContainer aps, NetDeviceContainer stas);
 
     /**
-     * \brief Collects the statistics at a given time.
+     * @brief Collects the statistics at a given time.
      *
-     * \param time Time at which the statistics are collected.
+     * @param time Time at which the statistics are collected.
      */
     void CheckStatistics(double time);
 
     /**
-     * \brief Callback called by WifiNetDevice/Phy/PhyTxBegin.
+     * @brief Callback called by WifiNetDevice/Phy/PhyTxBegin.
      *
-     * \param path The trace path.
-     * \param packet The sent packet.
-     * \param powerW The Tx power.
+     * @param path The trace path.
+     * @param packet The sent packet.
+     * @param powerW The Tx power.
      */
     void PhyCallback(std::string path, Ptr<const Packet> packet, double powerW);
     /**
-     * \brief Callback called by PacketSink/Rx.
+     * @brief Callback called by PacketSink/Rx.
      *
-     * \param path The trace path.
-     * \param packet The received packet.
-     * \param from The sender address.
+     * @param path The trace path.
+     * @param packet The received packet.
+     * @param from The sender address.
      */
     void RxCallback(std::string path, Ptr<const Packet> packet, const Address& from);
     /**
-     * \brief Callback called by WifiNetDevice/RemoteStationManager/x/PowerChange.
+     * @brief Callback called by WifiNetDevice/RemoteStationManager/x/PowerChange.
      *
-     * \param path The trace path.
-     * \param oldPower Old Tx power.
-     * \param newPower Actual Tx power.
-     * \param dest Destination of the transmission.
+     * @param path The trace path.
+     * @param oldPower Old Tx power.
+     * @param newPower Actual Tx power.
+     * @param dest Destination of the transmission.
      */
     void PowerCallback(std::string path, double oldPower, double newPower, Mac48Address dest);
     /**
-     * \brief Callback called by WifiNetDevice/RemoteStationManager/x/RateChange.
+     * @brief Callback called by WifiNetDevice/RemoteStationManager/x/RateChange.
      *
-     * \param path The trace path.
-     * \param oldRate Old rate.
-     * \param newRate Actual rate.
-     * \param dest Destination of the transmission.
+     * @param path The trace path.
+     * @param oldRate Old rate.
+     * @param newRate Actual rate.
+     * @param dest Destination of the transmission.
      */
     void RateCallback(std::string path, DataRate oldRate, DataRate newRate, Mac48Address dest);
     /**
-     * \brief Callback called by YansWifiPhy/State/State.
+     * @brief Callback called by YansWifiPhy/State/State.
      *
-     * \param path The trace path.
-     * \param init Time when the state started.
-     * \param duration Amount of time we've been in (or will be in) the state.
-     * \param state The state.
+     * @param path The trace path.
+     * @param init Time when the state started.
+     * @param duration Amount of time we've been in (or will be in) the state.
+     * @param state The state.
      */
     void StateCallback(std::string path, Time init, Time duration, WifiPhyState state);
 
     /**
-     * \brief Get the Throughput output data
+     * @brief Get the Throughput output data
      *
-     * \return the Throughput output data.
+     * @return the Throughput output data.
      */
     Gnuplot2dDataset GetDatafile();
     /**
-     * \brief Get the Power output data.
+     * @brief Get the Power output data.
      *
-     * \return the Power output data.
+     * @return the Power output data.
      */
     Gnuplot2dDataset GetPowerDatafile();
     /**
-     * \brief Get the IDLE state output data.
+     * @brief Get the IDLE state output data.
      *
-     * \return the IDLE state output data.
+     * @return the IDLE state output data.
      */
     Gnuplot2dDataset GetIdleDatafile();
     /**
-     * \brief Get the BUSY state output data.
+     * @brief Get the BUSY state output data.
      *
-     * \return the BUSY state output data.
+     * @return the BUSY state output data.
      */
     Gnuplot2dDataset GetBusyDatafile();
     /**
-     * \brief Get the TX state output data.
+     * @brief Get the TX state output data.
      *
-     * \return the TX state output data.
+     * @return the TX state output data.
      */
     Gnuplot2dDataset GetTxDatafile();
     /**
-     * \brief Get the RX state output data.
+     * @brief Get the RX state output data.
      *
-     * \return the RX state output data.
+     * @return the RX state output data.
      */
     Gnuplot2dDataset GetRxDatafile();
 
     /**
-     * \brief Get the Busy time.
+     * @brief Get the Busy time.
      *
-     * \return the busy time.
+     * @return the busy time.
      */
     double GetBusyTime() const;
 
@@ -195,20 +184,20 @@ class NodeStatistics
     /// Time, DataRate pair vector.
     typedef std::vector<std::pair<Time, DataRate>> TxTime;
     /**
-     * \brief Setup the WifiPhy object.
+     * @brief Setup the WifiPhy object.
      *
-     * \param phy The WifiPhy to setup.
+     * @param phy The WifiPhy to setup.
      */
     void SetupPhy(Ptr<WifiPhy> phy);
     /**
-     * \brief Get the time at which a given datarate has been recorded.
+     * @brief Get the time at which a given datarate has been recorded.
      *
-     * \param rate The datarate to search.
-     * \return the time.
+     * @param rate The datarate to search.
+     * @return the time.
      */
     Time GetCalcTxTime(DataRate rate);
 
-    std::map<Mac48Address, double> m_currentPower;  //!< Current Tx power for each sender.
+    std::map<Mac48Address, dBm_u> m_currentPower;   //!< Current Tx power for each sender.
     std::map<Mac48Address, DataRate> m_currentRate; //!< Current Tx rate for each sender.
     uint32_t m_bytesTotal;                          //!< Number of received bytes.
     double m_totalEnergy;                           //!< Energy used.
@@ -237,7 +226,7 @@ NodeStatistics::NodeStatistics(NetDeviceContainer aps, NetDeviceContainer stas)
     Ptr<WifiPhy> phy = wifiDevice->GetPhy();
     SetupPhy(phy);
     DataRate dataRate = DataRate(phy->GetDefaultMode().GetDataRate(phy->GetChannelWidth()));
-    double power = phy->GetTxPowerEnd();
+    const auto power = phy->GetTxPowerEnd();
     for (uint32_t j = 0; j < stas.GetN(); j++)
     {
         Ptr<NetDevice> staDevice = stas.Get(j);
@@ -274,8 +263,8 @@ NodeStatistics::SetupPhy(Ptr<WifiPhy> phy)
         txVector.SetMode(mode);
         txVector.SetPreambleType(WIFI_PREAMBLE_LONG);
         txVector.SetChannelWidth(phy->GetChannelWidth());
-        DataRate dataRate = DataRate(mode.GetDataRate(phy->GetChannelWidth()));
-        Time time = phy->CalculateTxDuration(packetSize, txVector, phy->GetPhyBand());
+        DataRate dataRate(mode.GetDataRate(phy->GetChannelWidth()));
+        Time time = WifiPhy::CalculateTxDuration(packetSize, txVector, phy->GetPhyBand());
         NS_LOG_DEBUG(mode.GetUniqueName() << " " << time.GetSeconds() << " " << dataRate);
         m_timeTable.emplace_back(time, dataRate);
     }
@@ -284,7 +273,7 @@ NodeStatistics::SetupPhy(Ptr<WifiPhy> phy)
 Time
 NodeStatistics::GetCalcTxTime(DataRate rate)
 {
-    for (TxTime::const_iterator i = m_timeTable.begin(); i != m_timeTable.end(); i++)
+    for (auto i = m_timeTable.begin(); i != m_timeTable.end(); i++)
     {
         if (rate == i->second)
         {
@@ -292,7 +281,7 @@ NodeStatistics::GetCalcTxTime(DataRate rate)
         }
     }
     NS_ASSERT(false);
-    return Seconds(0);
+    return Time(0);
 }
 
 void
@@ -304,16 +293,16 @@ NodeStatistics::PhyCallback(std::string path, Ptr<const Packet> packet, double p
 
     if (head.GetType() == WIFI_MAC_DATA)
     {
-        m_totalEnergy += pow(10.0, m_currentPower[dest] / 10.0) *
-                         GetCalcTxTime(m_currentRate[dest]).GetSeconds();
-        m_totalTime += GetCalcTxTime(m_currentRate[dest]).GetSeconds();
+        const auto txTimeSeconds = GetCalcTxTime(m_currentRate[dest]).GetSeconds();
+        m_totalEnergy += DbmToW(m_currentPower[dest]) * txTimeSeconds;
+        m_totalTime += txTimeSeconds;
     }
 }
 
 void
 NodeStatistics::PowerCallback(std::string path, double oldPower, double newPower, Mac48Address dest)
 {
-    m_currentPower[dest] = newPower;
+    m_currentPower[dest] = dBm_u{newPower};
 }
 
 void
@@ -424,10 +413,10 @@ NodeStatistics::GetBusyTime() const
 /**
  * Callback called by WifiNetDevice/RemoteStationManager/x/PowerChange.
  *
- * \param path The trace path.
- * \param oldPower Old Tx power.
- * \param newPower Actual Tx power.
- * \param dest Destination of the transmission.
+ * @param path The trace path.
+ * @param oldPower Old Tx power.
+ * @param newPower Actual Tx power.
+ * @param dest Destination of the transmission.
  */
 void
 PowerCallback(std::string path, double oldPower, double newPower, Mac48Address dest)
@@ -437,12 +426,12 @@ PowerCallback(std::string path, double oldPower, double newPower, Mac48Address d
 }
 
 /**
- * \brief Callback called by WifiNetDevice/RemoteStationManager/x/RateChange.
+ * @brief Callback called by WifiNetDevice/RemoteStationManager/x/RateChange.
  *
- * \param path The trace path.
- * \param oldRate Old rate.
- * \param newRate Actual rate.
- * \param dest Destination of the transmission.
+ * @param path The trace path.
+ * @param oldRate Old rate.
+ * @param newRate Actual rate.
+ * @param dest Destination of the transmission.
  */
 void
 RateCallback(std::string path, DataRate oldRate, DataRate newRate, Mac48Address dest)
@@ -456,22 +445,22 @@ main(int argc, char* argv[])
 {
     // LogComponentEnable("ConstantRateWifiManager", LOG_LEVEL_FUNCTION);
 
-    double maxPower = 17;
-    double minPower = 0;
-    uint32_t powerLevels = 18;
+    dBm_u maxPower{17};
+    dBm_u minPower{0};
+    uint32_t powerLevels{18};
 
-    uint32_t rtsThreshold = 2346;
-    std::string manager = "ns3::ParfWifiManager";
-    std::string outputFileName = "parf";
-    int ap1_x = 0;
-    int ap1_y = 0;
-    int sta1_x = 10;
-    int sta1_y = 0;
-    int ap2_x = 200;
-    int ap2_y = 0;
-    int sta2_x = 180;
-    int sta2_y = 0;
-    uint32_t simuTime = 100;
+    uint32_t rtsThreshold{2346};
+    std::string manager{"ns3::ParfWifiManager"};
+    std::string outputFileName{"parf"};
+    int ap1_x{0};
+    int ap1_y{0};
+    int sta1_x{10};
+    int sta1_y{0};
+    int ap2_x{200};
+    int ap2_y{0};
+    int sta2_x{180};
+    int sta2_y{0};
+    Time simuTime{"100s"};
 
     CommandLine cmd(__FILE__);
     cmd.AddValue("manager", "PRC Manager", manager);
@@ -589,8 +578,8 @@ main(int argc, char* argv[])
 
     OnOffHelper onoff("ns3::UdpSocketFactory", InetSocketAddress(sinkAddress, port));
     onoff.SetConstantRate(DataRate("54Mb/s"), packetSize);
-    onoff.SetAttribute("StartTime", TimeValue(Seconds(0.0)));
-    onoff.SetAttribute("StopTime", TimeValue(Seconds(100.0)));
+    onoff.SetAttribute("StartTime", TimeValue(Seconds(0)));
+    onoff.SetAttribute("StopTime", TimeValue(Seconds(100)));
     ApplicationContainer apps_source = onoff.Install(wifiApNodes.Get(0));
 
     PacketSinkHelper sink1("ns3::UdpSocketFactory", InetSocketAddress(sinkAddress1, port));
@@ -598,12 +587,12 @@ main(int argc, char* argv[])
 
     OnOffHelper onoff1("ns3::UdpSocketFactory", InetSocketAddress(sinkAddress1, port));
     onoff1.SetConstantRate(DataRate("54Mb/s"), packetSize);
-    onoff1.SetAttribute("StartTime", TimeValue(Seconds(0.0)));
-    onoff1.SetAttribute("StopTime", TimeValue(Seconds(100.0)));
+    onoff1.SetAttribute("StartTime", TimeValue(Seconds(0)));
+    onoff1.SetAttribute("StopTime", TimeValue(Seconds(100)));
     apps_source.Add(onoff1.Install(wifiApNodes.Get(1)));
 
     apps_sink.Start(Seconds(0.5));
-    apps_sink.Stop(Seconds(simuTime));
+    apps_sink.Stop(simuTime);
 
     //------------------------------------------------------------
     //-- Setup stats and data collection
@@ -662,17 +651,15 @@ main(int argc, char* argv[])
     FlowMonitorHelper flowmon;
     Ptr<FlowMonitor> monitor = flowmon.InstallAll();
 
-    Simulator::Stop(Seconds(simuTime));
+    Simulator::Stop(simuTime);
     Simulator::Run();
 
     Ptr<Ipv4FlowClassifier> classifier = DynamicCast<Ipv4FlowClassifier>(flowmon.GetClassifier());
     std::map<FlowId, FlowMonitor::FlowStats> stats = monitor->GetFlowStats();
-    for (std::map<FlowId, FlowMonitor::FlowStats>::const_iterator i = stats.begin();
-         i != stats.end();
-         ++i)
+    for (auto i = stats.begin(); i != stats.end(); ++i)
     {
         Ipv4FlowClassifier::FiveTuple t = classifier->FindFlow(i->first);
-        if ((t.sourceAddress == "10.1.1.3" && t.destinationAddress == "10.1.1.1"))
+        if (t.sourceAddress == "10.1.1.3" && t.destinationAddress == "10.1.1.1")
         {
             NS_LOG_INFO("Flow " << i->first << " (" << t.sourceAddress << " -> "
                                 << t.destinationAddress << ")\n");
@@ -688,9 +675,9 @@ main(int argc, char* argv[])
                                            << "\n");
             NS_LOG_INFO("  Mean jitter:   "
                         << i->second.jitterSum.GetSeconds() / (i->second.rxPackets - 1) << "\n");
-            NS_LOG_INFO("  Tx Opp: " << 1 - (statisticsAp0.GetBusyTime() / simuTime));
+            NS_LOG_INFO("  Tx Opp: " << 1 - (statisticsAp0.GetBusyTime() / simuTime.GetSeconds()));
         }
-        if ((t.sourceAddress == "10.1.1.4" && t.destinationAddress == "10.1.1.2"))
+        if (t.sourceAddress == "10.1.1.4" && t.destinationAddress == "10.1.1.2")
         {
             NS_LOG_INFO("Flow " << i->first << " (" << t.sourceAddress << " -> "
                                 << t.destinationAddress << ")\n");
@@ -706,7 +693,7 @@ main(int argc, char* argv[])
                                            << "\n");
             NS_LOG_INFO("  Mean jitter:   "
                         << i->second.jitterSum.GetSeconds() / (i->second.rxPackets - 1) << "\n");
-            NS_LOG_INFO("  Tx Opp: " << 1 - (statisticsAp1.GetBusyTime() / simuTime));
+            NS_LOG_INFO("  Tx Opp: " << 1 - (statisticsAp1.GetBusyTime() / simuTime.GetSeconds()));
         }
     }
 

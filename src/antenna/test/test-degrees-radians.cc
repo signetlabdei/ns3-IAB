@@ -1,25 +1,14 @@
 /*
  * Copyright (c) 2011 CTTC
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Nicola Baldo <nbaldo@cttc.es>
  */
 
-#include <ns3/antenna-model.h>
-#include <ns3/log.h>
-#include <ns3/test.h>
+#include "ns3/antenna-model.h"
+#include "ns3/log.h"
+#include "ns3/test.h"
 
 #include <cmath>
 #include <iostream>
@@ -29,23 +18,23 @@
 using namespace ns3;
 
 /**
- * \ingroup tests
+ * @ingroup tests
  *
- * \brief Test degree to radians conversion
+ * @brief Test degree to radians conversion
  */
 class DegreesToRadiansTestCase : public TestCase
 {
   public:
     /**
      * Build the test name
-     * \param a test param
-     * \return the test name
+     * @param a test param
+     * @return the test name
      */
     static std::string BuildNameString(double a);
     /**
      * Constructor
-     * \param a angle in degrees
-     * \param b expected angle in radians
+     * @param a angle in degrees
+     * @param b expected angle in radians
      */
     DegreesToRadiansTestCase(double a, double b);
 
@@ -78,23 +67,23 @@ DegreesToRadiansTestCase::DoRun()
 }
 
 /**
- * \ingroup tests
+ * @ingroup tests
  *
- * \brief Test radians to degree conversion
+ * @brief Test radians to degree conversion
  */
 class RadiansToDegreesTestCase : public TestCase
 {
   public:
     /**
      * Build the test name
-     * \param a test param
-     * \return the test name
+     * @param a test param
+     * @return the test name
      */
     static std::string BuildNameString(double a);
     /**
      * Constructor
-     * \param a angle in radians
-     * \param b expected angle in degrees
+     * @param a angle in radians
+     * @param b expected angle in degrees
      */
     RadiansToDegreesTestCase(double a, double b);
 
@@ -127,9 +116,9 @@ RadiansToDegreesTestCase::DoRun()
 }
 
 /**
- * \ingroup tests
+ * @ingroup tests
  *
- * \brief TestSuite: degree to radians (and vice-versa) conversions
+ * @brief TestSuite: degree to radians (and vice-versa) conversions
  */
 class DegreesRadiansTestSuite : public TestSuite
 {
@@ -138,24 +127,24 @@ class DegreesRadiansTestSuite : public TestSuite
 };
 
 DegreesRadiansTestSuite::DegreesRadiansTestSuite()
-    : TestSuite("degrees-radians", UNIT)
+    : TestSuite("degrees-radians", Type::UNIT)
 {
-    AddTestCase(new DegreesToRadiansTestCase(0, 0), TestCase::QUICK);
-    AddTestCase(new DegreesToRadiansTestCase(90, M_PI_2), TestCase::QUICK);
-    AddTestCase(new DegreesToRadiansTestCase(180, M_PI), TestCase::QUICK);
-    AddTestCase(new DegreesToRadiansTestCase(270, M_PI + M_PI_2), TestCase::QUICK);
-    AddTestCase(new DegreesToRadiansTestCase(360, M_PI + M_PI), TestCase::QUICK);
-    AddTestCase(new DegreesToRadiansTestCase(-90, -M_PI_2), TestCase::QUICK);
-    AddTestCase(new DegreesToRadiansTestCase(810, 4.5 * M_PI), TestCase::QUICK);
+    AddTestCase(new DegreesToRadiansTestCase(0, 0), TestCase::Duration::QUICK);
+    AddTestCase(new DegreesToRadiansTestCase(90, M_PI_2), TestCase::Duration::QUICK);
+    AddTestCase(new DegreesToRadiansTestCase(180, M_PI), TestCase::Duration::QUICK);
+    AddTestCase(new DegreesToRadiansTestCase(270, M_PI + M_PI_2), TestCase::Duration::QUICK);
+    AddTestCase(new DegreesToRadiansTestCase(360, M_PI + M_PI), TestCase::Duration::QUICK);
+    AddTestCase(new DegreesToRadiansTestCase(-90, -M_PI_2), TestCase::Duration::QUICK);
+    AddTestCase(new DegreesToRadiansTestCase(810, 4.5 * M_PI), TestCase::Duration::QUICK);
 
-    AddTestCase(new RadiansToDegreesTestCase(0, 0), TestCase::QUICK);
-    AddTestCase(new RadiansToDegreesTestCase(M_PI_2, 90), TestCase::QUICK);
-    AddTestCase(new RadiansToDegreesTestCase(M_PI, 180), TestCase::QUICK);
-    AddTestCase(new RadiansToDegreesTestCase(M_PI + M_PI_2, 270), TestCase::QUICK);
-    AddTestCase(new RadiansToDegreesTestCase(M_PI + M_PI, 360), TestCase::QUICK);
-    AddTestCase(new RadiansToDegreesTestCase(-M_PI_2, -90), TestCase::QUICK);
-    AddTestCase(new RadiansToDegreesTestCase(4.5 * M_PI, 810), TestCase::QUICK);
-};
+    AddTestCase(new RadiansToDegreesTestCase(0, 0), TestCase::Duration::QUICK);
+    AddTestCase(new RadiansToDegreesTestCase(M_PI_2, 90), TestCase::Duration::QUICK);
+    AddTestCase(new RadiansToDegreesTestCase(M_PI, 180), TestCase::Duration::QUICK);
+    AddTestCase(new RadiansToDegreesTestCase(M_PI + M_PI_2, 270), TestCase::Duration::QUICK);
+    AddTestCase(new RadiansToDegreesTestCase(M_PI + M_PI, 360), TestCase::Duration::QUICK);
+    AddTestCase(new RadiansToDegreesTestCase(-M_PI_2, -90), TestCase::Duration::QUICK);
+    AddTestCase(new RadiansToDegreesTestCase(4.5 * M_PI, 810), TestCase::Duration::QUICK);
+}
 
 /// Static variable for test initialization
 static DegreesRadiansTestSuite g_staticDegreesRadiansTestSuiteInstance;

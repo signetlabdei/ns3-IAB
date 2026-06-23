@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2020 Universita' di Firenze
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Tommaso Pecorella <tommaso.pecorella@unifi.it>
  */
@@ -43,9 +32,9 @@
 using namespace ns3;
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv6 Duplicate Address Detection Test
+ * @brief IPv6 Duplicate Address Detection Test
  */
 class Ipv6DadTest : public TestCase
 {
@@ -116,17 +105,17 @@ Ipv6DadTest::DoRun()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv6 Duplicate Address Detection TestSuite
+ * @brief IPv6 Duplicate Address Detection TestSuite
  */
 class Ipv6DadTestSuite : public TestSuite
 {
   public:
     Ipv6DadTestSuite()
-        : TestSuite("ipv6-duplicate-address-detection", UNIT)
+        : TestSuite("ipv6-duplicate-address-detection", Type::UNIT)
     {
-        AddTestCase(new Ipv6DadTest, TestCase::QUICK);
+        AddTestCase(new Ipv6DadTest, TestCase::Duration::QUICK);
     }
 };
 

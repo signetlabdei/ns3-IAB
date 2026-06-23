@@ -2,18 +2,7 @@
  * Copyright (c) 2007 INRIA
  *               2009,2010 Contributors
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  * Contributors: Thomas Waldecker <twaldecker@rocketmail.com>
@@ -75,9 +64,9 @@ AreVectorsEqual(const Vector& actual, const Vector& limit, double tol)
 }
 
 /**
- * \ingroup mobility-test
+ * @ingroup mobility-test
  *
- * \brief Every test case is supposed to:
+ * @brief Every test case is supposed to:
  *  1. Generate short mobility trace file
  *  2. Read it back using Ns2MobilityHelper
  *  3. Check initial node positions and speeds.
@@ -98,10 +87,10 @@ class Ns2MobilityHelperTest : public TestCase
         /**
          * Constructor
          *
-         * \param id reference ID
-         * \param t time
-         * \param p position
-         * \param v velocity
+         * @param id reference ID
+         * @param t time
+         * @param p position
+         * @param v velocity
          */
         ReferencePoint(const std::string& id, Time t, const Vector& p, const Vector& v)
             : node(id),
@@ -113,21 +102,21 @@ class Ns2MobilityHelperTest : public TestCase
 
         /**
          * Less-than operator - used to sort by timestamp
-         * \param o object to compare to
-         * \returns true if the timestamp of the 1st operand is less than the other one's
+         * @param o object to compare to
+         * @returns true if the timestamp of the 1st operand is less than the other one's
          */
         bool operator<(const ReferencePoint& o) const
         {
-            return (time < o.time);
+            return time < o.time;
         }
     };
 
     /**
      * Create new test case. To make it useful SetTrace () and AddReferencePoint () must be called
      *
-     * \param name        Short description
-     * \param timeLimit   Test time limit
-     * \param nodes       Number of nodes used in the test trace, 1 by default
+     * @param name        Short description
+     * @param timeLimit   Test time limit
+     * @param nodes       Number of nodes used in the test trace, 1 by default
      */
     Ns2MobilityHelperTest(const std::string& name, Time timeLimit, uint32_t nodes = 1)
         : TestCase(name),
@@ -144,7 +133,7 @@ class Ns2MobilityHelperTest : public TestCase
 
     /**
      * Set NS-2 trace to read as single large string (don't forget to add \\n and quote \"'s)
-     * \param trace the mobility trace
+     * @param trace the mobility trace
      */
     void SetTrace(const std::string& trace)
     {
@@ -153,7 +142,7 @@ class Ns2MobilityHelperTest : public TestCase
 
     /**
      * Add next reference point
-     * \param r reference point to add
+     * @param r reference point to add
      */
     void AddReferencePoint(const ReferencePoint& r)
     {
@@ -162,10 +151,10 @@ class Ns2MobilityHelperTest : public TestCase
 
     /**
      * Add next reference point
-     * \param id reference point id
-     * \param sec reference point ime (in seconds)
-     * \param p reference point position
-     * \param v reference point velocity
+     * @param id reference point id
+     * @param sec reference point ime (in seconds)
+     * @param p reference point position
+     * @param v reference point velocity
      */
     void AddReferencePoint(const char* id, double sec, const Vector& p, const Vector& v)
     {
@@ -189,7 +178,7 @@ class Ns2MobilityHelperTest : public TestCase
   private:
     /**
      * Dump NS-2 trace to tmp file
-     * \return true on error.
+     * @return true on error.
      */
     bool WriteTrace()
     {
@@ -216,13 +205,12 @@ class Ns2MobilityHelperTest : public TestCase
 
     /**
      * Check that all initial positions are correct
-     * \return true on error.
+     * @return true on error.
      */
     bool CheckInitialPositions()
     {
         std::stable_sort(m_reference.begin(), m_reference.end());
-        while (m_nextRefPoint < m_reference.size() &&
-               m_reference[m_nextRefPoint].time == Seconds(0))
+        while (m_nextRefPoint < m_reference.size() && m_reference[m_nextRefPoint].time.IsZero())
         {
             const ReferencePoint& rp = m_reference[m_nextRefPoint];
             Ptr<Node> node = Names::Find<Node>(rp.node);
@@ -249,8 +237,8 @@ class Ns2MobilityHelperTest : public TestCase
 
     /**
      * Listen for course change events
-     * \param context event context
-     * \param mobility a pointer to the mobility model
+     * @param context event context
+     * @param mobility a pointer to the mobility model
      */
     void CourseChange(std::string context, Ptr<const MobilityModel> mobility)
     {
@@ -320,15 +308,15 @@ class Ns2MobilityHelperTest : public TestCase
 };
 
 /**
- * \ingroup mobility-test
+ * @ingroup mobility-test
  *
- * \brief The test suite
+ * @brief The test suite
  */
 class Ns2MobilityHelperTestSuite : public TestSuite
 {
   public:
     Ns2MobilityHelperTestSuite()
-        : TestSuite("mobility-ns2-trace-helper", UNIT)
+        : TestSuite("mobility-ns2-trace-helper", Type::UNIT)
     {
         SetDataDir(NS_TEST_SOURCEDIR);
 
@@ -342,7 +330,7 @@ class Ns2MobilityHelperTestSuite : public TestSuite
                     "$node_(0) set Y_ 2.0\n"
                     "$node_(0) set Z_ 3.0\n");
         t->AddReferencePoint("0", 0, Vector(1, 2, 3), Vector(0, 0, 0));
-        AddTestCase(t, TestCase::QUICK);
+        AddTestCase(t, TestCase::Duration::QUICK);
 
         // Check parsing comments, empty lines and no EOF at the end of file
         t = new Ns2MobilityHelperTest("comments", Seconds(1));
@@ -353,7 +341,7 @@ class Ns2MobilityHelperTestSuite : public TestSuite
                     "$node_(0) set Z_ 3.0 # $node_(0) set Z_ 3.0\n"
                     "#$node_(0) set Z_ 100 #");
         t->AddReferencePoint("0", 0, Vector(1, 2, 3), Vector(0, 0, 0));
-        AddTestCase(t, TestCase::QUICK);
+        AddTestCase(t, TestCase::Duration::QUICK);
 
         // Simple setdest. Arguments are interpreted as x, y, speed by default
         t = new Ns2MobilityHelperTest("simple setdest", Seconds(10));
@@ -362,7 +350,7 @@ class Ns2MobilityHelperTestSuite : public TestSuite
         t->AddReferencePoint("0", 0, Vector(0, 0, 0), Vector(0, 0, 0));
         t->AddReferencePoint("0", 1, Vector(0, 0, 0), Vector(5, 0, 0));
         t->AddReferencePoint("0", 6, Vector(25, 0, 0), Vector(0, 0, 0));
-        AddTestCase(t, TestCase::QUICK);
+        AddTestCase(t, TestCase::Duration::QUICK);
 
         // Several set and setdest. Arguments are interpreted as x, y, speed by default
         t = new Ns2MobilityHelperTest("square setdest", Seconds(6));
@@ -382,7 +370,7 @@ class Ns2MobilityHelperTestSuite : public TestSuite
         t->AddReferencePoint("0", 4, Vector(0, 5, 0), Vector(0, 0, 0));
         t->AddReferencePoint("0", 4, Vector(0, 5, 0), Vector(0, -5, 0));
         t->AddReferencePoint("0", 5, Vector(0, 0, 0), Vector(0, 0, 0));
-        AddTestCase(t, TestCase::QUICK);
+        AddTestCase(t, TestCase::Duration::QUICK);
 
         // Copy of previous test case but with the initial positions at
         // the end of the trace rather than at the beginning.
@@ -405,7 +393,7 @@ class Ns2MobilityHelperTestSuite : public TestSuite
         t->AddReferencePoint("0", 4, Vector(10, 15, 0), Vector(0, 0, 0));
         t->AddReferencePoint("0", 4, Vector(10, 15, 0), Vector(0, -5, 0));
         t->AddReferencePoint("0", 5, Vector(10, 10, 0), Vector(0, 0, 0));
-        AddTestCase(t, TestCase::QUICK);
+        AddTestCase(t, TestCase::Duration::QUICK);
 
         // Scheduled set position
         t = new Ns2MobilityHelperTest("scheduled set position", Seconds(2));
@@ -416,7 +404,7 @@ class Ns2MobilityHelperTestSuite : public TestSuite
         t->AddReferencePoint("0", 1, Vector(10, 0, 0), Vector(0, 0, 0));
         t->AddReferencePoint("0", 1, Vector(10, 0, 10), Vector(0, 0, 0));
         t->AddReferencePoint("0", 1, Vector(10, 10, 10), Vector(0, 0, 0));
-        AddTestCase(t, TestCase::QUICK);
+        AddTestCase(t, TestCase::Duration::QUICK);
 
         // Malformed lines
         t = new Ns2MobilityHelperTest("malformed lines", Seconds(2));
@@ -432,7 +420,7 @@ class Ns2MobilityHelperTestSuite : public TestSuite
         t->AddReferencePoint("0", 0, Vector(1, 2, 3), Vector(0, 0, 0));
         t->AddReferencePoint("0", 1, Vector(1, 2, 3), Vector(1, 0, 0));
         t->AddReferencePoint("0", 2, Vector(2, 2, 3), Vector(0, 0, 0));
-        AddTestCase(t, TestCase::QUICK);
+        AddTestCase(t, TestCase::Duration::QUICK);
 
         // Non possible values
         t = new Ns2MobilityHelperTest("non possible values", Seconds(2));
@@ -453,7 +441,7 @@ class Ns2MobilityHelperTestSuite : public TestSuite
         t->AddReferencePoint("0", 0, Vector(1, 2, 3), Vector(0, 0, 0));
         t->AddReferencePoint("0", 1, Vector(1, 2, 3), Vector(1, 0, 0));
         t->AddReferencePoint("0", 2, Vector(2, 2, 3), Vector(0, 0, 0));
-        AddTestCase(t, TestCase::QUICK);
+        AddTestCase(t, TestCase::Duration::QUICK);
 
         // More than one node
         t = new Ns2MobilityHelperTest("few nodes, combinations of set and setdest", Seconds(10), 3);
@@ -481,7 +469,7 @@ class Ns2MobilityHelperTestSuite : public TestSuite
         t->AddReferencePoint("2", 4, Vector(0, 5, 0), Vector(0, 0, 0));
         t->AddReferencePoint("2", 4, Vector(0, 5, 0), Vector(0, -5, 0));
         t->AddReferencePoint("2", 5, Vector(0, 0, 0), Vector(0, 0, 0));
-        AddTestCase(t, TestCase::QUICK);
+        AddTestCase(t, TestCase::Duration::QUICK);
 
         // Test for Speed == 0, that acts as stop the node.
         t = new Ns2MobilityHelperTest("setdest with speed cero", Seconds(10));
@@ -492,7 +480,7 @@ class Ns2MobilityHelperTestSuite : public TestSuite
         t->AddReferencePoint("0", 1, Vector(0, 0, 0), Vector(5, 0, 0));
         t->AddReferencePoint("0", 6, Vector(25, 0, 0), Vector(0, 0, 0));
         t->AddReferencePoint("0", 7, Vector(25, 0, 0), Vector(0, 0, 0));
-        AddTestCase(t, TestCase::QUICK);
+        AddTestCase(t, TestCase::Duration::QUICK);
 
         // Test negative positions
         t = new Ns2MobilityHelperTest("test negative positions", Seconds(10));
@@ -506,7 +494,7 @@ class Ns2MobilityHelperTestSuite : public TestSuite
         t->AddReferencePoint("0", 2, Vector(0, 0, 0), Vector(0, 0, 0));
         t->AddReferencePoint("0", 2, Vector(0, 0, 0), Vector(0, -1, 0));
         t->AddReferencePoint("0", 3, Vector(0, -1, 0), Vector(0, 0, 0));
-        AddTestCase(t, TestCase::QUICK);
+        AddTestCase(t, TestCase::Duration::QUICK);
 
         // Square setdest with values in the form 1.0e+2
         t = new Ns2MobilityHelperTest("Foalt numbers in 1.0e+2 format", Seconds(6));
@@ -526,7 +514,7 @@ class Ns2MobilityHelperTestSuite : public TestSuite
         t->AddReferencePoint("0", 4, Vector(0, 100, 0), Vector(0, 0, 0));
         t->AddReferencePoint("0", 4, Vector(0, 100, 0), Vector(0, -100, 0));
         t->AddReferencePoint("0", 5, Vector(0, 0, 0), Vector(0, 0, 0));
-        AddTestCase(t, TestCase::QUICK);
+        AddTestCase(t, TestCase::Duration::QUICK);
         t = new Ns2MobilityHelperTest("Bug 1219 testcase", Seconds(16));
         t->SetTrace("$node_(0) set X_ 0.0\n"
                     "$node_(0) set Y_ 0.0\n"
@@ -537,13 +525,13 @@ class Ns2MobilityHelperTestSuite : public TestSuite
         t->AddReferencePoint("0", 1, Vector(0, 0, 0), Vector(0, 1, 0));
         t->AddReferencePoint("0", 6, Vector(0, 5, 0), Vector(0, -1, 0));
         t->AddReferencePoint("0", 16, Vector(0, -10, 0), Vector(0, 0, 0));
-        AddTestCase(t, TestCase::QUICK);
+        AddTestCase(t, TestCase::Duration::QUICK);
         t = new Ns2MobilityHelperTest("Bug 1059 testcase", Seconds(16));
         t->SetTrace("$node_(0) set X_ 10.0\r\n"
                     "$node_(0) set Y_ 0.0\r\n");
         //                     id  t  position         velocity
         t->AddReferencePoint("0", 0, Vector(10, 0, 0), Vector(0, 0, 0));
-        AddTestCase(t, TestCase::QUICK);
+        AddTestCase(t, TestCase::Duration::QUICK);
         t = new Ns2MobilityHelperTest("Bug 1301 testcase", Seconds(16));
         t->SetTrace("$node_(0) set X_ 10.0\n"
                     "$node_(0) set Y_ 0.0\n"
@@ -552,7 +540,7 @@ class Ns2MobilityHelperTestSuite : public TestSuite
         // Moving to the current position must change nothing. No NaN
         // speed must be.
         t->AddReferencePoint("0", 0, Vector(10, 0, 0), Vector(0, 0, 0));
-        AddTestCase(t, TestCase::QUICK);
+        AddTestCase(t, TestCase::Duration::QUICK);
 
         t = new Ns2MobilityHelperTest("Bug 1316 testcase", Seconds(1000));
         t->SetTrace("$node_(0) set X_ 350.00000000000000\n"
@@ -617,6 +605,6 @@ class Ns2MobilityHelperTestSuite : public TestSuite
                              920.000,
                              Vector(300.000, 650.000, 0.000),
                              Vector(0.000, 0.000, 0.000));
-        AddTestCase(t, TestCase::QUICK);
+        AddTestCase(t, TestCase::Duration::QUICK);
     }
 } g_ns2TransmobilityHelperTestSuite; ///< the test suite

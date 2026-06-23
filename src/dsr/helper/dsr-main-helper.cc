@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2011 Yufei Cheng
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Yufei Cheng   <yfcheng@ittc.ku.edu>
  *
@@ -30,7 +19,8 @@
 
 #include "dsr-main-helper.h"
 
-#include "ns3/dsr-helper.h"
+#include "dsr-helper.h"
+
 #include "ns3/dsr-rcache.h"
 #include "ns3/dsr-routing.h"
 #include "ns3/dsr-rreq-table.h"
@@ -80,7 +70,7 @@ DsrMainHelper::Install(DsrHelper& dsrHelper, NodeContainer nodes)
     NS_LOG_DEBUG("Passed node container");
     delete m_dsrHelper;
     m_dsrHelper = dsrHelper.Copy();
-    for (NodeContainer::Iterator i = nodes.Begin(); i != nodes.End(); ++i)
+    for (auto i = nodes.Begin(); i != nodes.End(); ++i)
     {
         Install(*i);
     }

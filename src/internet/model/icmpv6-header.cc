@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2007-2009 Strasbourg University
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Sebastien Vincent <vincent@clarinet.u-strasbg.fr>
  *         Mehdi Benamor <benamor.mehdi@ensi.rnu.tn>
@@ -346,9 +335,9 @@ Icmpv6NA::Icmpv6NA()
     SetType(ICMPV6_ND_NEIGHBOR_ADVERTISEMENT);
     SetCode(0);
     SetReserved(0);
-    SetFlagR(0);
-    SetFlagS(0);
-    SetFlagO(0);
+    SetFlagR(false);
+    SetFlagS(false);
+    SetFlagO(false);
     m_checksum = 0;
 }
 
@@ -545,9 +534,9 @@ Icmpv6RA::Icmpv6RA()
     NS_LOG_FUNCTION(this);
     SetType(ICMPV6_ND_ROUTER_ADVERTISEMENT);
     SetCode(0);
-    SetFlagM(0);
-    SetFlagO(0);
-    SetFlagH(0);
+    SetFlagM(false);
+    SetFlagO(false);
+    SetFlagH(false);
     SetCurHopLimit(0);
     SetLifeTime(0);
     SetRetransmissionTime(0);
@@ -867,8 +856,8 @@ Icmpv6Redirection::GetInstanceTypeId() const
 }
 
 Icmpv6Redirection::Icmpv6Redirection()
-    : m_target(Ipv6Address("")),
-      m_destination(Ipv6Address("")),
+    : m_target(Ipv6Address::GetAny()),
+      m_destination(Ipv6Address::GetAny()),
       m_reserved(0)
 {
     NS_LOG_FUNCTION(this);
@@ -1192,7 +1181,7 @@ Icmpv6DestinationUnreachable::Serialize(Buffer::Iterator start) const
     iter.WriteU32(0);
 
     uint32_t size = m_packet->GetSize();
-    uint8_t* buf = new uint8_t[size];
+    auto buf = new uint8_t[size];
     m_packet->CopyData(buf, size);
     iter.Write(buf, size);
     delete[] buf;
@@ -1308,7 +1297,7 @@ Icmpv6TooBig::Serialize(Buffer::Iterator start) const
     iter.WriteHtonU32(GetMtu());
 
     uint32_t size = m_packet->GetSize();
-    uint8_t* buf = new uint8_t[size];
+    auto buf = new uint8_t[size];
     m_packet->CopyData(buf, size);
     iter.Write(buf, size);
     delete[] buf;
@@ -1410,7 +1399,7 @@ Icmpv6TimeExceeded::Serialize(Buffer::Iterator start) const
     iter.WriteU32(0);
 
     uint32_t size = m_packet->GetSize();
-    uint8_t* buf = new uint8_t[size];
+    auto buf = new uint8_t[size];
     m_packet->CopyData(buf, size);
     iter.Write(buf, size);
     delete[] buf;
@@ -1527,7 +1516,7 @@ Icmpv6ParameterError::Serialize(Buffer::Iterator start) const
     iter.WriteHtonU32(GetPtr());
 
     uint32_t size = m_packet->GetSize();
-    uint8_t* buf = new uint8_t[size];
+    auto buf = new uint8_t[size];
     m_packet->CopyData(buf, size);
     iter.Write(buf, size);
     delete[] buf;
@@ -1577,7 +1566,7 @@ Icmpv6OptionHeader::GetInstanceTypeId() const
 Icmpv6OptionHeader::Icmpv6OptionHeader()
 {
     NS_LOG_FUNCTION(this);
-    /** \todo */
+    /** @todo */
     m_type = 0;
     m_len = 0;
 }
@@ -2055,6 +2044,7 @@ Icmpv6OptionLinkLayerAddress::Deserialize(Buffer::Iterator start)
     NS_ASSERT(GetLength() * 8 <= 32 + 2);
     i.Read(mac, (GetLength() * 8) - 2);
 
+    m_addr.SetType("MacAddress", (GetLength() * 8) - 2);
     m_addr.CopyFrom(mac, (GetLength() * 8) - 2);
 
     return GetSerializedSize();
@@ -2128,7 +2118,7 @@ Icmpv6OptionRedirected::Serialize(Buffer::Iterator start) const
     i.WriteU32(0);
 
     uint32_t size = m_packet->GetSize();
-    uint8_t* buf = new uint8_t[size];
+    auto buf = new uint8_t[size];
     m_packet->CopyData(buf, size);
     i.Write(buf, size);
     delete[] buf;
@@ -2147,7 +2137,7 @@ Icmpv6OptionRedirected::Deserialize(Buffer::Iterator start)
     i.ReadU32();
 
     uint32_t len2 = (GetLength() - 1) * 8;
-    uint8_t* buff = new uint8_t[len2];
+    auto buff = new uint8_t[len2];
     i.Read(buff, len2);
     m_packet = Create<Packet>(buff, len2);
     delete[] buff;

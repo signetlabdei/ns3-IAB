@@ -1,27 +1,17 @@
 /*
  * Copyright (c) 2008,2009 IITP RAS
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Kirill Andreev <andreev@iitp.ru>
  *         Pavel Boyko <boyko@iitp.ru>
  */
 
-#include "ns3/mesh-point-device.h"
+#include "mesh-point-device.h"
+
+#include "mesh-wifi-interface-mac.h"
 
 #include "ns3/log.h"
-#include "ns3/mesh-wifi-interface-mac.h"
 #include "ns3/packet.h"
 #include "ns3/pointer.h"
 #include "ns3/simulator.h"
@@ -82,8 +72,7 @@ void
 MeshPointDevice::DoDispose()
 {
     NS_LOG_FUNCTION(this);
-    for (std::vector<Ptr<NetDevice>>::iterator iter = m_ifaces.begin(); iter != m_ifaces.end();
-         iter++)
+    for (auto iter = m_ifaces.begin(); iter != m_ifaces.end(); iter++)
     {
         *iter = nullptr;
     }
@@ -174,22 +163,22 @@ MeshPointDevice::ReceiveFromDevice(Ptr<NetDevice> incomingPort,
 }
 
 void
-MeshPointDevice::Forward(Ptr<NetDevice> inport,
+MeshPointDevice::Forward(Ptr<NetDevice> incomingPort,
                          Ptr<const Packet> packet,
                          uint16_t protocol,
                          const Mac48Address src,
                          const Mac48Address dst)
 {
-    NS_LOG_FUNCTION(this << inport << packet << protocol << src << dst);
+    NS_LOG_FUNCTION(this << incomingPort << packet << protocol << src << dst);
     // pass through routing protocol
     NS_LOG_DEBUG("Forwarding from " << src << " to " << dst << " at " << m_address);
-    bool result = m_routingProtocol->RequestRoute(inport->GetIfIndex(),
+    bool result = m_routingProtocol->RequestRoute(incomingPort->GetIfIndex(),
                                                   src,
                                                   dst,
                                                   packet,
                                                   protocol,
                                                   MakeCallback(&MeshPointDevice::DoSend, this));
-    if (result == false)
+    if (!result)
     {
         NS_LOG_DEBUG("Request to forward packet " << packet << " to destination " << dst
                                                   << " failed; dropping packet");
@@ -273,7 +262,7 @@ Address
 MeshPointDevice::GetBroadcast() const
 {
     NS_LOG_FUNCTION(this);
-    return Mac48Address("ff:ff:ff:ff:ff:ff");
+    return Mac48Address::GetBroadcast();
 }
 
 bool
@@ -398,11 +387,11 @@ Ptr<NetDevice>
 MeshPointDevice::GetInterface(uint32_t n) const
 {
     NS_LOG_FUNCTION(this << n);
-    for (std::vector<Ptr<NetDevice>>::const_iterator i = m_ifaces.begin(); i != m_ifaces.end(); i++)
+    for (auto i = m_ifaces.begin(); i != m_ifaces.end(); i++)
     {
         if ((*i)->GetIfIndex() == n)
         {
-            return (*i);
+            return *i;
         }
     }
     NS_FATAL_ERROR("Mesh point interface is not found by index");
@@ -515,7 +504,7 @@ MeshPointDevice::DoSend(bool success,
     }
     else
     {
-        for (std::vector<Ptr<NetDevice>>::iterator i = m_ifaces.begin(); i != m_ifaces.end(); i++)
+        for (auto i = m_ifaces.begin(); i != m_ifaces.end(); i++)
         {
             (*i)->SendFrom(packet->Copy(), src, dst, protocol);
         }

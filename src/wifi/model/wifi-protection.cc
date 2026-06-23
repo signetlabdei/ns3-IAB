@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2020 Universita' degli Studi di Napoli Federico II
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Stefano Avallone <stavallo@unina.it>
  */
@@ -29,8 +18,7 @@ namespace ns3
  */
 
 WifiProtection::WifiProtection(Method m)
-    : method(m),
-      protectionTime(Time::Min()) // uninitialized
+    : method(m)
 {
 }
 
@@ -51,7 +39,7 @@ WifiNoProtection::WifiNoProtection()
 std::unique_ptr<WifiProtection>
 WifiNoProtection::Copy() const
 {
-    return std::unique_ptr<WifiProtection>(new WifiNoProtection(*this));
+    return std::make_unique<WifiNoProtection>(*this);
 }
 
 void
@@ -72,7 +60,7 @@ WifiRtsCtsProtection::WifiRtsCtsProtection()
 std::unique_ptr<WifiProtection>
 WifiRtsCtsProtection::Copy() const
 {
-    return std::unique_ptr<WifiProtection>(new WifiRtsCtsProtection(*this));
+    return std::make_unique<WifiRtsCtsProtection>(*this);
 }
 
 void
@@ -93,7 +81,7 @@ WifiCtsToSelfProtection::WifiCtsToSelfProtection()
 std::unique_ptr<WifiProtection>
 WifiCtsToSelfProtection::Copy() const
 {
-    return std::unique_ptr<WifiProtection>(new WifiCtsToSelfProtection(*this));
+    return std::make_unique<WifiCtsToSelfProtection>(*this);
 }
 
 void
@@ -114,7 +102,7 @@ WifiMuRtsCtsProtection::WifiMuRtsCtsProtection()
 std::unique_ptr<WifiProtection>
 WifiMuRtsCtsProtection::Copy() const
 {
-    return std::unique_ptr<WifiProtection>(new WifiMuRtsCtsProtection(*this));
+    return std::make_unique<WifiMuRtsCtsProtection>(*this);
 }
 
 void

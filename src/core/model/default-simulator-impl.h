@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2005,2006 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -27,8 +16,8 @@
 #include <thread>
 
 /**
- * \file
- * \ingroup simulator
+ * @file
+ * @ingroup simulator
  * ns3::DefaultSimulatorImpl declaration.
  */
 
@@ -39,7 +28,7 @@ namespace ns3
 class Scheduler;
 
 /**
- * \ingroup simulator
+ * @ingroup simulator
  *
  * The default single process simulator implementation.
  */
@@ -48,7 +37,7 @@ class DefaultSimulatorImpl : public SimulatorImpl
   public:
     /**
      *  Register this type.
-     *  \return The object TypeId.
+     *  @return The object TypeId.
      */
     static TypeId GetTypeId();
 
@@ -61,7 +50,7 @@ class DefaultSimulatorImpl : public SimulatorImpl
     void Destroy() override;
     bool IsFinished() const override;
     void Stop() override;
-    void Stop(const Time& delay) override;
+    EventId Stop(const Time& delay) override;
     EventId Schedule(const Time& delay, EventImpl* event) override;
     void ScheduleWithContext(uint32_t context, const Time& delay, EventImpl* event) override;
     EventId ScheduleNow(EventImpl* event) override;
@@ -96,8 +85,9 @@ class DefaultSimulatorImpl : public SimulatorImpl
         /** The event implementation. */
         EventImpl* event;
     };
+
     /** Container type for the events from a different context. */
-    typedef std::list<struct EventWithContext> EventsWithContext;
+    typedef std::list<EventWithContext> EventsWithContext;
     /** The container of events from a different context. */
     EventsWithContext m_eventsWithContext;
     /**

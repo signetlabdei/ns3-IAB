@@ -1,18 +1,7 @@
 //
 // Copyright (c) 2009 INESC Porto
 //
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License version 2 as
-// published by the Free Software Foundation;
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+// SPDX-License-Identifier: GPL-2.0-only
 //
 // Author: Gustavo J. A. M. Carneiro  <gjc@inescporto.pt> <gjcarneiro@gmail.com>
 //
@@ -96,15 +85,16 @@ FlowMonitorHelper::Install(Ptr<Node> node)
     Ptr<Ipv4L3Protocol> ipv4 = node->GetObject<Ipv4L3Protocol>();
     if (ipv4)
     {
-        Ptr<Ipv4FlowProbe> probe =
-            Create<Ipv4FlowProbe>(monitor, DynamicCast<Ipv4FlowClassifier>(classifier), node);
+        auto probe =
+            CreateObject<Ipv4FlowProbe>(monitor, DynamicCast<Ipv4FlowClassifier>(classifier), node);
     }
     Ptr<FlowClassifier> classifier6 = GetClassifier6();
     Ptr<Ipv6L3Protocol> ipv6 = node->GetObject<Ipv6L3Protocol>();
     if (ipv6)
     {
-        Ptr<Ipv6FlowProbe> probe6 =
-            Create<Ipv6FlowProbe>(monitor, DynamicCast<Ipv6FlowClassifier>(classifier6), node);
+        auto probe6 = CreateObject<Ipv6FlowProbe>(monitor,
+                                                  DynamicCast<Ipv6FlowClassifier>(classifier6),
+                                                  node);
     }
     return m_flowMonitor;
 }
@@ -112,7 +102,7 @@ FlowMonitorHelper::Install(Ptr<Node> node)
 Ptr<FlowMonitor>
 FlowMonitorHelper::Install(NodeContainer nodes)
 {
-    for (NodeContainer::Iterator i = nodes.Begin(); i != nodes.End(); ++i)
+    for (auto i = nodes.Begin(); i != nodes.End(); ++i)
     {
         Ptr<Node> node = *i;
         if (node->GetObject<Ipv4L3Protocol>() || node->GetObject<Ipv6L3Protocol>())
@@ -126,7 +116,7 @@ FlowMonitorHelper::Install(NodeContainer nodes)
 Ptr<FlowMonitor>
 FlowMonitorHelper::InstallAll()
 {
-    for (NodeList::Iterator i = NodeList::Begin(); i != NodeList::End(); ++i)
+    for (auto i = NodeList::Begin(); i != NodeList::End(); ++i)
     {
         Ptr<Node> node = *i;
         if (node->GetObject<Ipv4L3Protocol>() || node->GetObject<Ipv6L3Protocol>())

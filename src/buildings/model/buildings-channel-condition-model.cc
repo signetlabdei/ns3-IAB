@@ -4,25 +4,15 @@
  * Copyright (c) 2019 SIGNET Lab, Department of Information Engineering,
  * University of Padova
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
-#include "ns3/buildings-channel-condition-model.h"
+#include "buildings-channel-condition-model.h"
 
-#include "ns3/building-list.h"
+#include "building-list.h"
+#include "mobility-building-info.h"
+
 #include "ns3/log.h"
-#include "ns3/mobility-building-info.h"
 #include "ns3/mobility-model.h"
 
 namespace ns3
@@ -99,6 +89,35 @@ BuildingsChannelConditionModel::GetChannelCondition(Ptr<const MobilityModel> a,
         {
             NS_LOG_DEBUG("a and b are indoor in different buildings");
             cond->SetLosCondition(ChannelCondition::LosConditionValue::NLOS);
+
+            ChannelCondition::O2iLowHighConditionValue lowHighLossConditionA1;
+            ChannelCondition::O2iLowHighConditionValue lowHighLossConditionB1;
+
+            // Low losses considered for Wood or ConcreteWithWindows, while
+            // high losses for ConcreteWithoutWindows and StoneBlocks
+            lowHighLossConditionA1 =
+                a1->GetBuilding()->GetExtWallsType() == Building::ExtWallsType_t::Wood ||
+                        a1->GetBuilding()->GetExtWallsType() ==
+                            Building::ExtWallsType_t::ConcreteWithWindows
+                    ? ChannelCondition::O2iLowHighConditionValue::LOW
+                    : ChannelCondition::O2iLowHighConditionValue::HIGH;
+
+            lowHighLossConditionB1 =
+                b1->GetBuilding()->GetExtWallsType() == Building::ExtWallsType_t::Wood ||
+                        b1->GetBuilding()->GetExtWallsType() ==
+                            Building::ExtWallsType_t::ConcreteWithWindows
+                    ? ChannelCondition::O2iLowHighConditionValue::LOW
+                    : ChannelCondition::O2iLowHighConditionValue::HIGH;
+
+            if (lowHighLossConditionA1 == ChannelCondition::O2iLowHighConditionValue::HIGH ||
+                lowHighLossConditionB1 == ChannelCondition::O2iLowHighConditionValue::HIGH)
+            {
+                cond->SetO2iLowHighCondition(ChannelCondition::O2iLowHighConditionValue::HIGH);
+            }
+            else
+            {
+                cond->SetO2iLowHighCondition(ChannelCondition::O2iLowHighConditionValue::LOW);
+            }
         }
     }
     else // outdoor to indoor case
@@ -107,6 +126,31 @@ BuildingsChannelConditionModel::GetChannelCondition(Ptr<const MobilityModel> a,
 
         NS_LOG_DEBUG("a is indoor and b outdoor or vice-versa");
         cond->SetLosCondition(ChannelCondition::LosConditionValue::NLOS);
+
+        ChannelCondition::O2iLowHighConditionValue lowHighLossCondition;
+        if (isAIndoor)
+        {
+            // Low losses considered for Wood or ConcreteWithWindows, while
+            // high losses for ConcreteWithoutWindows and StoneBlocks
+            lowHighLossCondition =
+                a1->GetBuilding()->GetExtWallsType() == Building::ExtWallsType_t::Wood ||
+                        a1->GetBuilding()->GetExtWallsType() ==
+                            Building::ExtWallsType_t::ConcreteWithWindows
+                    ? ChannelCondition::O2iLowHighConditionValue::LOW
+                    : ChannelCondition::O2iLowHighConditionValue::HIGH;
+
+            cond->SetO2iLowHighCondition(lowHighLossCondition);
+        }
+        else
+        {
+            lowHighLossCondition =
+                b1->GetBuilding()->GetExtWallsType() == Building::ExtWallsType_t::Wood ||
+                        b1->GetBuilding()->GetExtWallsType() ==
+                            Building::ExtWallsType_t::ConcreteWithWindows
+                    ? ChannelCondition::O2iLowHighConditionValue::LOW
+                    : ChannelCondition::O2iLowHighConditionValue::HIGH;
+            cond->SetO2iLowHighCondition(lowHighLossCondition);
+        }
     }
 
     return cond;
@@ -116,7 +160,7 @@ bool
 BuildingsChannelConditionModel::IsLineOfSightBlocked(const ns3::Vector& l1,
                                                      const ns3::Vector& l2) const
 {
-    for (BuildingList::Iterator bit = BuildingList::Begin(); bit != BuildingList::End(); ++bit)
+    for (auto bit = BuildingList::Begin(); bit != BuildingList::End(); ++bit)
     {
         if ((*bit)->IsIntersect(l1, l2))
         {
@@ -137,4 +181,4 @@ BuildingsChannelConditionModel::AssignStreams(int64_t /* stream */)
     return 0;
 }
 
-} // end namespace ns3
+} // namespace ns3

@@ -1,30 +1,21 @@
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Marco Miozzo  <marco.miozzo@cttc.es>
  *
  */
 
-#include <ns3/assert.h>
-#include <ns3/building-list.h>
-#include <ns3/log.h>
-#include <ns3/mobility-building-info.h>
-#include <ns3/pointer.h>
-#include <ns3/position-allocator.h>
-#include <ns3/simulator.h>
+#include "mobility-building-info.h"
+
+#include "building-list.h"
+
+#include "ns3/assert.h"
+#include "ns3/log.h"
+#include "ns3/pointer.h"
+#include "ns3/position-allocator.h"
+#include "ns3/simulator.h"
 
 namespace ns3
 {
@@ -137,28 +128,28 @@ uint8_t
 MobilityBuildingInfo::GetFloorNumber()
 {
     NS_LOG_FUNCTION(this);
-    return (m_nFloor);
+    return m_nFloor;
 }
 
 uint8_t
 MobilityBuildingInfo::GetRoomNumberX()
 {
     NS_LOG_FUNCTION(this);
-    return (m_roomX);
+    return m_roomX;
 }
 
 uint8_t
 MobilityBuildingInfo::GetRoomNumberY()
 {
     NS_LOG_FUNCTION(this);
-    return (m_roomY);
+    return m_roomY;
 }
 
 Ptr<Building>
 MobilityBuildingInfo::GetBuilding()
 {
     NS_LOG_FUNCTION(this);
-    return (m_myBuilding);
+    return m_myBuilding;
 }
 
 void
@@ -166,7 +157,7 @@ MobilityBuildingInfo::MakeConsistent(Ptr<MobilityModel> mm)
 {
     bool found = false;
     Vector pos = mm->GetPosition();
-    for (BuildingList::Iterator bit = BuildingList::Begin(); bit != BuildingList::End(); ++bit)
+    for (auto bit = BuildingList::Begin(); bit != BuildingList::End(); ++bit)
     {
         NS_LOG_LOGIC("checking building " << (*bit)->GetId() << " with boundaries "
                                           << (*bit)->GetBoundaries());

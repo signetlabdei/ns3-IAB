@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2005 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -25,27 +14,6 @@ namespace ns3
 {
 
 NS_OBJECT_ENSURE_REGISTERED(UdpHeader);
-
-/* The magic values below are used only for debugging.
- * They can be used to easily detect memory corruption
- * problems so you can see the patterns in memory.
- */
-UdpHeader::UdpHeader()
-    : m_sourcePort(0xfffd),
-      m_destinationPort(0xfffd),
-      m_payloadSize(0),
-      m_checksum(0),
-      m_calcChecksum(false),
-      m_goodChecksum(true)
-{
-}
-
-UdpHeader::~UdpHeader()
-{
-    m_sourcePort = 0xfffe;
-    m_destinationPort = 0xfffe;
-    m_payloadSize = 0xfffe;
-}
 
 void
 UdpHeader::EnableChecksums()
@@ -150,7 +118,7 @@ UdpHeader::ForceChecksum(uint16_t checksum)
 void
 UdpHeader::ForcePayloadSize(uint16_t payloadSize)
 {
-    m_payloadSize = payloadSize;
+    m_forcedPayloadSize = payloadSize;
 }
 
 TypeId
@@ -189,13 +157,13 @@ UdpHeader::Serialize(Buffer::Iterator start) const
 
     i.WriteHtonU16(m_sourcePort);
     i.WriteHtonU16(m_destinationPort);
-    if (m_payloadSize == 0)
+    if (m_forcedPayloadSize == 0)
     {
         i.WriteHtonU16(start.GetSize());
     }
     else
     {
-        i.WriteHtonU16(m_payloadSize);
+        i.WriteHtonU16(m_forcedPayloadSize);
     }
 
     if (m_checksum == 0)
@@ -210,6 +178,12 @@ UdpHeader::Serialize(Buffer::Iterator start) const
 
             i = start;
             i.Next(6);
+
+            // RFC 768: If the computed checksum is zero, it is transmitted as all ones
+            if (checksum == 0)
+            {
+                checksum = 0xffff;
+            }
             i.WriteU16(checksum);
         }
     }
@@ -228,7 +202,24 @@ UdpHeader::Deserialize(Buffer::Iterator start)
     m_payloadSize = i.ReadNtohU16() - GetSerializedSize();
     m_checksum = i.ReadU16();
 
-    if (m_calcChecksum)
+    // RFC 768: An all zero transmitted checksum value means that the
+    // transmitter generated  no checksum (for debugging or for higher
+    // level protocols that don't care).
+    //
+    // This is common in IPv4, while IPv6 requires UDP to use its checksum.
+    //
+    // As strange as it might sound, flipping from 0x0000 to 0xffff does not
+    // change anything in the verification.
+    //
+    // According to RFC 1141, the following holds:
+    // ~C' = ~(C + (-m) + m') = ~C + (m - m') = ~C + m + ~m'
+    // If ~C (the original CRC) is zero, m (the CRC field) is zero, and m' is 0xffff,
+    // then, according to the formula, we have that ~C' is zero.
+    // I.e., changing the CRC from 0 to 0xffff has no effect on the Rx verification.
+    //
+    // Fun fact: if you take an IPv4 header with an Identification field set to zero
+    // and you change it to 0xffff, the checksum will not change (~_^)
+    if (m_calcChecksum && m_checksum)
     {
         uint16_t headerChecksum = CalculateHeaderChecksum(start.GetSize());
         i = start;

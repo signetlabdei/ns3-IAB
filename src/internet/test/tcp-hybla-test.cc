@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2015 Natale Patriciello, <natale.patriciello@gmail.com>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  */
 
@@ -27,20 +16,20 @@ using namespace ns3;
 NS_LOG_COMPONENT_DEFINE("TcpHyblaTestSuite");
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief Testing the congestion avoidance increment on TcpHybla
+ * @brief Testing the congestion avoidance increment on TcpHybla
  */
 class TcpHyblaIncrementTest : public TestCase
 {
   public:
     /**
-     * \brief Constructor.
-     * \param cWnd Congestion window.
-     * \param ssThresh Slow Start Threshold.
-     * \param segmentSize Segment size.
-     * \param rtt Round trip time.
-     * \param name Test description.
+     * @brief Constructor.
+     * @param cWnd Congestion window.
+     * @param ssThresh Slow Start Threshold.
+     * @param segmentSize Segment size.
+     * @param rtt Round trip time.
+     * @param name Test description.
      */
     TcpHyblaIncrementTest(uint32_t cWnd,
                           uint32_t ssThresh,
@@ -52,9 +41,9 @@ class TcpHyblaIncrementTest : public TestCase
     void DoRun() override;
 
     /**
-     * \brief Tracks TCP Hybla rho parameter changes.
-     * \param oldVal Previous value.
-     * \param newVal Actual value.
+     * @brief Tracks TCP Hybla rho parameter changes.
+     * @param oldVal Previous value.
+     * @param newVal Actual value.
      */
     void RhoUpdated(double oldVal, double newVal);
 
@@ -147,40 +136,40 @@ TcpHyblaIncrementTest::DoRun()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief TCP Hybla TestSuite
+ * @brief TCP Hybla TestSuite
  */
 class TcpHyblaTestSuite : public TestSuite
 {
   public:
     TcpHyblaTestSuite()
-        : TestSuite("tcp-hybla-test", UNIT)
+        : TestSuite("tcp-hybla-test", Type::UNIT)
     {
         AddTestCase(new TcpHyblaIncrementTest(1000,
                                               0xFFFFFFFF,
                                               500,
                                               MilliSeconds(55),
                                               "Rho=1.1, slow start"),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
         AddTestCase(new TcpHyblaIncrementTest(1000,
                                               0xFFFFFFFF,
                                               500,
                                               MilliSeconds(100),
                                               "Rho=2, slow start"),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
         AddTestCase(new TcpHyblaIncrementTest(1000,
                                               0xFFFFFFFF,
                                               500,
                                               MilliSeconds(750),
                                               "Rho=30, slow start"),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
         AddTestCase(new TcpHyblaIncrementTest(1000, 500, 500, Seconds(0.55), "Rho=1.1, cong avoid"),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
         AddTestCase(new TcpHyblaIncrementTest(1000, 500, 500, Seconds(0.1), "Rho=2, cong avoid"),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
         AddTestCase(new TcpHyblaIncrementTest(1000, 500, 500, Seconds(0.75), "Rho=30, cong avoid"),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
     }
 };
 

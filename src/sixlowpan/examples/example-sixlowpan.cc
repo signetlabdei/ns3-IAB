@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2013 Universita' di Firenze, Italy
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Tommaso Pecorella <tommaso.pecorella@unifi.it>
  */
@@ -88,7 +77,6 @@ main(int argc, char** argv)
     NetDeviceContainer d1 = csma.Install(net1);
 
     SixLowPanHelper sixlowpan;
-    sixlowpan.SetDeviceAttribute("ForceEtherType", BooleanValue(true));
     NetDeviceContainer six1 = sixlowpan.Install(d1);
 
     NS_LOG_INFO("Create networks and assign IPv6 Addresses.");
@@ -114,8 +102,8 @@ main(int argc, char** argv)
     ping.SetAttribute("Size", UintegerValue(packetSize));
     ApplicationContainer apps = ping.Install(net1.Get(0));
 
-    apps.Start(Seconds(5.0));
-    apps.Stop(Seconds(15.0));
+    apps.Start(Seconds(5));
+    apps.Stop(Seconds(15));
 
     AsciiTraceHelper ascii;
     csma.EnableAsciiAll(ascii.CreateFileStream("example-sixlowpan.tr"));

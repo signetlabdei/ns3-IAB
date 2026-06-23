@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2008 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  *          Sébastien Deronne <sebastien.deronne@gmail.com>
@@ -54,9 +43,7 @@ YansWifiChannelHelper::Create() const
 {
     Ptr<YansWifiChannel> channel = CreateObject<YansWifiChannel>();
     Ptr<PropagationLossModel> prev = nullptr;
-    for (std::vector<ObjectFactory>::const_iterator i = m_propagationLoss.begin();
-         i != m_propagationLoss.end();
-         ++i)
+    for (auto i = m_propagationLoss.begin(); i != m_propagationLoss.end(); ++i)
     {
         Ptr<PropagationLossModel> cur = (*i).Create<PropagationLossModel>();
         if (prev)
@@ -84,7 +71,7 @@ YansWifiPhyHelper::YansWifiPhyHelper()
     : WifiPhyHelper(1), // YANS phy is not used for 11be devices
       m_channel(nullptr)
 {
-    m_phy.at(0).SetTypeId("ns3::YansWifiPhy");
+    m_phys.front().SetTypeId("ns3::YansWifiPhy");
     SetInterferenceHelper("ns3::InterferenceHelper");
     SetErrorRateModel("ns3::TableBasedErrorRateModel");
 }
@@ -105,19 +92,19 @@ YansWifiPhyHelper::SetChannel(std::string channelName)
 std::vector<Ptr<WifiPhy>>
 YansWifiPhyHelper::Create(Ptr<Node> node, Ptr<WifiNetDevice> device) const
 {
-    Ptr<YansWifiPhy> phy = m_phy.at(0).Create<YansWifiPhy>();
+    Ptr<YansWifiPhy> phy = m_phys.front().Create<YansWifiPhy>();
     Ptr<InterferenceHelper> interference = m_interferenceHelper.Create<InterferenceHelper>();
     phy->SetInterferenceHelper(interference);
-    Ptr<ErrorRateModel> error = m_errorRateModel.at(0).Create<ErrorRateModel>();
+    Ptr<ErrorRateModel> error = m_errorRateModel.front().Create<ErrorRateModel>();
     phy->SetErrorRateModel(error);
-    if (m_frameCaptureModel.at(0).IsTypeIdSet())
+    if (m_frameCaptureModel.front().IsTypeIdSet())
     {
-        auto frameCapture = m_frameCaptureModel.at(0).Create<FrameCaptureModel>();
+        auto frameCapture = m_frameCaptureModel.front().Create<FrameCaptureModel>();
         phy->SetFrameCaptureModel(frameCapture);
     }
-    if (m_preambleDetectionModel.at(0).IsTypeIdSet())
+    if (m_preambleDetectionModel.front().IsTypeIdSet())
     {
-        auto preambleDetection = m_preambleDetectionModel.at(0).Create<PreambleDetectionModel>();
+        auto preambleDetection = m_preambleDetectionModel.front().Create<PreambleDetectionModel>();
         phy->SetPreambleDetectionModel(preambleDetection);
     }
     phy->SetChannel(m_channel);

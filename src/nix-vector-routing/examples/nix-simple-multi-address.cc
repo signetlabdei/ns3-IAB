@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2021 NITK Surathkal
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Ameya Deshpande <ameyanrd@outlook.com>
  *
@@ -33,7 +22,7 @@
  * addresses.
  *
  * Simple point-to-point links:
- * \verbatim
+ * @verbatim
     n0 -- n1 -- n2 -- n3
 
     From t = 0s onwards,
@@ -62,7 +51,7 @@
  *  - At t = +7s, Path from n0 to n3 (10.2.3.2).
  *
  * Logging output:
- * \verbatim
+ * @verbatim
    At time +2s client sent 1024 bytes to 10.1.3.2 port 9
    At time +2.01106s server received 1024 bytes from 10.1.1.1 port 49153
    At time +2.01106s server sent 1024 bytes to 10.1.1.1 port 49153
@@ -70,7 +59,7 @@
   \endverbatim
  *
  * Output in nix-simple-multi-address.routes:
- * \verbatim
+ * @verbatim
   Time: +3s, Nix Routing
   Route path from Node 0 to Node 1, Nix Vector: 0 (1 bits left)
   10.2.1.1                 (Node 0)  ---->   10.2.1.2                 (Node 1)
@@ -192,8 +181,8 @@ main(int argc, char* argv[])
     UdpEchoServerHelper echoServer(9);
 
     ApplicationContainer serverApps = echoServer.Install(nodes34.Get(1));
-    serverApps.Start(Seconds(1.0));
-    serverApps.Stop(Seconds(10.0));
+    serverApps.Start(Seconds(1));
+    serverApps.Stop(Seconds(10));
 
     // Set the destination address as 10.1.3.2
     UdpEchoClientHelper echoClient(interfaces34.GetAddress(1), 9);
@@ -202,8 +191,8 @@ main(int argc, char* argv[])
     echoClient.SetAttribute("PacketSize", UintegerValue(1024));
 
     ApplicationContainer clientApps = echoClient.Install(nodes12.Get(0));
-    clientApps.Start(Seconds(2.0));
-    clientApps.Stop(Seconds(10.0));
+    clientApps.Start(Seconds(2));
+    clientApps.Stop(Seconds(10));
 
     // Trace routing paths for different source and destinations.
     Ptr<OutputStreamWrapper> routingStream =

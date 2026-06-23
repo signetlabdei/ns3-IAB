@@ -1,24 +1,13 @@
 /*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Sébastien Deronne <sebastien.deronne@gmail.com>
  */
 
-// This example is used to validate Nist, Yans and Table-based error rate models for HT rates.
-//
-// It outputs plots of the Frame Success Rate versus the Signal-to-noise ratio for
-// Nist, Yans and Table-based error rate models and for every HT MCS value.
+// This example is used to generate plots of the Frame Success Rate (FSR) versus the Signal-to-noise
+// ratio (SNR) for NIST, YANS and Table-based error rate models and for every HT MCS value. It also
+// performs a boundary check to ensure that the FSR is between 0 and 1. The results are finally
+// saved in files (.plt) per model which can be processed by gnuplot to generate the plots.
 
 #include "ns3/command-line.h"
 #include "ns3/gnuplot.h"
@@ -35,7 +24,7 @@ using namespace ns3;
 int
 main(int argc, char* argv[])
 {
-    uint32_t FrameSize = 1500; // bytes
+    uint32_t frameSizeBytes = 1500;
     std::ofstream yansfile("yans-frame-success-rate-n.plt");
     std::ofstream nistfile("nist-frame-success-rate-n.plt");
     std::ofstream tablefile("table-frame-success-rate-n.plt");
@@ -52,7 +41,7 @@ main(int argc, char* argv[])
     };
 
     CommandLine cmd(__FILE__);
-    cmd.AddValue("FrameSize", "The frame size in bytes", FrameSize);
+    cmd.AddValue("FrameSize", "The frame size in bytes", frameSizeBytes);
     cmd.Parse(argc, argv);
 
     Gnuplot yansplot = Gnuplot("yans-frame-success-rate-n.eps");
@@ -64,48 +53,45 @@ main(int argc, char* argv[])
     Ptr<NistErrorRateModel> nist = CreateObject<NistErrorRateModel>();
     Ptr<TableBasedErrorRateModel> table = CreateObject<TableBasedErrorRateModel>();
 
-    for (uint32_t i = 0; i < modes.size(); i++)
+    uint32_t frameSizeBits = frameSizeBytes * 8;
+
+    for (const auto& mode : modes)
     {
-        std::cout << modes[i] << std::endl;
-        Gnuplot2dDataset yansdataset(modes[i]);
-        Gnuplot2dDataset nistdataset(modes[i]);
-        Gnuplot2dDataset tabledataset(modes[i]);
-        txVector.SetMode(modes[i]);
+        std::cout << mode << std::endl;
+        Gnuplot2dDataset yansdataset(mode);
+        Gnuplot2dDataset nistdataset(mode);
+        Gnuplot2dDataset tabledataset(mode);
+        txVector.SetMode(mode);
 
-        for (double snr = -5.0; snr <= 30.0; snr += 0.1)
+        WifiMode wifiMode(mode);
+
+        for (double snrDb = -5.0; snrDb <= 30.0; snrDb += 0.1)
         {
-            double ps = yans->GetChunkSuccessRate(WifiMode(modes[i]),
-                                                  txVector,
-                                                  std::pow(10.0, snr / 10.0),
-                                                  FrameSize * 8);
-            if (ps < 0.0 || ps > 1.0)
-            {
-                // error
-                exit(1);
-            }
-            yansdataset.Add(snr, ps);
+            double snr = std::pow(10.0, snrDb / 10.0);
 
-            ps = nist->GetChunkSuccessRate(WifiMode(modes[i]),
-                                           txVector,
-                                           std::pow(10.0, snr / 10.0),
-                                           FrameSize * 8);
+            double ps = yans->GetChunkSuccessRate(wifiMode, txVector, snr, frameSizeBits);
             if (ps < 0.0 || ps > 1.0)
             {
                 // error
                 exit(1);
             }
-            nistdataset.Add(snr, ps);
+            yansdataset.Add(snrDb, ps);
 
-            ps = table->GetChunkSuccessRate(WifiMode(modes[i]),
-                                            txVector,
-                                            std::pow(10.0, snr / 10.0),
-                                            FrameSize * 8);
+            ps = nist->GetChunkSuccessRate(wifiMode, txVector, snr, frameSizeBits);
             if (ps < 0.0 || ps > 1.0)
             {
                 // error
                 exit(1);
             }
-            tabledataset.Add(snr, ps);
+            nistdataset.Add(snrDb, ps);
+
+            ps = table->GetChunkSuccessRate(wifiMode, txVector, snr, frameSizeBits);
+            if (ps < 0.0 || ps > 1.0)
+            {
+                // error
+                exit(1);
+            }
+            tabledataset.Add(snrDb, ps);
         }
 
         yansplot.AddDataset(yansdataset);
@@ -124,8 +110,7 @@ set style line 4 linewidth 5\n\
 set style line 5 linewidth 5\n\
 set style line 6 linewidth 5\n\
 set style line 7 linewidth 5\n\
-set style line 8 linewidth 5\n\
-set style increment user");
+set style line 8 linewidth 5\n");
     yansplot.GenerateOutput(yansfile);
     yansfile.close();
 
@@ -140,8 +125,7 @@ set style line 4 linewidth 5\n\
 set style line 5 linewidth 5\n\
 set style line 6 linewidth 5\n\
 set style line 7 linewidth 5\n\
-set style line 8 linewidth 5\n\
-set style increment user");
+set style line 8 linewidth 5\n");
 
     nistplot.GenerateOutput(nistfile);
     nistfile.close();
@@ -157,8 +141,7 @@ set style line 4 linewidth 5\n\
 set style line 5 linewidth 5\n\
 set style line 6 linewidth 5\n\
 set style line 7 linewidth 5\n\
-set style line 8 linewidth 5\n\
-set style increment user");
+set style line 8 linewidth 5\n");
 
     tableplot.GenerateOutput(tablefile);
     tablefile.close();

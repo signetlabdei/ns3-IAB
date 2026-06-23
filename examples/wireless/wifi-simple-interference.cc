@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 The Boeing Company
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  */
 
@@ -50,14 +39,14 @@
 // The configurable parameters are:
 //   - Prss (primary rss) (-80 dBm default)
 //   - Irss (interfering rss) (-95 dBm default)
-//   - delta (microseconds, (t1-t0), may be negative, default 0)
+//   - delta (t1-t0, may be negative, default 0ns)
 //   - PpacketSize (primary packet size) (bytes, default 1000)
 //   - IpacketSize (interferer packet size) (bytes, default 1000)
 //
 // For instance, for this configuration, the interfering frame arrives
 // at -90 dBm with a time offset of 3.2 microseconds:
 //
-// ./ns3 run "wifi-simple-interference --Irss=-90 --delta=3.2"
+// ./ns3 run "wifi-simple-interference --Irss=-90 --delta=3.2us"
 //
 // Note that all ns-3 attributes (not just the ones exposed in the below
 // script) can be changed at command line; see the documentation.
@@ -71,18 +60,22 @@
 // If you have tcpdump installed, you can try this:
 //
 // tcpdump -r wifi-simple-interference-0-0.pcap -nn -tt
-// reading from file wifi-simple-interference-0-0.pcap, link-type IEEE802_11_RADIO (802.11 plus BSD
-// radio information header) 10.008704 10008704us tsft 1.0 Mb/s 2437 MHz (0x00c0) -80dB signal -98dB
-// noise IP 10.1.1.2.49153 > 10.1.1.255.80: UDP, length 1000
+// reading from file wifi-simple-interference-0-0.pcap, link-type IEEE802_11_RADIO (802.11 plus
+// radiotap header) 10.008754 13308699848833236992us tsft fragmented 0.0 Mb/s 0 MHz 16dBm signal
+// 2dBm noise IP 10.0.0.2.49153 > 255.255.255.255.80: UDP, length 1000
+//
+// With a zero delta time offset, only the first packet will be decoded; the second packet
+// transmission must be delayed past the end of the first packet to receive it..
 //
 // Next, try this command and look at the tcpdump-- you should see two packets
 // that are no longer interfering:
-// ./ns3 run "wifi-simple-interference --delta=30000"
+// ./ns3 run "wifi-simple-interference --delta=9000us"
 
 #include "ns3/command-line.h"
 #include "ns3/config.h"
 #include "ns3/double.h"
 #include "ns3/internet-stack-helper.h"
+#include "ns3/ipv4-address-helper.h"
 #include "ns3/log.h"
 #include "ns3/mobility-helper.h"
 #include "ns3/mobility-model.h"
@@ -98,8 +91,8 @@ NS_LOG_COMPONENT_DEFINE("WifiSimpleInterference");
 /**
  * Print a packer that has been received.
  *
- * \param socket The receiving socket.
- * \return a string with the packet details.
+ * @param socket The receiving socket.
+ * @return a string with the packet details.
  */
 static inline std::string
 PrintReceivedPacket(Ptr<Socket> socket)
@@ -122,7 +115,7 @@ PrintReceivedPacket(Ptr<Socket> socket)
 /**
  * Function called when a packet is received.
  *
- * \param socket The receiving socket.
+ * @param socket The receiving socket.
  */
 static void
 ReceivePacket(Ptr<Socket> socket)
@@ -133,60 +126,39 @@ ReceivePacket(Ptr<Socket> socket)
 /**
  * Generate traffic
  *
- * \param socket The seding socket.
- * \param pktSize The packet size.
- * \param pktCount The packet counter.
- * \param pktInterval The interval between two packets.
+ * @param socket The sending socket.
+ * @param pktSize The packet size.
  */
 static void
-GenerateTraffic(Ptr<Socket> socket, uint32_t pktSize, uint32_t pktCount, Time pktInterval)
+GenerateTraffic(Ptr<Socket> socket, uint32_t pktSize)
 {
-    if (pktCount > 0)
-    {
-        socket->Send(Create<Packet>(pktSize));
-        Simulator::Schedule(pktInterval,
-                            &GenerateTraffic,
-                            socket,
-                            pktSize,
-                            pktCount - 1,
-                            pktInterval);
-    }
-    else
-    {
-        socket->Close();
-    }
+    socket->Send(Create<Packet>(pktSize));
 }
 
 int
 main(int argc, char* argv[])
 {
-    std::string phyMode("DsssRate1Mbps");
-    double Prss = -80;           // -dBm
-    double Irss = -95;           // -dBm
-    double delta = 0;            // microseconds
-    uint32_t PpacketSize = 1000; // bytes
-    uint32_t IpacketSize = 1000; // bytes
-    bool verbose = false;
+    std::string phyMode{"DsssRate1Mbps"};
+    dBm_u Prss{-80};
+    dBm_u Irss{-95};
+    Time delta{"0ns"};
+    uint32_t PpacketSize{1000}; // bytes
+    uint32_t IpacketSize{1000}; // bytes
+    bool verbose{false};
 
     // these are not command line arguments for this version
-    uint32_t numPackets = 1;
-    double interval = 1.0;       // seconds
-    double startTime = 10.0;     // seconds
-    double distanceToRx = 100.0; // meters
+    Time startTime{"10s"};
+    meter_u distanceToRx{100.0}; // If you change this, also change TxGain below
 
-    double offset = 91; // This is a magic number used to set the
-                        // transmit power, based on other configuration
     CommandLine cmd(__FILE__);
     cmd.AddValue("phyMode", "Wifi Phy mode", phyMode);
     cmd.AddValue("Prss", "Intended primary received signal strength (dBm)", Prss);
     cmd.AddValue("Irss", "Intended interfering received signal strength (dBm)", Irss);
-    cmd.AddValue("delta", "time offset (microseconds) for interfering signal", delta);
+    cmd.AddValue("delta", "time offset for interfering signal", delta);
     cmd.AddValue("PpacketSize", "size of application packet sent", PpacketSize);
     cmd.AddValue("IpacketSize", "size of interfering packet sent", IpacketSize);
     cmd.AddValue("verbose", "turn on all WifiNetDevice log components", verbose);
     cmd.Parse(argc, argv);
-    // Convert to time object
-    Time interPacketInterval = Seconds(interval);
 
     // Fix non-unicast data rate to be the same as that of unicast
     Config::SetDefault("ns3::WifiRemoteStationManager::NonUnicastMode", StringValue(phyMode));
@@ -207,6 +179,9 @@ main(int argc, char* argv[])
     // ns-3 supports RadioTap and Prism tracing extensions for 802.11b
     wifiPhy.SetPcapDataLinkType(WifiPhyHelper::DLT_IEEE802_11_RADIO);
 
+    // Disable preamble detection model to receive signals below -82 dBm
+    wifiPhy.DisablePreambleDetectionModel();
+
     YansWifiChannelHelper wifiChannel;
     wifiChannel.SetPropagationDelay("ns3::ConstantSpeedPropagationDelayModel");
     wifiChannel.AddPropagationLoss("ns3::LogDistancePropagationLossModel");
@@ -222,15 +197,23 @@ main(int argc, char* argv[])
     // Set it to adhoc mode
     wifiMac.SetType("ns3::AdhocWifiMac");
     NetDeviceContainer devices = wifi.Install(wifiPhy, wifiMac, c.Get(0));
-    // This will disable these sending devices from detecting a signal
-    // so that they do not backoff
-    wifiPhy.Set("TxGain", DoubleValue(offset + Prss));
+    // Setting RxSensitivity to 0 dBm will disable the two sending devices from detecting
+    // received signals, so that they do not back off
+    wifiPhy.Set("RxSensitivity", DoubleValue(0));
+    // We use the TxGain parameter on each sender to control the received signal power.
+    // The transmit power is roughly 16 dBm.  The signal attenuation from both senders to
+    // the receiving device is 106.7 dB (100 meters at this frequency, based on the
+    // LogDistancePropagationLossModel).  We want the receive signal strength to be
+    // Prss dBm.  We therefore want to solve for the gain as follows:
+    // 16 dBm + TxGain - propagationLoss = Prss (dBm)
+    // Working backwards, TxGain = Prss (dBm) - 16 dB + 106.7 dB = Prss (dBm) + 90.7 dB
+    dB_u powerOffset{90.7};
+    wifiPhy.Set("TxGain", DoubleValue(Prss + powerOffset));
     devices.Add(wifi.Install(wifiPhy, wifiMac, c.Get(1)));
-    wifiPhy.Set("TxGain", DoubleValue(offset + Irss));
+    // Repeat for the interferer
+    wifiPhy.Set("TxGain", DoubleValue(Irss + powerOffset));
     devices.Add(wifi.Install(wifiPhy, wifiMac, c.Get(2)));
 
-    // Note that with FixedRssLossModel, the positions below are not
-    // used for received signal strength.
     MobilityHelper mobility;
     Ptr<ListPositionAllocator> positionAlloc = CreateObject<ListPositionAllocator>();
     positionAlloc->Add(Vector(0.0, 0.0, 0.0));
@@ -242,6 +225,11 @@ main(int argc, char* argv[])
 
     InternetStackHelper internet;
     internet.Install(c);
+
+    Ipv4AddressHelper address;
+    address.SetBase("10.0.0.0", "255.255.255.0");
+    Ipv4InterfaceContainer ipInterfaces;
+    ipInterfaces = address.Assign(devices);
 
     TypeId tid = TypeId::LookupByName("ns3::UdpSocketFactory");
     Ptr<Socket> recvSink = Socket::CreateSocket(c.Get(0), tid);
@@ -266,23 +254,19 @@ main(int argc, char* argv[])
 
     // Output what we are doing
     NS_LOG_UNCOND("Primary packet RSS=" << Prss << " dBm and interferer RSS=" << Irss
-                                        << " dBm at time offset=" << delta << " ms");
+                                        << " dBm at time offset=" << delta.As(Time::US));
 
     Simulator::ScheduleWithContext(source->GetNode()->GetId(),
-                                   Seconds(startTime),
+                                   startTime,
                                    &GenerateTraffic,
                                    source,
-                                   PpacketSize,
-                                   numPackets,
-                                   interPacketInterval);
+                                   PpacketSize);
 
     Simulator::ScheduleWithContext(interferer->GetNode()->GetId(),
-                                   Seconds(startTime + delta / 1000000.0),
+                                   startTime + delta,
                                    &GenerateTraffic,
                                    interferer,
-                                   IpacketSize,
-                                   numPackets,
-                                   interPacketInterval);
+                                   IpacketSize);
 
     Simulator::Run();
     Simulator::Destroy();

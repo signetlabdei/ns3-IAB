@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2015 Lawrence Livermore National Laboratory
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author:  Peter D. Barnes, Jr. <pdbarnes@llnl.gov>
  */
@@ -26,6 +15,7 @@
 #include <set>
 #include <sstream>
 #include <string>
+#include <type_traits>
 // Ipv6L3Protocol, Ipv6PacketProbe
 #include "ns3/lr-wpan-mac.h"      // LrWpanMac
 #include "ns3/lte-module.h"       // PhyReceptionStatParameters,
@@ -45,15 +35,15 @@
 using namespace ns3;
 
 /**
- * \file
- * \ingroup system-tests-traced
+ * @file
+ * @ingroup system-tests-traced
  *
  * TracedCallback tests to verify if they are called with
  * the right type and number of arguments.
  */
 
 /**
- * \ingroup system-tests-traced
+ * @ingroup system-tests-traced
  *
  * TracedCallback Testcase.
  *
@@ -63,6 +53,16 @@ using namespace ns3;
 class TracedCallbackTypedefTestCase : public TestCase
 {
   public:
+    /// @return the TypeId for the callback checkers
+    static TypeId GetCheckerTypeId()
+    {
+        static TypeId tid = TypeId("ns3::TracedCallbackTypedefTestCaseChecker")
+                                .SetParent<Object>()
+                                .SetGroupName("Test")
+                                .HideFromDocumentation();
+        return tid;
+    }
+
     TracedCallbackTypedefTestCase();
 
     ~TracedCallbackTypedefTestCase() override
@@ -98,10 +98,10 @@ namespace
 {
 
 /**
- * \ingroup system-tests-traced
+ * @ingroup system-tests-traced
  *
  * Record typedefs which are identical to previously declared.
- * \return a container of strings representing the duplicates.
+ * @return a container of strings representing the duplicates.
  */
 std::set<std::string>
 Duplicates()
@@ -118,20 +118,20 @@ Duplicates()
 }
 
 /**
- * \ingroup system-tests-traced
+ * @ingroup system-tests-traced
  *
  * Container for duplicate types.
  */
 std::set<std::string> g_dupes = Duplicates();
 
 /**
- * \ingroup system-tests-traced
+ * @ingroup system-tests-traced
  *
  * Stringify the known TracedCallback type names.
  *
- * \tparam T \explicit The typedef name.
- * \param [in] N The number of arguments expected.
- * \returns The \c TracedCallback type name.
+ * @tparam T \explicit The typedef name.
+ * @param [in] N The number of arguments expected.
+ * @returns The \c TracedCallback type name.
  */
 template <typename T>
 inline std::string
@@ -141,7 +141,7 @@ TypeName(int N)
 }
 
 /**
- * \ingroup system-tests-traced
+ * @ingroup system-tests-traced
  *
  * Returns a string representing the type of a class.
  */
@@ -155,13 +155,13 @@ TypeName(int N)
     }
 
 /**
- * \ingroup system-tests-traced
+ * @ingroup system-tests-traced
  *
- * \name Stringify known typename.
+ * @name Stringify known typename.
  */
 /**
  * @{
- * \brief Stringify a known typename
+ * @brief Stringify a known typename
  */
 TYPENAME(dsr::DsrOptionSRHeader::TracedCallback);
 TYPENAME(EpcUeNas::StateTracedCallback);
@@ -171,9 +171,9 @@ TYPENAME(Ipv4L3Protocol::TxRxTracedCallback);
 TYPENAME(Ipv6L3Protocol::DropTracedCallback);
 TYPENAME(Ipv6L3Protocol::SentTracedCallback);
 TYPENAME(Ipv6L3Protocol::TxRxTracedCallback);
-TYPENAME(LrWpanMac::SentTracedCallback);
-TYPENAME(LrWpanMac::StateTracedCallback);
-TYPENAME(LrWpanPhy::StateTracedCallback);
+TYPENAME(lrwpan::LrWpanMac::SentTracedCallback);
+TYPENAME(lrwpan::LrWpanMac::StateTracedCallback);
+TYPENAME(lrwpan::LrWpanPhy::StateTracedCallback);
 TYPENAME(LteEnbMac::DlSchedulingTracedCallback);
 TYPENAME(LteEnbMac::UlSchedulingTracedCallback);
 TYPENAME(LteEnbPhy::ReportInterferenceTracedCallback);
@@ -222,14 +222,14 @@ TYPENAME(WifiRemoteStationManager::RateChangeTracedCallback);
 #undef TYPENAME
 
 /**
- * \ingroup system-tests-traced
+ * @ingroup system-tests-traced
  *
  * Log that a callback was invoked.
  *
  * We can't actually do anything with any of the arguments,
  * but the fact we got called is what's important.
  *
- * \param [in] N The number of arguments passed to the callback.
+ * @param [in] N The number of arguments passed to the callback.
  */
 void
 SinkIt(std::size_t N)
@@ -239,7 +239,7 @@ SinkIt(std::size_t N)
 }
 
 /**
- * \ingroup system-tests-traced
+ * @ingroup system-tests-traced
  *
  * Sink functions.
  */
@@ -248,8 +248,8 @@ class TracedCbSink
 {
   public:
     /**
-     * \brief Sink function, called by a TracedCallback.
-     * \tparam Ts parameters of the TracedCallback.
+     * @brief Sink function, called by a TracedCallback.
+     * @tparam Ts parameters of the TracedCallback.
      */
     static void Sink(Ts...)
     {
@@ -278,11 +278,22 @@ class TracedCallbackTypedefTestCase::Checker : public Object
     TracedCallback<Ts...> m_cb;
 
   public:
-    Checker(){};
-    ~Checker() override{};
+    /// @return the TypeId for this checker
+    static TypeId GetTypeId()
+    {
+        return TracedCallbackTypedefTestCase::GetCheckerTypeId();
+    }
+
+    Checker()
+    {
+    }
+
+    ~Checker() override
+    {
+    }
 
     /// Arguments of the TracedCallback.
-    std::tuple<typename TypeTraits<Ts>::BaseType...> m_items;
+    std::tuple<std::remove_pointer_t<std::remove_cvref_t<Ts>>...> m_items;
 
     /// Number of arguments of the TracedCallback.
     const std::size_t m_nItems = sizeof...(Ts);
@@ -323,7 +334,7 @@ TracedCallbackTypedefTestCase::TracedCallbackTypedefTestCase()
 }
 
 /**
- * \ingroup system-tests-traced
+ * @ingroup system-tests-traced
  *
  * Check the TracedCallback duplicate by checking if it matches the TracedCallback
  * it is supposed to be equal to.
@@ -338,14 +349,16 @@ TracedCallbackTypedefTestCase::TracedCallbackTypedefTestCase()
         std::cout << #U << " matches " << #T1 << std::endl;                                        \
     }                                                                                              \
     else                                                                                           \
+    {                                                                                              \
         NS_TEST_ASSERT_MSG_EQ(TypeName<U>(0),                                                      \
                               TypeName<T1>(0),                                                     \
                               "the typedef "                                                       \
                                   << #U << " used to match the typedef " << #T1                    \
-                                  << " but no longer does.  Please add a new CHECK call.")
+                                  << " but no longer does.  Please add a new CHECK call.");        \
+    }
 
 /**
- * \ingroup system-tests-traced
+ * @ingroup system-tests-traced
  *
  * Check the TracedCallback by calling its Invoke function.
  */
@@ -380,11 +393,14 @@ TracedCallbackTypedefTestCase::DoRun()
 
     CHECK(Ipv6L3Protocol::TxRxTracedCallback, Ptr<const Packet>, Ptr<Ipv6>, uint32_t);
 
-    CHECK(LrWpanMac::SentTracedCallback, Ptr<const Packet>, uint8_t, uint8_t);
+    CHECK(lrwpan::LrWpanMac::SentTracedCallback, Ptr<const Packet>, uint8_t, uint8_t);
 
-    CHECK(LrWpanMac::StateTracedCallback, LrWpanMacState, LrWpanMacState);
+    CHECK(lrwpan::LrWpanMac::StateTracedCallback, lrwpan::MacState, lrwpan::MacState);
 
-    CHECK(LrWpanPhy::StateTracedCallback, Time, LrWpanPhyEnumeration, LrWpanPhyEnumeration);
+    CHECK(lrwpan::LrWpanPhy::StateTracedCallback,
+          Time,
+          lrwpan::PhyEnumeration,
+          lrwpan::PhyEnumeration);
 
     CHECK(LteEnbMac::DlSchedulingTracedCallback,
           uint32_t,
@@ -524,9 +540,9 @@ TracedCallbackTypedefTestCase::DoRun()
 }
 
 /**
- * \ingroup system-tests-traced
+ * @ingroup system-tests-traced
  *
- * \brief TracedCallback typedef TestSuite
+ * @brief TracedCallback typedef TestSuite
  */
 class TracedCallbackTypedefTestSuite : public TestSuite
 {
@@ -535,9 +551,9 @@ class TracedCallbackTypedefTestSuite : public TestSuite
 };
 
 TracedCallbackTypedefTestSuite::TracedCallbackTypedefTestSuite()
-    : TestSuite("traced-callback-typedef", SYSTEM)
+    : TestSuite("traced-callback-typedef", Type::SYSTEM)
 {
-    AddTestCase(new TracedCallbackTypedefTestCase, TestCase::QUICK);
+    AddTestCase(new TracedCallbackTypedefTestCase, TestCase::Duration::QUICK);
 }
 
 /// Static variable for test initialization

@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2020 Lawrence Livermore National Laboratory
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Peter D. Barnes, Jr. <pdbarnes@llnl.gov>
  */
@@ -24,10 +13,10 @@
 #include <iostream>
 
 /**
- * \file
- * \defgroup fatal-example Core example: NS_FATAL error handlers
- * \ingroup core-examples
- * \ingroup fatal
+ * @file
+ * @defgroup fatal-example Core example: NS_FATAL error handlers
+ * @ingroup core-examples
+ * @ingroup fatal
  *
  * Example program illustrating use of the NS_FATAL error handlers.
  */
@@ -35,8 +24,8 @@
 using namespace ns3;
 
 /**
- * \ingroup fatal-example
- * \brief Triggers a fatal error without message, deferring termination.
+ * @ingroup fatal-example
+ * @brief Triggers a fatal error without message, deferring termination.
  */
 void
 FatalNoMsg()
@@ -46,8 +35,8 @@ FatalNoMsg()
 }
 
 /**
- * \ingroup fatal-example
- * \brief Triggers a fatal error with an error message, deferring termination.
+ * @ingroup fatal-example
+ * @brief Triggers a fatal error with an error message, deferring termination.
  */
 void
 FatalCont()
@@ -57,8 +46,8 @@ FatalCont()
 }
 
 /**
- * \ingroup fatal-example
- * \brief Triggers a fatal error with message, and terminating.
+ * @ingroup fatal-example
+ * @brief Triggers a fatal error with message, and terminating.
  */
 void
 Fatal()

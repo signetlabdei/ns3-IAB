@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2015 Natale Patriciello <natale.patriciello@gmail.com>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  */
 #include "tcp-error-model.h"
@@ -28,9 +17,9 @@ using namespace ns3;
 NS_LOG_COMPONENT_DEFINE("TcpFastRetrTest");
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief Test the fast retransmission
+ * @brief Test the fast retransmission
  *
  * Checking what is happening is not so easy, so there are a lot of variables
  * which helps to keep track on what is happening.
@@ -41,10 +30,10 @@ class TcpFastRetrTest : public TcpGeneralTest
 {
   public:
     /**
-     * \brief Constructor
-     * \param congControl Type of congestion control.
-     * \param seqToKill Sequence number of the packet to drop.
-     * \param msg Test message.
+     * @brief Constructor
+     * @param congControl Type of congestion control.
+     * @param seqToKill Sequence number of the packet to drop.
+     * @param msg Test message.
      */
     TcpFastRetrTest(TypeId congControl, uint32_t seqToKill, const std::string& msg);
 
@@ -68,10 +57,10 @@ class TcpFastRetrTest : public TcpGeneralTest
     void AfterRTOExpired(const Ptr<const TcpSocketState> tcb, SocketWho who) override;
 
     /**
-     * \brief Check if the packet being dropped is the right one.
-     * \param ipH IPv4 header.
-     * \param tcpH TCP header.
-     * \param p The packet.
+     * @brief Check if the packet being dropped is the right one.
+     * @param ipH IPv4 header.
+     * @param tcpH TCP header.
+     * @param p The packet.
      */
     void PktDropped(const Ipv4Header& ipH, const TcpHeader& tcpH, Ptr<const Packet> p);
     void FinalChecks() override;
@@ -143,7 +132,7 @@ Ptr<TcpSocketMsgBase>
 TcpFastRetrTest::CreateSenderSocket(Ptr<Node> node)
 {
     Ptr<TcpSocketMsgBase> socket = TcpGeneralTest::CreateSenderSocket(node);
-    socket->SetAttribute("MinRto", TimeValue(Seconds(10.0)));
+    socket->SetAttribute("MinRto", TimeValue(Seconds(10)));
 
     return socket;
 }
@@ -208,14 +197,10 @@ TcpFastRetrTest::Tx(const Ptr<const Packet> p, const TcpHeader& h, SocketWho who
             }
         }
 
-        if (m_sndNextExpSeq.GetValue() == 0)
+        // SYN or Pure ACK in three-way handshake, then we expect data
+        if ((m_sndNextExpSeq.GetValue() == 0) ||
+            (m_sndNextExpSeq.GetValue() == 1 && p->GetSize() == 32))
         {
-            // SYN
-            m_sndNextExpSeq = SequenceNumber32(1);
-        }
-        else if (m_sndNextExpSeq.GetValue() == 1 && p->GetSize() == 32)
-        {
-            // Pure ACK in three-way handshake, then we expect data
             m_sndNextExpSeq = SequenceNumber32(1);
         }
         else
@@ -429,24 +414,24 @@ TcpFastRetrTest::FinalChecks()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief Testsuite for the fast retransmission
+ * @brief Testsuite for the fast retransmission
  */
 class TcpFastRetrTestSuite : public TestSuite
 {
   public:
     TcpFastRetrTestSuite()
-        : TestSuite("tcp-fast-retr-test", UNIT)
+        : TestSuite("tcp-fast-retr-test", Type::UNIT)
     {
         std::list<TypeId> types;
         types.insert(types.begin(), TcpWestwoodPlus::GetTypeId());
         types.insert(types.begin(), TcpNewReno::GetTypeId());
 
-        for (std::list<TypeId>::iterator it = types.begin(); it != types.end(); ++it)
+        for (auto it = types.begin(); it != types.end(); ++it)
         {
             AddTestCase(new TcpFastRetrTest((*it), 5001, "Fast Retransmit testing"),
-                        TestCase::QUICK);
+                        TestCase::Duration::QUICK);
         }
     }
 };

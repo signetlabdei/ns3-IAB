@@ -119,35 +119,35 @@ public:
   BapHeaderTestSuite ();
 };
 
-BapHeaderTestSuite::BapHeaderTestSuite () : TestSuite ("bap-header-test", UNIT)
+BapHeaderTestSuite::BapHeaderTestSuite () : TestSuite ("bap-header-test", TestSuite::Type::UNIT)
 {
   // TestDuration for TestCase can be QUICK, EXTENSIVE or TAKES_FOREVER
   AddTestCase (new BapHeaderTestCase (0x331, 0xED, false, true, false, BapHeader::BapDcField::Data),
-               TestCase::QUICK);
+               TestCase::Duration::QUICK);
   AddTestCase (
       new BapHeaderTestCase (0x111, 0xAD, false, false, false, BapHeader::BapDcField::Data),
-      TestCase::QUICK);
+      TestCase::Duration::QUICK);
   AddTestCase (new BapHeaderTestCase (0x231, 0xBD, true, true, true, BapHeader::BapDcField::Data),
-               TestCase::QUICK);
+               TestCase::Duration::QUICK);
   AddTestCase (new BapHeaderTestCase (0x0F1, 0xAF, false, true, true, BapHeader::BapDcField::Data),
-               TestCase::QUICK);
+               TestCase::Duration::QUICK);
   AddTestCase (new BapHeaderTestCase (0x8A, 0x1F, true, true, false, BapHeader::BapDcField::Data),
-               TestCase::QUICK);
+               TestCase::Duration::QUICK);
   AddTestCase (
       new BapHeaderTestCase (0x331, 0xED, false, true, false, BapHeader::BapDcField::Control),
-      TestCase::QUICK);
+      TestCase::Duration::QUICK);
   AddTestCase (
       new BapHeaderTestCase (0x111, 0xAD, false, false, false, BapHeader::BapDcField::Control),
-      TestCase::QUICK);
+      TestCase::Duration::QUICK);
   AddTestCase (
       new BapHeaderTestCase (0x231, 0xBD, true, true, true, BapHeader::BapDcField::Control),
-      TestCase::QUICK);
+      TestCase::Duration::QUICK);
   AddTestCase (
       new BapHeaderTestCase (0x0F1, 0xAF, false, true, true, BapHeader::BapDcField::Control),
-      TestCase::QUICK);
+      TestCase::Duration::QUICK);
   AddTestCase (
       new BapHeaderTestCase (0x8A, 0x1F, true, true, false, BapHeader::BapDcField::Control),
-      TestCase::QUICK);
+      TestCase::Duration::QUICK);
 }
 
 // Do not forget to allocate an instance of this TestSuite

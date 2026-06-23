@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2011 The Boeing Company
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author:
  *  kwong yin <kwong-sang.yin@boeing.com>
@@ -24,26 +13,29 @@
 
 #include "lr-wpan-constants.h"
 
-#include <ns3/log.h>
-#include <ns3/random-variable-stream.h>
-#include <ns3/simulator.h>
+#include "ns3/log.h"
+#include "ns3/random-variable-stream.h"
+#include "ns3/simulator.h"
 
 #include <algorithm>
 
 #undef NS_LOG_APPEND_CONTEXT
-#define NS_LOG_APPEND_CONTEXT std::clog << "[address " << m_mac->GetShortAddress() << "] ";
+#define NS_LOG_APPEND_CONTEXT                                                                      \
+    std::clog << "[" << m_mac->GetShortAddress() << " | " << m_mac->GetExtendedAddress() << "] ";
 
 namespace ns3
 {
+namespace lrwpan
+{
 
 NS_LOG_COMPONENT_DEFINE("LrWpanCsmaCa");
-
 NS_OBJECT_ENSURE_REGISTERED(LrWpanCsmaCa);
 
 TypeId
 LrWpanCsmaCa::GetTypeId()
 {
-    static TypeId tid = TypeId("ns3::LrWpanCsmaCa")
+    static TypeId tid = TypeId("ns3::lrwpan::LrWpanCsmaCa")
+                            .AddDeprecatedName("ns3::LrWpanCsmaCa")
                             .SetParent<Object>()
                             .SetGroupName("LrWpan")
                             .AddConstructor<LrWpanCsmaCa>();
@@ -76,7 +68,7 @@ LrWpanCsmaCa::~LrWpanCsmaCa()
 void
 LrWpanCsmaCa::DoDispose()
 {
-    m_lrWpanMacStateCallback = MakeNullCallback<void, LrWpanMacState>();
+    m_lrWpanMacStateCallback = MakeNullCallback<void, MacState>();
     m_lrWpanMacTransCostCallback = MakeNullCallback<void, uint32_t>();
 
     Cancel();
@@ -98,29 +90,25 @@ LrWpanCsmaCa::GetMac() const
 void
 LrWpanCsmaCa::SetSlottedCsmaCa()
 {
-    NS_LOG_FUNCTION(this);
     m_isSlotted = true;
 }
 
 void
 LrWpanCsmaCa::SetUnSlottedCsmaCa()
 {
-    NS_LOG_FUNCTION(this);
     m_isSlotted = false;
 }
 
 bool
 LrWpanCsmaCa::IsSlottedCsmaCa() const
 {
-    NS_LOG_FUNCTION(this);
-    return (m_isSlotted);
+    return m_isSlotted;
 }
 
 bool
 LrWpanCsmaCa::IsUnSlottedCsmaCa() const
 {
-    NS_LOG_FUNCTION(this);
-    return (!m_isSlotted);
+    return !m_isSlotted;
 }
 
 void
@@ -231,6 +219,8 @@ LrWpanCsmaCa::Start()
     m_NB = 0;
     if (IsSlottedCsmaCa())
     {
+        NS_LOG_DEBUG("Using Slotted CSMA-CA");
+
         // TODO: Check if the current PHY is using the Japanese band 950 Mhz:
         //       (IEEE_802_15_4_950MHZ_BPSK and IEEE_802_15_4_950MHZ_2GFSK)
         //       if in use, m_CW = 1.
@@ -251,7 +241,7 @@ LrWpanCsmaCa::Start()
         }
 
         // m_coorDest to decide between incoming and outgoing superframes times
-        m_coorDest = m_mac->isCoordDest();
+        m_coorDest = m_mac->IsCoordDest();
 
         // Locate backoff period boundary. (i.e. a time delay to align with the next backoff period
         // boundary)
@@ -261,6 +251,7 @@ LrWpanCsmaCa::Start()
     }
     else
     {
+        NS_LOG_DEBUG("Using Unslotted CSMA-CA");
         m_BE = m_macMinBE;
         m_randomBackoffEvent = Simulator::ScheduleNow(&LrWpanCsmaCa::RandomBackoffDelay, this);
     }
@@ -403,7 +394,7 @@ LrWpanCsmaCa::CanProceed()
 
     transactionSymbols = ccaSymbols + m_mac->GetTxPacketSymbols();
 
-    if (m_mac->isTxAckReq())
+    if (m_mac->IsTxAckReq())
     {
         NS_LOG_DEBUG("ACK duration symbols: " << m_mac->GetMacAckWaitDuration());
         transactionSymbols += m_mac->GetMacAckWaitDuration();
@@ -458,7 +449,7 @@ LrWpanCsmaCa::DeferCsmaTimeout()
 }
 
 void
-LrWpanCsmaCa::PlmeCcaConfirm(LrWpanPhyEnumeration status)
+LrWpanCsmaCa::PlmeCcaConfirm(PhyEnumeration status)
 {
     NS_LOG_FUNCTION(this << status);
 
@@ -569,4 +560,5 @@ LrWpanCsmaCa::GetBatteryLifeExtension() const
     return m_macBattLifeExt;
 }
 
+} // namespace lrwpan
 } // namespace ns3

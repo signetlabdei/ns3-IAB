@@ -1,23 +1,13 @@
 /*
  * Copyright (c) 2013 Universita' di Firenze, Italy
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Tommaso Pecorella <tommaso.pecorella@unifi.it>
  */
 
 #include "ns3/boolean.h"
+#include "ns3/enum.h"
 #include "ns3/inet6-socket-address.h"
 #include "ns3/internet-stack-helper.h"
 #include "ns3/log.h"
@@ -37,9 +27,9 @@
 using namespace ns3;
 
 /**
- * \ingroup sixlowpan-tests
+ * @ingroup sixlowpan-tests
  *
- * \brief 6LoWPAN HC1 Test
+ * @brief 6LoWPAN HC1 Test
  */
 class SixlowpanHc1ImplTest : public TestCase
 {
@@ -48,16 +38,16 @@ class SixlowpanHc1ImplTest : public TestCase
     /**
      * Send data function.
      *
-     * \param socket The sending socket.
-     * \param to The destination.
+     * @param socket The sending socket.
+     * @param to The destination.
      */
     void DoSendData(Ptr<Socket> socket, std::string to);
 
     /**
      * Send data function.
      *
-     * \param socket The sending socket.
-     * \param to The destination.
+     * @param socket The sending socket.
+     * @param to The destination.
      */
     void SendData(Ptr<Socket> socket, std::string to);
 
@@ -68,15 +58,15 @@ class SixlowpanHc1ImplTest : public TestCase
     /**
      * Packet receive function.
      *
-     * \param socket The receiving socket.
-     * \param packet The received packet.
-     * \param from The sender.
+     * @param socket The receiving socket.
+     * @param packet The received packet.
+     * @param from The sender.
      */
     void ReceivePacket(Ptr<Socket> socket, Ptr<Packet> packet, const Address& from);
     /**
      * Packet receive function.
      *
-     * \param socket The receiving socket.
+     * @param socket The receiving socket.
      */
     void ReceivePkt(Ptr<Socket> socket);
 };
@@ -142,8 +132,7 @@ SixlowpanHc1ImplTest::DoRun()
         rxNode->AddDevice(rxDev);
 
         Ptr<SixLowPanNetDevice> rxSix = CreateObject<SixLowPanNetDevice>();
-        rxSix->SetAttribute("ForceEtherType", BooleanValue(true));
-        rxSix->SetAttribute("Rfc6282", BooleanValue(false));
+        rxSix->SetAttribute("CompressionType", EnumValue(SixLowPanNetDevice::HC1));
         rxNode->AddDevice(rxSix);
         rxSix->SetNetDevice(rxDev);
 
@@ -166,8 +155,7 @@ SixlowpanHc1ImplTest::DoRun()
         txNode->AddDevice(txDev);
 
         Ptr<SixLowPanNetDevice> txSix = CreateObject<SixLowPanNetDevice>();
-        txSix->SetAttribute("ForceEtherType", BooleanValue(true));
-        txSix->SetAttribute("Rfc6282", BooleanValue(false));
+        txSix->SetAttribute("CompressionType", EnumValue(SixLowPanNetDevice::HC1));
         txNode->AddDevice(txSix);
         txSix->SetNetDevice(txDev);
 
@@ -214,9 +202,9 @@ SixlowpanHc1ImplTest::DoRun()
 }
 
 /**
- * \ingroup sixlowpan-tests
+ * @ingroup sixlowpan-tests
  *
- * \brief 6LoWPAN HC1 TestSuite
+ * @brief 6LoWPAN HC1 TestSuite
  */
 class SixlowpanHc1TestSuite : public TestSuite
 {
@@ -227,9 +215,9 @@ class SixlowpanHc1TestSuite : public TestSuite
 };
 
 SixlowpanHc1TestSuite::SixlowpanHc1TestSuite()
-    : TestSuite("sixlowpan-hc1", UNIT)
+    : TestSuite("sixlowpan-hc1", Type::UNIT)
 {
-    AddTestCase(new SixlowpanHc1ImplTest(), TestCase::QUICK);
+    AddTestCase(new SixlowpanHc1ImplTest(), TestCase::Duration::QUICK);
 }
 
 static SixlowpanHc1TestSuite g_sixlowpanHc1TestSuite; //!< Static variable for test initialization

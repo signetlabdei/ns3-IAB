@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2013 Natale Patriciello <natale.patriciello@gmail.com>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  */
 
@@ -31,9 +20,9 @@ NS_LOG_COMPONENT_DEFINE("WScalingTestSuite");
 
 // TODO: Check the buffer size and scaling option value
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief TCP Window Scaling enabling Test.
+ * @brief TCP Window Scaling enabling Test.
  */
 class WScalingTestCase : public TcpGeneralTest
 {
@@ -50,11 +39,11 @@ class WScalingTestCase : public TcpGeneralTest
     };
 
     /**
-     * \brief Constructor.
-     * \param conf Test configuration.
-     * \param maxRcvBufferSize Maximum receiver buffer size.
-     * \param maxSndBufferSize Maximum sender buffer size.
-     * \param name Test description.
+     * @brief Constructor.
+     * @param conf Test configuration.
+     * @param maxRcvBufferSize Maximum receiver buffer size.
+     * @param maxSndBufferSize Maximum sender buffer size.
+     * @param name Test description.
      */
     WScalingTestCase(WScalingTestCase::Configuration conf,
                      uint32_t maxRcvBufferSize,
@@ -118,17 +107,11 @@ WScalingTestCase::CreateSenderSocket(Ptr<Node> node)
     switch (m_configuration)
     {
     case DISABLED:
-        socket->SetAttribute("WindowScaling", BooleanValue(false));
-        break;
-
     case ENABLED_RECEIVER:
         socket->SetAttribute("WindowScaling", BooleanValue(false));
         break;
 
     case ENABLED_SENDER:
-        socket->SetAttribute("WindowScaling", BooleanValue(true));
-        break;
-
     case ENABLED:
         socket->SetAttribute("WindowScaling", BooleanValue(true));
         break;
@@ -224,54 +207,54 @@ WScalingTestCase::Tx(const Ptr<const Packet> p, const TcpHeader& h, SocketWho wh
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief TCP Window Scaling TestSuite.
+ * @brief TCP Window Scaling TestSuite.
  */
 class TcpWScalingTestSuite : public TestSuite
 {
   public:
     TcpWScalingTestSuite()
-        : TestSuite("tcp-wscaling", UNIT)
+        : TestSuite("tcp-wscaling", Type::UNIT)
     {
         AddTestCase(
             new WScalingTestCase(WScalingTestCase::ENABLED, 200000, 65535, "WS only server"),
-            TestCase::QUICK);
+            TestCase::Duration::QUICK);
         AddTestCase(new WScalingTestCase(WScalingTestCase::ENABLED,
                                          65535,
                                          65535,
                                          "Window scaling not used, all enabled"),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
         AddTestCase(new WScalingTestCase(WScalingTestCase::DISABLED, 65535, 65535, "WS disabled"),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
         AddTestCase(new WScalingTestCase(WScalingTestCase::ENABLED_SENDER,
                                          65535,
                                          65535,
                                          "WS enabled client"),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
         AddTestCase(new WScalingTestCase(WScalingTestCase::ENABLED_RECEIVER,
                                          65535,
                                          65535,
                                          "WS disabled client"),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
 
         AddTestCase(
             new WScalingTestCase(WScalingTestCase::ENABLED, 65535, 200000, "WS only client"),
-            TestCase::QUICK);
+            TestCase::Duration::QUICK);
         AddTestCase(
             new WScalingTestCase(WScalingTestCase::ENABLED, 131072, 65535, "WS only server"),
-            TestCase::QUICK);
+            TestCase::Duration::QUICK);
         AddTestCase(
             new WScalingTestCase(WScalingTestCase::ENABLED, 65535, 131072, "WS only client"),
-            TestCase::QUICK);
+            TestCase::Duration::QUICK);
         AddTestCase(
             new WScalingTestCase(WScalingTestCase::ENABLED, 4000, 4000, "WS small window, all"),
-            TestCase::QUICK);
+            TestCase::Duration::QUICK);
         AddTestCase(new WScalingTestCase(WScalingTestCase::ENABLED_SENDER,
                                          4000,
                                          4000,
                                          "WS small window, sender"),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
     }
 };
 

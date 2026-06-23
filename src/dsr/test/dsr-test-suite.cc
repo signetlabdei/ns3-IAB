@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2011 Yufei Cheng
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Yufei Cheng   <yfcheng@ittc.ku.edu>
  *
@@ -53,16 +42,16 @@ using namespace dsr;
 
 // -----------------------------------------------------------------------------
 /**
- * \ingroup dsr
- * \defgroup dsr-test DSR routing module tests
+ * @ingroup dsr
+ * @defgroup dsr-test DSR routing module tests
  */
 
 /**
- * \ingroup dsr-test
- * \ingroup tests
+ * @ingroup dsr-test
+ * @ingroup tests
  *
- * \class DsrFsHeaderTest
- * \brief Unit test for DSR Fixed Size Header
+ * @class DsrFsHeaderTest
+ * @brief Unit test for DSR Fixed Size Header
  */
 class DsrFsHeaderTest : public TestCase
 {
@@ -103,11 +92,11 @@ DsrFsHeaderTest::DoRun()
 
 // -----------------------------------------------------------------------------
 /**
- * \ingroup dsr-test
- * \ingroup tests
+ * @ingroup dsr-test
+ * @ingroup tests
  *
- * \class DsrRreqHeaderTest
- * \brief Unit test for RREQ
+ * @class DsrRreqHeaderTest
+ * @brief Unit test for RREQ
  */
 class DsrRreqHeaderTest : public TestCase
 {
@@ -159,11 +148,11 @@ DsrRreqHeaderTest::DoRun()
 
 // -----------------------------------------------------------------------------
 /**
- * \ingroup dsr-test
- * \ingroup tests
+ * @ingroup dsr-test
+ * @ingroup tests
  *
- * \class DsrRrepHeaderTest
- * \brief Unit test for RREP
+ * @class DsrRrepHeaderTest
+ * @brief Unit test for RREP
  */
 class DsrRrepHeaderTest : public TestCase
 {
@@ -211,11 +200,11 @@ DsrRrepHeaderTest::DoRun()
 
 // -----------------------------------------------------------------------------
 /**
- * \ingroup dsr-test
- * \ingroup tests
+ * @ingroup dsr-test
+ * @ingroup tests
  *
- * \class DsrSRHeaderTest
- * \brief Unit test for Source Route
+ * @class DsrSRHeaderTest
+ * @brief Unit test for Source Route
  */
 class DsrSRHeaderTest : public TestCase
 {
@@ -268,11 +257,11 @@ DsrSRHeaderTest::DoRun()
 
 // -----------------------------------------------------------------------------
 /**
- * \ingroup dsr-test
- * \ingroup tests
+ * @ingroup dsr-test
+ * @ingroup tests
  *
- * \class DsrRerrHeaderTest
- * \brief Unit test for RERR
+ * @class DsrRerrHeaderTest
+ * @brief Unit test for RERR
  */
 class DsrRerrHeaderTest : public TestCase
 {
@@ -316,11 +305,11 @@ DsrRerrHeaderTest::DoRun()
 
 // -----------------------------------------------------------------------------
 /**
- * \ingroup dsr-test
- * \ingroup tests
+ * @ingroup dsr-test
+ * @ingroup tests
  *
- * \class DsrAckReqHeaderTest
- * \brief Unit test for ACK-REQ
+ * @class DsrAckReqHeaderTest
+ * @brief Unit test for ACK-REQ
  */
 class DsrAckReqHeaderTest : public TestCase
 {
@@ -361,11 +350,11 @@ DsrAckReqHeaderTest::DoRun()
 
 // -----------------------------------------------------------------------------
 /**
- * \ingroup dsr-test
- * \ingroup tests
+ * @ingroup dsr-test
+ * @ingroup tests
  *
- * \class DsrAckHeaderTest
- * \brief Unit test for ACK
+ * @class DsrAckHeaderTest
+ * @brief Unit test for ACK
  */
 class DsrAckHeaderTest : public TestCase
 {
@@ -410,11 +399,11 @@ DsrAckHeaderTest::DoRun()
 
 // -----------------------------------------------------------------------------
 /**
- * \ingroup dsr-test
- * \ingroup tests
+ * @ingroup dsr-test
+ * @ingroup tests
  *
- * \class DsrCacheEntryTest
- * \brief Unit test for DSR route cache entry
+ * @class DsrCacheEntryTest
+ * @brief Unit test for DSR route cache entry
  */
 class DsrCacheEntryTest : public TestCase
 {
@@ -443,7 +432,7 @@ DsrCacheEntryTest::DoRun()
         Ipv4Address("0.0.0.1"),
     };
 
-    Ipv4Address dst = Ipv4Address("0.0.0.1");
+    Ipv4Address dst("0.0.0.1");
     dsr::DsrRouteCacheEntry entry(ip, dst, Seconds(1));
     NS_TEST_EXPECT_MSG_EQ(entry.GetVector().size(), 2, "trivial");
     NS_TEST_EXPECT_MSG_EQ(entry.GetDestination(), Ipv4Address("0.0.0.1"), "trivial");
@@ -464,7 +453,7 @@ DsrCacheEntryTest::DoRun()
         Ipv4Address("1.1.1.1"),
     };
 
-    Ipv4Address dst2 = Ipv4Address("1.1.1.1");
+    Ipv4Address dst2("1.1.1.1");
     dsr::DsrRouteCacheEntry entry2(ip2, dst2, Seconds(2));
     dsr::DsrRouteCacheEntry newEntry;
     NS_TEST_EXPECT_MSG_EQ(rcache->AddRoute(entry2), true, "trivial");
@@ -477,11 +466,11 @@ DsrCacheEntryTest::DoRun()
 
 // -----------------------------------------------------------------------------
 /**
- * \ingroup dsr-test
- * \ingroup tests
+ * @ingroup dsr-test
+ * @ingroup tests
  *
- * \class DsrSendBuffTest
- * \brief Unit test for Send Buffer
+ * @class DsrSendBuffTest
+ * @brief Unit test for Send Buffer
  */
 class DsrSendBuffTest : public TestCase
 {
@@ -516,7 +505,7 @@ DsrSendBuffTest::DoRun()
     NS_TEST_EXPECT_MSG_EQ(q.GetSendBufferTimeout(), Seconds(10), "trivial");
 
     Ptr<const Packet> packet = Create<Packet>();
-    Ipv4Address dst1 = Ipv4Address("0.0.0.1");
+    Ipv4Address dst1("0.0.0.1");
     dsr::DsrSendBuffEntry e1(packet, dst1, Seconds(1));
     q.Enqueue(e1);
     q.Enqueue(e1);
@@ -528,7 +517,7 @@ DsrSendBuffTest::DoRun()
     NS_TEST_EXPECT_MSG_EQ(q.Find(Ipv4Address("0.0.0.1")), false, "trivial");
     NS_TEST_EXPECT_MSG_EQ(q.GetSize(), 0, "trivial");
 
-    Ipv4Address dst2 = Ipv4Address("0.0.0.2");
+    Ipv4Address dst2("0.0.0.2");
     dsr::DsrSendBuffEntry e2(packet, dst2, Seconds(1));
     q.Enqueue(e1);
     q.Enqueue(e2);
@@ -541,7 +530,7 @@ DsrSendBuffTest::DoRun()
     q.Enqueue(e3);
     NS_TEST_EXPECT_MSG_EQ(q.GetSize(), 2, "trivial");
     Ptr<Packet> packet4 = Create<Packet>();
-    Ipv4Address dst4 = Ipv4Address("0.0.0.4");
+    Ipv4Address dst4("0.0.0.4");
     dsr::DsrSendBuffEntry e4(packet4, dst4, Seconds(20));
     q.Enqueue(e4);
     NS_TEST_EXPECT_MSG_EQ(q.GetSize(), 3, "trivial");
@@ -586,11 +575,11 @@ DsrSendBuffTest::CheckTimeout()
 
 // -----------------------------------------------------------------------------
 /**
- * \ingroup dsr-test
- * \ingroup tests
+ * @ingroup dsr-test
+ * @ingroup tests
  *
- * \class DsrRreqTableTest
- * \brief Unit test for DSR routing table entry
+ * @class DsrRreqTableTest
+ * @brief Unit test for DSR routing table entry
  */
 class DsrRreqTableTest : public TestCase
 {
@@ -620,26 +609,26 @@ DsrRreqTableTest::DoRun()
 
 // -----------------------------------------------------------------------------
 /**
- * \ingroup dsr-test
- * \ingroup tests
+ * @ingroup dsr-test
+ * @ingroup tests
  *
- * \class DsrTestSuite
- * \brief DSR test suite
+ * @class DsrTestSuite
+ * @brief DSR test suite
  */
 class DsrTestSuite : public TestSuite
 {
   public:
     DsrTestSuite()
-        : TestSuite("routing-dsr", UNIT)
+        : TestSuite("routing-dsr", Type::UNIT)
     {
-        AddTestCase(new DsrFsHeaderTest, TestCase::QUICK);
-        AddTestCase(new DsrRreqHeaderTest, TestCase::QUICK);
-        AddTestCase(new DsrRrepHeaderTest, TestCase::QUICK);
-        AddTestCase(new DsrSRHeaderTest, TestCase::QUICK);
-        AddTestCase(new DsrRerrHeaderTest, TestCase::QUICK);
-        AddTestCase(new DsrAckReqHeaderTest, TestCase::QUICK);
-        AddTestCase(new DsrAckHeaderTest, TestCase::QUICK);
-        AddTestCase(new DsrCacheEntryTest, TestCase::QUICK);
-        AddTestCase(new DsrSendBuffTest, TestCase::QUICK);
+        AddTestCase(new DsrFsHeaderTest, TestCase::Duration::QUICK);
+        AddTestCase(new DsrRreqHeaderTest, TestCase::Duration::QUICK);
+        AddTestCase(new DsrRrepHeaderTest, TestCase::Duration::QUICK);
+        AddTestCase(new DsrSRHeaderTest, TestCase::Duration::QUICK);
+        AddTestCase(new DsrRerrHeaderTest, TestCase::Duration::QUICK);
+        AddTestCase(new DsrAckReqHeaderTest, TestCase::Duration::QUICK);
+        AddTestCase(new DsrAckHeaderTest, TestCase::Duration::QUICK);
+        AddTestCase(new DsrCacheEntryTest, TestCase::Duration::QUICK);
+        AddTestCase(new DsrSendBuffTest, TestCase::Duration::QUICK);
     }
 } g_dsrTestSuite;

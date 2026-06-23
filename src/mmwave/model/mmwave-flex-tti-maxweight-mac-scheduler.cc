@@ -240,7 +240,7 @@ MmWaveFlexTtiMaxWeightMacScheduler::GetTypeId (void)
               "Algorithm",
               "Max weight algorithm. Determines order of FlowStats element in priorty queue.",
               EnumValue (MmWaveFlexTtiMaxWeightMacScheduler::EDF),
-              MakeEnumAccessor (&MmWaveFlexTtiMaxWeightMacScheduler::m_algorithm),
+              MakeEnumAccessor<MmWaveFlexTtiMaxWeightMacScheduler::AlgType> (&MmWaveFlexTtiMaxWeightMacScheduler::m_algorithm),
               MakeEnumChecker (MmWaveFlexTtiMaxWeightMacScheduler::DELIVERY_DEBT, "DeliveryDebt",
                                MmWaveFlexTtiMaxWeightMacScheduler::EDF, "EDF"))
           .AddAttribute ("FixedTti", "Fix slot size", BooleanValue (false),

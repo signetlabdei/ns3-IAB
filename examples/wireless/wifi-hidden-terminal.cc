@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2010 IITP RAS
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Pavel Boyko <boyko@iitp.ru>
  *
@@ -49,8 +38,8 @@ using namespace ns3;
 /**
  * Run single 10 seconds experiment
  *
- * \param enableCtsRts if true, enable RTS/CTS for packets larger than 100 bytes.
- * \param wifiManager WiFi manager to use.
+ * @param enableCtsRts if true, enable RTS/CTS for packets larger than 100 bytes.
+ * @param wifiManager WiFi manager to use.
  */
 void
 experiment(bool enableCtsRts, std::string wifiManager)
@@ -125,7 +114,8 @@ experiment(bool enableCtsRts, std::string wifiManager)
     cbrApps.Add(onOffHelper.Install(nodes.Get(0)));
 
     // flow 2:  node 2 -> node 1
-    /** \internal
+    /**
+     * @internal
      * The slightly different start times and data rates are a workaround
      * for \bugid{388} and \bugid{912}
      */
@@ -133,13 +123,14 @@ experiment(bool enableCtsRts, std::string wifiManager)
     onOffHelper.SetAttribute("StartTime", TimeValue(Seconds(1.001)));
     cbrApps.Add(onOffHelper.Install(nodes.Get(2)));
 
-    /** \internal
+    /**
+     * @internal
      * We also use separate UDP applications that will send a single
      * packet before the CBR flows start.
      * This is a workaround for the lack of perfect ARP, see \bugid{187}
      */
     uint16_t echoPort = 9;
-    UdpEchoClientHelper echoClientHelper(Ipv4Address("10.0.0.2"), echoPort);
+    UdpEchoClientHelper echoClientHelper(InetSocketAddress(Ipv4Address("10.0.0.2"), echoPort));
     echoClientHelper.SetAttribute("MaxPackets", UintegerValue(1));
     echoClientHelper.SetAttribute("Interval", TimeValue(Seconds(0.1)));
     echoClientHelper.SetAttribute("PacketSize", UintegerValue(10));
@@ -163,9 +154,7 @@ experiment(bool enableCtsRts, std::string wifiManager)
     monitor->CheckForLostPackets();
     Ptr<Ipv4FlowClassifier> classifier = DynamicCast<Ipv4FlowClassifier>(flowmon.GetClassifier());
     FlowMonitor::FlowStatsContainer stats = monitor->GetFlowStats();
-    for (std::map<FlowId, FlowMonitor::FlowStats>::const_iterator i = stats.begin();
-         i != stats.end();
-         ++i)
+    for (auto i = stats.begin(); i != stats.end(); ++i)
     {
         // first 2 FlowIds are for ECHO apps, we don't want to display them
         //

@@ -2,18 +2,7 @@
  * Copyright (c) 2014 Wireless Communications and Networking Group (WCNG),
  * University of Rochester, Rochester, NY, USA.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Cristiano Tapparello <cristiano.tapparello@rochester.edu>
  */
@@ -21,22 +10,23 @@
 #ifndef BASIC_ENERGY_HARVESTER
 #define BASIC_ENERGY_HARVESTER
 
-#include <iostream>
-
-// include from ns-3
+#include "device-energy-model.h"
 #include "energy-harvester.h"
 
-#include "ns3/device-energy-model.h"
 #include "ns3/event-id.h"
 #include "ns3/nstime.h"
 #include "ns3/random-variable-stream.h"
 #include "ns3/traced-value.h"
 
+#include <iostream>
+
 namespace ns3
+{
+namespace energy
 {
 
 /**
- * \ingroup energy
+ * @ingroup energy
  * BasicEnergyHarvester increases remaining energy stored in an associated
  * Energy Source. The BasicEnergyHarvester implements a simple model in which
  * the amount of power provided by the harvester varies over time according
@@ -50,15 +40,15 @@ class BasicEnergyHarvester : public EnergyHarvester
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return The object TypeId.
+     * @brief Get the type ID.
+     * @return The object TypeId.
      */
     static TypeId GetTypeId();
 
     BasicEnergyHarvester();
 
     /**
-     * \param updateInterval Energy harvesting update interval.
+     * @param updateInterval Energy harvesting update interval.
      *
      * BasicEnergyHarvester constructor function that sets the interval
      * between each update of the value of the power harvested by this
@@ -69,7 +59,7 @@ class BasicEnergyHarvester : public EnergyHarvester
     ~BasicEnergyHarvester() override;
 
     /**
-     * \param updateInterval Energy harvesting update interval.
+     * @param updateInterval Energy harvesting update interval.
      *
      * This function sets the interval between each update of the value of the
      * power harvested by this energy harvester.
@@ -77,7 +67,7 @@ class BasicEnergyHarvester : public EnergyHarvester
     void SetHarvestedPowerUpdateInterval(Time updateInterval);
 
     /**
-     * \returns The interval between each update of the harvested power.
+     * @returns The interval between each update of the harvested power.
      *
      * This function returns the interval between each update of the value of the
      * power harvested by this energy harvester.
@@ -85,8 +75,8 @@ class BasicEnergyHarvester : public EnergyHarvester
     Time GetHarvestedPowerUpdateInterval() const;
 
     /**
-     * \param stream Random variable stream number.
-     * \returns The number of stream indices assigned by this model.
+     * @param stream Random variable stream number.
+     * @returns The number of stream indices assigned by this model.
      *
      * This function sets the stream number to be used by the random variable that
      * determines the amount of power that can be harvested by this energy harvester.
@@ -106,7 +96,7 @@ class BasicEnergyHarvester : public EnergyHarvester
     void CalculateHarvestedPower();
 
     /**
-     * \returns m_harvestedPower The power currently provided by the Basic Energy Harvester.
+     * @returns m_harvestedPower The power currently provided by the Basic Energy Harvester.
      * Implements DoGetPower defined in EnergyHarvester.
      */
     double DoGetPower() const override;
@@ -129,6 +119,7 @@ class BasicEnergyHarvester : public EnergyHarvester
     Time m_harvestedPowerUpdateInterval;   //!< harvestable energy update interval
 };
 
+} // namespace energy
 } // namespace ns3
 
 #endif /* defined(BASIC_ENERGY_HARVESTER) */

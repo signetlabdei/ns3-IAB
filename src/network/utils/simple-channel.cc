@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2008 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -62,9 +51,7 @@ SimpleChannel::Send(Ptr<Packet> p,
                     Ptr<SimpleNetDevice> sender)
 {
     NS_LOG_FUNCTION(this << p << protocol << to << from << sender);
-    for (std::vector<Ptr<SimpleNetDevice>>::const_iterator i = m_devices.begin();
-         i != m_devices.end();
-         ++i)
+    for (auto i = m_devices.begin(); i != m_devices.end(); ++i)
     {
         Ptr<SimpleNetDevice> tmp = *i;
         if (tmp == sender)
@@ -133,8 +120,7 @@ SimpleChannel::UnBlackList(Ptr<SimpleNetDevice> from, Ptr<SimpleNetDevice> to)
 {
     if (m_blackListedDevices.find(to) != m_blackListedDevices.end())
     {
-        std::vector<Ptr<SimpleNetDevice>>::iterator iter;
-        iter = find(m_blackListedDevices[to].begin(), m_blackListedDevices[to].end(), from);
+        auto iter = find(m_blackListedDevices[to].begin(), m_blackListedDevices[to].end(), from);
         if (iter != m_blackListedDevices[to].end())
         {
             m_blackListedDevices[to].erase(iter);

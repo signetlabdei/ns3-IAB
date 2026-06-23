@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2017 NITK Surathkal
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Shravya K.S. <shravya.ks0@gmail.com>
  *
@@ -38,18 +27,18 @@ using namespace ns3;
 NS_LOG_COMPONENT_DEFINE("TcpDctcpTestSuite");
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief Validates the setting of ECT and ECE codepoints for DCTCP enabled traffic
+ * @brief Validates the setting of ECT and ECE codepoints for DCTCP enabled traffic
  */
 class TcpDctcpCodePointsTest : public TcpGeneralTest
 {
   public:
     /**
-     * \brief Constructor
+     * @brief Constructor
      *
-     * \param testCase Test case number
-     * \param desc Description about the test
+     * @param testCase Test case number
+     * @param desc Description about the test
      */
     TcpDctcpCodePointsTest(uint8_t testCase, const std::string& desc);
 
@@ -207,9 +196,9 @@ TcpDctcpCodePointsTest::ConfigureEnvironment()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief A TCP socket which sends a data packet with CE flags set for test 3.
+ * @brief A TCP socket which sends a data packet with CE flags set for test 3.
  *
  * The SendDataPacket function of this class sends data packet numbered 1  with CE flags set and
  * also doesn't set CWR flags on receipt of ECE flags for test 3. This is done to verify that DCTCP
@@ -220,8 +209,8 @@ class TcpDctcpCongestedRouter : public TcpSocketMsgBase
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
 
@@ -235,8 +224,8 @@ class TcpDctcpCongestedRouter : public TcpSocketMsgBase
     }
 
     /**
-     * \brief Constructor.
-     * \param other The object to copy from.
+     * @brief Constructor.
+     * @param other The object to copy from.
      */
     TcpDctcpCongestedRouter(const TcpDctcpCongestedRouter& other)
         : TcpSocketMsgBase(other)
@@ -245,7 +234,7 @@ class TcpDctcpCongestedRouter : public TcpSocketMsgBase
 
     /**
      * Set the test case type
-     * \param testCase test case type
+     * @param testCase test case type
      */
     void SetTestCase(uint8_t testCase);
 
@@ -551,24 +540,24 @@ TcpDctcpCodePointsTest::CreateReceiverSocket(Ptr<Node> node)
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief DCTCP should be same as Linux during slow start
+ * @brief DCTCP should be same as Linux during slow start
  */
 class TcpDctcpToLinuxReno : public TestCase
 {
   public:
     /**
-     * \brief Constructor
+     * @brief Constructor
      *
-     * \param cWnd congestion window
-     * \param segmentSize segment size
-     * \param ssThresh slow start threshold
-     * \param segmentsAcked segments acked
-     * \param highTxMark high tx mark
-     * \param lastAckedSeq last acked seq
-     * \param rtt RTT
-     * \param name Name of the test
+     * @param cWnd congestion window
+     * @param segmentSize segment size
+     * @param ssThresh slow start threshold
+     * @param segmentsAcked segments acked
+     * @param highTxMark high tx mark
+     * @param lastAckedSeq last acked seq
+     * @param rtt RTT
+     * @param name Name of the test
      */
     TcpDctcpToLinuxReno(uint32_t cWnd,
                         uint32_t segmentSize,
@@ -581,7 +570,7 @@ class TcpDctcpToLinuxReno : public TestCase
 
   private:
     void DoRun() override;
-    /** \brief Execute the test
+    /** @brief Execute the test
      */
     void ExecuteTest();
 
@@ -617,7 +606,7 @@ TcpDctcpToLinuxReno::TcpDctcpToLinuxReno(uint32_t cWnd,
 void
 TcpDctcpToLinuxReno::DoRun()
 {
-    Simulator::Schedule(Seconds(0.0), &TcpDctcpToLinuxReno::ExecuteTest, this);
+    Simulator::Schedule(Seconds(0), &TcpDctcpToLinuxReno::ExecuteTest, this);
     Simulator::Run();
     Simulator::Destroy();
 }
@@ -651,15 +640,15 @@ TcpDctcpToLinuxReno::ExecuteTest()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief TCP DCTCP TestSuite
+ * @brief TCP DCTCP TestSuite
  */
 class TcpDctcpTestSuite : public TestSuite
 {
   public:
     TcpDctcpTestSuite()
-        : TestSuite("tcp-dctcp-test", UNIT)
+        : TestSuite("tcp-dctcp-test", Type::UNIT)
     {
         AddTestCase(new TcpDctcpToLinuxReno(2 * 1446,
                                             1446,
@@ -669,20 +658,20 @@ class TcpDctcpTestSuite : public TestSuite
                                             SequenceNumber32(3216),
                                             MilliSeconds(100),
                                             "DCTCP falls to New Reno for slowstart"),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
         AddTestCase(new TcpDctcpCodePointsTest(1,
                                                "ECT Test : Check if ECT is set on Syn, Syn+Ack, "
                                                "Ack and Data packets for DCTCP packets"),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
         AddTestCase(new TcpDctcpCodePointsTest(
                         2,
                         "ECT Test : Check if ECT is not set on Syn, Syn+Ack and Ack but set on "
                         "Data packets for non-DCTCP but ECN enabled traffic"),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
         AddTestCase(new TcpDctcpCodePointsTest(3,
                                                "ECE Functionality Test: ECE should only be sent by "
                                                "receiver when it receives CE flags"),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
     }
 };
 

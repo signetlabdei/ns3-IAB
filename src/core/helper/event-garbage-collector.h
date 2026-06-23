@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2007 INESC Porto
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Gustavo J. A. M. Carneiro  <gjc@inescporto.pt>
  */
@@ -25,9 +14,9 @@
 #include <set>
 
 /**
- * \file
- * \ingroup events
- * \ingroup core-helpers
+ * @file
+ * @ingroup events
+ * @ingroup core-helpers
  * ns3::EventGarbageCollector declaration.
  */
 
@@ -35,10 +24,10 @@ namespace ns3
 {
 
 /**
- * \ingroup events
- * \ingroup core-helpers
+ * @ingroup events
+ * @ingroup core-helpers
  *
- * \brief An object that tracks scheduled events and automatically
+ * @brief An object that tracks scheduled events and automatically
  * cancels them when it is destroyed.  It is useful in situations
  * where multiple instances of the same type of event can
  * simultaneously be scheduled, and when the events should be limited
@@ -50,8 +39,8 @@ class EventGarbageCollector
     EventGarbageCollector();
 
     /**
-     * \brief Tracks a new event
-     * \param [in] event the Event to track
+     * @brief Tracks a new event
+     * @param [in] event the Event to track
      */
     void Track(EventId event);
 
@@ -73,19 +62,19 @@ class EventGarbageCollector
     EventList m_events;                     //!< The tracked event list
 
     /**
-     * \brief Called when a new event was added and the cleanup limit was
+     * @brief Called when a new event was added and the cleanup limit was
      * exceeded in consequence.
      */
     void Cleanup();
     /**
-     * \brief Grow the cleanup limit.
+     * @brief Grow the cleanup limit.
      * Increase the cleanup size by the smaller of
      * the current cleanup size (exponential growth),
      * or the CHUNK_MAX_SIZE (linear growth).
      */
     void Grow();
     /**
-     * \brief Shrink the cleanup limit
+     * @brief Shrink the cleanup limit
      * Reduce the cleanup size by factors of two until less than the
      * current event list, then Grow one step.
      */

@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2010 IITP RAS
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Pavel Boyko <boyko@iitp.ru>
  */
@@ -36,7 +25,6 @@
 #include "ns3/udp-echo-helper.h"
 #include "ns3/udp-socket-factory.h"
 #include "ns3/uinteger.h"
-#include "ns3/v4ping.h"
 #include "ns3/yans-wifi-helper.h"
 
 #include <sstream>
@@ -47,9 +35,9 @@ namespace aodv
 {
 
 /**
- * \ingroup aodv
+ * @ingroup aodv
  *
- * \brief AODV loopback UDP echo test case
+ * @brief AODV loopback UDP echo test case
  */
 class LoopbackTestCase : public TestCase
 {
@@ -62,17 +50,17 @@ class LoopbackTestCase : public TestCase
 
     /**
      * Send data function
-     * \param socket The socket to send data
+     * @param socket The socket to send data
      */
     void SendData(Ptr<Socket> socket);
     /**
      * Receive packet function
-     * \param socket The socket to receive data
+     * @param socket The socket to receive data
      */
     void ReceivePkt(Ptr<Socket> socket);
     /**
      * Echo data function
-     * \param socket The socket to echo data
+     * @param socket The socket to echo data
      */
     void EchoData(Ptr<Socket> socket) const;
 
@@ -119,7 +107,7 @@ LoopbackTestCase::SendData(Ptr<Socket> socket)
     socket->SendTo(Create<Packet>(123), 0, realTo);
 
     Simulator::ScheduleWithContext(socket->GetNode()->GetId(),
-                                   Seconds(1.0),
+                                   Seconds(1),
                                    &LoopbackTestCase::SendData,
                                    this,
                                    socket);
@@ -151,6 +139,7 @@ LoopbackTestCase::DoRun()
     // Setup TCP/IP & AODV
     AodvHelper aodv; // Use default parameters here
     InternetStackHelper internetStack;
+    internetStack.SetIpv6StackInstall(false);
     internetStack.SetRoutingHelper(aodv);
     internetStack.Install(nodes);
     Ipv4AddressHelper address;
@@ -170,7 +159,7 @@ LoopbackTestCase::DoRun()
     m_txSocket = socketFactory->CreateSocket();
 
     Simulator::ScheduleWithContext(m_txSocket->GetNode()->GetId(),
-                                   Seconds(1.0),
+                                   Seconds(1),
                                    &LoopbackTestCase::SendData,
                                    this,
                                    m_txSocket);
@@ -190,19 +179,19 @@ LoopbackTestCase::DoRun()
 }
 
 /**
- * \ingroup aodv-test
+ * @ingroup aodv-test
  *
- * \brief AODV Loopback test suite
+ * @brief AODV Loopback test suite
  */
 class AodvLoopbackTestSuite : public TestSuite
 {
   public:
     AodvLoopbackTestSuite()
-        : TestSuite("routing-aodv-loopback", SYSTEM)
+        : TestSuite("routing-aodv-loopback", Type::SYSTEM)
     {
         SetDataDir(NS_TEST_SOURCEDIR);
         // UDP Echo loopback test case
-        AddTestCase(new LoopbackTestCase(), TestCase::QUICK);
+        AddTestCase(new LoopbackTestCase(), TestCase::Duration::QUICK);
     }
 } g_aodvLoopbackTestSuite; ///< the test suite
 

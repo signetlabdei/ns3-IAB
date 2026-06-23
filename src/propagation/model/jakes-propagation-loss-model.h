@@ -1,34 +1,23 @@
 /*
  * Copyright (c) 2012 Telum (www.telum.ru)
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Kirill Andreev <andreev@telum.ru>
  */
 #ifndef JAKES_STATIONARY_LOSS_MODEL_H
 #define JAKES_STATIONARY_LOSS_MODEL_H
 
-#include "ns3/jakes-process.h"
-#include "ns3/propagation-cache.h"
-#include "ns3/propagation-loss-model.h"
+#include "jakes-process.h"
+#include "propagation-cache.h"
+#include "propagation-loss-model.h"
 
 namespace ns3
 {
 /**
- * \ingroup propagation
+ * @ingroup propagation
  *
- * \brief a  Jakes narrowband propagation model.
+ * @brief a  Jakes narrowband propagation model.
  * Symmetrical cache for JakesProcess
  */
 
@@ -36,8 +25,8 @@ class JakesPropagationLossModel : public PropagationLossModel
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
     JakesPropagationLossModel();
@@ -61,7 +50,7 @@ class JakesPropagationLossModel : public PropagationLossModel
 
     /**
      * Get the underlying RNG stream
-     * \return the RNG stream
+     * @return the RNG stream
      */
     Ptr<UniformRandomVariable> GetUniformRandomVariable() const;
 

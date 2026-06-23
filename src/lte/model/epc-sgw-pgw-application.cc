@@ -416,7 +416,7 @@ EpcSgwPgwApplication::DoCreateSessionRequest (EpcS11SapSgw::CreateSessionRequest
   // if IAB-node, retrieve the IP address of the donor as well
   Ipv4Address donorAddr = servingDuAddr;
   uint16_t donorBapAddr = servingDuBapAddr;
-  if (enbit->second.isIabNode)
+  if (enbit->second.isIabNode && enbit->second.donorCellId != 0)
     {
       uint16_t donorCellId = enbit->second.donorCellId;
       cellIdPairEntry = donorCellId;
@@ -425,6 +425,8 @@ EpcSgwPgwApplication::DoCreateSessionRequest (EpcS11SapSgw::CreateSessionRequest
       donorAddr = enbit->second.enbAddr;
       donorBapAddr = enbit->second.bapAddr;
     }
+  // When donorCellId == 0 the IAB DU has no parent donor (standalone root).
+  // donorAddr/donorBapAddr already equal servingDuAddr/servingDuBapAddr.
 
   ueit->second->SetServingDuAddress (servingDuAddr);
   ueit->second->SetServingDuBapAddress (servingDuBapAddr);
@@ -445,13 +447,9 @@ EpcSgwPgwApplication::DoCreateSessionRequest (EpcS11SapSgw::CreateSessionRequest
       uint32_t teid = ++m_teidCount;
       ueit->second->AddBearer (bit->tft, bit->epsBearerId, teid);
 
-      // Store bearer ID in the DUs info as well
-      NS_ASSERT_MSG (m_terminatingBearerIdToImsiMap.find(
-                      std::make_pair(cellIdPairEntry, bit->epsBearerId)) == 
-                      m_terminatingBearerIdToImsiMap.end(), 
-                      "We are adding the bearer now, should not be there already!");
-      m_terminatingBearerIdToImsiMap[std::make_pair
-                                        (cellIdPairEntry, bit->epsBearerId)] = req.imsi;
+      // Store bearerId -> imsi mapping so that RecvFromS1uSocket can identify IAB MT bearers.
+      // The GTP TEID used by PGW is the bearerId (from Classify()), not the real SGW teid.
+      m_terminatingBearerIdToImsiMap[std::make_pair(cellIdPairEntry, (uint64_t)bit->epsBearerId)] = req.imsi;
       EpcS11SapMme::BearerContextCreated bearerContext;
       bearerContext.sgwFteid.teid = teid;
       bearerContext.sgwFteid.address = enbit->second.sgwAddr;
@@ -551,13 +549,16 @@ std::optional<uint16_t>
 EpcSgwPgwApplication::GetBapAddressWhereBearerTerminates (uint16_t cellid, uint64_t bid) const
 {
   auto key = std::make_pair(cellid, bid);
-  NS_ASSERT (m_terminatingBearerIdToImsiMap.find(key) != 
-            m_terminatingBearerIdToImsiMap.end());
+  auto it = m_terminatingBearerIdToImsiMap.find(key);
+  if (it == m_terminatingBearerIdToImsiMap.end())
+    {
+      return std::nullopt; // Regular PDU bearer — no IAB routing needed
+    }
 
   // Find corresponding IMSI. This refers to the IMSI of the UE endpoint,
   // whenever this is PDU traffic, and to the terminating IAB node MT's IMSI
   // whenever it refers to non-PDU traffic.
-  uint32_t imsiTerminatingNode = m_terminatingBearerIdToImsiMap.at(key);
+  uint64_t imsiTerminatingNode = it->second;
 
   // Find corresponding BAP address, if it is indeed non-PDU traffic and 
   // the bearer terminates at an IAB node.

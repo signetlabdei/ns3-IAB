@@ -2,23 +2,14 @@
  * Copyright (c) 2014 Wireless Communications and Networking Group (WCNG),
  * University of Rochester, Rochester, NY, USA.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Cristiano Tapparello <cristiano.tapparello@rochester.edu>
  */
 
 #include "basic-energy-harvester.h"
+
+#include "energy-source.h"
 
 #include "ns3/assert.h"
 #include "ns3/log.h"
@@ -29,23 +20,25 @@
 
 namespace ns3
 {
+namespace energy
+{
 
 NS_LOG_COMPONENT_DEFINE("BasicEnergyHarvester");
-
 NS_OBJECT_ENSURE_REGISTERED(BasicEnergyHarvester);
 
 TypeId
 BasicEnergyHarvester::GetTypeId()
 {
     static TypeId tid =
-        TypeId("ns3::BasicEnergyHarvester")
+        TypeId("ns3::energy::BasicEnergyHarvester")
+            .AddDeprecatedName("ns3::BasicEnergyHarvester")
             .SetParent<EnergyHarvester>()
             .SetGroupName("Energy")
             .AddConstructor<BasicEnergyHarvester>()
             .AddAttribute("PeriodicHarvestedPowerUpdateInterval",
                           "Time between two consecutive periodic updates of the harvested power. "
                           "By default, the value is updated every 1 s",
-                          TimeValue(Seconds(1.0)),
+                          TimeValue(Seconds(1)),
                           MakeTimeAccessor(&BasicEnergyHarvester::SetHarvestedPowerUpdateInterval,
                                            &BasicEnergyHarvester::GetHarvestedPowerUpdateInterval),
                           MakeTimeChecker())
@@ -183,4 +176,5 @@ BasicEnergyHarvester::DoGetPower() const
     return m_harvestedPower;
 }
 
+} // namespace energy
 } // namespace ns3

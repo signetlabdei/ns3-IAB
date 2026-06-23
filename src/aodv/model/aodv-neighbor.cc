@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 IITP RAS
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Based on
  *      NS-2 AODV model developed by the CMU/MONARCH group and optimized and
@@ -51,7 +40,7 @@ bool
 Neighbors::IsNeighbor(Ipv4Address addr)
 {
     Purge();
-    for (std::vector<Neighbor>::const_iterator i = m_nb.begin(); i != m_nb.end(); ++i)
+    for (auto i = m_nb.begin(); i != m_nb.end(); ++i)
     {
         if (i->m_neighborAddress == addr)
         {
@@ -65,20 +54,20 @@ Time
 Neighbors::GetExpireTime(Ipv4Address addr)
 {
     Purge();
-    for (std::vector<Neighbor>::const_iterator i = m_nb.begin(); i != m_nb.end(); ++i)
+    for (auto i = m_nb.begin(); i != m_nb.end(); ++i)
     {
         if (i->m_neighborAddress == addr)
         {
             return (i->m_expireTime - Simulator::Now());
         }
     }
-    return Seconds(0);
+    return Time(0);
 }
 
 void
 Neighbors::Update(Ipv4Address addr, Time expire)
 {
-    for (std::vector<Neighbor>::iterator i = m_nb.begin(); i != m_nb.end(); ++i)
+    for (auto i = m_nb.begin(); i != m_nb.end(); ++i)
     {
         if (i->m_neighborAddress == addr)
         {
@@ -98,15 +87,15 @@ Neighbors::Update(Ipv4Address addr, Time expire)
 }
 
 /**
- * \brief CloseNeighbor structure
+ * @brief CloseNeighbor structure
  */
 struct CloseNeighbor
 {
     /**
      * Check if the entry is expired
      *
-     * \param nb Neighbors::Neighbor entry
-     * \return true if expired, false otherwise
+     * @param nb Neighbors::Neighbor entry
+     * @return true if expired, false otherwise
      */
     bool operator()(const Neighbors::Neighbor& nb) const
     {
@@ -125,7 +114,7 @@ Neighbors::Purge()
     CloseNeighbor pred;
     if (!m_handleLinkFailure.IsNull())
     {
-        for (std::vector<Neighbor>::iterator j = m_nb.begin(); j != m_nb.end(); ++j)
+        for (auto j = m_nb.begin(); j != m_nb.end(); ++j)
         {
             if (pred(*j))
             {
@@ -162,7 +151,7 @@ Mac48Address
 Neighbors::LookupMacAddress(Ipv4Address addr)
 {
     Mac48Address hwaddr;
-    for (std::vector<Ptr<ArpCache>>::const_iterator i = m_arp.begin(); i != m_arp.end(); ++i)
+    for (auto i = m_arp.begin(); i != m_arp.end(); ++i)
     {
         ArpCache::Entry* entry = (*i)->Lookup(addr);
         if (entry != nullptr && (entry->IsAlive() || entry->IsPermanent()) && !entry->IsExpired())
@@ -179,7 +168,7 @@ Neighbors::ProcessTxError(const WifiMacHeader& hdr)
 {
     Mac48Address addr = hdr.GetAddr1();
 
-    for (std::vector<Neighbor>::iterator i = m_nb.begin(); i != m_nb.end(); ++i)
+    for (auto i = m_nb.begin(); i != m_nb.end(); ++i)
     {
         if (i->m_hardwareAddress == addr)
         {

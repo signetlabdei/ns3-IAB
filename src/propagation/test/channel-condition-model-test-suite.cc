@@ -2,18 +2,7 @@
  * Copyright (c) 2019 SIGNET Lab, Department of Information Engineering,
  * University of Padova
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #include "ns3/abort.h"
@@ -31,7 +20,7 @@ using namespace ns3;
 NS_LOG_COMPONENT_DEFINE("ChannelConditionModelsTest");
 
 /**
- * \ingroup propagation-tests
+ * @ingroup propagation-tests
  *
  * Test case for the 3GPP channel condition models. It determines the
  * channel condition multiple times, estimates the LOS probability and
@@ -61,8 +50,8 @@ class ThreeGppChannelConditionModelTestCase : public TestCase
      * Evaluates the channel condition between two nodes by calling the method
      * GetChannelCondition on m_condModel. If the channel condition is LOS it
      * increments m_numLos
-     * \param a the mobility model of the first node
-     * \param b the mobility model of the second node
+     * @param a the mobility model of the first node
+     * @param b the mobility model of the second node
      */
     void EvaluateChannelCondition(Ptr<MobilityModel> a, Ptr<MobilityModel> b);
 
@@ -86,7 +75,7 @@ class ThreeGppChannelConditionModelTestCase : public TestCase
 ThreeGppChannelConditionModelTestCase::ThreeGppChannelConditionModelTestCase()
     : TestCase("Test case for the child classes of ThreeGppChannelConditionModel"),
       m_testVectors(),
-      m_tolerance(2e-3)
+      m_tolerance(2.5e-3)
 {
 }
 
@@ -278,7 +267,7 @@ ThreeGppChannelConditionModelTestCase::DoRun()
 }
 
 /**
- * \ingroup propagation-tests
+ * @ingroup propagation-tests
  *
  * Test suite for the channel condition models
  */
@@ -289,9 +278,9 @@ class ChannelConditionModelsTestSuite : public TestSuite
 };
 
 ChannelConditionModelsTestSuite::ChannelConditionModelsTestSuite()
-    : TestSuite("propagation-channel-condition-model", UNIT)
+    : TestSuite("propagation-channel-condition-model", Type::UNIT)
 {
-    AddTestCase(new ThreeGppChannelConditionModelTestCase, TestCase::QUICK);
+    AddTestCase(new ThreeGppChannelConditionModelTestCase, TestCase::Duration::QUICK);
 }
 
 /// Static variable for test initialization

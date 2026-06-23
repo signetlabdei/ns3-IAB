@@ -1,42 +1,28 @@
 /*
  * Copyright (c) 2008 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #include "realtime-simulator-impl.h"
 
 #include "assert.h"
-#include "boolean.h"
 #include "enum.h"
 #include "event-impl.h"
 #include "fatal-error.h"
 #include "log.h"
-#include "pointer.h"
 #include "ptr.h"
 #include "scheduler.h"
 #include "simulator.h"
 #include "synchronizer.h"
 #include "wall-clock-synchronizer.h"
 
-#include <cmath>
 #include <mutex>
 #include <thread>
 
 /**
- * \file
- * \ingroup realtime
+ * @file
+ * @ingroup realtime
  * ns3::RealTimeSimulatorImpl implementation.
  */
 
@@ -62,7 +48,8 @@ RealtimeSimulatorImpl::GetTypeId()
                 "SynchronizationMode",
                 "What to do if the simulation cannot keep up with real time.",
                 EnumValue(SYNC_BEST_EFFORT),
-                MakeEnumAccessor(&RealtimeSimulatorImpl::SetSynchronizationMode),
+                MakeEnumAccessor<SynchronizationMode>(
+                    &RealtimeSimulatorImpl::SetSynchronizationMode),
                 MakeEnumChecker(SYNC_BEST_EFFORT, "BestEffort", SYNC_HARD_LIMIT, "HardLimit"))
             .AddAttribute("HardLimit",
                           "Maximum acceptable real-time jitter (used in conjunction with "
@@ -125,12 +112,12 @@ RealtimeSimulatorImpl::Destroy()
     // means shutting down the workers and doing a Join() before calling the
     // Simulator::Destroy().
     //
-    while (m_destroyEvents.empty() == false)
+    while (!m_destroyEvents.empty())
     {
         Ptr<EventImpl> ev = m_destroyEvents.front().PeekEventImpl();
         m_destroyEvents.pop_front();
         NS_LOG_LOGIC("handle destroy " << ev);
-        if (ev->IsCancelled() == false)
+        if (!ev->IsCancelled())
         {
             ev->Invoke();
         }
@@ -149,7 +136,7 @@ RealtimeSimulatorImpl::SetScheduler(ObjectFactory schedulerFactory)
 
         if (m_events)
         {
-            while (m_events->IsEmpty() == false)
+            while (!m_events->IsEmpty())
             {
                 Scheduler::Event next = m_events->RemoveNext();
                 scheduler->Insert(next);
@@ -453,16 +440,15 @@ RealtimeSimulatorImpl::Run()
             }
         }
 
-        if (!process)
+        if (process)
         {
-            // Sleep until signalled
-            tsNow = m_synchronizer->Synchronize(tsNow, tsDelay);
-
-            // Re-check event queue
-            continue;
+            ProcessOneEvent();
         }
-
-        ProcessOneEvent();
+        else
+        {
+            // Sleep until signalled and re-check event queue
+            m_synchronizer->Synchronize(tsNow, tsDelay);
+        }
     }
 
     //
@@ -498,11 +484,11 @@ RealtimeSimulatorImpl::Stop()
     m_stop = true;
 }
 
-void
+EventId
 RealtimeSimulatorImpl::Stop(const Time& delay)
 {
     NS_LOG_FUNCTION(this << delay);
-    Simulator::Schedule(delay, &Simulator::Stop);
+    return Simulator::Schedule(delay, &Simulator::Stop);
 }
 
 //
@@ -704,7 +690,7 @@ RealtimeSimulatorImpl::Remove(const EventId& id)
     if (id.GetUid() == EventId::UID::DESTROY)
     {
         // destroy events.
-        for (DestroyEvents::iterator i = m_destroyEvents.begin(); i != m_destroyEvents.end(); i++)
+        for (auto i = m_destroyEvents.begin(); i != m_destroyEvents.end(); i++)
         {
             if (*i == id)
             {
@@ -738,7 +724,7 @@ RealtimeSimulatorImpl::Remove(const EventId& id)
 void
 RealtimeSimulatorImpl::Cancel(const EventId& id)
 {
-    if (IsExpired(id) == false)
+    if (!IsExpired(id))
     {
         id.PeekEventImpl()->Cancel();
     }
@@ -754,8 +740,7 @@ RealtimeSimulatorImpl::IsExpired(const EventId& id) const
             return true;
         }
         // destroy events.
-        for (DestroyEvents::const_iterator i = m_destroyEvents.begin(); i != m_destroyEvents.end();
-             i++)
+        for (auto i = m_destroyEvents.begin(); i != m_destroyEvents.end(); i++)
         {
             if (*i == id)
             {
@@ -773,16 +758,9 @@ RealtimeSimulatorImpl::IsExpired(const EventId& id) const
     //
     // The same is true for the next line involving the m_currentUid.
     //
-    if (id.PeekEventImpl() == nullptr || id.GetTs() < m_currentTs ||
-        (id.GetTs() == m_currentTs && id.GetUid() <= m_currentUid) ||
-        id.PeekEventImpl()->IsCancelled())
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return id.PeekEventImpl() == nullptr || id.GetTs() < m_currentTs ||
+           (id.GetTs() == m_currentTs && id.GetUid() <= m_currentUid) ||
+           id.PeekEventImpl()->IsCancelled();
 }
 
 Time

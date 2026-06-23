@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2015 Alexander Krotov <ilabdsf@yandex.ru>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  */
 
@@ -26,9 +15,9 @@
 using namespace ns3;
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief Test for bug 2211.
+ * @brief Test for bug 2211.
  *
  * https://www.nsnam.org/bugzilla/show_bug.cgi?id=2211
  *
@@ -52,25 +41,25 @@ class TcpEndPointBug2211Test : public TestCase
   public:
     /**
      * Constructor.
-     * \param desc Test description.
-     * \param ipVersion True to use IPv6.
+     * @param desc Test description.
+     * @param ipVersion True to use IPv6.
      */
     TcpEndPointBug2211Test(std::string desc, bool ipVersion);
 
     /**
-     * \brief Receive a packet.
-     * \param socket The receiving socket.
+     * @brief Receive a packet.
+     * @param socket The receiving socket.
      */
     void Recv(Ptr<Socket> socket);
     /**
-     * \brief Handle an incoming connection.
-     * \param s The receiving socket.
-     * \param from The other node IP address.
+     * @brief Handle an incoming connection.
+     * @param s The receiving socket.
+     * @param from The other node IP address.
      */
     void HandleAccept(Ptr<Socket> s, const Address& from);
     /**
-     * \brief Handle a connection establishment.
-     * \param socket The receiving socket.
+     * @brief Handle a connection establishment.
+     * @param socket The receiving socket.
      */
     void HandleConnect(Ptr<Socket> socket);
     void DoRun() override;
@@ -119,7 +108,7 @@ TcpEndPointBug2211Test::DoRun()
 
     TypeId tid = TcpSocketFactory::GetTypeId();
     Ptr<Socket> sink = Socket::CreateSocket(node, tid);
-    if (m_v6 == false)
+    if (!m_v6)
     {
         sink->Bind(InetSocketAddress(Ipv4Address::GetAny(), 9));
     }
@@ -135,7 +124,7 @@ TcpEndPointBug2211Test::DoRun()
     source->Bind();
     source->SetConnectCallback(MakeCallback(&TcpEndPointBug2211Test::HandleConnect, this),
                                MakeNullCallback<void, Ptr<Socket>>());
-    if (m_v6 == false)
+    if (!m_v6)
     {
         source->Connect(InetSocketAddress(Ipv4Address::GetLoopback(), 9));
     }
@@ -149,18 +138,20 @@ TcpEndPointBug2211Test::DoRun()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief TestSuite for bug 2211 - It must be used with valgrind.
+ * @brief TestSuite for bug 2211 - It must be used with valgrind.
  */
 class TcpEndpointBug2211TestSuite : public TestSuite
 {
   public:
     TcpEndpointBug2211TestSuite()
-        : TestSuite("tcp-endpoint-bug2211-test", UNIT)
+        : TestSuite("tcp-endpoint-bug2211-test", Type::UNIT)
     {
-        AddTestCase(new TcpEndPointBug2211Test("Bug 2211 testcase IPv4", false), TestCase::QUICK);
-        AddTestCase(new TcpEndPointBug2211Test("Bug 2211 testcase IPv6", true), TestCase::QUICK);
+        AddTestCase(new TcpEndPointBug2211Test("Bug 2211 testcase IPv4", false),
+                    TestCase::Duration::QUICK);
+        AddTestCase(new TcpEndPointBug2211Test("Bug 2211 testcase IPv6", true),
+                    TestCase::Duration::QUICK);
     }
 };
 

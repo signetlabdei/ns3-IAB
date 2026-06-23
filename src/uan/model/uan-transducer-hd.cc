@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Leonard Tracy <lentracy@gmail.com>
  */
@@ -21,12 +10,12 @@
 
 #include "uan-channel.h"
 #include "uan-phy.h"
+#include "uan-prop-model.h"
 
 #include "ns3/double.h"
 #include "ns3/log.h"
 #include "ns3/pointer.h"
 #include "ns3/simulator.h"
-#include "ns3/uan-prop-model.h"
 
 namespace ns3
 {
@@ -38,7 +27,7 @@ NS_OBJECT_ENSURE_REGISTERED(UanTransducerHd);
 UanTransducerHd::UanTransducerHd()
     : UanTransducer(),
       m_state(RX),
-      m_endTxTime(Seconds(0)),
+      m_endTxTime(),
       m_cleared(false),
       m_rxGainDb(0)
 {
@@ -62,7 +51,7 @@ UanTransducerHd::Clear()
         m_channel = nullptr;
     }
 
-    UanPhyList::iterator it = m_phyList.begin();
+    auto it = m_phyList.begin();
     for (; it != m_phyList.end(); it++)
     {
         if (*it)
@@ -71,7 +60,7 @@ UanTransducerHd::Clear()
             *it = nullptr;
         }
     }
-    ArrivalList::iterator ait = m_arrivalList.begin();
+    auto ait = m_arrivalList.begin();
     for (; ait != m_arrivalList.end(); ait++)
     {
         ait->GetPacket() = nullptr;
@@ -164,7 +153,7 @@ UanTransducerHd::Receive(Ptr<Packet> packet, double rxPowerDb, UanTxMode txMode,
     if (m_state == RX)
     {
         NS_LOG_DEBUG("Transducer state = RX");
-        UanPhyList::const_iterator it = m_phyList.begin();
+        auto it = m_phyList.begin();
         for (; it != m_phyList.end(); it++)
         {
             NS_LOG_DEBUG("Calling StartRx");
@@ -191,7 +180,7 @@ UanTransducerHd::Transmit(Ptr<UanPhy> src, Ptr<Packet> packet, double txPowerDb,
     NS_LOG_DEBUG("Transducer transmitting:  TX delay = "
                  << delay << " seconds for packet size " << packet->GetSize()
                  << " bytes and rate = " << txMode.GetDataRateBps() << " bps");
-    UanPhyList::const_iterator it = m_phyList.begin();
+    auto it = m_phyList.begin();
     for (; it != m_phyList.end(); it++)
     {
         if (src != (*it))
@@ -245,7 +234,7 @@ void
 UanTransducerHd::RemoveArrival(UanPacketArrival arrival)
 {
     // Remove entry from arrival list
-    ArrivalList::iterator it = m_arrivalList.begin();
+    auto it = m_arrivalList.begin();
     for (; it != m_arrivalList.end(); it++)
     {
         if (it->GetPacket() == arrival.GetPacket())
@@ -254,7 +243,7 @@ UanTransducerHd::RemoveArrival(UanPacketArrival arrival)
             break;
         }
     }
-    UanPhyList::const_iterator ait = m_phyList.begin();
+    auto ait = m_phyList.begin();
     for (; ait != m_phyList.end(); ait++)
     {
         (*ait)->NotifyIntChange();

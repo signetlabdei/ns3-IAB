@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2020 Universita' di Firenze, Italy
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Tommaso Pecorella <tommaso.pecorella@unifi.it>
  */
@@ -21,6 +10,7 @@
 
 #include "log.h"
 
+#include <bit>
 #include <limits>
 
 namespace ns3
@@ -116,20 +106,7 @@ TrickleTimer::GetDoublings() const
         return 0;
     }
 
-    // Here we assume that m_ticks is a power of 2.
-    // This could have been way more elegant by using
-    // std::countl_zero() defined in the <bit> header
-    // which is c++20 - so not yet widely available.
-
-    uint64_t ticks = m_ticks;
-    uint8_t doublings = 0;
-    while (ticks != 1)
-    {
-        ticks >>= 1;
-        doublings++;
-    }
-
-    return doublings;
+    return std::countr_zero(m_ticks);
 }
 
 uint16_t
@@ -144,7 +121,7 @@ TrickleTimer::GetDelayLeft() const
 {
     NS_LOG_FUNCTION(this);
 
-    if (m_timerExpiration.IsRunning())
+    if (m_timerExpiration.IsPending())
     {
         return Simulator::GetDelayLeft(m_timerExpiration);
     }
@@ -157,7 +134,7 @@ TrickleTimer::GetIntervalLeft() const
 {
     NS_LOG_FUNCTION(this);
 
-    if (m_intervalExpiration.IsRunning())
+    if (m_intervalExpiration.IsPending())
     {
         return Simulator::GetDelayLeft(m_intervalExpiration);
     }
@@ -173,7 +150,7 @@ TrickleTimer::Enable()
     uint64_t randomInt;
     double random;
 
-    NS_ASSERT_MSG(m_minInterval != Time(0), "Timer not initialized");
+    NS_ASSERT_MSG(!m_minInterval.IsZero(), "Timer not initialized");
 
     randomInt = m_uniRand->GetInteger(1, m_ticks);
     random = randomInt;

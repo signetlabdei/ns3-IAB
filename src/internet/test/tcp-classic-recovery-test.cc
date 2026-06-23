@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2018 NITK Surathkal
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Viyom Mittal <viyommittal@gmail.com>
  *         Vivek Jain <jain.vivek.anand@gmail.com>
@@ -32,18 +21,18 @@ using namespace ns3;
 NS_LOG_COMPONENT_DEFINE("TcpClassicRecoveryTestSuite");
 
 /**
- * \brief Classic Recovery algorithm test
+ * @brief Classic Recovery algorithm test
  */
 class ClassicRecoveryTest : public TestCase
 {
   public:
     /**
-     * \brief Constructor.
-     * \param cWnd Congestion window.
-     * \param segmentSize Segment size.
-     * \param ssThresh Slow Start Threshold.
-     * \param dupAckCount Duplicate acknowledgement Threshold.
-     * \param name Test description.
+     * @brief Constructor.
+     * @param cWnd Congestion window.
+     * @param segmentSize Segment size.
+     * @param ssThresh Slow Start Threshold.
+     * @param dupAckCount Duplicate acknowledgement Threshold.
+     * @param name Test description.
      */
     ClassicRecoveryTest(uint32_t cWnd,
                         uint32_t segmentSize,
@@ -101,7 +90,7 @@ ClassicRecoveryTest::DoRun()
 
     uint32_t cWndInflPrevious = m_state->m_cWndInfl;
     uint32_t cWndPrevious = m_state->m_cWnd;
-    recovery->DoRecovery(m_state, 500);
+    recovery->DoRecovery(m_state, 500, false);
     NS_TEST_ASSERT_MSG_EQ(
         m_state->m_cWndInfl,
         (cWndInflPrevious + m_state->m_segmentSize),
@@ -118,52 +107,52 @@ ClassicRecoveryTest::DoRun()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief Classic Recovery TestSuite
+ * @brief Classic Recovery TestSuite
  */
 class ClassicRecoveryTestSuite : public TestSuite
 {
   public:
     ClassicRecoveryTestSuite()
-        : TestSuite("tcp-classic-recovery-test", UNIT)
+        : TestSuite("tcp-classic-recovery-test", Type::UNIT)
     {
         AddTestCase(new ClassicRecoveryTest(3000,
                                             500,
                                             2500,
                                             3,
                                             "Classic recovery test with 500 bytes segmentSize"),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
         AddTestCase(new ClassicRecoveryTest(3000,
                                             1000,
                                             2500,
                                             3,
                                             "Classic recovery test with 1000 bytes segmentSize"),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
         AddTestCase(new ClassicRecoveryTest(3000,
                                             500,
                                             2500,
                                             4,
                                             "Classic recovery test with 4 DupAck threshold"),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
         AddTestCase(new ClassicRecoveryTest(3000,
                                             500,
                                             1000,
                                             3,
                                             "Classic recovery test with 1000 bytes ssThresh"),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
         AddTestCase(new ClassicRecoveryTest(2500,
                                             500,
                                             2500,
                                             3,
                                             "Classic recovery test with same cWnd and ssThresh"),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
         AddTestCase(new ClassicRecoveryTest(1000,
                                             500,
                                             2500,
                                             3,
                                             "Classic recovery test with cWnd lesser than ssThresh"),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
     }
 };
 

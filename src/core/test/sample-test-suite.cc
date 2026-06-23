@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  */
 
@@ -20,10 +9,10 @@
 #include "ns3/test.h"
 
 /**
- * \file
- * \ingroup core-tests
- * \ingroup testing
- * \ingroup testing-example
+ * @file
+ * @ingroup core-tests
+ * @ingroup testing
+ * @ingroup testing-example
  *
  * Example use of TestSuite.
  *
@@ -36,40 +25,40 @@
  *
  * Add it to the groups module-tests and class-tests:
  *
- * \verbatim /// \file
-/// \ingroup module-tests
-/// \ingroup class-tests
+ * @verbatim /// \file
+/// @ingroup module-tests
+/// @ingroup class-tests
 /// Class test suite. \endverbatim
  *
  * Define the class-tests group:
- * \verbatim /// \ingroup module-tests
-/// \defgroup class-tests Class test suite \endverbatim
+ * @verbatim /// \ingroup module-tests
+/// @defgroup class-tests Class test suite \endverbatim
  *
  * Make sure test.h is included:
- * \verbatim #include "ns3/test.h" \endverbatim
+ * @verbatim #include "ns3/test.h" \endverbatim
  *
  * Put the test code in namespace ns3::tests.
- * \verbatim namespace ns3 {
+ * @verbatim namespace ns3 {
   namespace tests { \endverbatim
  *
  * Write your test cases and final test suite, and put them in
  * your test group:
- * \verbatim /// \ingroup class-tests
+ * @verbatim /// \ingroup class-tests
 class ClassTestSuite : public TestSuite {...}; \endverbatim
  *
  * Create a static variable to hold the instance of your test suite:
- * \verbatim /// \ingroup class-tests
+ * @verbatim /// \ingroup class-tests
 /// ClassTestSuite instance variable.
 static ClassTestSuite g_classTestSuite; \endverbatim
  *
  * Finally, close the ingroup and namespace blocks:
- * \verbatim   }  // namespace tests
+ * @verbatim   }  // namespace tests
 }  // namespace ns3 \endverbatim
 */
 
 /**
- * \ingroup core-tests
- * \defgroup testing-example Example use of TestSuite
+ * @ingroup core-tests
+ * @defgroup testing-example Example use of TestSuite
  */
 
 namespace ns3
@@ -79,7 +68,7 @@ namespace tests
 {
 
 /**
- * \ingroup testing-example
+ * @ingroup testing-example
  * This is an example TestCase.
  */
 class SampleTestCase1 : public TestCase
@@ -122,7 +111,7 @@ SampleTestCase1::DoRun()
 }
 
 /**
- * \ingroup testing-example
+ * @ingroup testing-example
  * The TestSuite class names the TestSuite, identifies what type of TestSuite,
  * and enables the TestCases to be run.  Typically, only the constructor for
  * this class must be defined
@@ -142,7 +131,7 @@ SampleTestSuite::SampleTestSuite()
 
 // Do not forget to allocate an instance of this TestSuite
 /**
- * \ingroup testing-example
+ * @ingroup testing-example
  * SampleTestSuite instance variable.
  */
 static SampleTestSuite g_sampleTestSuite;

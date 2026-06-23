@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2017 Universita' degli Studi di Napoli Federico II
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Stefano Avallone <stavallo@unina.it>
  *
@@ -34,9 +23,9 @@
 using namespace ns3;
 
 /**
- * \ingroup traffic-control-test
+ * @ingroup traffic-control-test
  *
- * \brief Prio Queue Disc Test Item
+ * @brief Prio Queue Disc Test Item
  */
 class PrioQueueDiscTestItem : public QueueDiscItem
 {
@@ -44,9 +33,9 @@ class PrioQueueDiscTestItem : public QueueDiscItem
     /**
      * Constructor
      *
-     * \param p the packet
-     * \param addr the address
-     * \param priority the packet priority
+     * @param p the packet
+     * @param addr the address
+     * @param priority the packet priority
      */
     PrioQueueDiscTestItem(Ptr<Packet> p, const Address& addr, uint8_t priority);
     void AddHeader() override;
@@ -73,9 +62,9 @@ PrioQueueDiscTestItem::Mark()
 }
 
 /**
- * \ingroup traffic-control-test
+ * @ingroup traffic-control-test
  *
- * \brief Prio Queue Disc Test Packet Filter
+ * @brief Prio Queue Disc Test Packet Filter
  */
 class PrioQueueDiscTestFilter : public PacketFilter
 {
@@ -83,14 +72,14 @@ class PrioQueueDiscTestFilter : public PacketFilter
     /**
      * Constructor
      *
-     * \param cls whether this filter is able to classify a PrioQueueDiscTestItem
+     * @param cls whether this filter is able to classify a PrioQueueDiscTestItem
      */
     PrioQueueDiscTestFilter(bool cls);
     ~PrioQueueDiscTestFilter() override;
     /**
-     * \brief Set the value returned by DoClassify
+     * @brief Set the value returned by DoClassify
      *
-     * \param ret the value that DoClassify returns
+     * @param ret the value that DoClassify returns
      */
     void SetReturnValue(int32_t ret);
 
@@ -131,9 +120,9 @@ PrioQueueDiscTestFilter::DoClassify(Ptr<QueueDiscItem> item) const
 }
 
 /**
- * \ingroup traffic-control-test
+ * @ingroup traffic-control-test
  *
- * \brief Prio Queue Disc Test Case
+ * @brief Prio Queue Disc Test Case
  */
 class PrioQueueDiscTestCase : public TestCase
 {
@@ -314,16 +303,16 @@ PrioQueueDiscTestCase::DoRun()
 }
 
 /**
- * \ingroup traffic-control-test
+ * @ingroup traffic-control-test
  *
- * \brief Prio Queue Disc Test Suite
+ * @brief Prio Queue Disc Test Suite
  */
 static class PrioQueueDiscTestSuite : public TestSuite
 {
   public:
     PrioQueueDiscTestSuite()
-        : TestSuite("prio-queue-disc", UNIT)
+        : TestSuite("prio-queue-disc", Type::UNIT)
     {
-        AddTestCase(new PrioQueueDiscTestCase(), TestCase::QUICK);
+        AddTestCase(new PrioQueueDiscTestCase(), TestCase::Duration::QUICK);
     }
 } g_prioQueueTestSuite; ///< the test suite

@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 Strasbourg University
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: David Gross <gdavid.devel@gmail.com>
  */
@@ -157,7 +146,7 @@ main(int argc, char** argv)
      */
     uint32_t packetSize = 1024;
     uint32_t maxPacketCount = 1;
-    Time interPacketInterval = Seconds(1.0);
+    Time interPacketInterval = Seconds(1);
 
     std::vector<Ipv6Address> routersAddress;
     routersAddress.push_back(i3.GetAddress(1, 1));
@@ -174,8 +163,8 @@ main(int argc, char** argv)
     ApplicationContainer apps = client.Install(h0);
     DynamicCast<Ping>(apps.Get(0))->SetRouters(routersAddress);
 
-    apps.Start(Seconds(1.0));
-    apps.Stop(Seconds(20.0));
+    apps.Start(Seconds(1));
+    apps.Stop(Seconds(20));
 
     AsciiTraceHelper ascii;
     csma.EnableAsciiAll(ascii.CreateFileStream("loose-routing-ipv6.tr"));

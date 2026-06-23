@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2010 Adrian Sai-wah Tam
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Adrian Sai-wah Tam <adrian.sw.tam@gmail.com>
  */
@@ -20,10 +9,11 @@
 #ifndef TCP_RX_BUFFER_H
 #define TCP_RX_BUFFER_H
 
+#include "tcp-header.h"
+#include "tcp-option-sack.h"
+
 #include "ns3/ptr.h"
 #include "ns3/sequence-number.h"
-#include "ns3/tcp-header.h"
-#include "ns3/tcp-option-sack.h"
 #include "ns3/trace-source-accessor.h"
 #include "ns3/traced-value.h"
 
@@ -34,9 +24,9 @@ namespace ns3
 class Packet;
 
 /**
- * \ingroup tcp
+ * @ingroup tcp
  *
- * \brief Rx reordering buffer for TCP
+ * @brief Rx reordering buffer for TCP
  *
  * The class is responsible to safely store the segments, and then
  * returning them in-order to the application, where "in-order" does not means
@@ -68,72 +58,72 @@ class Packet;
  * For more information about the SACK list, please check the documentation of
  * the method GetSackList.
  *
- * \see GetSackList
- * \see UpdateSackList
+ * @see GetSackList
+ * @see UpdateSackList
  */
 class TcpRxBuffer : public Object
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
     /**
-     * \brief Constructor
-     * \param n initial Sequence number to be received
+     * @brief Constructor
+     * @param n initial Sequence number to be received
      */
     TcpRxBuffer(uint32_t n = 0);
     ~TcpRxBuffer() override;
 
     // Accessors
     /**
-     * \brief Get Next Rx Sequence number
-     * \returns Next Rx Sequence number
+     * @brief Get Next Rx Sequence number
+     * @returns Next Rx Sequence number
      */
     SequenceNumber32 NextRxSequence() const;
     /**
-     * \brief Get the lowest sequence number that this TcpRxBuffer cannot accept
-     * \returns the lowest sequence number that this TcpRxBuffer cannot accept
+     * @brief Get the lowest sequence number that this TcpRxBuffer cannot accept
+     * @returns the lowest sequence number that this TcpRxBuffer cannot accept
      */
     SequenceNumber32 MaxRxSequence() const;
     /**
-     * \brief Increment the Next Sequence number
+     * @brief Increment the Next Sequence number
      */
     void IncNextRxSequence();
     /**
-     * \brief Set the Next Sequence number
-     * \param s the Sequence number
+     * @brief Set the Next Sequence number
+     * @param s the Sequence number
      */
     void SetNextRxSequence(const SequenceNumber32& s);
     /**
-     * \brief Set the FIN Sequence number (i.e., the one closing the connection)
-     * \param s the Sequence number
+     * @brief Set the FIN Sequence number (i.e., the one closing the connection)
+     * @param s the Sequence number
      */
     void SetFinSequence(const SequenceNumber32& s);
     /**
-     * \brief Get the Maximum buffer size
-     * \returns the Maximum buffer size
+     * @brief Get the Maximum buffer size
+     * @returns the Maximum buffer size
      */
     uint32_t MaxBufferSize() const;
     /**
-     * \brief Set the Maximum buffer size
-     * \param s the Maximum buffer size
+     * @brief Set the Maximum buffer size
+     * @param s the Maximum buffer size
      */
     void SetMaxBufferSize(uint32_t s);
     /**
-     * \brief Get the actual buffer occupancy
-     * \returns buffer occupancy (in bytes)
+     * @brief Get the actual buffer occupancy
+     * @returns buffer occupancy (in bytes)
      */
     uint32_t Size() const;
     /**
-     * \brief Get the actual number of bytes available to be read
-     * \returns size of available data (in bytes)
+     * @brief Get the actual number of bytes available to be read
+     * @returns size of available data (in bytes)
      */
     uint32_t Available() const;
     /**
-     * \brief Check if the buffer did receive all the data (and the connection is closed)
-     * \returns true if all data have been received
+     * @brief Check if the buffer did receive all the data (and the connection is closed)
+     * @returns true if all data have been received
      */
     bool Finished();
 
@@ -144,9 +134,9 @@ class TcpRxBuffer : public Object
      * removing data from the buffer that overlaps the tail of the inputted
      * packet
      *
-     * \param p packet
-     * \param tcph packet's TCP header
-     * \return True when success, false otherwise.
+     * @param p packet
+     * @param tcph packet's TCP header
+     * @return True when success, false otherwise.
      */
     bool Add(Ptr<Packet> p, const TcpHeader& tcph);
 
@@ -154,31 +144,31 @@ class TcpRxBuffer : public Object
      * Extract data from the head of the buffer as indicated by nextRxSeq.
      * The extracted data is going to be forwarded to the application.
      *
-     * \param maxSize maximum number of bytes to extract
-     * \returns a packet
+     * @param maxSize maximum number of bytes to extract
+     * @returns a packet
      */
     Ptr<Packet> Extract(uint32_t maxSize);
 
     /**
-     * \brief Get the sack list
+     * @brief Get the sack list
      *
      * The sack list can be empty, and it is updated each time Add or Extract
      * are called through the private method UpdateSackList.
      *
-     * \return a list of isolated blocks
+     * @return a list of isolated blocks
      */
     TcpOptionSack::SackList GetSackList() const;
 
     /**
-     * \brief Get the size of Sack list
+     * @brief Get the size of Sack list
      *
-     * \return the size of the sack block list; can be empty
+     * @return the size of the sack block list; can be empty
      */
     uint32_t GetSackListSize() const;
 
     /**
-     * \brief Says if a FIN bit has been received
-     * \return true if we received a FIN bit
+     * @brief Says if a FIN bit has been received
+     * @return true if we received a FIN bit
      */
     bool GotFin() const
     {
@@ -187,7 +177,7 @@ class TcpRxBuffer : public Object
 
   private:
     /**
-     * \brief Update the sack list, with the block seq starting at the beginning
+     * @brief Update the sack list, with the block seq starting at the beginning
      *
      * Note: the maximum size of the block list is 4. Caller is free to
      * drop blocks at the end to accommodate header size; from RFC 2018:
@@ -201,13 +191,13 @@ class TcpRxBuffer : public Object
      * (or other) options, it is even less. For more detail about this function,
      * please see the source code and in-line comments.
      *
-     * \param head sequence number of the block at the beginning
-     * \param tail sequence number of the block at the end
+     * @param head sequence number of the block at the beginning
+     * @param tail sequence number of the block at the end
      */
     void UpdateSackList(const SequenceNumber32& head, const SequenceNumber32& tail);
 
     /**
-     * \brief Remove old blocks from the sack list
+     * @brief Remove old blocks from the sack list
      *
      * Used to remove blocks already delivered to the application.
      *
@@ -215,7 +205,7 @@ class TcpRxBuffer : public Object
      * sequence numbers greater than seq; it is perfectly safe to call this
      * function with an empty sack list.
      *
-     * \param seq Last sequence to remove
+     * @param seq Last sequence to remove
      */
     void ClearSackList(const SequenceNumber32& seq);
 

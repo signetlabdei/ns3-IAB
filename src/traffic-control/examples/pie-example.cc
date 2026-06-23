@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2016 NITK Surathkal
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Shravya Ks <shravya.ks0@gmail.com>
  *          Smriti Murali <m.smriti.95@gmail.com>
@@ -295,10 +284,8 @@ main(int argc, char* argv[])
 
     if (writeForPlot)
     {
-        filePlotQueueDisc << pathOut << "/"
-                          << "pie-queue-disc.plotme";
-        filePlotQueueDiscAvg << pathOut << "/"
-                             << "pie-queue-disc_avg.plotme";
+        filePlotQueueDisc << pathOut << "/pie-queue-disc.plotme";
+        filePlotQueueDiscAvg << pathOut << "/pie-queue-disc_avg.plotme";
 
         remove(filePlotQueueDisc.str().c_str());
         remove(filePlotQueueDiscAvg.str().c_str());

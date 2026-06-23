@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2016 Universita' degli Studi di Napoli Federico II
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #ifndef IPV4_QUEUE_DISC_ITEM_H
@@ -27,8 +16,8 @@ namespace ns3
 {
 
 /**
- * \ingroup ipv4
- * \ingroup traffic-control
+ * @ingroup ipv4
+ * @ingroup traffic-control
  *
  * Ipv4QueueDiscItem is a subclass of QueueDiscItem which stores IPv4 packets.
  * Header and payload are kept separate to allow the queue disc to manipulate
@@ -38,11 +27,11 @@ class Ipv4QueueDiscItem : public QueueDiscItem
 {
   public:
     /**
-     * \brief Create an IPv4 queue disc item containing an IPv4 packet.
-     * \param p the packet included in the created item.
-     * \param addr the destination MAC address
-     * \param protocol the protocol number
-     * \param header the IPv4 header
+     * @brief Create an IPv4 queue disc item containing an IPv4 packet.
+     * @param p the packet included in the created item.
+     * @param addr the destination MAC address
+     * @param protocol the protocol number
+     * @param header the IPv4 header
      */
     Ipv4QueueDiscItem(Ptr<Packet> p,
                       const Address& addr,
@@ -57,23 +46,23 @@ class Ipv4QueueDiscItem : public QueueDiscItem
     Ipv4QueueDiscItem& operator=(const Ipv4QueueDiscItem&) = delete;
 
     /**
-     * \return the correct packet size (header plus payload).
+     * @return the correct packet size (header plus payload).
      */
     uint32_t GetSize() const override;
 
     /**
-     * \return the header stored in this item..
+     * @return the header stored in this item..
      */
     const Ipv4Header& GetHeader() const;
 
     /**
-     * \brief Add the header to the packet
+     * @brief Add the header to the packet
      */
     void AddHeader() override;
 
     /**
-     * \brief Print the item contents.
-     * \param os output stream in which the data should be printed.
+     * @brief Print the item contents.
+     * @param os output stream in which the data should be printed.
      */
     void Print(std::ostream& os) const override;
 
@@ -87,21 +76,21 @@ class Ipv4QueueDiscItem : public QueueDiscItem
     bool GetUint8Value(Uint8Values field, uint8_t& value) const override;
 
     /**
-     * \brief Marks the packet by setting ECN_CE bits if the packet has
+     * @brief Marks the packet by setting ECN_CE bits if the packet has
      * ECN_ECT0 or ECN_ECT1 set.  If ECN_CE is already set, returns true.
-     * \return true if the method results in a marked packet, false otherwise
+     * @return true if the method results in a marked packet, false otherwise
      */
     bool Mark() override;
 
     /**
-     * \brief Computes the hash of the packet's 5-tuple
+     * @brief Computes the hash of the packet's 5-tuple
      *
      * Computes the hash of the source and destination IP addresses, protocol
      * number and, if the transport protocol is either UDP or TCP, the source
      * and destination port
      *
-     * \param perturbation hash perturbation value
-     * \return the hash of the packet's 5-tuple
+     * @param perturbation hash perturbation value
+     * @return the hash of the packet's 5-tuple
      */
     uint32_t Hash(uint32_t perturbation) const override;
 

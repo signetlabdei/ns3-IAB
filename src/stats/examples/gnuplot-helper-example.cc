@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2013 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * This is based on double-probe-example.cc.
  *
@@ -43,7 +32,7 @@ class Emitter : public Object
   public:
     /**
      * Register this type.
-     * \return The TypeId.
+     * @return The TypeId.
      */
     static TypeId GetTypeId();
     Emitter();
@@ -137,9 +126,9 @@ main(int argc, char* argv[])
 
     // The Emitter object is not associated with an ns-3 node, so
     // it won't get started automatically, so we need to do this ourselves
-    Simulator::Schedule(Seconds(0.0), &Emitter::Initialize, emitter);
+    Simulator::Schedule(Seconds(0), &Emitter::Initialize, emitter);
 
-    Simulator::Stop(Seconds(100.0));
+    Simulator::Stop(Seconds(100));
     Simulator::Run();
     Simulator::Destroy();
 

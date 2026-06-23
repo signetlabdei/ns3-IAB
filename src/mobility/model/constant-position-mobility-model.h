@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2006,2007 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -25,9 +14,9 @@ namespace ns3
 {
 
 /**
- * \ingroup mobility
+ * @ingroup mobility
  *
- * \brief Mobility model for which the current position does not change once it has been set and
+ * @brief Mobility model for which the current position does not change once it has been set and
  * until it is set again explicitly to a new value.
  */
 class ConstantPositionMobilityModel : public MobilityModel
@@ -35,7 +24,7 @@ class ConstantPositionMobilityModel : public MobilityModel
   public:
     /**
      * Register this type with the TypeId system.
-     * \return the object TypeId
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
     /**
@@ -43,6 +32,12 @@ class ConstantPositionMobilityModel : public MobilityModel
      */
     ConstantPositionMobilityModel();
     ~ConstantPositionMobilityModel() override;
+
+    // Inherited from MobilityModel
+    Ptr<MobilityModel> Copy() const override
+    {
+        return CreateObject<ConstantPositionMobilityModel>(*this);
+    }
 
   private:
     Vector DoGetPosition() const override;

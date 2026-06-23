@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 MIRKO BANCHI
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Mirko Banchi <mk.banchi@gmail.com>
  *          Cecchi Niccolò <insa@igeek.it>
@@ -21,7 +10,7 @@
 #include "qos-utils.h"
 
 #include "ctrl-headers.h"
-#include "mgt-headers.h"
+#include "mgt-action-headers.h"
 #include "wifi-mac-header.h"
 
 #include "ns3/queue-item.h"
@@ -139,36 +128,17 @@ QosUtilsMapTidToAc(uint8_t tid)
     case 0:
     case 3:
         return AC_BE;
-        break;
     case 1:
     case 2:
         return AC_BK;
-        break;
     case 4:
     case 5:
         return AC_VI;
-        break;
     case 6:
     case 7:
         return AC_VO;
-        break;
     }
     return AC_UNDEF;
-}
-
-uint8_t
-QosUtilsGetTidForPacket(Ptr<const Packet> packet)
-{
-    SocketPriorityTag qos;
-    uint8_t tid = 8;
-    if (packet->PeekPacketTag(qos))
-    {
-        if (qos.GetPriority() < 8)
-        {
-            tid = qos.GetPriority();
-        }
-    }
-    return tid;
 }
 
 uint32_t

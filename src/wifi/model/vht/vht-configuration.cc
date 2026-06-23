@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2018  Sébastien Deronne
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Sébastien Deronne <sebastien.deronne@gmail.com>
  */
@@ -50,12 +39,15 @@ VhtConfiguration::GetTypeId()
             .SetParent<Object>()
             .SetGroupName("Wifi")
             .AddConstructor<VhtConfiguration>()
+            // NS_DEPRECATED_3_45
             .AddAttribute("Support160MHzOperation",
                           "Whether or not 160 MHz operation is to be supported.",
                           BooleanValue(true),
-                          MakeBooleanAccessor(&VhtConfiguration::Get160MHzOperationSupported,
-                                              &VhtConfiguration::Set160MHzOperationSupported),
-                          MakeBooleanChecker())
+                          MakeBooleanAccessor(&VhtConfiguration::m_160MHzSupported),
+                          MakeBooleanChecker(),
+                          TypeId::SupportLevel::OBSOLETE,
+                          "Set an initial channel via WifiPhy::ChannelSettings whose width "
+                          "corresponds to the maximum desired width instead")
             .AddAttribute("SecondaryCcaSensitivityThresholds",
                           "Tuple {threshold for 20MHz PPDUs, threshold for 40MHz PPDUs, threshold "
                           "for 80MHz PPDUs} "
@@ -70,9 +62,9 @@ VhtConfiguration::GetTypeId()
                               &VhtConfiguration::SetSecondaryCcaSensitivityThresholds,
                               &VhtConfiguration::GetSecondaryCcaSensitivityThresholds),
                           MakeTupleChecker<DoubleValue, DoubleValue, DoubleValue>(
-                              MakeDoubleChecker<double>(),
-                              MakeDoubleChecker<double>(),
-                              MakeDoubleChecker<double>()));
+                              MakeDoubleChecker<dBm_u>(),
+                              MakeDoubleChecker<dBm_u>(),
+                              MakeDoubleChecker<dBm_u>()));
     return tid;
 }
 
@@ -94,20 +86,20 @@ VhtConfiguration::SetSecondaryCcaSensitivityThresholds(
     const SecondaryCcaSensitivityThresholds& thresholds)
 {
     NS_LOG_FUNCTION(this);
-    m_secondaryCcaSensitivityThresholds[20] = std::get<0>(thresholds);
-    m_secondaryCcaSensitivityThresholds[40] = std::get<1>(thresholds);
-    m_secondaryCcaSensitivityThresholds[80] = std::get<2>(thresholds);
+    m_secondaryCcaSensitivityThresholds[MHz_u{20}] = std::get<0>(thresholds);
+    m_secondaryCcaSensitivityThresholds[MHz_u{40}] = std::get<1>(thresholds);
+    m_secondaryCcaSensitivityThresholds[MHz_u{80}] = std::get<2>(thresholds);
 }
 
 VhtConfiguration::SecondaryCcaSensitivityThresholds
 VhtConfiguration::GetSecondaryCcaSensitivityThresholds() const
 {
-    return {m_secondaryCcaSensitivityThresholds.at(20),
-            m_secondaryCcaSensitivityThresholds.at(40),
-            m_secondaryCcaSensitivityThresholds.at(80)};
+    return {m_secondaryCcaSensitivityThresholds.at(MHz_u{20}),
+            m_secondaryCcaSensitivityThresholds.at(MHz_u{40}),
+            m_secondaryCcaSensitivityThresholds.at(MHz_u{80})};
 }
 
-const std::map<uint16_t, double>&
+const std::map<MHz_u, dBm_u>&
 VhtConfiguration::GetSecondaryCcaSensitivityThresholdsPerBw() const
 {
     return m_secondaryCcaSensitivityThresholds;

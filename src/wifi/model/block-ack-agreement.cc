@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 MIRKO BANCHI
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mirko Banchi <mk.banchi@gmail.com>
  */
@@ -23,6 +12,8 @@
 
 #include "ns3/log.h"
 
+#include <set>
+
 namespace ns3
 {
 
@@ -30,10 +21,10 @@ NS_LOG_COMPONENT_DEFINE("BlockAckAgreement");
 
 BlockAckAgreement::BlockAckAgreement(Mac48Address peer, uint8_t tid)
     : m_peer(peer),
-      m_amsduSupported(0),
+      m_amsduSupported(false),
       m_blockAckPolicy(1),
       m_tid(tid),
-      m_htSupported(0),
+      m_htSupported(false),
       m_inactivityEvent()
 {
     NS_LOG_FUNCTION(this << peer << +tid);
@@ -49,8 +40,6 @@ void
 BlockAckAgreement::SetBufferSize(uint16_t bufferSize)
 {
     NS_LOG_FUNCTION(this << bufferSize);
-    NS_ASSERT(bufferSize <= 256);
-    NS_ASSERT(bufferSize % 16 == 0);
     m_bufferSize = bufferSize;
 }
 
@@ -145,7 +134,7 @@ BlockAckAgreement::IsImmediateBlockAck() const
 bool
 BlockAckAgreement::IsAmsduSupported() const
 {
-    return m_amsduSupported == 1;
+    return m_amsduSupported;
 }
 
 uint16_t
@@ -164,7 +153,7 @@ BlockAckAgreement::SetHtSupported(bool htSupported)
 bool
 BlockAckAgreement::IsHtSupported() const
 {
-    return m_htSupported == 1;
+    return m_htSupported;
 }
 
 BlockAckType
@@ -174,12 +163,14 @@ BlockAckAgreement::GetBlockAckType() const
     {
         return BlockAckType::BASIC;
     }
+
+    std::set<uint16_t> lengths{64, 256, 512, 1024}; // bitmap lengths in bits
+    // first bitmap length that is greater than or equal to the buffer size
+    auto it = lengths.lower_bound(m_bufferSize);
+    NS_ASSERT_MSG(it != lengths.cend(), "Buffer size too large: " << m_bufferSize);
     // Multi-TID Block Ack is not currently supported
-    if (m_bufferSize > 64)
-    {
-        return {BlockAckType::COMPRESSED, {32}};
-    }
-    return {BlockAckType::COMPRESSED, {8}};
+    return {m_gcrGroupAddress ? BlockAckType::GCR : BlockAckType::COMPRESSED,
+            {static_cast<uint8_t>(*it / 8)}};
 }
 
 BlockAckReqType
@@ -198,6 +189,18 @@ BlockAckAgreement::GetDistance(uint16_t seqNumber, uint16_t startingSeqNumber)
 {
     NS_ASSERT(seqNumber < SEQNO_SPACE_SIZE && startingSeqNumber < SEQNO_SPACE_SIZE);
     return (seqNumber - startingSeqNumber + SEQNO_SPACE_SIZE) % SEQNO_SPACE_SIZE;
+}
+
+void
+BlockAckAgreement::SetGcrGroupAddress(const Mac48Address& gcrGroupAddress)
+{
+    m_gcrGroupAddress = gcrGroupAddress;
+}
+
+const std::optional<Mac48Address>&
+BlockAckAgreement::GetGcrGroupAddress() const
+{
+    return m_gcrGroupAddress;
 }
 
 } // namespace ns3

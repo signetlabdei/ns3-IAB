@@ -3,18 +3,7 @@
  *               2017 Università' degli Studi di Napoli Federico II
  *               2019 NITK Surathkal
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Alina Quereilhac <alina.quereilhac@inria.fr>
  * Extended by: Pasquale Imputato <p.imputato@gmail.com>
@@ -103,7 +92,6 @@
 //
 
 #include "ns3/applications-module.h"
-#include "ns3/config-store-module.h"
 #include "ns3/core-module.h"
 #include "ns3/fd-net-device-module.h"
 #include "ns3/internet-module.h"
@@ -201,7 +189,7 @@ main(int argc, char* argv[])
 #ifdef HAVE_PACKET_H
     if (emuMode == "raw")
     {
-        EmuFdNetDeviceHelper* raw = new EmuFdNetDeviceHelper;
+        auto raw = new EmuFdNetDeviceHelper;
         raw->SetDeviceName(deviceName);
         helper = raw;
     }
@@ -257,8 +245,8 @@ main(int argc, char* argv[])
         Address sinkLocalAddress(InetSocketAddress(localIp, sinkPort));
         PacketSinkHelper sinkHelper(socketType, sinkLocalAddress);
         ApplicationContainer sinkApp = sinkHelper.Install(node);
-        sinkApp.Start(Seconds(1.0));
-        sinkApp.Stop(Seconds(60.0));
+        sinkApp.Start(Seconds(1));
+        sinkApp.Stop(Seconds(60));
 
         helper->EnablePcap("fd-server", device);
     }
@@ -273,13 +261,13 @@ main(int argc, char* argv[])
         onoff.SetAttribute("PacketSize", UintegerValue(packetSize));
 
         ApplicationContainer clientApps = onoff.Install(node);
-        clientApps.Start(Seconds(4.0));
-        clientApps.Stop(Seconds(58.0));
+        clientApps.Start(Seconds(4));
+        clientApps.Stop(Seconds(58));
 
         helper->EnablePcap("fd-client", device);
     }
 
-    Simulator::Stop(Seconds(61.0));
+    Simulator::Stop(Seconds(61));
     Simulator::Run();
     Simulator::Destroy();
     delete helper;

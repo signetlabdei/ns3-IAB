@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2007 INRIA, 2008 Timo Bingmann
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Original Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  * Enhancements: Timo Bingmann <timo.bingmann@student.kit.edu>
@@ -30,7 +19,7 @@ namespace ns3
 // --- GnuplotDataset::Data ------------------------------------------------ //
 
 /**
- * \ingroup gnuplot
+ * @ingroup gnuplot
  *
  * Structure storing the data to plot.
  * Derived classes subclass this struct and add their own data fields.
@@ -46,7 +35,7 @@ struct GnuplotDataset::Data
 
     /**
      * Initializes the reference counter to 1 and sets m_title and m_extra.
-     * \param title Dataset title
+     * @param title Dataset title
      */
     Data(const std::string& title);
 
@@ -54,8 +43,8 @@ struct GnuplotDataset::Data
     virtual ~Data();
 
     /**
-     * \brief Returns the plot type ("plot" or "splot").
-     * \returns the plot type ("plot" or "splot").
+     * @brief Returns the plot type ("plot" or "splot").
+     * @returns the plot type ("plot" or "splot").
      */
     virtual std::string GetCommand() const = 0;
 
@@ -68,10 +57,10 @@ struct GnuplotDataset::Data
      * data and control files, then the index for the current dataset
      * and the name for the data file are also included.
      *
-     * \param os Output stream
-     * \param generateOneOutputFile If true, generate only one output file.
-     * \param dataFileDatasetIndex Dataset Index
-     * \param dataFileName Dataset file name
+     * @param os Output stream
+     * @param generateOneOutputFile If true, generate only one output file.
+     * @param dataFileDatasetIndex Dataset Index
+     * @param dataFileName Dataset file name
      */
     virtual void PrintExpression(std::ostream& os,
                                  bool generateOneOutputFile,
@@ -82,14 +71,14 @@ struct GnuplotDataset::Data
      * Print the inline data file contents trailing the plot command. Empty for
      * functions.
      *
-     * \param os Output stream
-     * \param generateOneOutputFile If true, generate only one output file.
+     * @param os Output stream
+     * @param generateOneOutputFile If true, generate only one output file.
      */
     virtual void PrintDataFile(std::ostream& os, bool generateOneOutputFile) const = 0;
 
     /**
      * Checks to see if this GnuplotDataset is empty.
-     * \return    indicates if this GnuplotDataset is empty.
+     * @return    indicates if this GnuplotDataset is empty.
      */
     virtual bool IsEmpty() const = 0;
 };
@@ -109,7 +98,7 @@ GnuplotDataset::Data::~Data()
 
 std::string GnuplotDataset::m_defaultExtra = "";
 
-GnuplotDataset::GnuplotDataset(struct Data* data)
+GnuplotDataset::GnuplotDataset(Data* data)
     : m_data(data)
 {
 }
@@ -165,7 +154,7 @@ GnuplotDataset::SetExtra(const std::string& extra)
 // --- Gnuplot2dDataset::Data2d -------------------------------------------- //
 
 /**
- * \ingroup gnuplot
+ * @ingroup gnuplot
  *
  * Structure storing the data to for a 2D plot.
  */
@@ -180,7 +169,7 @@ struct Gnuplot2dDataset::Data2d : public GnuplotDataset::Data
 
     /**
      * Initializes with the values from m_defaultStyle and m_defaultErrorBars.
-     * \param title Dataset title
+     * @param title Dataset title
      */
     Data2d(const std::string& title);
 
@@ -293,7 +282,7 @@ Gnuplot2dDataset::Data2d::PrintExpression(std::ostream& os,
 void
 Gnuplot2dDataset::Data2d::PrintDataFile(std::ostream& os, bool generateOneOutputFile) const
 {
-    for (PointSet::const_iterator i = m_pointset.begin(); i != m_pointset.end(); ++i)
+    for (auto i = m_pointset.begin(); i != m_pointset.end(); ++i)
     {
         if (i->empty)
         {
@@ -340,9 +329,9 @@ Gnuplot2dDataset::Data2d::IsEmpty() const
 // --- Gnuplot2dDataset ---------------------------------------------------- //
 
 /// Default plot style static instance
-enum Gnuplot2dDataset::Style Gnuplot2dDataset::m_defaultStyle = LINES;
+Gnuplot2dDataset::Style Gnuplot2dDataset::m_defaultStyle = LINES;
 /// Default error bars type static instance
-enum Gnuplot2dDataset::ErrorBars Gnuplot2dDataset::m_defaultErrorBars = NONE;
+Gnuplot2dDataset::ErrorBars Gnuplot2dDataset::m_defaultErrorBars = NONE;
 
 Gnuplot2dDataset::Gnuplot2dDataset(const std::string& title)
     : GnuplotDataset(new Data2d(title))
@@ -427,7 +416,7 @@ Gnuplot2dDataset::AddEmptyLine()
 // --- Gnuplot2dFunction::Function2d --------------------------------------- //
 
 /**
- * \ingroup gnuplot
+ * @ingroup gnuplot
  *
  * Structure storing the function to be used for a 2D plot.
  */
@@ -440,8 +429,8 @@ struct Gnuplot2dFunction::Function2d : public GnuplotDataset::Data
     /**
      * Initializes with the function and title.
      *
-     * \param title Title of the plot
-     * \param function Function to plot
+     * @param title Title of the plot
+     * @param function Function to plot
      */
     Function2d(const std::string& title, const std::string& function);
 
@@ -512,7 +501,7 @@ Gnuplot2dFunction::SetFunction(const std::string& function)
 // --- Gnuplot3dDataset::Data3d -------------------------------------------- //
 
 /**
- * \ingroup gnuplot
+ * @ingroup gnuplot
  *
  * Structure storing the data for a 3D plot.
  */
@@ -526,7 +515,7 @@ struct Gnuplot3dDataset::Data3d : public GnuplotDataset::Data
 
     /**
      * Initializes with value from m_defaultStyle.
-     * \param title Dataset title
+     * @param title Dataset title
      */
     Data3d(const std::string& title);
 
@@ -578,7 +567,7 @@ Gnuplot3dDataset::Data3d::PrintExpression(std::ostream& os,
 void
 Gnuplot3dDataset::Data3d::PrintDataFile(std::ostream& os, bool generateOneOutputFile) const
 {
-    for (PointSet::const_iterator i = m_pointset.begin(); i != m_pointset.end(); ++i)
+    for (auto i = m_pointset.begin(); i != m_pointset.end(); ++i)
     {
         if (i->empty)
         {
@@ -640,7 +629,7 @@ Gnuplot3dDataset::AddEmptyLine()
 // --- Gnuplot3dFunction::Function3d --------------------------------------- //
 
 /**
- * \ingroup gnuplot
+ * @ingroup gnuplot
  *
  * Structure storing the function to be used for a 3D plot.
  */
@@ -653,8 +642,8 @@ struct Gnuplot3dFunction::Function3d : public GnuplotDataset::Data
     /**
      * Initializes with the function and title.
      *
-     * \param title Title of the plot
-     * \param function Function to plot
+     * @param title Title of the plot
+     * @param function Function to plot
      */
     Function3d(const std::string& title, const std::string& function);
 
@@ -852,7 +841,7 @@ Gnuplot::GenerateOutput(std::ostream& osControl, std::ostream& osData, std::stri
 
     std::string command = m_datasets.begin()->m_data->GetCommand();
 
-    for (Datasets::const_iterator i = m_datasets.begin() + 1; i != m_datasets.end(); ++i)
+    for (auto i = m_datasets.begin() + 1; i != m_datasets.end(); ++i)
     {
         NS_ASSERT_MSG(command == i->m_data->GetCommand(),
                       "Cannot mix 'plot' and 'splot' GnuplotDatasets.");
@@ -863,7 +852,7 @@ Gnuplot::GenerateOutput(std::ostream& osControl, std::ostream& osData, std::stri
     // Print all dataset expressions
 
     bool isDataEmpty;
-    for (Datasets::const_iterator i = m_datasets.begin(); i != m_datasets.end();)
+    for (auto i = m_datasets.begin(); i != m_datasets.end();)
     {
         // Only print the dataset if it's not empty.
         isDataEmpty = i->m_data->IsEmpty();
@@ -889,7 +878,7 @@ Gnuplot::GenerateOutput(std::ostream& osControl, std::ostream& osData, std::stri
 
     // followed by the inline datafile.
 
-    for (Datasets::const_iterator i = m_datasets.begin(); i != m_datasets.end(); i++)
+    for (auto i = m_datasets.begin(); i != m_datasets.end(); i++)
     {
         i->m_data->PrintDataFile(osData, m_generateOneOutputFile);
     }
@@ -950,7 +939,7 @@ GnuplotCollection::GenerateOutput(std::ostream& os)
         os << "set output \"" << m_outputFilename << "\"" << std::endl;
     }
 
-    for (Plots::iterator i = m_plots.begin(); i != m_plots.end(); ++i)
+    for (auto i = m_plots.begin(); i != m_plots.end(); ++i)
     {
         i->GenerateOutput(os);
     }
@@ -974,7 +963,7 @@ GnuplotCollection::GenerateOutput(std::ostream& osControl,
         osControl << "set output \"" << m_outputFilename << "\"" << std::endl;
     }
 
-    for (Plots::iterator i = m_plots.begin(); i != m_plots.end(); ++i)
+    for (auto i = m_plots.begin(); i != m_plots.end(); ++i)
     {
         i->GenerateOutput(osControl, osData, dataFileName);
     }

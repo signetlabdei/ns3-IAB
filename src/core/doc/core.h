@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2017 Peter D. Barnes, Jr.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors:
  *   Tom Henderson <tomh@tomh.org>
@@ -22,14 +11,14 @@
  */
 
 /**
- * \file
- * \ingroup core
+ * @file
+ * @ingroup core
  * This file provides some doxygen documentation for the core module.
  */
 
 /**
- * \defgroup core Core
- * \brief The "core" module contains:
+ * @defgroup core Core
+ * @brief The "core" module contains:
  *    - a time management class to hold a time and convert between various
  *      time units: ns3::Time
  *    - a scheduler base class used to implement new simulation event
@@ -53,38 +42,38 @@
  *    - a configuration class used to set and control all attributes and
  *      trace sources in a simulation: ns3::Config.
  *
- * \todo Move all Private and Impl classes to namespace ns3::impl?
+ * @todo Move all Private and Impl classes to namespace ns3::impl?
  */
 
 /**
- * \ingroup core
- * \defgroup debugging Debugging tools
+ * @ingroup core
+ * @defgroup debugging Debugging tools
  *
  * Assertions, breakpoints, logging, and abnormal program termination
  */
 
 /**
- * \ingroup core
- * \defgroup core-examples Core module examples
+ * @ingroup core
+ * @defgroup core-examples Core module examples
  *  Programs which illustrate use of core module functionality.
  */
 
 /**
- * \ingroup core
- * \defgroup core-helpers Core module helper classes
+ * @ingroup core
+ * @defgroup core-helpers Core module helper classes
  * Helper classes for the Core module
  */
 
 /**
- * \ingroup tests
- * \ingroup core
- * \defgroup core-tests Core module tests
+ * @ingroup tests
+ * @ingroup core
+ * @defgroup core-tests Core module tests
  * TestSuites for the Core module
  */
 
 /**
- * \ingroup core
- * \defgroup system System Services
+ * @ingroup core
+ * @defgroup system System Services
  *
  * System-independent interfaces to operating system services:
  * environment variables, files system, threading, wall clock time.

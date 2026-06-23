@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2011 The Boeing Company
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author:
  *  kwong yin <kwong-sang.yin@boeing.com>
@@ -23,15 +12,18 @@
 #ifndef LR_WPAN_MAC_TRAILER_H
 #define LR_WPAN_MAC_TRAILER_H
 
-#include <ns3/trailer.h>
+#include "ns3/trailer.h"
 
 namespace ns3
 {
 
 class Packet;
 
+namespace lrwpan
+{
+
 /**
- * \ingroup lr-wpan
+ * @ingroup lr-wpan
  *
  * Represent the Mac Trailer with the Frame Check Sequence field.
  */
@@ -41,7 +33,7 @@ class LrWpanMacTrailer : public Trailer
     /**
      * Get the type ID.
      *
-     * \return the object TypeId
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
 
@@ -61,14 +53,14 @@ class LrWpanMacTrailer : public Trailer
      * Get this trailers FCS value. If FCS calculation is disabled for this
      * trailer, the returned value is always 0.
      *
-     * \return the FCS value.
+     * @return the FCS value.
      */
     uint16_t GetFcs() const;
 
     /**
      * Calculate and set the FCS value based on the given packet.
      *
-     * \param p the packet for which the FCS should be calculated
+     * @param p the packet for which the FCS should be calculated
      */
     void SetFcs(Ptr<const Packet> p);
 
@@ -77,22 +69,22 @@ class LrWpanMacTrailer : public Trailer
      * trailer. The packet itself should contain no trailer. If FCS calculation is
      * disabled for this trailer, CheckFcs() will always return true.
      *
-     * \param p the packet to be checked
-     * \return false, if the FCS values do not match, true otherwise
+     * @param p the packet to be checked
+     * @return false, if the FCS values do not match, true otherwise
      */
     bool CheckFcs(Ptr<const Packet> p);
 
     /**
      * Enable or disable FCS calculation for this trailer.
      *
-     * \param enable flag, indicating if FCS calculation should be enabled or not
+     * @param enable flag, indicating if FCS calculation should be enabled or not
      */
     void EnableFcs(bool enable);
 
     /**
      * Query if FCS calculation is enabled for this trailer.
      *
-     * \return true, if FCS calculation is enabled, false otherwise.
+     * @return true, if FCS calculation is enabled, false otherwise.
      */
     bool IsFcsEnabled() const;
 
@@ -102,9 +94,9 @@ class LrWpanMacTrailer : public Trailer
      * CRC16-CCITT with a generator polynomial = ^16 + ^12 + ^5 + 1, LSB first and
      * initial value = 0x0000.
      *
-     * \param data the checksum will be calculated over this data
-     * \param length the length of the data
-     * \return the checksum
+     * @param data the checksum will be calculated over this data
+     * @param length the length of the data
+     * @return the checksum
      */
     uint16_t GenerateCrc16(uint8_t* data, int length);
 
@@ -120,6 +112,7 @@ class LrWpanMacTrailer : public Trailer
     bool m_calcFcs;
 };
 
+} // namespace lrwpan
 } // namespace ns3
 
 #endif /* LR_WPAN_MAC_TRAILER_H */

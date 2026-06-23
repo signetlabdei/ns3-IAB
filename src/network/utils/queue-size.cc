@@ -1,21 +1,10 @@
-//
-// Copyright (c) 2018 Universita' degli Studi di Napoli Federico II
-//
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License version 2 as
-// published by the Free Software Foundation;
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-//
-// Author: Stefano Avallone <stavallo@unina.it>
-//
+/*
+ * Copyright (c) 2018 Universita' degli Studi di Napoli Federico II
+ *
+ * SPDX-License-Identifier: GPL-2.0-only
+ *
+ * Author: Stefano Avallone <stavallo@unina.it>
+ */
 
 #include "queue-size.h"
 
@@ -122,54 +111,6 @@ QueueSize::QueueSize(QueueSizeUnit unit, uint32_t value)
       m_value(value)
 {
     NS_LOG_FUNCTION(this << static_cast<uint16_t>(unit) << value);
-}
-
-bool
-QueueSize::operator<(const QueueSize& rhs) const
-{
-    NS_ABORT_MSG_IF(m_unit != rhs.GetUnit(), "Cannot compare heterogeneous sizes");
-
-    return m_value < rhs.m_value;
-}
-
-bool
-QueueSize::operator<=(const QueueSize& rhs) const
-{
-    NS_ABORT_MSG_IF(m_unit != rhs.GetUnit(), "Cannot compare heterogeneous sizes");
-
-    return m_value <= rhs.m_value;
-}
-
-bool
-QueueSize::operator>(const QueueSize& rhs) const
-{
-    NS_ABORT_MSG_IF(m_unit != rhs.GetUnit(), "Cannot compare heterogeneous sizes");
-
-    return m_value > rhs.m_value;
-}
-
-bool
-QueueSize::operator>=(const QueueSize& rhs) const
-{
-    NS_ABORT_MSG_IF(m_unit != rhs.GetUnit(), "Cannot compare heterogeneous sizes");
-
-    return m_value >= rhs.m_value;
-}
-
-bool
-QueueSize::operator==(const QueueSize& rhs) const
-{
-    NS_ABORT_MSG_IF(m_unit != rhs.GetUnit(), "Cannot compare heterogeneous sizes");
-
-    return m_value == rhs.m_value;
-}
-
-bool
-QueueSize::operator!=(const QueueSize& rhs) const
-{
-    NS_ABORT_MSG_IF(m_unit != rhs.GetUnit(), "Cannot compare heterogeneous sizes");
-
-    return m_value != rhs.m_value;
 }
 
 QueueSizeUnit

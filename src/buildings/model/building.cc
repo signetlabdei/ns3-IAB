@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Marco Miozzo  <marco.miozzo@cttc.es>
  *          Nicola Baldo <nbaldo@cttc.es>
@@ -23,10 +12,10 @@
 
 #include "building-list.h"
 
-#include <ns3/assert.h>
-#include <ns3/enum.h>
-#include <ns3/log.h>
-#include <ns3/uinteger.h>
+#include "ns3/assert.h"
+#include "ns3/enum.h"
+#include "ns3/log.h"
+#include "ns3/uinteger.h"
 
 #include <cmath>
 
@@ -73,7 +62,8 @@ Building::GetTypeId()
             .AddAttribute("Type",
                           "The type of building",
                           EnumValue(Building::Residential),
-                          MakeEnumAccessor(&Building::GetBuildingType, &Building::SetBuildingType),
+                          MakeEnumAccessor<BuildingType_t>(&Building::GetBuildingType,
+                                                           &Building::SetBuildingType),
                           MakeEnumChecker(Building::Residential,
                                           "Residential",
                                           Building::Office,
@@ -83,7 +73,8 @@ Building::GetTypeId()
             .AddAttribute("ExternalWallsType",
                           "The type of material of which the external walls are made",
                           EnumValue(Building::ConcreteWithWindows),
-                          MakeEnumAccessor(&Building::GetExtWallsType, &Building::SetExtWallsType),
+                          MakeEnumAccessor<ExtWallsType_t>(&Building::GetExtWallsType,
+                                                           &Building::SetExtWallsType),
                           MakeEnumChecker(Building::Wood,
                                           "Wood",
                                           Building::ConcreteWithWindows,

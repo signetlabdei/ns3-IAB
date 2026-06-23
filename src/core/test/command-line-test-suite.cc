@@ -1,23 +1,13 @@
 /*
  * Copyright (c) 2008 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
 #include "ns3/command-line.h"
 #include "ns3/config.h"
+#include "ns3/example-as-test.h"
 #include "ns3/global-value.h"
 #include "ns3/log.h"
 #include "ns3/string.h"
@@ -26,20 +16,19 @@
 #include "ns3/type-id.h"
 
 #include <cstdarg>
-#include <cstdlib>
 #include <sstream>
 
 /**
- * \file
- * \ingroup core-tests
- * \ingroup commandline
- * \ingroup commandline-tests
+ * @file
+ * @ingroup core-tests
+ * @ingroup commandline
+ * @ingroup commandline-tests
  * CommandLine test suite.
  */
 
 /**
- * \ingroup core-tests
- * \defgroup commandline-tests CommandLine test suite
+ * @ingroup core-tests
+ * @defgroup commandline-tests CommandLine test suite
  */
 
 namespace ns3
@@ -49,7 +38,7 @@ namespace tests
 {
 
 /**
- * \ingroup commandline-tests
+ * @ingroup commandline-tests
  * A test base class that drives Command Line parsing
  */
 class CommandLineTestCaseBase : public TestCase
@@ -58,7 +47,7 @@ class CommandLineTestCaseBase : public TestCase
     /**
      * Constructor
      *
-     * \param description purpose of this TestCase
+     * @param description purpose of this TestCase
      */
     CommandLineTestCaseBase(std::string description);
 
@@ -70,8 +59,8 @@ class CommandLineTestCaseBase : public TestCase
     /**
      * Exercise the CommandLine with the provided arguments
      *
-     * \param cmd the configured CommandLine
-     * \param n the number of arguments
+     * @param cmd the configured CommandLine
+     * @param n the number of arguments
      */
     void Parse(CommandLine& cmd, int n, ...);
 
@@ -121,7 +110,7 @@ CommandLineTestCaseBase::Parse(CommandLine& cmd, int n, ...)
 }
 
 /**
- * \ingroup commandline-tests
+ * @ingroup commandline-tests
  * Test boolean Command Line processing
  */
 class CommandLineBooleanTestCase : public CommandLineTestCaseBase
@@ -191,7 +180,7 @@ CommandLineBooleanTestCase::DoRun()
 }
 
 /**
- * \ingroup commandline-tests
+ * @ingroup commandline-tests
  * Test \c uint8_t Command Line processing
  */
 class CommandLineUint8tTestCase : public CommandLineTestCaseBase
@@ -230,7 +219,7 @@ CommandLineUint8tTestCase::DoRun()
 }
 
 /**
- * \ingroup commandline-tests
+ * @ingroup commandline-tests
  * Test int Command Line processing
  */
 class CommandLineIntTestCase : public CommandLineTestCaseBase
@@ -278,7 +267,7 @@ CommandLineIntTestCase::DoRun()
 }
 
 /**
- * \ingroup commandline-tests
+ * @ingroup commandline-tests
  * Test unsigned int Command Line processing
  */
 class CommandLineUnsignedIntTestCase : public CommandLineTestCaseBase
@@ -323,7 +312,7 @@ CommandLineUnsignedIntTestCase::DoRun()
 }
 
 /**
- * \ingroup commandline-tests
+ * @ingroup commandline-tests
  * Test string Command Line processing
  */
 class CommandLineStringTestCase : public CommandLineTestCaseBase
@@ -368,7 +357,7 @@ CommandLineStringTestCase::DoRun()
 }
 
 /**
- * \ingroup commandline-tests
+ * @ingroup commandline-tests
  * Test order of argument parsing
  */
 class CommandLineOrderTestCase : public CommandLineTestCaseBase
@@ -408,7 +397,7 @@ CommandLineOrderTestCase::DoRun()
 }
 
 /**
- * \ingroup commandline-tests
+ * @ingroup commandline-tests
  * Test ignoring invalid arguments
  */
 class CommandLineInvalidTestCase : public CommandLineTestCaseBase
@@ -448,7 +437,7 @@ CommandLineInvalidTestCase::DoRun()
 }
 
 /**
- * \ingroup commandline-tests
+ * @ingroup commandline-tests
  * Test non-option arguments
  */
 class CommandLineNonOptionTestCase : public CommandLineTestCaseBase
@@ -512,7 +501,7 @@ CommandLineNonOptionTestCase::DoRun()
 }
 
 /**
- * \ingroup commandline-tests
+ * @ingroup commandline-tests
  * Test \c char* buffer argument
  */
 class CommandLineCharStarTestCase : public CommandLineTestCaseBase
@@ -553,7 +542,7 @@ CommandLineCharStarTestCase::DoRun()
 }
 
 /**
- * \ingroup commandline-tests
+ * @ingroup commandline-tests
  * The Test Suite that glues all of the Test Cases together.
  */
 class CommandLineTestSuite : public TestSuite
@@ -575,10 +564,20 @@ CommandLineTestSuite::CommandLineTestSuite()
     AddTestCase(new CommandLineInvalidTestCase);
     AddTestCase(new CommandLineNonOptionTestCase);
     AddTestCase(new CommandLineCharStarTestCase);
+    AddTestCase(new ExampleAsTestCase("core-fatal-command-line-duplicate-option",
+                                      "fatal-command-line-duplicate-option-example",
+                                      NS_TEST_SOURCEDIR,
+                                      "",
+                                      false));
+    AddTestCase(new ExampleAsTestCase("core-fatal-command-line-duplicate-non-option",
+                                      "fatal-command-line-duplicate-non-option-example",
+                                      NS_TEST_SOURCEDIR,
+                                      "",
+                                      false));
 }
 
 /**
- * \ingroup commandline-tests
+ * @ingroup commandline-tests
  * CommandLineTestSuite instance variable.
  */
 static CommandLineTestSuite g_commandLineTestSuite;

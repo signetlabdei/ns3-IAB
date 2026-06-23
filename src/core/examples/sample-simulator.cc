@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2010 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -26,9 +15,9 @@
 #include <iostream>
 
 /**
- * \file
- * \ingroup core-examples
- * \ingroup simulator
+ * @file
+ * @ingroup core-examples
+ * @ingroup simulator
  * Example program demonstrating use of various Schedule functions.
  */
 
@@ -48,34 +37,38 @@ class MyModel
     /**
      *  Simple event handler.
      *
-     * \param [in] eventValue Event argument.
+     * @param [in] eventValue Event argument.
      */
-    void HandleEvent(double eventValue);
+    void HandleEvent(Time eventValue);
 };
 
 void
 MyModel::Start()
 {
-    Simulator::Schedule(Seconds(10.0), &MyModel::HandleEvent, this, Simulator::Now().GetSeconds());
+    Simulator::Schedule(Seconds(10), &MyModel::HandleEvent, this, Simulator::Now());
+
+    Simulator::Schedule(Seconds(11), []() {
+        std::cout << "Lambda scheduled from within a class method at "
+                  << Simulator::Now().As(Time::S) << std::endl;
+    });
 }
 
 void
-MyModel::HandleEvent(double value)
+MyModel::HandleEvent(Time value)
 {
-    std::cout << "Member method received event at " << Simulator::Now().GetSeconds()
-              << "s started at " << value << "s" << std::endl;
+    std::cout << "Member method received event at " << Simulator::Now().As(Time::S)
+              << " started at " << value.As(Time::S) << std::endl;
 }
 
 /**
  * Simple function event handler which Starts a MyModel object.
  *
- * \param [in] model The MyModel object to start.
+ * @param [in] model The MyModel object to start.
  */
 void
 ExampleFunction(MyModel* model)
 {
-    std::cout << "ExampleFunction received event at " << Simulator::Now().GetSeconds() << "s"
-              << std::endl;
+    std::cout << "ExampleFunction received event at " << Simulator::Now().As(Time::S) << std::endl;
     model->Start();
 }
 
@@ -85,8 +78,7 @@ ExampleFunction(MyModel* model)
 void
 RandomFunction()
 {
-    std::cout << "RandomFunction received event at " << Simulator::Now().GetSeconds() << "s"
-              << std::endl;
+    std::cout << "RandomFunction received event at " << Simulator::Now().As(Time::S) << std::endl;
 }
 
 /** Simple function event handler; the corresponding event is cancelled. */
@@ -109,14 +101,14 @@ main(int argc, char* argv[])
     v->SetAttribute("Min", DoubleValue(10));
     v->SetAttribute("Max", DoubleValue(20));
 
-    Simulator::Schedule(Seconds(10.0), &ExampleFunction, &model);
+    Simulator::Schedule(Seconds(10), &ExampleFunction, &model);
 
     Simulator::Schedule(Seconds(v->GetValue()), &RandomFunction);
 
-    EventId id = Simulator::Schedule(Seconds(30.0), &CancelledEvent);
+    EventId id = Simulator::Schedule(Seconds(30), &CancelledEvent);
     Simulator::Cancel(id);
 
-    Simulator::Schedule(Seconds(25.0), []() {
+    Simulator::Schedule(Seconds(25), []() {
         std::cout << "Code within a lambda expression at time " << Simulator::Now().As(Time::S)
                   << std::endl;
     });

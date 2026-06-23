@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Jaume Nin <jaume.nin@cttc,cat>
  * Based on BuildingList implementation by Mathieu Lacage  <mathieu.lacage@sophia.inria.fr>
@@ -34,14 +23,14 @@ namespace ns3
 NS_LOG_COMPONENT_DEFINE("BuildingList");
 
 /**
- * \brief private implementation detail of the BuildingList API.
+ * @brief private implementation detail of the BuildingList API.
  */
 class BuildingListPriv : public Object
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return The object TypeId.
+     * @brief Get the type ID.
+     * @return The object TypeId.
      */
     static TypeId GetTypeId();
     BuildingListPriv();
@@ -50,37 +39,37 @@ class BuildingListPriv : public Object
     /**
      * Add a Building to the list.
      *
-     * \param building building to add
-     * \returns index of building in list.
+     * @param building building to add
+     * @returns index of building in list.
      */
     uint32_t Add(Ptr<Building> building);
     /**
      * Returns an iterator to the start of the list.
      *
-     * \returns iterator to the begin of the container.
+     * @returns iterator to the begin of the container.
      */
     BuildingList::Iterator Begin() const;
     /**
      * Returns an iterator to the end of the list.
      *
-     * \returns iterator to the end of the container.
+     * @returns iterator to the end of the container.
      */
     BuildingList::Iterator End() const;
     /**
      * Gets the n-th Building in the container
-     * \param n Building position
-     * \returns a pointer to the Building
+     * @param n Building position
+     * @returns a pointer to the Building
      */
     Ptr<Building> GetBuilding(uint32_t n);
     /**
      * Gets the number of Building in the container
-     * \returns the container size
+     * @returns the container size
      */
     uint32_t GetNBuildings();
 
     /**
      * Get the Singleton instance of BuildingListPriv (or create one)
-     * \return the BuildingListPriv instance
+     * @return the BuildingListPriv instance
      */
     static Ptr<BuildingListPriv> Get();
 
@@ -88,7 +77,7 @@ class BuildingListPriv : public Object
     void DoDispose() override;
     /**
      * Get the Singleton instance of BuildingListPriv (or create one)
-     * \return the BuildingListPriv instance
+     * @return the BuildingListPriv instance
      */
     static Ptr<BuildingListPriv>* DoGet();
     /**
@@ -158,7 +147,7 @@ void
 BuildingListPriv::DoDispose()
 {
     NS_LOG_FUNCTION_NOARGS();
-    for (std::vector<Ptr<Building>>::iterator i = m_buildings.begin(); i != m_buildings.end(); i++)
+    for (auto i = m_buildings.begin(); i != m_buildings.end(); i++)
     {
         Ptr<Building> building = *i;
         building->Dispose();

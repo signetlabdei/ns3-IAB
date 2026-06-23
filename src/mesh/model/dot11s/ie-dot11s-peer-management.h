@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2008,2009 IITP RAS
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Kirill Andreev <andreev@iitp.ru>
  *          Aleksey Kovalenko <kovalenko@iitp.ru>
@@ -29,8 +18,8 @@ namespace dot11s
 {
 
 /**
- * \ingroup dot11s
- * \brief Codes used by 802.11s Peer Management Protocol
+ * @ingroup dot11s
+ * @brief Codes used by 802.11s Peer Management Protocol
  */
 enum PmpReasonCode
 {
@@ -62,56 +51,56 @@ class IePeerManagement : public WifiInformationElement
 
     /**
      * Set peer open function
-     * \param localLinkId
+     * @param localLinkId
      */
     void SetPeerOpen(uint16_t localLinkId);
     /**
      * Set peer close function
-     * \param localLinkID the local link id
-     * \param peerLinkId the peer link id
-     * \param reasonCode the reason code
+     * @param localLinkID the local link id
+     * @param peerLinkId the peer link id
+     * @param reasonCode the reason code
      */
     void SetPeerClose(uint16_t localLinkID, uint16_t peerLinkId, PmpReasonCode reasonCode);
     /**
      * Set peer confirm function
-     * \param localLinkID the local link id
-     * \param peerLinkId the peer link id
+     * @param localLinkID the local link id
+     * @param peerLinkId the peer link id
      */
     void SetPeerConfirm(uint16_t localLinkID, uint16_t peerLinkId);
 
     /**
      * Get reason code function
-     * \returns the reason code
+     * @returns the reason code
      */
     PmpReasonCode GetReasonCode() const;
     /**
      * Get local link ID function
-     * \returns the local link id
+     * @returns the local link id
      */
     uint16_t GetLocalLinkId() const;
     /**
      * Get peer link ID function
-     * \returns the peer link ID
+     * @returns the peer link ID
      */
     uint16_t GetPeerLinkId() const;
     /**
      * Subtype is open function
-     * \returns true if open
+     * @returns true if open
      */
     bool SubtypeIsOpen() const;
     /**
      * Subtype is close function
-     * \returns true if closed
+     * @returns true if closed
      */
     bool SubtypeIsClose() const;
     /**
      * Subtype is confirm function
-     * \returns true if the subtype is confirm
+     * @returns true if the subtype is confirm
      */
     bool SubtypeIsConfirm() const;
     /**
      * Get subtype function
-     * \returns the subtype
+     * @returns the subtype
      */
     uint8_t GetSubtype() const;
 
@@ -137,9 +126,9 @@ class IePeerManagement : public WifiInformationElement
     /**
      * equality operator
      *
-     * \param a lhs
-     * \param b rhs
-     * \returns true if equal
+     * @param a lhs
+     * @param b rhs
+     * @returns true if equal
      */
     friend bool operator==(const IePeerManagement& a, const IePeerManagement& b);
 };

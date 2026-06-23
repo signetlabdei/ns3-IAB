@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2005,2006 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -23,6 +12,7 @@
 #include "sta-wifi-mac.h"
 #include "wifi-phy.h"
 
+#include "ns3/boolean.h"
 #include "ns3/channel.h"
 #include "ns3/eht-configuration.h"
 #include "ns3/he-configuration.h"
@@ -55,19 +45,11 @@ WifiNetDevice::GetTypeId()
                           UintegerValue(MAX_MSDU_SIZE - LLC_SNAP_HEADER_LENGTH),
                           MakeUintegerAccessor(&WifiNetDevice::SetMtu, &WifiNetDevice::GetMtu),
                           MakeUintegerChecker<uint16_t>(1, MAX_MSDU_SIZE - LLC_SNAP_HEADER_LENGTH))
-            .AddAttribute("Channel",
-                          "The channel attached to this device",
-                          PointerValue(),
-                          MakePointerAccessor(&WifiNetDevice::GetChannel),
-                          MakePointerChecker<Channel>(),
-                          TypeId::DEPRECATED,
-                          "class WifiNetDevice; use the Channel "
-                          "attribute of WifiPhy")
             .AddAttribute("Phy",
                           "The PHY layer attached to this device.",
                           PointerValue(),
-                          MakePointerAccessor((Ptr<WifiPhy>(WifiNetDevice::*)() const) &
-                                                  WifiNetDevice::GetPhy,
+                          MakePointerAccessor(static_cast<Ptr<WifiPhy> (WifiNetDevice::*)() const>(
+                                                  &WifiNetDevice::GetPhy),
                                               &WifiNetDevice::SetPhy),
                           MakePointerChecker<WifiPhy>())
             .AddAttribute(
@@ -81,14 +63,14 @@ WifiNetDevice::GetTypeId()
                           PointerValue(),
                           MakePointerAccessor(&WifiNetDevice::GetMac, &WifiNetDevice::SetMac),
                           MakePointerChecker<WifiMac>())
-            .AddAttribute(
-                "RemoteStationManager",
-                "The station manager attached to this device.",
-                PointerValue(),
-                MakePointerAccessor(&WifiNetDevice::SetRemoteStationManager,
-                                    (Ptr<WifiRemoteStationManager>(WifiNetDevice::*)() const) &
-                                        WifiNetDevice::GetRemoteStationManager),
-                MakePointerChecker<WifiRemoteStationManager>())
+            .AddAttribute("RemoteStationManager",
+                          "The station manager attached to this device.",
+                          PointerValue(),
+                          MakePointerAccessor(
+                              &WifiNetDevice::SetRemoteStationManager,
+                              static_cast<Ptr<WifiRemoteStationManager> (WifiNetDevice::*)() const>(
+                                  &WifiNetDevice::GetRemoteStationManager)),
+                          MakePointerChecker<WifiRemoteStationManager>())
             .AddAttribute("RemoteStationManagers",
                           "The remote station managers attached to this device (11be multi-link "
                           "devices only).",
@@ -254,6 +236,7 @@ WifiNetDevice::SetPhy(const Ptr<WifiPhy> phy)
 {
     m_phys.clear();
     m_phys.push_back(phy);
+    phy->SetPhyId(0);
     m_linkUp = true;
     CompleteConfig();
 }
@@ -264,6 +247,10 @@ WifiNetDevice::SetPhys(const std::vector<Ptr<WifiPhy>>& phys)
     NS_ABORT_MSG_IF(phys.size() > 1 && !m_ehtConfiguration,
                     "Multiple PHYs only allowed for 11be multi-link devices");
     m_phys = phys;
+    for (std::size_t id = 0; id < phys.size(); ++id)
+    {
+        m_phys.at(id)->SetPhyId(id);
+    }
     m_linkUp = true;
     CompleteConfig();
 }
@@ -394,13 +381,21 @@ WifiNetDevice::GetAddress() const
     if (m_mac->GetTypeOfStation() == STA &&
         (staMac = StaticCast<StaWifiMac>(m_mac))->IsAssociated() && m_mac->GetNLinks() > 1 &&
         (linkIds = staMac->GetSetupLinkIds()).size() == 1 &&
-        !GetRemoteStationManager(*linkIds.begin())
+        !m_mac->GetWifiRemoteStationManager(*linkIds.begin())
              ->GetMldAddress(m_mac->GetBssid(*linkIds.begin())))
     {
         return m_mac->GetFrameExchangeManager(*linkIds.begin())->GetAddress();
     }
 
     return m_mac->GetAddress();
+}
+
+Address
+WifiNetDevice::GetAddressFor(const Address& remoteAddr) const
+{
+    const auto macAddr = Mac48Address::ConvertFrom(remoteAddr);
+    NS_ABORT_MSG_IF(macAddr.IsGroup(), "Did not expect a group address " << macAddr);
+    return m_mac->GetLocalAddress(macAddr);
 }
 
 bool
@@ -478,17 +473,7 @@ bool
 WifiNetDevice::Send(Ptr<Packet> packet, const Address& dest, uint16_t protocolNumber)
 {
     NS_LOG_FUNCTION(this << packet << dest << protocolNumber);
-    NS_ASSERT(Mac48Address::IsMatchingType(dest));
-
-    Mac48Address realTo = Mac48Address::ConvertFrom(dest);
-
-    LlcSnapHeader llc;
-    llc.SetType(protocolNumber);
-    packet->AddHeader(llc);
-
-    m_mac->NotifyTx(packet);
-    m_mac->Enqueue(packet, realTo);
-    return true;
+    return DoSend(packet, std::nullopt, dest, protocolNumber);
 }
 
 Ptr<Node>
@@ -530,7 +515,7 @@ WifiNetDevice::ForwardUp(Ptr<const Packet> packet, Mac48Address from, Mac48Addre
     {
         type = NetDevice::PACKET_MULTICAST;
     }
-    else if (to == GetAddress())
+    else if (to == GetAddress() || to == m_mac->GetLocalAddress(from))
     {
         type = NetDevice::PACKET_HOST;
     }
@@ -579,18 +564,41 @@ WifiNetDevice::SendFrom(Ptr<Packet> packet,
                         uint16_t protocolNumber)
 {
     NS_LOG_FUNCTION(this << packet << source << dest << protocolNumber);
-    NS_ASSERT(Mac48Address::IsMatchingType(dest));
-    NS_ASSERT(Mac48Address::IsMatchingType(source));
+    return DoSend(packet, source, dest, protocolNumber);
+}
 
-    Mac48Address realTo = Mac48Address::ConvertFrom(dest);
-    Mac48Address realFrom = Mac48Address::ConvertFrom(source);
+bool
+WifiNetDevice::DoSend(Ptr<Packet> packet,
+                      std::optional<Address> source,
+                      const Address& dest,
+                      uint16_t protocolNumber)
+{
+    NS_LOG_FUNCTION(this << packet << dest << protocolNumber << source.value_or(Address()));
+
+    if (source)
+    {
+        NS_ASSERT_MSG(Mac48Address::IsMatchingType(*source),
+                      *source << " is not compatible with a Mac48Address");
+    }
+    NS_ASSERT_MSG(Mac48Address::IsMatchingType(dest),
+                  dest << " is not compatible with a Mac48Address");
+
+    auto realTo = Mac48Address::ConvertFrom(dest);
 
     LlcSnapHeader llc;
     llc.SetType(protocolNumber);
     packet->AddHeader(llc);
 
     m_mac->NotifyTx(packet);
-    m_mac->Enqueue(packet, realTo, realFrom);
+    if (source)
+    {
+        auto realFrom = Mac48Address::ConvertFrom(*source);
+        m_mac->Enqueue(packet, realTo, realFrom);
+    }
+    else
+    {
+        m_mac->Enqueue(packet, realTo);
+    }
 
     return true;
 }
@@ -654,6 +662,22 @@ Ptr<EhtConfiguration>
 WifiNetDevice::GetEhtConfiguration() const
 {
     return (m_standard >= WIFI_STANDARD_80211be ? m_ehtConfiguration : nullptr);
+}
+
+bool
+WifiNetDevice::IsEmlsrActivated() const
+{
+    if (!m_ehtConfiguration)
+    {
+        return false;
+    }
+
+    BooleanValue emlsrActivated;
+    if (!m_ehtConfiguration->GetAttributeFailSafe("EmlsrActivated", emlsrActivated))
+    {
+        return false;
+    }
+    return emlsrActivated.Get();
 }
 
 } // namespace ns3

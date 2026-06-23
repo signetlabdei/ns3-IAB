@@ -1,18 +1,7 @@
 //
 // Copyright (c) 2009 INESC Porto
 //
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License version 2 as
-// published by the Free Software Foundation;
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+// SPDX-License-Identifier: GPL-2.0-only
 //
 // Author: Gustavo J. A. M. Carneiro  <gjc@inescporto.pt> <gjcarneiro@gmail.com>
 //
@@ -145,8 +134,7 @@ Ipv4FlowClassifier::Classify(const Ipv4Header& ipHeader,
     tuple.destinationPort = dstPort;
 
     // try to insert the tuple, but check if it already exists
-    std::pair<std::map<FiveTuple, FlowId>::iterator, bool> insert =
-        m_flowMap.insert(std::pair<FiveTuple, FlowId>(tuple, 0));
+    auto insert = m_flowMap.insert(std::pair<FiveTuple, FlowId>(tuple, 0));
 
     // if the insertion succeeded, we need to assign this tuple a new flow identifier
     if (insert.second)
@@ -163,9 +151,8 @@ Ipv4FlowClassifier::Classify(const Ipv4Header& ipHeader,
 
     // increment the counter of packets with the same DSCP value
     Ipv4Header::DscpType dscp = ipHeader.GetDscp();
-    std::pair<std::map<Ipv4Header::DscpType, uint32_t>::iterator, bool> dscpInserter =
-        m_flowDscpMap[insert.first->second].insert(
-            std::pair<Ipv4Header::DscpType, uint32_t>(dscp, 1));
+    auto dscpInserter = m_flowDscpMap[insert.first->second].insert(
+        std::pair<Ipv4Header::DscpType, uint32_t>(dscp, 1));
 
     // if the insertion did not succeed, we need to increment the counter
     if (!dscpInserter.second)
@@ -182,9 +169,7 @@ Ipv4FlowClassifier::Classify(const Ipv4Header& ipHeader,
 Ipv4FlowClassifier::FiveTuple
 Ipv4FlowClassifier::FindFlow(FlowId flowId) const
 {
-    for (std::map<FiveTuple, FlowId>::const_iterator iter = m_flowMap.begin();
-         iter != m_flowMap.end();
-         iter++)
+    for (auto iter = m_flowMap.begin(); iter != m_flowMap.end(); iter++)
     {
         if (iter->second == flowId)
         {
@@ -206,8 +191,7 @@ Ipv4FlowClassifier::SortByCount::operator()(std::pair<Ipv4Header::DscpType, uint
 std::vector<std::pair<Ipv4Header::DscpType, uint32_t>>
 Ipv4FlowClassifier::GetDscpCounts(FlowId flowId) const
 {
-    std::map<FlowId, std::map<Ipv4Header::DscpType, uint32_t>>::const_iterator flow =
-        m_flowDscpMap.find(flowId);
+    auto flow = m_flowDscpMap.find(flowId);
 
     if (flow == m_flowDscpMap.end())
     {
@@ -227,9 +211,7 @@ Ipv4FlowClassifier::SerializeToXmlStream(std::ostream& os, uint16_t indent) cons
     os << "<Ipv4FlowClassifier>\n";
 
     indent += 2;
-    for (std::map<FiveTuple, FlowId>::const_iterator iter = m_flowMap.begin();
-         iter != m_flowMap.end();
-         iter++)
+    for (auto iter = m_flowMap.begin(); iter != m_flowMap.end(); iter++)
     {
         Indent(os, indent);
         os << "<Flow flowId=\"" << iter->second << "\""
@@ -240,14 +222,11 @@ Ipv4FlowClassifier::SerializeToXmlStream(std::ostream& os, uint16_t indent) cons
            << " destinationPort=\"" << iter->first.destinationPort << "\">\n";
 
         indent += 2;
-        std::map<FlowId, std::map<Ipv4Header::DscpType, uint32_t>>::const_iterator flow =
-            m_flowDscpMap.find(iter->second);
+        auto flow = m_flowDscpMap.find(iter->second);
 
         if (flow != m_flowDscpMap.end())
         {
-            for (std::map<Ipv4Header::DscpType, uint32_t>::const_iterator i = flow->second.begin();
-                 i != flow->second.end();
-                 i++)
+            for (auto i = flow->second.begin(); i != flow->second.end(); i++)
             {
                 Indent(os, indent);
                 os << "<Dscp value=\"0x" << std::hex << static_cast<uint32_t>(i->first) << "\""

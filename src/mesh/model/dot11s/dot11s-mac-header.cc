@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 IITP RAS
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Kirill Andreev <andreev@iitp.ru>
  */
@@ -145,7 +134,7 @@ MeshHeader::Serialize(Buffer::Iterator start) const
     Buffer::Iterator i = start;
     i.WriteU8(m_meshFlags);
     i.WriteU8(m_meshTtl);
-    i.WriteHtolsbU32(m_meshSeqno);
+    i.WriteU32(m_meshSeqno);
     uint8_t addresses_to_add = GetAddressExt();
     // Writing Address extensions:
     if ((addresses_to_add == 1) || (addresses_to_add == 3))
@@ -169,7 +158,7 @@ MeshHeader::Deserialize(Buffer::Iterator start)
     uint8_t addresses_to_read = 0;
     m_meshFlags = i.ReadU8();
     m_meshTtl = i.ReadU8();
-    m_meshSeqno = i.ReadLsbtohU32();
+    m_meshSeqno = i.ReadU32();
     addresses_to_read = m_meshFlags & 0x03;
     if ((addresses_to_read == 1) || (addresses_to_read == 3))
     {

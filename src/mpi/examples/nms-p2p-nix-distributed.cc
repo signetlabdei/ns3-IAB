@@ -1,23 +1,12 @@
 /*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * (c) 2009, GTech Systems, Inc. - Alfred Park <park@gtech-systems.com>
  */
 
 /**
- * \file
- * \ingroup mpi
+ * @file
+ * @ingroup mpi
  *
  * DARPA NMS Campus Network Model
  *
@@ -78,7 +67,7 @@ main(int argc, char* argv[])
 
     uint32_t nCN = 2;
     uint32_t nLANClients = 10;
-    bool single = 0;
+    bool single = false;
     int nPackets = 10; // Packets sent by OnOff applications
     bool nix = true;
     Time stop = Seconds(100);
@@ -443,7 +432,7 @@ main(int argc, char* argv[])
             PacketSinkHelper sinkHelper("ns3::UdpSocketFactory",
                                         InetSocketAddress(Ipv4Address::GetAny(), 9999));
             ApplicationContainer sinkApp = sinkHelper.Install(nodes_net1[0][2].Get(0));
-            sinkApp.Start(Seconds(0.0));
+            sinkApp.Start(Seconds(0));
             if (testing)
             {
                 sinkApp.Get(0)->TraceConnectWithoutContext("RxWithAddresses",
@@ -464,7 +453,7 @@ main(int argc, char* argv[])
             PacketSinkHelper sinkHelper("ns3::UdpSocketFactory",
                                         InetSocketAddress(Ipv4Address::GetAny(), 9999));
             ApplicationContainer sinkApp = sinkHelper.Install(nodes_net1[1][0].Get(0));
-            sinkApp.Start(Seconds(0.0));
+            sinkApp.Start(Seconds(0));
             if (testing)
             {
                 sinkApp.Get(0)->TraceConnectWithoutContext("RxWithAddresses",
@@ -511,7 +500,7 @@ main(int argc, char* argv[])
                         ApplicationContainer sinkApp =
                             sinkHelper.Install(nodes_net2LAN[z][i][j].Get(0));
 
-                        sinkApp.Start(Seconds(0.0));
+                        sinkApp.Start(Seconds(0));
                         if (testing)
                         {
                             sinkApp.Get(0)->TraceConnectWithoutContext(
@@ -527,7 +516,7 @@ main(int argc, char* argv[])
                         ApplicationContainer sinkApp =
                             sinkHelper.Install(nodes_net2LAN[z][i][j].Get(0));
 
-                        sinkApp.Start(Seconds(0.0));
+                        sinkApp.Start(Seconds(0));
                         if (testing)
                         {
                             sinkApp.Get(0)->TraceConnectWithoutContext(
@@ -580,7 +569,7 @@ main(int argc, char* argv[])
 
                         ApplicationContainer sinkApp =
                             sinkHelper.Install(nodes_net3LAN[z][i][j].Get(0));
-                        sinkApp.Start(Seconds(0.0));
+                        sinkApp.Start(Seconds(0));
                         if (testing)
                         {
                             sinkApp.Get(0)->TraceConnectWithoutContext(
@@ -596,7 +585,7 @@ main(int argc, char* argv[])
                         ApplicationContainer sinkApp =
                             sinkHelper.Install(nodes_net3LAN[z][i][j].Get(0));
 
-                        sinkApp.Start(Seconds(0.0));
+                        sinkApp.Start(Seconds(0));
                         if (testing)
                         {
                             sinkApp.Get(0)->TraceConnectWithoutContext(

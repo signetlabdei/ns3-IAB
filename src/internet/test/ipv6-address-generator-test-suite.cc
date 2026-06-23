@@ -2,18 +2,7 @@
  * Copyright (c) 2008 University of Washington
  * Copyright (c) 2011 Atishay Jain
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #include "ns3/ipv6-address-generator.h"
@@ -23,9 +12,9 @@
 using namespace ns3;
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv6 network number allocator Test
+ * @brief IPv6 network number allocator Test
  */
 class NetworkNumber6AllocatorTestCase : public TestCase
 {
@@ -81,9 +70,9 @@ NetworkNumber6AllocatorTestCase::DoRun()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv6 address allocator Test
+ * @brief IPv6 address allocator Test
  */
 class AddressAllocator6TestCase : public TestCase
 {
@@ -145,9 +134,9 @@ AddressAllocator6TestCase::DoTeardown()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv6 network number and address allocator Test
+ * @brief IPv6 network number and address allocator Test
  */
 class NetworkAndAddress6TestCase : public TestCase
 {
@@ -196,9 +185,9 @@ NetworkAndAddress6TestCase::DoRun()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv6 example of an address generator Test
+ * @brief IPv6 example of an address generator Test
  */
 class ExampleAddress6GeneratorTestCase : public TestCase
 {
@@ -260,9 +249,9 @@ ExampleAddress6GeneratorTestCase::DoRun()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv6 address collision Test
+ * @brief IPv6 address collision Test
  */
 class AddressCollision6TestCase : public TestCase
 {
@@ -315,26 +304,36 @@ AddressCollision6TestCase::DoRun()
     Ipv6AddressGenerator::AddAllocated("0::0:16");
 
     Ipv6AddressGenerator::TestMode();
+    bool allocated = Ipv6AddressGenerator::IsAddressAllocated("0::0:21");
+    NS_TEST_EXPECT_MSG_EQ(allocated, false, "0::0:21 should not be already allocated");
     bool added = Ipv6AddressGenerator::AddAllocated("0::0:21");
     NS_TEST_EXPECT_MSG_EQ(added, true, "address should get allocated");
 
+    allocated = Ipv6AddressGenerator::IsAddressAllocated("0::0:4");
+    NS_TEST_EXPECT_MSG_EQ(allocated, true, "0::0:4 should be already allocated");
     added = Ipv6AddressGenerator::AddAllocated("0::0:4");
     NS_TEST_EXPECT_MSG_EQ(added, false, "address should not get allocated");
 
+    allocated = Ipv6AddressGenerator::IsAddressAllocated("0::0:9");
+    NS_TEST_EXPECT_MSG_EQ(allocated, true, "0::0:9 should be already allocated");
     added = Ipv6AddressGenerator::AddAllocated("0::0:9");
     NS_TEST_EXPECT_MSG_EQ(added, false, "address should not get allocated");
 
+    allocated = Ipv6AddressGenerator::IsAddressAllocated("0::0:16");
+    NS_TEST_EXPECT_MSG_EQ(allocated, true, "0::0:16 should be already allocated");
     added = Ipv6AddressGenerator::AddAllocated("0::0:16");
     NS_TEST_EXPECT_MSG_EQ(added, false, "address should not get allocated");
 
+    allocated = Ipv6AddressGenerator::IsAddressAllocated("0::0:21");
+    NS_TEST_EXPECT_MSG_EQ(allocated, true, "0::0:21 should be already allocated");
     added = Ipv6AddressGenerator::AddAllocated("0::0:21");
     NS_TEST_EXPECT_MSG_EQ(added, false, "address should not get allocated");
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv6 address generator TestSuite
+ * @brief IPv6 address generator TestSuite
  */
 class Ipv6AddressGeneratorTestSuite : public TestSuite
 {
@@ -342,11 +341,11 @@ class Ipv6AddressGeneratorTestSuite : public TestSuite
     Ipv6AddressGeneratorTestSuite()
         : TestSuite("ipv6-address-generator")
     {
-        AddTestCase(new NetworkNumber6AllocatorTestCase(), TestCase::QUICK);
-        AddTestCase(new AddressAllocator6TestCase(), TestCase::QUICK);
-        AddTestCase(new NetworkAndAddress6TestCase(), TestCase::QUICK);
-        AddTestCase(new ExampleAddress6GeneratorTestCase(), TestCase::QUICK);
-        AddTestCase(new AddressCollision6TestCase(), TestCase::QUICK);
+        AddTestCase(new NetworkNumber6AllocatorTestCase(), TestCase::Duration::QUICK);
+        AddTestCase(new AddressAllocator6TestCase(), TestCase::Duration::QUICK);
+        AddTestCase(new NetworkAndAddress6TestCase(), TestCase::Duration::QUICK);
+        AddTestCase(new ExampleAddress6GeneratorTestCase(), TestCase::Duration::QUICK);
+        AddTestCase(new AddressCollision6TestCase(), TestCase::Duration::QUICK);
     }
 };
 

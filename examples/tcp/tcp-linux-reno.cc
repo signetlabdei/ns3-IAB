@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2019 NITK Surathkal
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Apoorva Bhargava <apoorvabhargava13@gmail.com>
  */
@@ -52,6 +41,9 @@ std::string dir = "results/";
 Time stopTime = Seconds(60);
 uint32_t segmentSize = 524;
 
+std::ofstream fPlotQueue;
+std::ofstream fPlotCwnd;
+
 // Function to check queue length of Router 1
 void
 CheckQueueSize(Ptr<QueueDisc> queue)
@@ -60,19 +52,14 @@ CheckQueueSize(Ptr<QueueDisc> queue)
 
     // Check queue size every 1/100 of a second
     Simulator::Schedule(Seconds(0.001), &CheckQueueSize, queue);
-    std::ofstream fPlotQueue(std::stringstream(dir + "queue-size.dat").str(),
-                             std::ios::out | std::ios::app);
     fPlotQueue << Simulator::Now().GetSeconds() << " " << qSize << std::endl;
-    fPlotQueue.close();
 }
 
 // Function to trace change in cwnd at n0
 static void
 CwndChange(uint32_t oldCwnd, uint32_t newCwnd)
 {
-    std::ofstream fPlotQueue(dir + "cwndTraces/n0.dat", std::ios::out | std::ios::app);
-    fPlotQueue << Simulator::Now().GetSeconds() << " " << newCwnd / segmentSize << std::endl;
-    fPlotQueue.close();
+    fPlotCwnd << Simulator::Now().GetSeconds() << " " << newCwnd / segmentSize << std::endl;
 }
 
 // Function to calculate drops in a particular Queue
@@ -105,8 +92,8 @@ InstallBulkSend(Ptr<Node> node,
     BulkSendHelper source(socketFactory, InetSocketAddress(address, port));
     source.SetAttribute("MaxBytes", UintegerValue(0));
     ApplicationContainer sourceApps = source.Install(node);
-    sourceApps.Start(Seconds(10.0));
-    Simulator::Schedule(Seconds(10.0) + Seconds(0.001), &TraceCwnd, nodeId, cwndWindow, CwndTrace);
+    sourceApps.Start(Seconds(10));
+    Simulator::Schedule(Seconds(10) + Seconds(0.001), &TraceCwnd, nodeId, cwndWindow, CwndTrace);
     sourceApps.Stop(stopTime);
 }
 
@@ -116,7 +103,7 @@ InstallPacketSink(Ptr<Node> node, uint16_t port, std::string socketFactory)
 {
     PacketSinkHelper sink(socketFactory, InetSocketAddress(Ipv4Address::GetAny(), port));
     ApplicationContainer sinkApps = sink.Install(node);
-    sinkApps.Start(Seconds(10.0));
+    sinkApps.Start(Seconds(10));
     sinkApps.Stop(stopTime);
 }
 
@@ -131,7 +118,7 @@ main(int argc, char* argv[])
     uint32_t delAckCount = 1;
     std::string recovery = "ns3::TcpClassicRecovery";
 
-    CommandLine cmd;
+    CommandLine cmd(__FILE__);
     cmd.AddValue("tcpTypeId",
                  "TCP variant to use (e.g., ns3::TcpNewReno, ns3::TcpLinuxReno, etc.)",
                  tcpTypeId);
@@ -228,15 +215,11 @@ main(int argc, char* argv[])
         retVal = system(dirToRemove.c_str());
         NS_ASSERT_MSG(retVal == 0, "Error in return value");
     }
-    std::string dirToSave = "mkdir -p " + dir;
-    retVal = system(dirToSave.c_str());
-    NS_ASSERT_MSG(retVal == 0, "Error in return value");
-    retVal = system((dirToSave + "/pcap/").c_str());
-    NS_ASSERT_MSG(retVal == 0, "Error in return value");
-    retVal = system((dirToSave + "/queueTraces/").c_str());
-    NS_ASSERT_MSG(retVal == 0, "Error in return value");
-    retVal = system((dirToSave + "/cwndTraces/").c_str());
-    NS_ASSERT_MSG(retVal == 0, "Error in return value");
+
+    SystemPath::MakeDirectories(dir);
+    SystemPath::MakeDirectories(dir + "/pcap/");
+    SystemPath::MakeDirectories(dir + "/queueTraces/");
+    SystemPath::MakeDirectories(dir + "/cwndTraces/");
 
     // Set default parameters for queue discipline
     Config::SetDefault(qdiscTypeId + "::MaxSize", QueueSizeValue(QueueSize("100p")));
@@ -250,6 +233,10 @@ main(int argc, char* argv[])
 
     // Enable BQL
     tch.SetQueueLimits("ns3::DynamicQueueLimits");
+
+    // Open files for writing queue size and cwnd traces
+    fPlotQueue.open(dir + "queue-size.dat", std::ios::out);
+    fPlotCwnd.open(dir + "cwndTraces/n0.dat", std::ios::out);
 
     // Calls function to check queue size
     Simulator::ScheduleNow(&CheckQueueSize, qd.Get(0));
@@ -298,6 +285,9 @@ main(int argc, char* argv[])
     myfile.close();
 
     Simulator::Destroy();
+
+    fPlotQueue.close();
+    fPlotCwnd.close();
 
     return 0;
 }

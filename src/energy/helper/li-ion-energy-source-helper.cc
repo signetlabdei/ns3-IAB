@@ -2,18 +2,7 @@
  * Copyright (c) 2014 Wireless Communications and Networking Group (WCNG),
  * University of Rochester, Rochester, NY, USA.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Hoda Ayatollahi <hayatoll@ur.rochester.edu>
  *          Cristiano Tapparello <cristiano.tapparello@rochester.edu>
@@ -28,7 +17,7 @@ namespace ns3
 
 LiIonEnergySourceHelper::LiIonEnergySourceHelper()
 {
-    m_liIonEnergySource.SetTypeId("ns3::LiIonEnergySource");
+    m_liIonEnergySource.SetTypeId("ns3::energy::LiIonEnergySource");
 }
 
 LiIonEnergySourceHelper::~LiIonEnergySourceHelper()
@@ -41,11 +30,11 @@ LiIonEnergySourceHelper::Set(std::string name, const AttributeValue& v)
     m_liIonEnergySource.Set(name, v);
 }
 
-Ptr<EnergySource>
+Ptr<energy::EnergySource>
 LiIonEnergySourceHelper::DoInstall(Ptr<Node> node) const
 {
     NS_ASSERT(node);
-    Ptr<EnergySource> source = m_liIonEnergySource.Create<EnergySource>();
+    Ptr<energy::EnergySource> source = m_liIonEnergySource.Create<energy::EnergySource>();
     NS_ASSERT(source);
     source->SetNode(node);
     return source;

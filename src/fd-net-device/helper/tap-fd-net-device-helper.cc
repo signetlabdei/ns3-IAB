@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2012 INRIA, 2012 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #include "tap-fd-net-device-helper.h"
@@ -22,7 +11,6 @@
 #include "ns3/abort.h"
 #include "ns3/config.h"
 #include "ns3/fd-net-device.h"
-#include "ns3/internet-module.h"
 #include "ns3/log.h"
 #include "ns3/names.h"
 #include "ns3/object-factory.h"
@@ -31,6 +19,7 @@
 #include "ns3/trace-helper.h"
 
 #include <arpa/inet.h>
+#include <cstdlib>
 #include <errno.h>
 #include <iomanip>
 #include <iostream>
@@ -40,7 +29,6 @@
 #include <net/if.h>
 #include <netinet/in.h>
 #include <netpacket/packet.h>
-#include <stdlib.h>
 #include <string.h>
 #include <string>
 #include <sys/ioctl.h>
@@ -350,7 +338,7 @@ TapFdNetDeviceHelper::CreateFileDescriptor() const
         // an "ancillary element" but the msghdr uses the control message termimology
         // so we call it "control."
         //
-        size_t msg_size = sizeof(int);
+        constexpr size_t msg_size = sizeof(int);
         char control[CMSG_SPACE(msg_size)];
 
         //

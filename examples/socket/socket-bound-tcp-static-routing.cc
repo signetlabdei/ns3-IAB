@@ -1,16 +1,5 @@
 /*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  */
 
@@ -160,8 +149,8 @@ main(int argc, char* argv[])
     PacketSinkHelper sink("ns3::TcpSocketFactory",
                           InetSocketAddress(Ipv4Address::GetAny(), dstport));
     ApplicationContainer apps = sink.Install(nDst);
-    apps.Start(Seconds(0.0));
-    apps.Stop(Seconds(10.0));
+    apps.Start(Seconds(0));
+    apps.Stop(Seconds(10));
 
     AsciiTraceHelper ascii;
     p2p.EnableAsciiAll(ascii.CreateFileStream("socket-bound-tcp-static-routing.tr"));
@@ -173,17 +162,17 @@ main(int argc, char* argv[])
     // First packet as normal (goes via Rtr1)
     Simulator::Schedule(Seconds(0.1), &StartFlow, srcSocket1, dstaddr, dstport);
     // Second via Rtr1 explicitly
-    Simulator::Schedule(Seconds(1.0), &BindSock, srcSocket2, SrcToRtr1);
+    Simulator::Schedule(Seconds(1), &BindSock, srcSocket2, SrcToRtr1);
     Simulator::Schedule(Seconds(1.1), &StartFlow, srcSocket2, dstaddr, dstport);
     // Third via Rtr2 explicitly
-    Simulator::Schedule(Seconds(2.0), &BindSock, srcSocket3, SrcToRtr2);
+    Simulator::Schedule(Seconds(2), &BindSock, srcSocket3, SrcToRtr2);
     Simulator::Schedule(Seconds(2.1), &StartFlow, srcSocket3, dstaddr, dstport);
     // Fourth again as normal (goes via Rtr1)
-    Simulator::Schedule(Seconds(3.0), &BindSock, srcSocket4, Ptr<NetDevice>(nullptr));
+    Simulator::Schedule(Seconds(3), &BindSock, srcSocket4, Ptr<NetDevice>(nullptr));
     Simulator::Schedule(Seconds(3.1), &StartFlow, srcSocket4, dstaddr, dstport);
     // If you uncomment what's below, it results in ASSERT failing since you can't
     // bind to a socket not existing on a node
-    // Simulator::Schedule(Seconds(4.0),&BindSock, srcSocket, dDstRtrdDst.Get(0));
+    // Simulator::Schedule(Seconds(4),&BindSock, srcSocket, dDstRtrdDst.Get(0));
     Simulator::Run();
     Simulator::Destroy();
 

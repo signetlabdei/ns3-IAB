@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2005 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -122,6 +111,8 @@ class Simulator
      * After this method has been invoked, it is actually possible
      * to restart a new simulation with a set of calls to Simulator::Run,
      * Simulator::Schedule and Simulator::ScheduleWithContext.
+     *
+     * @hidecaller
      */
     static void Destroy();
 
@@ -145,6 +136,8 @@ class Simulator
      *   - The user called Simulator::Stop with a stop time and the
      *     expiration time of the next event to be processed
      *     is greater than or equal to the stop time.
+     *
+     * @hidecaller
      */
     static void Run();
 
@@ -155,6 +148,8 @@ class Simulator
      * If a running event invokes this method, it will be the last
      * event executed by the Simulator::Run method before
      * returning to the caller.
+     *
+     * @hidecaller
      */
     static void Stop();
 
@@ -166,8 +161,18 @@ class Simulator
      * or equal to the stop time.  The stop time is relative to the
      * current simulation time.
      * @param [in] delay The stop time, relative to the current time.
+     * @return The stop EventId.
+     *
+     * @hidecaller
      */
-    static void Stop(const Time& delay);
+    static EventId Stop(const Time& delay);
+
+    /**
+     * Returns the Stop Event, or an invalid event if the simulation
+     * does not have a scheduled stop time.
+     * @return The stop EventId.
+     */
+    static EventId GetStopEvent();
 
     /**
      * Get the current simulation context.
@@ -190,7 +195,7 @@ class Simulator
     /**
      * Context enum values.
      *
-     * \internal
+     * @internal
      * This enum type is fixed to match the representation size
      * of simulation context.
      */
@@ -204,7 +209,7 @@ class Simulator
 
     /**
      * Get the number of events executed.
-     * \returns The total number of events executed.
+     * @returns The total number of events executed.
      */
     static uint64_t GetEventCount();
 
@@ -227,13 +232,12 @@ class Simulator
      * @param [in] f The function to invoke.
      * @param [in] args Arguments to pass to MakeEvent.
      * @returns The id for the scheduled event.
+     * @hidecaller
      */
-    template <
-        typename FUNC,
-        typename std::enable_if<!std::is_convertible<FUNC, Ptr<EventImpl>>::value, int>::type = 0,
-        typename std::enable_if<!std::is_function<typename std::remove_pointer<FUNC>::type>::value,
-                                int>::type = 0,
-        typename... Ts>
+    template <typename FUNC,
+              std::enable_if_t<!std::is_convertible_v<FUNC, Ptr<EventImpl>>, int> = 0,
+              std::enable_if_t<!std::is_function_v<std::remove_pointer_t<FUNC>>, int> = 0,
+              typename... Ts>
     static EventId Schedule(const Time& delay, FUNC f, Ts&&... args);
 
     /**
@@ -250,6 +254,7 @@ class Simulator
      * @param [in] f The function to invoke.
      * @param [in] args Arguments to pass to the invoked function.
      * @returns The id for the scheduled event.
+     * @hidecaller
      */
     template <typename... Us, typename... Ts>
     static EventId Schedule(const Time& delay, void (*f)(Us...), Ts&&... args);
@@ -275,13 +280,12 @@ class Simulator
      * @param [in] delay The relative expiration time of the event.
      * @param [in] f The function to invoke.
      * @param [in] args Arguments to pass to MakeEvent.
+     * @hidecaller
      */
-    template <
-        typename FUNC,
-        typename std::enable_if<!std::is_convertible<FUNC, Ptr<EventImpl>>::value, int>::type = 0,
-        typename std::enable_if<!std::is_function<typename std::remove_pointer<FUNC>::type>::value,
-                                int>::type = 0,
-        typename... Ts>
+    template <typename FUNC,
+              std::enable_if_t<!std::is_convertible_v<FUNC, Ptr<EventImpl>>, int> = 0,
+              std::enable_if_t<!std::is_function_v<std::remove_pointer_t<FUNC>>, int> = 0,
+              typename... Ts>
     static void ScheduleWithContext(uint32_t context, const Time& delay, FUNC f, Ts&&... args);
 
     /**
@@ -295,6 +299,7 @@ class Simulator
      * @param [in] delay The relative expiration time of the event.
      * @param [in] f The function to invoke.
      * @param [in] args Arguments to pass to the invoked function.
+     * @hidecaller
      */
     template <typename... Us, typename... Ts>
     static void ScheduleWithContext(uint32_t context,
@@ -320,13 +325,12 @@ class Simulator
      * @param [in] f The function to invoke.
      * @param [in] args Arguments to pass to the invoked function.
      * @return The EventId of the scheduled event.
+     * @hidecaller
      */
-    template <
-        typename FUNC,
-        typename std::enable_if<!std::is_convertible<FUNC, Ptr<EventImpl>>::value, int>::type = 0,
-        typename std::enable_if<!std::is_function<typename std::remove_pointer<FUNC>::type>::value,
-                                int>::type = 0,
-        typename... Ts>
+    template <typename FUNC,
+              std::enable_if_t<!std::is_convertible_v<FUNC, Ptr<EventImpl>>, int> = 0,
+              std::enable_if_t<!std::is_function_v<std::remove_pointer_t<FUNC>>, int> = 0,
+              typename... Ts>
     static EventId ScheduleNow(FUNC f, Ts&&... args);
 
     /**
@@ -339,6 +343,7 @@ class Simulator
      * @param [in] f The function to invoke.
      * @param [in] args Arguments to pass to MakeEvent.
      * @return The EventId of the scheduled event.
+     * @hidecaller
      */
     template <typename... Us, typename... Ts>
     static EventId ScheduleNow(void (*f)(Us...), Ts&&... args);
@@ -365,12 +370,10 @@ class Simulator
      * @param [in] args Arguments to pass to MakeEvent.
      * @return The EventId of the scheduled event.
      */
-    template <
-        typename FUNC,
-        typename std::enable_if<!std::is_convertible<FUNC, Ptr<EventImpl>>::value, int>::type = 0,
-        typename std::enable_if<!std::is_function<typename std::remove_pointer<FUNC>::type>::value,
-                                int>::type = 0,
-        typename... Ts>
+    template <typename FUNC,
+              std::enable_if_t<!std::is_convertible_v<FUNC, Ptr<EventImpl>>, int> = 0,
+              std::enable_if_t<!std::is_function_v<std::remove_pointer_t<FUNC>>, int> = 0,
+              typename... Ts>
     static EventId ScheduleDestroy(FUNC f, Ts&&... args);
 
     /**
@@ -426,7 +429,7 @@ class Simulator
      * Note that it is not possible to test for the expiration of
      * events which were scheduled for the "destroy" time. Doing so
      * will result in a program error (crash).
-     * An event is said to "expire" when it starts being scheduled
+     * An event is said to "expire" when it starts being executed,
      * which means that if the code executed by the event calls
      * this function, it will get true.
      *
@@ -439,6 +442,7 @@ class Simulator
      * Return the current simulation virtual time.
      *
      * @returns The current virtual time.
+     * @hidecaller
      */
     static Time Now();
 
@@ -468,6 +472,7 @@ class Simulator
      * @param [in] delay Delay until the event expires.
      * @param [in] event The event to schedule.
      * @returns A unique identifier for the newly-scheduled event.
+     * @hidecaller
      */
     static EventId Schedule(const Time& delay, const Ptr<EventImpl>& event);
 
@@ -478,6 +483,7 @@ class Simulator
      * @param [in] delay Delay until the event expires.
      * @param [in] context Event context.
      * @param [in] event The event to schedule.
+     * @hidecaller
      */
     static void ScheduleWithContext(uint32_t context, const Time& delay, EventImpl* event);
 
@@ -495,6 +501,7 @@ class Simulator
      *
      * @param [in] event The event to schedule.
      * @returns A unique identifier for the newly-scheduled event.
+     * @hidecaller
      */
     static EventId ScheduleNow(const Ptr<EventImpl>& event);
 
@@ -528,7 +535,13 @@ class Simulator
      */
     static EventId DoScheduleDestroy(EventImpl* event);
 
-}; // class Simulator
+    /**
+     * Stop event (if present)
+     */
+    static EventId m_stopEvent;
+
+    // end of class Simulator
+};
 
 /**
  * @ingroup simulator
@@ -542,6 +555,7 @@ class Simulator
  *   Simulator::Schedule (Seconds (2.0) - Now (), &my_function);
  * @endcode
  * @return The current simulation time.
+ * @hidecaller
  */
 Time Now();
 
@@ -558,12 +572,10 @@ namespace ns3
 // it treats the in-class declaration as different from the
 // out of class definition, so makes two entries in the member list.  Ugh
 
-template <
-    typename FUNC,
-    typename std::enable_if<!std::is_convertible<FUNC, Ptr<EventImpl>>::value, int>::type,
-    typename std::enable_if<!std::is_function<typename std::remove_pointer<FUNC>::type>::value,
-                            int>::type,
-    typename... Ts>
+template <typename FUNC,
+          std::enable_if_t<!std::is_convertible_v<FUNC, Ptr<EventImpl>>, int>,
+          std::enable_if_t<!std::is_function_v<std::remove_pointer_t<FUNC>>, int>,
+          typename... Ts>
 EventId
 Simulator::Schedule(const Time& delay, FUNC f, Ts&&... args)
 {
@@ -577,12 +589,10 @@ Simulator::Schedule(const Time& delay, void (*f)(Us...), Ts&&... args)
     return DoSchedule(delay, MakeEvent(f, std::forward<Ts>(args)...));
 }
 
-template <
-    typename FUNC,
-    typename std::enable_if<!std::is_convertible<FUNC, Ptr<EventImpl>>::value, int>::type,
-    typename std::enable_if<!std::is_function<typename std::remove_pointer<FUNC>::type>::value,
-                            int>::type,
-    typename... Ts>
+template <typename FUNC,
+          std::enable_if_t<!std::is_convertible_v<FUNC, Ptr<EventImpl>>, int>,
+          std::enable_if_t<!std::is_function_v<std::remove_pointer_t<FUNC>>, int>,
+          typename... Ts>
 void
 Simulator::ScheduleWithContext(uint32_t context, const Time& delay, FUNC f, Ts&&... args)
 {
@@ -596,12 +606,10 @@ Simulator::ScheduleWithContext(uint32_t context, const Time& delay, void (*f)(Us
     return ScheduleWithContext(context, delay, MakeEvent(f, std::forward<Ts>(args)...));
 }
 
-template <
-    typename FUNC,
-    typename std::enable_if<!std::is_convertible<FUNC, Ptr<EventImpl>>::value, int>::type,
-    typename std::enable_if<!std::is_function<typename std::remove_pointer<FUNC>::type>::value,
-                            int>::type,
-    typename... Ts>
+template <typename FUNC,
+          std::enable_if_t<!std::is_convertible_v<FUNC, Ptr<EventImpl>>, int>,
+          std::enable_if_t<!std::is_function_v<std::remove_pointer_t<FUNC>>, int>,
+          typename... Ts>
 EventId
 Simulator::ScheduleNow(FUNC f, Ts&&... args)
 {
@@ -615,12 +623,10 @@ Simulator::ScheduleNow(void (*f)(Us...), Ts&&... args)
     return DoScheduleNow(MakeEvent(f, std::forward<Ts>(args)...));
 }
 
-template <
-    typename FUNC,
-    typename std::enable_if<!std::is_convertible<FUNC, Ptr<EventImpl>>::value, int>::type,
-    typename std::enable_if<!std::is_function<typename std::remove_pointer<FUNC>::type>::value,
-                            int>::type,
-    typename... Ts>
+template <typename FUNC,
+          std::enable_if_t<!std::is_convertible_v<FUNC, Ptr<EventImpl>>, int>,
+          std::enable_if_t<!std::is_function_v<std::remove_pointer_t<FUNC>>, int>,
+          typename... Ts>
 EventId
 Simulator::ScheduleDestroy(FUNC f, Ts&&... args)
 {

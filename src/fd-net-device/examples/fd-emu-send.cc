@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2017 Universita' degli Studi di Napoli Federico II
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Pasquale Imputato <p.imputato@gmail.com>
  */
@@ -57,15 +46,15 @@ Send(Ptr<NetDevice> dev, int level, std::string emuMode)
 
     int packets = 10000000;
 
-    Mac48Address sender = Mac48Address("00:00:00:aa:00:01");
-    Mac48Address receiver = Mac48Address("ff:ff:ff:ff:ff:ff");
+    Mac48Address sender("00:00:00:aa:00:01");
+    Mac48Address receiver("ff:ff:ff:ff:ff:ff");
 
     int packetsSize = 64;
     Ptr<Packet> packet = Create<Packet>(packetsSize);
     EthernetHeader header;
 
     ssize_t len = (size_t)packet->GetSize();
-    uint8_t* buffer = (uint8_t*)malloc(len);
+    auto buffer = (uint8_t*)malloc(len);
     packet->CopyData(buffer, len);
 
     int sent = 0;
@@ -99,7 +88,7 @@ Send(Ptr<NetDevice> dev, int level, std::string emuMode)
 
         if (level == 1)
         {
-            if (device->SendFrom(packet, sender, receiver, 0) == false)
+            if (!device->SendFrom(packet, sender, receiver, 0))
             {
                 failed++;
             }
@@ -145,7 +134,7 @@ main(int argc, char* argv[])
     std::string emuMode("netmap");
 #endif
 
-    CommandLine cmd;
+    CommandLine cmd(__FILE__);
     cmd.AddValue("deviceName", "Device name", deviceName);
     cmd.AddValue("level", "Enable send (1) or write (0) level test", level);
     cmd.AddValue("emuMode", "Emulation mode in {raw, netmap}", emuMode);
@@ -166,7 +155,7 @@ main(int argc, char* argv[])
 #ifdef HAVE_PACKET_H
     if (emuMode == "raw")
     {
-        EmuFdNetDeviceHelper* raw = new EmuFdNetDeviceHelper;
+        auto raw = new EmuFdNetDeviceHelper;
         raw->SetDeviceName(deviceName);
         helper = raw;
     }
@@ -192,7 +181,7 @@ main(int argc, char* argv[])
     Simulator::Schedule(Seconds(3), &Send, device, level, emuMode);
 
     NS_LOG_INFO("Run Emulation.");
-    Simulator::Stop(Seconds(6.0));
+    Simulator::Stop(Seconds(6));
     Simulator::Run();
     Simulator::Destroy();
     delete helper;

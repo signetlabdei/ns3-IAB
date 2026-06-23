@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2008 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -58,11 +47,7 @@ LoopbackNetDevice::Receive(Ptr<Packet> packet,
 {
     NS_LOG_FUNCTION(packet << " " << protocol << " " << to << " " << from);
     NetDevice::PacketType packetType;
-    if (to == m_address)
-    {
-        packetType = NetDevice::PACKET_HOST;
-    }
-    else if (to.IsBroadcast())
+    if (to == m_address || to.IsBroadcast())
     {
         packetType = NetDevice::PACKET_HOST;
     }
@@ -187,7 +172,7 @@ LoopbackNetDevice::Send(Ptr<Packet> packet, const Address& dest, uint16_t protoc
     Mac48Address to = Mac48Address::ConvertFrom(dest);
     NS_ASSERT_MSG(to == GetBroadcast() || to == m_address, "Invalid destination address");
     Simulator::ScheduleWithContext(m_node->GetId(),
-                                   Seconds(0.0),
+                                   Seconds(0),
                                    &LoopbackNetDevice::Receive,
                                    this,
                                    packet,
@@ -208,7 +193,7 @@ LoopbackNetDevice::SendFrom(Ptr<Packet> packet,
     Mac48Address from = Mac48Address::ConvertFrom(source);
     NS_ASSERT_MSG(to.IsBroadcast() || to == m_address, "Invalid destination address");
     Simulator::ScheduleWithContext(m_node->GetId(),
-                                   Seconds(0.0),
+                                   Seconds(0),
                                    &LoopbackNetDevice::Receive,
                                    this,
                                    packet,

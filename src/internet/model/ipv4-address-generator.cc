@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2008 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #include "ipv4-address-generator.h"
@@ -30,9 +19,9 @@ namespace ns3
 NS_LOG_COMPONENT_DEFINE("Ipv4AddressGenerator");
 
 /**
- * \ingroup address
+ * @ingroup address
  *
- * \brief Implementation class of Ipv4AddressGenerator
+ * @brief Implementation class of Ipv4AddressGenerator
  * This generator assigns addresses sequentially from a provided
  * network address; used in topology code. It also keeps track of all
  * addresses assigned to perform duplicate detection.
@@ -44,30 +33,30 @@ class Ipv4AddressGeneratorImpl
     virtual ~Ipv4AddressGeneratorImpl();
 
     /**
-     * \brief Initialise the base network, mask and address for the generator
+     * @brief Initialise the base network, mask and address for the generator
      *
      * The first call to NextAddress() or GetAddress() will return the
      * value passed in.
      *
-     * \param net The network for the base Ipv4Address
-     * \param mask The network mask of the base Ipv4Address
-     * \param addr The base address used for initialization
+     * @param net The network for the base Ipv4Address
+     * @param mask The network mask of the base Ipv4Address
+     * @param addr The base address used for initialization
      */
     void Init(const Ipv4Address net, const Ipv4Mask mask, const Ipv4Address addr);
 
     /**
-     * \brief Get the current network of the given Ipv4Mask
+     * @brief Get the current network of the given Ipv4Mask
      *
      * Does not change the internal state; this just peeks at the current
      * network
      *
-     * \param mask The Ipv4Mask for the current network
-     * \returns the IPv4 address of the current network
+     * @param mask The Ipv4Mask for the current network
+     * @returns the IPv4 address of the current network
      */
     Ipv4Address GetNetwork(const Ipv4Mask mask) const;
 
     /**
-     * \brief Get the next network according to the given Ipv4Mask
+     * @brief Get the next network according to the given Ipv4Mask
      *
      * This operation is a pre-increment, meaning that the internal state
      * is changed before returning the new network address.
@@ -75,77 +64,77 @@ class Ipv4AddressGeneratorImpl
      * This also resets the address to the base address that was
      * used for initialization.
      *
-     * \param mask The Ipv4Mask used to set the next network
-     * \returns the IPv4 address of the next network
+     * @param mask The Ipv4Mask used to set the next network
+     * @returns the IPv4 address of the next network
      */
     Ipv4Address NextNetwork(const Ipv4Mask mask);
 
     /**
-     * \brief Set the address for the given mask
+     * @brief Set the address for the given mask
      *
-     * \param addr The address to set for the current mask
-     * \param mask The Ipv4Mask whose address is to be set
+     * @param addr The address to set for the current mask
+     * @param mask The Ipv4Mask whose address is to be set
      */
     void InitAddress(const Ipv4Address addr, const Ipv4Mask mask);
 
     /**
-     * \brief Allocate the next Ipv4Address for the configured network and mask
+     * @brief Allocate the next Ipv4Address for the configured network and mask
      *
      * This operation is a post-increment, meaning that the first address
      * allocated will be the one that was initially configured.
      *
-     * \param mask The Ipv4Mask for the current network
-     * \returns the IPv4 address
+     * @param mask The Ipv4Mask for the current network
+     * @returns the IPv4 address
      */
     Ipv4Address NextAddress(const Ipv4Mask mask);
 
     /**
-     * \brief Get the Ipv4Address that will be allocated upon NextAddress ()
+     * @brief Get the Ipv4Address that will be allocated upon NextAddress ()
      *
      * Does not change the internal state; just is used to peek the next
      * address that will be allocated upon NextAddress ()
      *
-     * \param mask The Ipv4Mask for the current network
-     * \returns the IPv4 address
+     * @param mask The Ipv4Mask for the current network
+     * @returns the IPv4 address
      */
     Ipv4Address GetAddress(const Ipv4Mask mask) const;
 
     /**
-     * \brief Reset the networks and Ipv4Address to zero
+     * @brief Reset the networks and Ipv4Address to zero
      */
     void Reset();
 
     /**
-     * \brief Add the Ipv4Address to the list of IPv4 entries
+     * @brief Add the Ipv4Address to the list of IPv4 entries
      *
      * Typically, this is used by external address allocators that want
      * to make use of this class's ability to track duplicates.  AddAllocated
      * is always called internally for any address generated by NextAddress ()
      *
-     * \param addr The Ipv4Address to be added to the list of Ipv4 entries
-     * \returns true on success
+     * @param addr The Ipv4Address to be added to the list of Ipv4 entries
+     * @returns true on success
      */
     bool AddAllocated(const Ipv4Address addr);
 
     /**
-     * \brief Check the Ipv4Address allocation in the list of IPv4 entries
+     * @brief Check the Ipv4Address allocation in the list of IPv4 entries
      *
-     * \param addr The Ipv4Address to be checked in the list of Ipv4 entries
-     * \returns true if the address is already allocated
+     * @param addr The Ipv4Address to be checked in the list of Ipv4 entries
+     * @returns true if the address is already allocated
      */
     bool IsAddressAllocated(const Ipv4Address addr);
 
     /**
-     * \brief Check if a network has already allocated addresses
+     * @brief Check if a network has already allocated addresses
      *
-     * \param addr The Ipv4 network to be checked
-     * \param mask The Ipv4 network mask
-     * \returns true if the network is already allocated
+     * @param addr The Ipv4 network to be checked
+     * @param mask The Ipv4 network mask
+     * @returns true if the network is already allocated
      */
     bool IsNetworkAllocated(const Ipv4Address addr, const Ipv4Mask mask);
 
     /**
-     * \brief Used to turn off fatal errors and assertions, for testing
+     * @brief Used to turn off fatal errors and assertions, for testing
      */
     void TestMode();
 
@@ -154,14 +143,14 @@ class Ipv4AddressGeneratorImpl
     static const uint32_t MOST_SIGNIFICANT_BIT = 0x80000000; //!< MSB set to 1
 
     /**
-     * \brief Create an index number for the network mask
-     * \param mask the mask to index
-     * \returns an index
+     * @brief Create an index number for the network mask
+     * @param mask the mask to index
+     * @returns an index
      */
     uint32_t MaskToIndex(Ipv4Mask mask) const;
 
     /**
-     * \brief This class holds the state for a given network
+     * @brief This class holds the state for a given network
      */
     class NetworkState
     {
@@ -176,7 +165,7 @@ class Ipv4AddressGeneratorImpl
     NetworkState m_netTable[N_BITS]; //!< the available networks
 
     /**
-     * \brief This class holds the allocated addresses
+     * @brief This class holds the allocated addresses
      */
     class Entry
     {
@@ -342,8 +331,8 @@ Ipv4AddressGeneratorImpl::NextAddress(const Ipv4Mask mask)
     NS_ABORT_MSG_UNLESS(m_netTable[index].addr <= m_netTable[index].addrMax,
                         "Ipv4AddressGeneratorImpl::NextAddress(): Address overflow");
 
-    Ipv4Address addr = Ipv4Address((m_netTable[index].network << m_netTable[index].shift) |
-                                   m_netTable[index].addr);
+    Ipv4Address addr((m_netTable[index].network << m_netTable[index].shift) |
+                     m_netTable[index].addr);
 
     ++m_netTable[index].addr;
     //
@@ -404,7 +393,7 @@ Ipv4AddressGeneratorImpl::AddAllocated(const Ipv4Address address)
         //
         if (addr == (*i).addrHigh + 1)
         {
-            std::list<Entry>::iterator j = i;
+            auto j = i;
             ++j;
 
             if (j != m_entries.end())
@@ -459,9 +448,7 @@ Ipv4AddressGeneratorImpl::IsAddressAllocated(const Ipv4Address address)
         addr,
         "Ipv4AddressGeneratorImpl::IsAddressAllocated(): Don't check for the broadcast address...");
 
-    std::list<Entry>::iterator i;
-
-    for (i = m_entries.begin(); i != m_entries.end(); ++i)
+    for (auto i = m_entries.begin(); i != m_entries.end(); ++i)
     {
         NS_LOG_LOGIC("examine entry: " << Ipv4Address((*i).addrLow) << " to "
                                        << Ipv4Address((*i).addrHigh));
@@ -469,10 +456,10 @@ Ipv4AddressGeneratorImpl::IsAddressAllocated(const Ipv4Address address)
         {
             NS_LOG_LOGIC("Ipv4AddressGeneratorImpl::IsAddressAllocated(): Address Collision: "
                          << Ipv4Address(addr));
-            return false;
+            return true;
         }
     }
-    return true;
+    return false;
 }
 
 bool
@@ -485,14 +472,12 @@ Ipv4AddressGeneratorImpl::IsNetworkAllocated(const Ipv4Address address, const Ip
         "Ipv4AddressGeneratorImpl::IsNetworkAllocated(): network address and mask don't match "
             << address << " " << mask);
 
-    std::list<Entry>::iterator i;
-
-    for (i = m_entries.begin(); i != m_entries.end(); ++i)
+    for (auto i = m_entries.begin(); i != m_entries.end(); ++i)
     {
         NS_LOG_LOGIC("examine entry: " << Ipv4Address((*i).addrLow) << " to "
                                        << Ipv4Address((*i).addrHigh));
-        Ipv4Address low = Ipv4Address((*i).addrLow);
-        Ipv4Address high = Ipv4Address((*i).addrHigh);
+        Ipv4Address low((*i).addrLow);
+        Ipv4Address high((*i).addrHigh);
 
         if (address == low.CombineMask(mask) || address == high.CombineMask(mask))
         {

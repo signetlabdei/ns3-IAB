@@ -1,25 +1,14 @@
 /*
  *  Copyright 2018. Lawrence Livermore National Security, LLC.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Steven Smith <smith84@llnl.gov>
  */
 
 /**
- * \file
- * \ingroup mpi
+ * @file
+ * @ingroup mpi
  *
  * This test is equivalent to simple-distributed with the addition of
  * initialization of MPI by user code (this script) and providing
@@ -89,8 +78,8 @@ const int NOT_NS_COLOR = NS_COLOR + 1;
 /**
  * Report my rank, in both MPI_COMM_WORLD and the split communicator.
  *
- * \param [in] color My role, either ns-3 rank or other rank.
- * \param [in] splitComm The split communicator.
+ * @param [in] color My role, either ns-3 rank or other rank.
+ * @param [in] splitComm The split communicator.
  */
 void
 ReportRank(int color, MPI_Comm splitComm)
@@ -113,8 +102,7 @@ ReportRank(int color, MPI_Comm splitComm)
     RANK0COUTAPPEND("in MPI_COMM_WORLD: " << SinkTracer::GetWorldRank() << ":"
                                           << SinkTracer::GetWorldSize() << ", in splitComm: "
                                           << otherId << ":" << otherSize << std::endl);
-
-} // ReportRank()
+}
 
 int
 main(int argc, char* argv[])
@@ -436,7 +424,7 @@ main(int argc, char* argv[])
         Ipv4GlobalRoutingHelper::PopulateRoutingTables();
     }
 
-    if (tracing == true)
+    if (tracing)
     {
         if (systemId == 0)
         {
@@ -470,7 +458,7 @@ main(int argc, char* argv[])
             }
             sinkApp.Add(apps);
         }
-        sinkApp.Start(Seconds(1.0));
+        sinkApp.Start(Seconds(1));
         sinkApp.Stop(Seconds(5));
     }
 
@@ -489,7 +477,7 @@ main(int argc, char* argv[])
             clientHelper.SetAttribute("Remote", remoteAddress);
             clientApps.Add(clientHelper.Install(leftLeafNodes.Get(i)));
         }
-        clientApps.Start(Seconds(1.0));
+        clientApps.Start(Seconds(1));
         clientApps.Stop(Seconds(5));
     }
 

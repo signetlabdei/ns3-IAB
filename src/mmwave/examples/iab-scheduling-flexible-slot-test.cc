@@ -211,7 +211,6 @@ main (int argc, char *argv[])
 
   Config::SetDefault ("ns3::MmWaveHelper::UseIdealRrc", BooleanValue (useIdealRrc));
 
-  Config::SetDefault ("ns3::UdpClient::EnableSeqTsSizeHeader",BooleanValue (true));
   Config::SetDefault ("ns3::PacketSink::EnableSeqTsSizeHeader",BooleanValue (true));
 
 

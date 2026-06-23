@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2016 ResiliNets, ITTC, University of Kansas
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Truc Anh N. Nguyen <annguyen@ittc.ku.edu>
  *
@@ -34,21 +23,21 @@ using namespace ns3;
 NS_LOG_COMPONENT_DEFINE("TcpVegasTestSuite");
 
 /**
- * \brief TcpVegas congestion control algorithm test
+ * @brief TcpVegas congestion control algorithm test
  */
 class TcpVegasTest : public TestCase
 {
   public:
     /**
-     * \brief Constructor.
-     * \param cWnd Congestion window.
-     * \param segmentSize Segment size.
-     * \param ssThresh Slow Start Threshold.
-     * \param rtt The RTT.
-     * \param segmentsAcked Number of segments ACKed.
-     * \param nextTxSeq Next Tx sequence number.
-     * \param lastAckedSeq Last ACKed sequence number.
-     * \param name Test description.
+     * @brief Constructor.
+     * @param cWnd Congestion window.
+     * @param segmentSize Segment size.
+     * @param ssThresh Slow Start Threshold.
+     * @param rtt The RTT.
+     * @param segmentsAcked Number of segments ACKed.
+     * @param nextTxSeq Next Tx sequence number.
+     * @param lastAckedSeq Last ACKed sequence number.
+     * @param name Test description.
      */
     TcpVegasTest(uint32_t cWnd,
                  uint32_t segmentSize,
@@ -62,13 +51,13 @@ class TcpVegasTest : public TestCase
   private:
     void DoRun() override;
     /**
-     * \brief Increases the TCP window.
-     * \param cong The congestion control.
+     * @brief Increases the TCP window.
+     * @param cong The congestion control.
      */
     void IncreaseWindow(Ptr<TcpVegas> cong);
     /**
      * brief Get and check the SSH threshold.
-     * \param cong The congestion control.
+     * @param cong The congestion control.
      */
     void GetSsThresh(Ptr<TcpVegas> cong);
 
@@ -201,15 +190,15 @@ TcpVegasTest::GetSsThresh(Ptr<TcpVegas> cong)
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief TCP Vegas TestSuite
+ * @brief TCP Vegas TestSuite
  */
 class TcpVegasTestSuite : public TestSuite
 {
   public:
     TcpVegasTestSuite()
-        : TestSuite("tcp-vegas-test", UNIT)
+        : TestSuite("tcp-vegas-test", Type::UNIT)
     {
         AddTestCase(
             new TcpVegasTest(38 * 1446,
@@ -220,7 +209,7 @@ class TcpVegasTestSuite : public TestSuite
                              SequenceNumber32(2893),
                              SequenceNumber32(5785),
                              "Vegas test on cWnd and ssThresh when in slow start and diff > gamma"),
-            TestCase::QUICK);
+            TestCase::Duration::QUICK);
         AddTestCase(
             new TcpVegasTest(5 * 536,
                              536,
@@ -230,7 +219,7 @@ class TcpVegasTestSuite : public TestSuite
                              SequenceNumber32(3216),
                              SequenceNumber32(3753),
                              "Vegas test on cWnd and ssThresh when in slow start and diff < gamma"),
-            TestCase::QUICK);
+            TestCase::Duration::QUICK);
         AddTestCase(new TcpVegasTest(60 * 346,
                                      346,
                                      40 * 346,
@@ -239,7 +228,7 @@ class TcpVegasTestSuite : public TestSuite
                                      SequenceNumber32(20761),
                                      SequenceNumber32(21107),
                                      "Vegas test on cWnd and ssThresh when diff > beta"),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
         AddTestCase(new TcpVegasTest(15 * 1446,
                                      1446,
                                      10 * 1446,
@@ -248,7 +237,7 @@ class TcpVegasTestSuite : public TestSuite
                                      SequenceNumber32(21691),
                                      SequenceNumber32(24583),
                                      "Vegas test on cWnd and ssThresh when diff < alpha"),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
         AddTestCase(new TcpVegasTest(20 * 746,
                                      746,
                                      10 * 746,
@@ -257,7 +246,7 @@ class TcpVegasTestSuite : public TestSuite
                                      SequenceNumber32(14921),
                                      SequenceNumber32(15667),
                                      "Vegas test on cWnd and ssThresh when alpha <= diff <= beta"),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
     }
 };
 

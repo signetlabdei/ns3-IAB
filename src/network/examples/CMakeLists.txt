@@ -1,9 +1,10 @@
 set(base_examples
     bit-serializer
+    lollipop-comparisons
     main-packet-header
     main-packet-tag
     packet-socket-apps
-    lollipop-comparisions
+    sequence-number-example
 )
 
 foreach(

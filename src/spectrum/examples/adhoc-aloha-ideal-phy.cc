@@ -1,37 +1,26 @@
 /*
  * Copyright (c) 2010 CTTC
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Nicola Baldo <nbaldo@cttc.es>
  */
 
-#include <ns3/adhoc-aloha-noack-ideal-phy-helper.h>
-#include <ns3/applications-module.h>
-#include <ns3/core-module.h>
-#include <ns3/friis-spectrum-propagation-loss.h>
-#include <ns3/log.h>
-#include <ns3/mobility-module.h>
-#include <ns3/network-module.h>
-#include <ns3/propagation-delay-model.h>
-#include <ns3/single-model-spectrum-channel.h>
-#include <ns3/spectrum-analyzer.h>
-#include <ns3/spectrum-helper.h>
-#include <ns3/spectrum-model-300kHz-300GHz-log.h>
-#include <ns3/spectrum-model-ism2400MHz-res1MHz.h>
-#include <ns3/waveform-generator.h>
-#include <ns3/wifi-spectrum-value-helper.h>
+#include "ns3/adhoc-aloha-noack-ideal-phy-helper.h"
+#include "ns3/applications-module.h"
+#include "ns3/core-module.h"
+#include "ns3/friis-spectrum-propagation-loss.h"
+#include "ns3/ism-spectrum-value-helper.h"
+#include "ns3/log.h"
+#include "ns3/mobility-module.h"
+#include "ns3/network-module.h"
+#include "ns3/propagation-delay-model.h"
+#include "ns3/single-model-spectrum-channel.h"
+#include "ns3/spectrum-analyzer.h"
+#include "ns3/spectrum-helper.h"
+#include "ns3/spectrum-model-300kHz-300GHz-log.h"
+#include "ns3/spectrum-model-ism2400MHz-res1MHz.h"
+#include "ns3/waveform-generator.h"
 
 #include <iostream>
 #include <string>
@@ -46,8 +35,8 @@ static bool g_verbose = false;
 /**
  * PHY start TX trace.
  *
- * \param context The context.
- * \param p The packet.
+ * @param context The context.
+ * @param p The packet.
  */
 void
 PhyTxStartTrace(std::string context, Ptr<const Packet> p)
@@ -61,8 +50,8 @@ PhyTxStartTrace(std::string context, Ptr<const Packet> p)
 /**
  * PHY end TX trace.
  *
- * \param context The context.
- * \param p The packet.
+ * @param context The context.
+ * @param p The packet.
  */
 void
 PhyTxEndTrace(std::string context, Ptr<const Packet> p)
@@ -76,8 +65,8 @@ PhyTxEndTrace(std::string context, Ptr<const Packet> p)
 /**
  * PHY start RX trace.
  *
- * \param context The context.
- * \param p The packet.
+ * @param context The context.
+ * @param p The packet.
  */
 void
 PhyRxStartTrace(std::string context, Ptr<const Packet> p)
@@ -91,8 +80,8 @@ PhyRxStartTrace(std::string context, Ptr<const Packet> p)
 /**
  * PHY end OK RX trace.
  *
- * \param context The context.
- * \param p The packet.
+ * @param context The context.
+ * @param p The packet.
  */
 void
 PhyRxEndOkTrace(std::string context, Ptr<const Packet> p)
@@ -106,8 +95,8 @@ PhyRxEndOkTrace(std::string context, Ptr<const Packet> p)
 /**
  * PHY end error RX trace.
  *
- * \param context The context.
- * \param p The packet.
+ * @param context The context.
+ * @param p The packet.
  */
 void
 PhyRxEndErrorTrace(std::string context, Ptr<const Packet> p)
@@ -121,7 +110,7 @@ PhyRxEndErrorTrace(std::string context, Ptr<const Packet> p)
 /**
  * Receive callback.
  *
- * \param socket The receiving socket.
+ * @param socket The receiving socket.
  */
 void
 ReceivePacket(Ptr<Socket> socket)
@@ -141,8 +130,8 @@ ReceivePacket(Ptr<Socket> socket)
 /**
  * Create a socket and prepare it for packet reception.
  *
- * \param node The node.
- * \return a new socket
+ * @param node The node.
+ * @return a new socket
  */
 Ptr<Socket>
 SetupPacketReceive(Ptr<Node> node)
@@ -176,7 +165,7 @@ main(int argc, char** argv)
     SpectrumChannelHelper channelHelper = SpectrumChannelHelper::Default();
     Ptr<SpectrumChannel> channel = channelHelper.Create();
 
-    WifiSpectrumValue5MhzFactory sf;
+    SpectrumValue5MhzFactory sf;
 
     double txPower = 0.1; // Watts
     uint32_t channelNumber = 1;
@@ -214,7 +203,7 @@ main(int argc, char** argv)
 
     Ptr<Socket> recvSink = SetupPacketReceive(c.Get(1));
 
-    Simulator::Stop(Seconds(10.0));
+    Simulator::Stop(Seconds(10));
 
     Config::Connect("/NodeList/*/DeviceList/*/Phy/TxStart", MakeCallback(&PhyTxStartTrace));
     Config::Connect("/NodeList/*/DeviceList/*/Phy/TxEnd", MakeCallback(&PhyTxEndTrace));

@@ -1,17 +1,9 @@
 /*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
+ * Copyright (c) 2012 The Georgia Institute of Technology
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * SPDX-License-Identifier: GPL-2.0-only
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
+ * Author: Brian Swenson <bswenson3@gatech.edu>
  */
 
 #include "Brite.h"
@@ -151,8 +143,8 @@ main(int argc, char* argv[])
         Address sinkLocalAddress(InetSocketAddress(Ipv4Address::GetAny(), port));
         PacketSinkHelper packetSinkHelper("ns3::TcpSocketFactory", sinkLocalAddress);
         sinkApps.Add(packetSinkHelper.Install(server.Get(0)));
-        sinkApps.Start(Seconds(0.0));
-        sinkApps.Stop(Seconds(10.0));
+        sinkApps.Start(Seconds(0));
+        sinkApps.Stop(Seconds(10));
     }
 
     if (systemId == 0)
@@ -166,8 +158,8 @@ main(int argc, char* argv[])
         AddressValue remoteAddress(InetSocketAddress(serverInterfaces.GetAddress(0), port));
         clientHelper.SetAttribute("Remote", remoteAddress);
         clientApps.Add(clientHelper.Install(client.Get(0)));
-        clientApps.Start(Seconds(1.0)); // Start 1 second after sink
-        clientApps.Stop(Seconds(9.0));  // Stop before the sink
+        clientApps.Start(Seconds(1)); // Start 1 second after sink
+        clientApps.Stop(Seconds(9));  // Stop before the sink
     }
 
     if (!nix)
@@ -182,7 +174,7 @@ main(int argc, char* argv[])
     }
 
     // Run the simulator
-    Simulator::Stop(Seconds(200.0));
+    Simulator::Stop(Seconds(200));
     Simulator::Run();
     Simulator::Destroy();
 

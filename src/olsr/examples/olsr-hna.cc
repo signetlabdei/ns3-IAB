@@ -1,17 +1,6 @@
 /*
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Lalith Suresh <suresh.lalith@gmail.com>
  *
@@ -41,15 +30,14 @@
 // One way is to use olsr::RoutingProtocol::SetRoutingTableAssociation ()
 // to use which you may run:
 //
-// ./ns3 run "olsr-hna --assocMethod1=1"
+// ./ns3 run "olsr-hna --assocMethod=SetRoutingTable"
 //
 // The other way is to use olsr::RoutingProtocol::AddHostNetworkAssociation ()
 // to use which you may run:
 //
-// ./ns3 run "olsr-hna --assocMethod2=1"
+// ./ns3 run "olsr-hna --assocMethod=AddHostNetwork"
 //
 
-#include "ns3/config-store-module.h"
 #include "ns3/core-module.h"
 #include "ns3/csma-module.h"
 #include "ns3/internet-module.h"
@@ -102,8 +90,8 @@ main(int argc, char* argv[])
     uint32_t numPackets = 1;
     double interval = 1.0; // seconds
     bool verbose = false;
-    bool assocMethod1 = false;
-    bool assocMethod2 = false;
+    std::string assocMethod("SetRoutingTable");
+    bool reverse = false;
 
     CommandLine cmd(__FILE__);
 
@@ -113,8 +101,11 @@ main(int argc, char* argv[])
     cmd.AddValue("numPackets", "number of packets generated", numPackets);
     cmd.AddValue("interval", "interval (seconds) between packets", interval);
     cmd.AddValue("verbose", "turn on all WifiNetDevice log components", verbose);
-    cmd.AddValue("assocMethod1", "Use SetRoutingTableAssociation () method", assocMethod1);
-    cmd.AddValue("assocMethod2", "Use AddHostNetworkAssociation () method", assocMethod2);
+    cmd.AddValue("assocMethod",
+                 "How to add the host to the HNA table (SetRoutingTable, "
+                 "AddHostNetwork)",
+                 assocMethod);
+    cmd.AddValue("reverse", "Send packets from CSMA to WiFi if set to true", reverse);
 
     cmd.Parse(argc, argv);
     // Convert to time object
@@ -210,38 +201,43 @@ main(int argc, char* argv[])
     ipv4.Assign(csmaDevices);
 
     TypeId tid = TypeId::LookupByName("ns3::UdpSocketFactory");
-    Ptr<Socket> recvSink = Socket::CreateSocket(csmaNodes.Get(0), tid);
+    Ptr<Socket> recvSink;
+    if (!reverse)
+    {
+        recvSink = Socket::CreateSocket(csmaNodes.Get(0), tid);
+    }
+    else
+    {
+        recvSink = Socket::CreateSocket(olsrNodes.Get(0), tid);
+    }
     InetSocketAddress local = InetSocketAddress(Ipv4Address::GetAny(), 80);
     recvSink->Bind(local);
     recvSink->SetRecvCallback(MakeCallback(&ReceivePacket));
 
-    Ptr<Socket> source = Socket::CreateSocket(olsrNodes.Get(0), tid);
-    InetSocketAddress remote = InetSocketAddress(Ipv4Address("172.16.1.1"), 80);
-    source->Connect(remote);
+    Ptr<Socket> source;
+    if (!reverse)
+    {
+        source = Socket::CreateSocket(olsrNodes.Get(0), tid);
+        InetSocketAddress remote = InetSocketAddress(Ipv4Address("172.16.1.1"), 80);
+        source->Connect(remote);
+    }
+    else
+    {
+        source = Socket::CreateSocket(csmaNodes.Get(0), tid);
+        InetSocketAddress remote = InetSocketAddress(Ipv4Address("10.1.1.1"), 80);
+        source->Connect(remote);
+    }
 
     // Obtain olsr::RoutingProtocol instance of gateway node
     // (namely, node B) and add the required association
-    Ptr<Ipv4> stack = olsrNodes.Get(1)->GetObject<Ipv4>();
-    Ptr<Ipv4RoutingProtocol> rp_Gw = (stack->GetRoutingProtocol());
-    Ptr<Ipv4ListRouting> lrp_Gw = DynamicCast<Ipv4ListRouting>(rp_Gw);
+    Ptr<olsr::RoutingProtocol> olsrrp_Gw = Ipv4RoutingHelper::GetRouting<olsr::RoutingProtocol>(
+        olsrNodes.Get(1)->GetObject<Ipv4>()->GetRoutingProtocol());
 
-    Ptr<olsr::RoutingProtocol> olsrrp_Gw;
-
-    for (uint32_t i = 0; i < lrp_Gw->GetNRoutingProtocols(); i++)
-    {
-        int16_t priority;
-        Ptr<Ipv4RoutingProtocol> temp = lrp_Gw->GetRoutingProtocol(i, priority);
-        if (DynamicCast<olsr::RoutingProtocol>(temp))
-        {
-            olsrrp_Gw = DynamicCast<olsr::RoutingProtocol>(temp);
-        }
-    }
-
-    if (assocMethod1)
+    if (assocMethod == "SetRoutingTable")
     {
         // Create a special Ipv4StaticRouting instance for RoutingTableAssociation
         // Even the Ipv4StaticRouting instance added to list may be used
-        Ptr<Ipv4StaticRouting> hnaEntries = Create<Ipv4StaticRouting>();
+        Ptr<Ipv4StaticRouting> hnaEntries = CreateObject<Ipv4StaticRouting>();
 
         // Add the required routes into the Ipv4StaticRouting Protocol instance
         // and have the node generate HNA messages for all these routes
@@ -252,29 +248,43 @@ main(int argc, char* argv[])
                                       uint32_t(1));
         olsrrp_Gw->SetRoutingTableAssociation(hnaEntries);
     }
-
-    if (assocMethod2)
+    else if (assocMethod == "AddHostNetwork")
     {
         // Specify the required associations directly.
         olsrrp_Gw->AddHostNetworkAssociation(Ipv4Address("172.16.1.0"), Ipv4Mask("255.255.255.0"));
     }
+    else
+    {
+        std::cout << "invalid HnaMethod option (" << assocMethod << ")" << std::endl;
+        exit(0);
+    }
+
+    // Add a default route to the CSMA node (to enable replies)
+    Ptr<Ipv4StaticRouting> staticRoutingProt;
+    staticRoutingProt = Ipv4RoutingHelper::GetRouting<Ipv4StaticRouting>(
+        csmaNodes.Get(0)->GetObject<Ipv4>()->GetRoutingProtocol());
+    staticRoutingProt->AddNetworkRouteTo("10.1.1.0", "255.255.255.0", "172.16.1.2", 1);
 
     // Tracing
-    wifiPhy.EnablePcap("olsr-hna", devices);
-    csma.EnablePcap("olsr-hna", csmaDevices, false);
+    wifiPhy.EnablePcap("olsr-hna-wifi", devices);
+    csma.EnablePcap("olsr-hna-csma", csmaDevices, false);
     AsciiTraceHelper ascii;
     wifiPhy.EnableAsciiAll(ascii.CreateFileStream("olsr-hna-wifi.tr"));
     csma.EnableAsciiAll(ascii.CreateFileStream("olsr-hna-csma.tr"));
 
     Simulator::ScheduleWithContext(source->GetNode()->GetId(),
-                                   Seconds(15.0),
+                                   Seconds(15),
                                    &GenerateTraffic,
                                    source,
                                    packetSize,
                                    numPackets,
                                    interPacketInterval);
 
-    Simulator::Stop(Seconds(20.0));
+    Ptr<OutputStreamWrapper> routingStream =
+        Create<OutputStreamWrapper>("olsr-hna.routes", std::ios::out);
+    Ipv4RoutingHelper::PrintRoutingTableAllAt(Seconds(15), routingStream);
+
+    Simulator::Stop(Seconds(20));
     Simulator::Run();
     Simulator::Destroy();
 

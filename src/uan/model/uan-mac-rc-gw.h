@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Leonard Tracy <lentracy@gmail.com>
  */
@@ -35,7 +24,7 @@ namespace ns3
 class UanTxMode;
 
 /**
- * \ingroup uan
+ * @ingroup uan
  *
  * Gateway side of RC-MAC.
  *
@@ -59,7 +48,7 @@ class UanMacRcGw : public UanMac
 
     /**
      * Register this type.
-     * \return The type ID.
+     * @return The type ID.
      */
     static TypeId GetTypeId();
 
@@ -73,14 +62,14 @@ class UanMacRcGw : public UanMac
     /**
      * TracedCallback signature for
      *
-     * \param [in] now, The current simulation time.
-     * \param [in] delay Minimum path delay of first RTS.
-     * \param [in] numRts Number of pending RTS.
-     * \param [in] totalBytes Length of RTS header.
-     * \param [in] secs Effective window size for RcCtsGlobal message, or
+     * @param [in] now, The current simulation time.
+     * @param [in] delay Minimum path delay of first RTS.
+     * @param [in] numRts Number of pending RTS.
+     * @param [in] totalBytes Length of RTS header.
+     * @param [in] secs Effective window size for RcCtsGlobal message, or
      *             time to next cycle, both in seconds.
-     * \param [in] ctlRate CTL rate in Bps.
-     * \param [in] actualX Current retry rate.
+     * @param [in] ctlRate CTL rate in Bps.
+     * @param [in] actualX Current retry rate.
      */
     typedef void (*CycleCallback)(Time now,
                                   Time delay,
@@ -102,7 +91,7 @@ class UanMacRcGw : public UanMac
     State m_state; //!< Gateway processing state.
 
     /**
-     * \ingroup uan
+     * @ingroup uan
      * Reservation request.
      */
     struct Request
@@ -115,7 +104,7 @@ class UanMacRcGw : public UanMac
     };
 
     /**
-     * \ingroup uan
+     * @ingroup uan
      * Packet ACK data.
      */
     struct AckData
@@ -182,9 +171,9 @@ class UanMacRcGw : public UanMac
     /**
      * PHY receive ok callback.
      *
-     * \param pkt The Packet to receive
-     * \param sinr The SINR on the channel
-     * \param mode The transmission mode
+     * @param pkt The Packet to receive
+     * @param sinr The SINR on the channel
+     * @param mode The transmission mode
      */
     void ReceivePacket(Ptr<Packet> pkt, double sinr, UanTxMode mode);
 
@@ -195,8 +184,8 @@ class UanMacRcGw : public UanMac
     /**
      * Send packet on PHY.
      *
-     * \param pkt The Packet.
-     * \param rate The UanTxMode number, m_currentRateNum.
+     * @param pkt The Packet.
+     * @param rate The UanTxMode number, m_currentRateNum.
      */
     void SendPacket(Ptr<Packet> pkt, uint32_t rate);
     /** Set state to INCYCLE. */
@@ -204,8 +193,8 @@ class UanMacRcGw : public UanMac
     /**
      * PHY receive error callback.
      *
-     * \param pkt The failed packet.
-     * \param sinr The SINR value on the channel.
+     * @param pkt The failed packet.
+     * @param sinr The SINR value on the channel.
      */
     void ReceiveError(Ptr<Packet> pkt, double sinr);
 
@@ -213,12 +202,12 @@ class UanMacRcGw : public UanMac
     /**
      * Compute alpha parameter.
      *
-     * \param totalFrames Total number of frames in m_requests.
-     * \param totalBytes Total number of bytes in m_requests.
-     * \param n Number of nodes.
-     * \param a m_maxRes, or optimal A value.
-     * \param deltaK Propagation delay.
-     * \return Alpha parameter.
+     * @param totalFrames Total number of frames in m_requests.
+     * @param totalBytes Total number of bytes in m_requests.
+     * @param n Number of nodes.
+     * @param a m_maxRes, or optimal A value.
+     * @param deltaK Propagation delay.
+     * @return Alpha parameter.
      */
     double ComputeAlpha(uint32_t totalFrames,
                         uint32_t totalBytes,
@@ -228,73 +217,72 @@ class UanMacRcGw : public UanMac
     /**
      * Get the expected propagation delay to each node.
      *
-     * \return Vector of expected propagation delays.
+     * @return Vector of expected propagation delays.
      */
     std::vector<double> GetExpPdk();
     /**
      * Throughput for \pname{a} reservations with framesize \pname{ld},
      * given expected delays exppdk.
      *
-     * \param a Number of reservations.
-     * \param ld Frame size.
-     * \param exppdk Expected delays, given by GetExpPdk.
-     * \return Expected throughput.
+     * @param a Number of reservations.
+     * @param ld Frame size.
+     * @param exppdk Expected delays, given by GetExpPdk.
+     * @return Expected throughput.
      */
     double ComputeExpS(uint32_t a, uint32_t ld, std::vector<double> exppdk);
     /**
      * Throughput for \pname{a} reservations with framesize \pname{ld}.
      *
-     * \param a Number of reservations.
-     * \param ld Frame size.
-     * \return Expected throughput.
+     * @param a Number of reservations.
+     * @param ld Frame size.
+     * @return Expected throughput.
      */
     double ComputeExpS(uint32_t a, uint32_t ld);
     /**
      * Index to the k'th expected delay among n nodes.
      *
-     * \param n Number of nodes.
-     * \param k Target index.
-     * \return The expected index.
+     * @param n Number of nodes.
+     * @param k Target index.
+     * @return The expected index.
      */
     uint32_t CompExpMinIndex(uint32_t n, uint32_t k);
     /**
      * Numeric function.
      *
-     * \param a Number of reservations.
-     * \param n number of nodes.
-     * \param k K'th node.
-     * \return Value.
+     * @param a Number of reservations.
+     * @param n number of nodes.
+     * @param k K'th node.
+     * @return Value.
      */
     double ComputePiK(uint32_t a, uint32_t n, uint32_t k);
     /**
      * Numeric function.
      *
-     * \param n Number of nodes.
-     * \param a Number of reservations.
-     * \param ldlh Sum of common header length and frame size.
-     * \param deltaK Result of GetExpPdk
-     * \return value.
+     * @param n Number of nodes.
+     * @param a Number of reservations.
+     * @param ldlh Sum of common header length and frame size.
+     * @param deltaK Result of GetExpPdk
+     * @return value.
      */
     double ComputeExpBOverA(uint32_t n, uint32_t a, uint32_t ldlh, std::vector<double> deltaK);
     /**
      * Binomial coefficient.
      *
-     * \param n Pool size.
-     * \param k Selection size.
-     * \return Binomial coefficient n choose k.
+     * @param n Pool size.
+     * @param k Selection size.
+     * @return Binomial coefficient n choose k.
      */
     uint64_t NchooseK(uint32_t n, uint32_t k);
     /**
      * Compute the optimum maximum number of reservations to accept per cycle.
      *
-     * \return Optimum number.
+     * @return Optimum number.
      */
     uint32_t FindOptA();
 
   protected:
     void DoDispose() override;
-
-}; // class UanMacRcGw
+};
 
 } // namespace ns3
 

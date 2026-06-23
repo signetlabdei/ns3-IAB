@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2007-2009 Strasbourg University
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: David Gross <gdavid.devel@gmail.com>
  */
@@ -58,7 +47,7 @@ Ipv6ExtensionDemux::~Ipv6ExtensionDemux()
 void
 Ipv6ExtensionDemux::DoDispose()
 {
-    for (Ipv6ExtensionList_t::iterator it = m_extensions.begin(); it != m_extensions.end(); it++)
+    for (auto it = m_extensions.begin(); it != m_extensions.end(); it++)
     {
         (*it)->Dispose();
         *it = nullptr;
@@ -83,7 +72,7 @@ Ipv6ExtensionDemux::Insert(Ptr<Ipv6Extension> extension)
 Ptr<Ipv6Extension>
 Ipv6ExtensionDemux::GetExtension(uint8_t extensionNumber)
 {
-    for (Ipv6ExtensionList_t::iterator i = m_extensions.begin(); i != m_extensions.end(); ++i)
+    for (auto i = m_extensions.begin(); i != m_extensions.end(); ++i)
     {
         if ((*i)->GetExtensionNumber() == extensionNumber)
         {
@@ -99,4 +88,14 @@ Ipv6ExtensionDemux::Remove(Ptr<Ipv6Extension> extension)
     m_extensions.remove(extension);
 }
 
+int64_t
+Ipv6ExtensionDemux::AssignStreams(int64_t stream)
+{
+    int64_t currentStream = stream;
+    for (auto& extension : m_extensions)
+    {
+        currentStream += extension->AssignStreams(currentStream);
+    }
+    return currentStream - stream;
+}
 } /* namespace ns3 */

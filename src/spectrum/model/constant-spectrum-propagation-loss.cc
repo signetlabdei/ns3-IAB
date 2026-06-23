@@ -1,23 +1,12 @@
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Manuel Requena <manuel.requena@cttc.es>
  */
 
-#include "ns3/constant-spectrum-propagation-loss.h"
+#include "constant-spectrum-propagation-loss.h"
 
 #include "spectrum-signal-parameters.h"
 
@@ -84,8 +73,8 @@ ConstantSpectrumPropagationLossModel::DoCalcRxPowerSpectralDensity(
     NS_LOG_FUNCTION(this);
 
     Ptr<SpectrumValue> rxPsd = Copy<SpectrumValue>(params->psd);
-    Values::iterator vit = rxPsd->ValuesBegin();
-    Bands::const_iterator fit = rxPsd->ConstBandsBegin();
+    auto vit = rxPsd->ValuesBegin();
+    auto fit = rxPsd->ConstBandsBegin();
 
     while (vit != rxPsd->ValuesEnd())
     {
@@ -97,6 +86,12 @@ ConstantSpectrumPropagationLossModel::DoCalcRxPowerSpectralDensity(
         ++fit;
     }
     return rxPsd;
+}
+
+int64_t
+ConstantSpectrumPropagationLossModel::DoAssignStreams(int64_t stream)
+{
+    return 0;
 }
 
 } // namespace ns3

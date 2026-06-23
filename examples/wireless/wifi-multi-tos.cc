@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2016
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Sebastien Deronne <sebastien.deronne@gmail.com>
  */
@@ -47,20 +36,20 @@ NS_LOG_COMPONENT_DEFINE("WifiMultiTos");
 int
 main(int argc, char* argv[])
 {
-    uint32_t nWifi = 4;
-    double simulationTime = 10; // seconds
-    double distance = 1.0;      // meters
-    uint16_t mcs = 7;
-    uint8_t channelWidth = 20; // MHz
-    bool useShortGuardInterval = false;
-    bool useRts = false;
+    uint32_t nWifi{4};
+    Time simulationTime{"10s"};
+    meter_u distance{1.0};
+    uint16_t mcs{7};
+    uint8_t channelWidth{20}; // MHz
+    bool useShortGuardInterval{false};
+    bool useRts{false};
 
     CommandLine cmd(__FILE__);
     cmd.AddValue("nWifi", "Number of stations", nWifi);
     cmd.AddValue("distance",
                  "Distance in meters between the stations and the access point",
                  distance);
-    cmd.AddValue("simulationTime", "Simulation time in seconds", simulationTime);
+    cmd.AddValue("simulationTime", "Simulation time", simulationTime);
     cmd.AddValue("useRts", "Enable/disable RTS/CTS", useRts);
     cmd.AddValue("mcs", "MCS value (0 - 7)", mcs);
     cmd.AddValue("channelWidth", "Channel width in MHz", channelWidth);
@@ -151,7 +140,6 @@ main(int argc, char* argv[])
             auto ipv4 = wifiApNode.Get(0)->GetObject<Ipv4>();
             const auto address = ipv4->GetAddress(1, 0).GetLocal();
             InetSocketAddress sinkSocket(address, portNumber++);
-            sinkSocket.SetTos(tosValue);
             OnOffHelper onOffHelper("ns3::UdpSocketFactory", sinkSocket);
             onOffHelper.SetAttribute("OnTime",
                                      StringValue("ns3::ConstantRandomVariable[Constant=1]"));
@@ -159,28 +147,29 @@ main(int argc, char* argv[])
                                      StringValue("ns3::ConstantRandomVariable[Constant=0]"));
             onOffHelper.SetAttribute("DataRate", DataRateValue(50000000 / nWifi));
             onOffHelper.SetAttribute("PacketSize", UintegerValue(1472)); // bytes
+            onOffHelper.SetAttribute("Tos", UintegerValue(tosValue));
             sourceApplications.Add(onOffHelper.Install(wifiStaNodes.Get(index)));
             PacketSinkHelper packetSinkHelper("ns3::UdpSocketFactory", sinkSocket);
             sinkApplications.Add(packetSinkHelper.Install(wifiApNode.Get(0)));
         }
     }
 
-    sinkApplications.Start(Seconds(0.0));
-    sinkApplications.Stop(Seconds(simulationTime + 1));
-    sourceApplications.Start(Seconds(1.0));
-    sourceApplications.Stop(Seconds(simulationTime + 1));
+    sinkApplications.Start(Seconds(0));
+    sinkApplications.Stop(simulationTime + Seconds(1));
+    sourceApplications.Start(Seconds(1));
+    sourceApplications.Stop(simulationTime + Seconds(1));
 
     Ipv4GlobalRoutingHelper::PopulateRoutingTables();
 
-    Simulator::Stop(Seconds(simulationTime + 1));
+    Simulator::Stop(simulationTime + Seconds(1));
     Simulator::Run();
 
     double throughput = 0;
     for (uint32_t index = 0; index < sinkApplications.GetN(); ++index)
     {
-        uint64_t totalPacketsThrough =
+        double totalPacketsThrough =
             DynamicCast<PacketSink>(sinkApplications.Get(index))->GetTotalRx();
-        throughput += ((totalPacketsThrough * 8) / (simulationTime * 1000000.0)); // Mbit/s
+        throughput += ((totalPacketsThrough * 8) / simulationTime.GetMicroSeconds()); // Mbit/s
     }
 
     Simulator::Destroy();
@@ -191,7 +180,7 @@ main(int argc, char* argv[])
     }
     else
     {
-        NS_LOG_ERROR("Obtained throughput is 0!");
+        std::cout << "Obtained throughput is 0!" << std::endl;
         exit(1);
     }
 

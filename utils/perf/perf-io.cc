@@ -1,16 +1,5 @@
 /*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #include "ns3/core-module.h"
@@ -24,14 +13,14 @@
 using namespace ns3;
 
 /**
- * \ingroup system-tests-perf
+ * @ingroup system-tests-perf
  *
  * Check the performance of writing to file.
  *
- * \param file The file to write to.
- * \param n The number of writes to perform.
- * \param buffer The buffer to write.
- * \param size The buffer size.
+ * @param file The file to write to.
+ * @param n The number of writes to perform.
+ * @param buffer The buffer to write.
+ * @param size The buffer size.
  */
 void
 PerfFile(FILE* file, uint32_t n, const char* buffer, uint32_t size)
@@ -46,14 +35,14 @@ PerfFile(FILE* file, uint32_t n, const char* buffer, uint32_t size)
 }
 
 /**
- * \ingroup system-tests-perf
+ * @ingroup system-tests-perf
  *
  * Check the performance of writing to an output stream.
  *
- * \param stream The output stream to write to.
- * \param n The number of writes to perform.
- * \param buffer The buffer to write.
- * \param size The buffer size.
+ * @param stream The output stream to write to.
+ * @param n The number of writes to perform.
+ * @param buffer The buffer to write.
+ * @param size The buffer size.
  */
 void
 PerfStream(std::ostream& stream, uint32_t n, const char* buffer, uint32_t size)

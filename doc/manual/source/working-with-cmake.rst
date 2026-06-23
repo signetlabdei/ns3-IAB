@@ -73,13 +73,13 @@ print the configuration options:
   ~$ cd ns-3-dev
   ~/ns-3-dev$ ./ns3 configure --help
   usage: ns3 configure [-h] [-d {debug,release,optimized}] [-G G]
-                     [--cxx-standard CXX_STANDARD] [--enable-asserts]
-                     [--disable-asserts] [--enable-examples]
-                     [--disable-examples] [--enable-logs]
-                     [--disable-logs] [--enable-tests]
-                     [--disable-tests] [--enable-verbose]
-                     [--disable-verbose]
-                     ...
+                       [--cxx-standard CXX_STANDARD] [--enable-asserts]
+                       [--disable-asserts] [--enable-examples]
+                       [--disable-examples] [--enable-logs]
+                       [--disable-logs] [--enable-tests]
+                       [--disable-tests] [--enable-verbose]
+                       [--disable-verbose]
+                       ...
 
   positional arguments:
     configure
@@ -122,10 +122,9 @@ Now we run it for real:
   -- Detecting CXX compile features - done
   ...
   -- Processing src/wifi
-  -- Processing src/wimax
   -- ---- Summary of optional ns-3 features:
   Build profile                 : release
-  Build directory               : /mnt/dev/tools/source/ns-3-dev/build
+  Build directory               : /ns-3-dev/build
   ...
   Examples                      : ON
   ...
@@ -138,7 +137,7 @@ Now we run it for real:
   bridge                    buildings                 config-store
   core                      csma                      csma-layout
   ...
-  wifi                      wimax
+  wifi
 
   Modules that cannot be built:
   brite                     click                     openflow
@@ -147,7 +146,7 @@ Now we run it for real:
 
   -- Configuring done
   -- Generating done
-  -- Build files have been written to: /mnt/dev/tools/source/ns-3-dev/cmake-cache
+  -- Build files have been written to: /ns-3-dev/cmake-cache
   Finished executing the following commands:
   mkdir cmake-cache
   cd cmake-cache; /usr/bin/cmake -DCMAKE_BUILD_TYPE=release -DNS3_NATIVE_OPTIMIZATIONS=OFF -DNS3_EXAMPLES=ON -DNS3_TESTS=ON -G Unix Makefiles .. ; cd ..
@@ -173,7 +172,7 @@ The mapping of the ``ns3`` build profiles into the CMake build types is the foll
 +=========================+========================+===============================+=================================+
 | debug                   | debug                  |                               | -g                              |
 +-------------------------+------------------------+-------------------------------+---------------------------------+
-| default                 | default                |                               | -O2 -g                          |
+| default                 | default                |                               | -Os -g                          |
 +-------------------------+------------------------+-------------------------------+---------------------------------+
 | release                 | release                |                               | -O3                             |
 +-------------------------+------------------------+-------------------------------+---------------------------------+
@@ -235,9 +234,9 @@ build types and output executable and libraries names, which will receive a suff
 +==================+===================+
 | DEBUG            | -g                |
 +------------------+-------------------+
-| DEFAULT          | -O2 -g -DNDEBUG   |
+| DEFAULT          | -Os -g -DNDEBUG   |
 +------------------+-------------------+
-| RELWITHDEBINFO   | -O2 -g -DNDEBUG   |
+| RELWITHDEBINFO   | -Os -g -DNDEBUG   |
 +------------------+-------------------+
 | RELEASE          | -O3 -DNDEBUG      |
 +------------------+-------------------+
@@ -357,7 +356,7 @@ calling the underlying build system (e.g. Ninja) directly.
 The last way is omitted, since each underlying build system
 has its own unique command-line syntax.
 
-Building the project with n``s3``
+Building the project with ``ns3``
 +++++++++++++++++++++++++++++++++
 
 The ``ns3`` wrapper script makes life easier for command line users, accepting module names without
@@ -399,10 +398,12 @@ To build specific targets, run:
 
   ~/ns-3-dev/cmake-cache$ cmake --build . --target target_name
 
-Where target_name is a valid target name. Module libraries are prefixed with ``lib`` (e.g. libcore),
-executables from the scratch folder are prefixed with ``scratch_`` (e.g. scratch_scratch-simulator).
-Executables targets have their source file name without the ".cc" prefix
-(e.g. sample-simulator.cc => sample-simulator).
+Where target_name is a valid target name.
+Since ns-3.43, module libraries CMake targets are named the same as the module name (e.g. core, wifi, lte).
+From ns-3.36 to 3.42, module library targets were prefixed with ``lib`` (e.g. libcore, libwifi, liblte).
+Executables from the scratch folder are prefixed with ``scratch_`` (e.g. scratch_scratch-simulator).
+Executables targets are named the same as their source file containing the `main` function,
+without the ".cc" prefix (e.g. sample-simulator.cc => sample-simulator).
 
 
 Adding a new module
@@ -413,6 +414,67 @@ Adding a module is the only case where
 
 More information on how to create a new module are provided in :ref:`Adding a New Module to ns3`.
 
+Note: Advanced users who wish to organize their custom contrib modules outside the
+`ns-3-dev/contrib` directory can take advantage of a feature introduced in ns-3.44.
+The build system now also scans for contrib modules in a dedicated ns-3-external-contrib folder.
+This approach simplifies managing a top-level project that handles multiple repositories
+without requiring explicit dependencies between them.
+
+You should have a source tree like the following:
+
+.. sourcecode:: console
+
+   $ tree -d -L 3
+   .
+   ├── ns-3-dev
+   │   ├── LICENSES
+   │   ├── bindings
+   │   │   └── python
+   │   ├── build-support
+   │   │   ├── 3rd-party
+   │   │   ├── custom-modules
+   │   │   ├── pip-wheel
+   │   │   └── test-files
+   │   ├── contrib
+   │   ├── doc
+   │   │   ├── contributing
+   │   │   ├── ...
+   │   │   └── tutorial
+   │   ├── examples
+   │   │   ├── channel-models
+   │   │   ├── ...
+   │   │   └── wireless
+   │   ├── scratch
+   │   │   ├── nested-subdir
+   │   │   ├── ...
+   │   │   └── subdir2
+   │   ├── src
+   │   │   ├── antenna
+   │   │   ├── ...
+   │   │   ├── wifi
+   │   ├── third-party
+   │   └── utils
+   │       ├── perf
+   │       └── tests
+   └── ns-3-external-contrib
+       └── nr
+           ├── LICENSES
+           ├── doc
+           ├── examples
+           ├── helper
+           ├── model
+           ├── test
+           ├── tools
+           ├── tutorial
+           └── utils
+
+The module will be automatically mapped to `ns-3-dev/contrib`, as if it was part
+of the typical contrib module location. No copying or symlink required.
+
+Note: For that to always work, you may need to adjust paths dependent on
+CMAKE_CURRENT_SOURCE_DIR, if using custom CMake constructs instead of the
+ns-3 macros.
+
 Migrating a Waf module to CMake
 *******************************
 
@@ -422,8 +484,6 @@ Start by copying the module Wscript, rename them to CMakeLists.txt and then open
 We are going to use the aodv module as an example:
 
 .. sourcecode:: python3
-
-  ## -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding: utf-8; -*-
 
   def build(bld):
     module = bld.create_ns3_module('aodv', ['internet', 'wifi'])
@@ -521,8 +581,6 @@ steps. We should have something like the following:
 
 .. sourcecode:: python3
 
-  ## -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding: utf-8; -*-
-
   def build(bld):
       obj = bld.create_ns3_program('aodv',
                                    ['wifi', 'internet', 'aodv', 'internet-apps'])
@@ -570,7 +628,7 @@ You would need to replace it with the following counterparts:
    # a.k.a. the module, its examples and tests will have the definitions,
    # compilation options and will be linked to the specified libraries
    add_compile_options(-fopenmp) # CXXFLAGS counterpart
-   include_directories(/usr/local/include/e2sim) # CXXFLAGS -I counterpart
+   include_directories(SYSTEM /usr/local/include/e2sim) # CXXFLAGS -I counterpart
    add_definitions(-DLAPACK -DLUSOLVER=LAPACK) # CXXDEFINES counterpart
    link_directories(/usr/local/src/GoToBLAS2 src/common) # LINKFLAGS -L counterpart
    link_libraries(lapack blas thyme e2sim) # LINKFLAGS -l or LIB counterpart
@@ -619,7 +677,6 @@ produces the following:
 
 In the CMake build command line, notice the scratch-simulator has a ``scratch_`` prefix.
 That is true for all the CMake scratch targets. This is done to guarantee globally unique names.
-Similarly, library-related targets have ``lib`` as a prefix (e.g. ``libcore``, ``libnetwork``).
 
 .. _RPATH: https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_RPATH.html
 
@@ -773,7 +830,7 @@ that should work in most cases:
 
         # This is the equivalent of -I/optional/search/path/to/custom/sqlite3/include
         # and AFFECTS ALL the targets in the CURRENT DIRECTORY and ITS SUBDIRECTORIES
-        include_directories(${SQLite3_INCLUDE_DIRS})
+        include_directories(SYSTEM ${SQLite3_INCLUDE_DIRS})
 
         # The compiler should be able to locate the headers, but it still needs to be
         # informed of the libraries that should be linked
@@ -822,6 +879,11 @@ If you do not want to link the library against all the targets
 
 More details on how find_external_library works and the other
 ways to import third-party libraries are presented next.
+
+It is recommended to use a system package managers to install libraries,
+but ns-3 also supports vcpkg and CPM. More information on how to
+use them is available in `Using C++ library managers`_.
+
 
 .. _Linking third-party libraries without CMake or PkgConfig support:
 
@@ -1163,7 +1225,7 @@ example of ``find_external_library`` usage.
     # This will make the following work:
     #  include<openflow/openflow.h>
     #  include<openflow.h>
-    include_directories(${openflow_INCLUDE_DIRS})
+    include_directories(SYSTEM ${openflow_INCLUDE_DIRS})
 
     # Manually set definitions
     add_definitions(
@@ -1207,7 +1269,7 @@ Linking third-party libraries using CMake's find_package
 Assume we have a module with optional features that rely on a third-party library
 that provides a FindThirdPartyPackage.cmake. This ``Find${Package}.cmake`` file can be distributed
 by `CMake itself`_, via library/package managers (APT, Pacman,
-`VcPkg`_), or included to the project tree in the build-support/3rd-party directory.
+`vcpkg`_), or included to the project tree in the build-support/3rd-party directory.
 
 .. _CMake itself: https://github.com/Kitware/CMake/tree/master/Modules
 .. _Vcpkg: https://github.com/Microsoft/vcpkg#using-vcpkg-with-cmake
@@ -1242,7 +1304,7 @@ As an example for the above, we use the Boost library
     #
     # If calling this from the top-level directory (ns-3-dev), it will
     # be used by all contrib/src modules, examples, etc
-    include_directories(${Boost_INCLUDE_DIRS})
+    include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 
     # This is a trick for Boost
     # Sometimes you want to check if specific Boost headers are available,
@@ -1393,7 +1455,7 @@ More details on how to use the macro are listed in
           model/sqlite-data-output.h
       )
       # Include the include directories containing the sqlite3.h header
-      include_directories(${SQLite3_INCLUDE_DIRS})
+      include_directories(SYSTEM ${SQLite3_INCLUDE_DIRS})
       # Copy the list of sqlite3 libraries
       set(sqlite_libraries
           ${SQLite3_LIBRARIES}
@@ -1472,7 +1534,7 @@ source files similarly to the previous cases, as shown in the example below:
     if(PKG_CONFIG_FOUND AND THIRD_PARTY)
       # Include third-party include directories for
       # consumption of the current module and its examples
-      include_directories(${THIRD_PARTY_INCLUDE_DIRS})
+      include_directories(SYSTEM ${THIRD_PARTY_INCLUDE_DIRS})
 
       # Use exported CFLAGS required by the third-party library
       add_compile_options(${THIRD_PARTY_CFLAGS})
@@ -1498,7 +1560,543 @@ source files similarly to the previous cases, as shown in the example below:
         test/hypothetical.cc
     )
 
+.. _Using C++ library managers:
 
+Using C++ library managers
+++++++++++++++++++++++++++
+
+It is not rare to try using a library that is not available
+on a certain platform or does not have a CMake-friendly
+interface for us to use.
+
+.. _CPM: https://github.com/cpm-cmake/CPM.cmake
+
+Some C++ package managers are fairly easy to use with CMake,
+such as `Vcpkg`_ and `CPM`_.
+
+vcpkg
+=====
+
+Vcpkg requires ``git``, ``curl``, ``zip``, ``unzip`` and ``tar``,
+along with the default ns-3 dependencies. The setup downloads
+and builds vcpkg from their Git repository. Telemetry is disabled
+by default.
+
+.. sourcecode:: console
+
+  ~$ ./ns3 configure -- -DNS3_VCPKG=ON
+  ...
+  -- vcpkg: setting up support
+  Cloning into 'vcpkg'...
+  Updating files: 100% (10376/10376), done.
+  Downloading vcpkg-glibc...
+  vcpkg package management program version 2023-07-19-814b7ec837b59f1c8778f72351c1dd7605983cd2
+  ...
+
+Configuration will finish successfully.
+For example, now we can try using the Armadillo library.
+To do that, we use the following CMake statements:
+
+.. sourcecode:: cmake
+
+    # Check this is not a fluke
+    find_package(Armadillo)
+    message(STATUS "Armadillo was found? ${ARMADILLO_FOUND}")
+
+Reconfigure ns-3 to check if Armadillo is available.
+
+.. sourcecode:: console
+
+  ~$ ./ns3 configure
+  ...
+  -- vcpkg: setting up support
+  -- vcpkg: folder already exists, skipping git download
+  -- vcpkg: already bootstrapped
+  ...
+  -- Could NOT find Armadillo (missing: ARMADILLO_INCLUDE_DIR)
+  -- Armadillo was found? FALSE
+
+As you can see, no Armadillo found.
+We can now use vcpkg to install it, using the CMake
+function ``add_package(package_name)``. CMake
+will then be able to find the installed package using ``find_package``.
+
+Note: some packages may require additional dependencies.
+The Armadillo package requires ``pkg-config`` and a fortran compiler.
+You will be prompted with a CMake error when a missing dependency is found.
+
+.. sourcecode:: cmake
+
+    # Install Armadillo and search for it again
+    add_package(Armadillo) # Installs Armadillo with vcpkg
+    find_package(Armadillo) # Loads vcpkg installation of Armadillo
+    message(STATUS "Armadillo was found? ${ARMADILLO_FOUND}")
+
+Sadly, we will need to reconfigure ns-3 from the scratch,
+since CMake ``find_package`` caches are problematic.
+Installing the packages can take a while, and it can look like it hanged.
+
+.. sourcecode:: console
+
+  ~$ ./ns3 clean
+  ~$ ./ns3 configure -- -DNS3_VCPKG=ON
+  ...
+  -- vcpkg: setting up support
+  -- vcpkg: folder already exists, skipping git download
+  -- vcpkg: already bootstrapped
+  ...
+  -- vcpkg: Armadillo will be installed
+  -- vcpkg: Armadillo was installed
+  -- Armadillo was found? TRUE
+
+As shown above, the Armadillo library gets installed by vcpkg
+and it can be found by CMake's ``find_package`` function.
+We can then use it for our targets.
+
+.. sourcecode:: cmake
+
+    # Install Armadillo
+    add_package(Armadillo) # Installs Armadillo with vcpkg
+    find_package(Armadillo) # Loads vcpkg installation of Armadillo
+    message(STATUS "Armadillo was found? ${ARMADILLO_FOUND}")
+
+    # Include and link Armadillo to targets
+    include_directories(SYSTEM ${ARMADILLO_INCLUDE_DIRS})
+    link_libraries(${ARMADILLO_LIBRARIES})
+
+.. _vcpkg manifests: https://learn.microsoft.com/en-us/vcpkg/users/manifests
+
+An alternative to manually installing packages with ``add_package`` is
+placing all packages into a ``vcpkg.json`` file in the ns-3 main directory.
+This mode is known as the "manifest mode" in the Vcpkg manual.
+Packages there will be automatically installed at the beginning of the configuration.
+More information about the manifest mode can be found in `vcpkg manifests`_ website.
+
+Let us see an example of this mode starting with the ``vcpkg.json`` file.
+
+.. sourcecode:: json
+
+    {
+      "dependencies": [
+        "sqlite3",
+        "eigen3",
+        "libxml2",
+        "gsl",
+        "boost-units"
+      ]
+    }
+
+These are some of the optional dependencies used by the upstream ns-3 modules.
+When configuring ns-3 with the Vcpkg support, we will see the following.
+
+.. sourcecode:: console
+
+    /ns-3-dev$ ./ns3 clean
+    /ns-3-dev$ ./ns3 configure -- -DNS3_VCPKG=ON
+    ...
+    -- vcpkg: setting up support
+    Cloning into 'vcpkg'...
+    Updating files: 100% (10434/10434), done.
+    Downloading vcpkg-glibc...
+    vcpkg package management program version 2023-08-02-6d13efa755f9b5e101712d210199e4139b4c29f6
+
+    See LICENSE.txt for license information.
+    -- vcpkg: detected a vcpkg manifest file: /ns-3-dev/vcpkg.json
+    A suitable version of cmake was not found (required v3.27.1) Downloading portable cmake 3.27.1...
+    Downloading cmake...
+    https://github.com/Kitware/CMake/releases/download/v3.27.1/cmake-3.27.1-linux-x86_64.tar.gz->/ns-3-dev/vcpkg/downloads/cmake-3.27.1-linux-x86_64.tar.gz
+    Extracting cmake...
+    Detecting compiler hash for triplet x64-linux...
+    The following packages will be built and installed:
+      * boost-array:x64-linux -> 1.82.0#2
+      ...
+      * boost-winapi:x64-linux -> 1.82.0#2
+        eigen3:x64-linux -> 3.4.0#2
+        gsl:x64-linux -> 2.7.1#3
+      * libiconv:x64-linux -> 1.17#1
+      * liblzma:x64-linux -> 5.4.3#1
+        libxml2[core,iconv,lzma,zlib]:x64-linux -> 2.10.3#1
+        sqlite3[core,json1]:x64-linux -> 3.42.0#1
+      * vcpkg-cmake:x64-linux -> 2023-05-04
+      * vcpkg-cmake-config:x64-linux -> 2022-02-06#1
+      * vcpkg-cmake-get-vars:x64-linux -> 2023-03-02
+      * zlib:x64-linux -> 1.2.13
+    Additional packages (*) will be modified to complete this operation.
+    Restored 0 package(s) from /root/.cache/vcpkg/archives in 98.7 us. Use --debug to see more details.
+    Installing 1/58 boost-uninstall:x64-linux...
+    ...
+    Installing 50/58 boost-units:x64-linux...
+    Building boost-units:x64-linux...
+    -- Downloading https://github.com/boostorg/units/archive/boost-1.82.0.tar.gz -> boostorg-units-boost-1.82.0.tar.gz...
+    -- Extracting source /ns-3-dev/vcpkg/downloads/boostorg-units-boost-1.82.0.tar.gz
+    -- Using source at /ns-3-dev/vcpkg/buildtrees/boost-units/src/ost-1.82.0-a9fdcc40b2.clean
+    -- Copying headers
+    -- Copying headers done
+    -- Installing: /ns-3-dev/vcpkg/packages/boost-units_x64-linux/share/boost-units/usage
+    -- Installing: /ns-3-dev/vcpkg/packages/boost-units_x64-linux/share/boost-units/copyright
+    -- Performing post-build validation
+    Stored binaries in 1 destinations in 276 ms.
+    Elapsed time to handle boost-units:x64-linux: 3.8 s
+    Installing 51/58 vcpkg-cmake-config:x64-linux...
+    Building vcpkg-cmake-config:x64-linux...
+    -- Installing: /ns-3-dev/vcpkg/packages/vcpkg-cmake-config_x64-linux/share/vcpkg-cmake-config/vcpkg_cmake_config_fixup.cmake
+    -- Installing: /ns-3-dev/vcpkg/packages/vcpkg-cmake-config_x64-linux/share/vcpkg-cmake-config/vcpkg-port-config.cmake
+    -- Installing: /ns-3-dev/vcpkg/packages/vcpkg-cmake-config_x64-linux/share/vcpkg-cmake-config/copyright
+    -- Performing post-build validation
+    Stored binaries in 1 destinations in 8.58 ms.
+    Elapsed time to handle vcpkg-cmake-config:x64-linux: 144 ms
+    Installing 52/58 eigen3:x64-linux...
+    Building eigen3:x64-linux...
+    -- Downloading https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.gz -> libeigen-eigen-3.4.0.tar.gz...
+    -- Extracting source /ns-3-dev/vcpkg/downloads/libeigen-eigen-3.4.0.tar.gz
+    -- Applying patch remove_configure_checks.patch
+    -- Applying patch fix-vectorized-reductions-half.patch
+    -- Using source at /ns-3-dev/vcpkg/buildtrees/eigen3/src/3.4.0-74a8d62212.clean
+    -- Configuring x64-linux
+    -- Building x64-linux-dbg
+    -- Building x64-linux-rel
+    -- Fixing pkgconfig file: /ns-3-dev/vcpkg/packages/eigen3_x64-linux/lib/pkgconfig/eigen3.pc
+    CMake Error at scripts/cmake/vcpkg_find_acquire_program.cmake:163 (message):
+      Could not find pkg-config.  Please install it via your package manager:
+
+          sudo apt-get install pkg-config
+    Call Stack (most recent call first):
+      scripts/cmake/vcpkg_fixup_pkgconfig.cmake:203 (vcpkg_find_acquire_program)
+      ports/eigen3/portfile.cmake:30 (vcpkg_fixup_pkgconfig)
+      scripts/ports.cmake:147 (include)
+
+
+    error: building eigen3:x64-linux failed with: BUILD_FAILED
+    Elapsed time to handle eigen3:x64-linux: 19 s
+    Please ensure you're using the latest port files with `git pull` and `vcpkg update`.
+    Then check for known issues at:
+        https://github.com/microsoft/vcpkg/issues?q=is%3Aissue+is%3Aopen+in%3Atitle+eigen3
+    You can submit a new issue at:
+        https://github.com/microsoft/vcpkg/issues/new?title=[eigen3]+Build+error&body=Copy+issue+body+from+%2Fns-3-dev%2Fvcpkg%2Finstalled%2Fvcpkg%2Fissue_body.md
+
+    CMake Error at build-support/3rd-party/colored-messages.cmake:82 (_message):
+      vcpkg: packages defined in the manifest failed to be installed
+    Call Stack (most recent call first):
+      build-support/custom-modules/ns3-vcpkg-hunter.cmake:138 (message)
+      build-support/custom-modules/ns3-vcpkg-hunter.cmake:183 (setup_vcpkg)
+      build-support/macros-and-definitions.cmake:743 (include)
+      CMakeLists.txt:149 (process_options)
+
+As we can see above, the setup failed during the eigen3 setup due to a missing dependency.
+In this case, pkg-config. We can install it using the system package manager and then
+resume the ns-3 configuration.
+
+
+.. sourcecode:: console
+
+    /ns-3-dev$ apt install -y pkg-config
+    /ns-3-dev$ ./ns3 configure -- -DNS3_VCPKG=ON
+    ...
+    -- vcpkg: folder already exists, skipping git download
+    -- vcpkg: already bootstrapped
+    -- vcpkg: detected a vcpkg manifest file: /ns-3-dev/vcpkg.json
+    Detecting compiler hash for triplet x64-linux...
+    The following packages will be built and installed:
+        eigen3:x64-linux -> 3.4.0#2
+        gsl:x64-linux -> 2.7.1#3
+      * libiconv:x64-linux -> 1.17#1
+      * liblzma:x64-linux -> 5.4.3#1
+        libxml2[core,iconv,lzma,zlib]:x64-linux -> 2.10.3#1
+        sqlite3[core,json1]:x64-linux -> 3.42.0#1
+      * zlib:x64-linux -> 1.2.13
+    Additional packages (*) will be modified to complete this operation.
+    Restored 0 package(s) from /root/.cache/vcpkg/archives in 97.6 us. Use --debug to see more details.
+    Installing 1/7 eigen3:x64-linux...
+    Building eigen3:x64-linux...
+    -- Using cached libeigen-eigen-3.4.0.tar.gz.
+    -- Cleaning sources at /ns-3-dev/vcpkg/buildtrees/eigen3/src/3.4.0-74a8d62212.clean. Use --editable to skip cleaning for the packages you specify.
+    -- Extracting source /ns-3-dev/vcpkg/downloads/libeigen-eigen-3.4.0.tar.gz
+    -- Applying patch remove_configure_checks.patch
+    -- Applying patch fix-vectorized-reductions-half.patch
+    -- Using source at /ns-3-dev/vcpkg/buildtrees/eigen3/src/3.4.0-74a8d62212.clean
+    -- Configuring x64-linux
+    -- Building x64-linux-dbg
+    -- Building x64-linux-rel
+    -- Fixing pkgconfig file: /ns-3-dev/vcpkg/packages/eigen3_x64-linux/lib/pkgconfig/eigen3.pc
+    -- Fixing pkgconfig file: /ns-3-dev/vcpkg/packages/eigen3_x64-linux/debug/lib/pkgconfig/eigen3.pc
+    -- Installing: /ns-3-dev/vcpkg/packages/eigen3_x64-linux/share/eigen3/copyright
+    -- Performing post-build validation
+    Stored binaries in 1 destinations in 1.7 s.
+    Elapsed time to handle eigen3:x64-linux: 28 s
+    Installing 2/7 gsl:x64-linux...
+    ...
+    Installing 7/7 sqlite3:x64-linux...
+    Building sqlite3[core,json1]:x64-linux...
+    -- Downloading https://sqlite.org/2023/sqlite-amalgamation-3420000.zip -> sqlite-amalgamation-3420000.zip...
+    -- Extracting source /ns-3-dev/vcpkg/downloads/sqlite-amalgamation-3420000.zip
+    -- Applying patch fix-arm-uwp.patch
+    -- Applying patch add-config-include.patch
+    -- Using source at /ns-3-dev/vcpkg/buildtrees/sqlite3/src/on-3420000-e624a7f335.clean
+    -- Configuring x64-linux
+    -- Building x64-linux-dbg
+    -- Building x64-linux-rel
+    -- Fixing pkgconfig file: /ns-3-dev/vcpkg/packages/sqlite3_x64-linux/lib/pkgconfig/sqlite3.pc
+    -- Fixing pkgconfig file: /ns-3-dev/vcpkg/packages/sqlite3_x64-linux/debug/lib/pkgconfig/sqlite3.pc
+    -- Installing: /ns-3-dev/vcpkg/packages/sqlite3_x64-linux/share/sqlite3/usage
+    -- Performing post-build validation
+    Stored binaries in 1 destinations in 430 ms.
+    Elapsed time to handle sqlite3:x64-linux: 42 s
+    Total install time: 2.5 min
+    The package boost is compatible with built-in CMake targets:
+
+        find_package(Boost REQUIRED [COMPONENTS <libs>...])
+        target_link_libraries(main PRIVATE Boost::boost Boost::<lib1> Boost::<lib2> ...)
+
+    eigen3 provides CMake targets:
+
+        # this is heuristically generated, and may not be correct
+        find_package(Eigen3 CONFIG REQUIRED)
+        target_link_libraries(main PRIVATE Eigen3::Eigen)
+
+    The package gsl is compatible with built-in CMake targets:
+
+        find_package(GSL REQUIRED)
+        target_link_libraries(main PRIVATE GSL::gsl GSL::gslcblas)
+
+    The package libxml2 is compatible with built-in CMake targets:
+
+        find_package(LibXml2 REQUIRED)
+        target_link_libraries(main PRIVATE LibXml2::LibXml2)
+
+    sqlite3 provides pkgconfig bindings.
+    sqlite3 provides CMake targets:
+
+        find_package(unofficial-sqlite3 CONFIG REQUIRED)
+        target_link_libraries(main PRIVATE unofficial::sqlite3::sqlite3)
+
+    -- vcpkg: packages defined in the manifest were installed
+    -- find_external_library: SQLite3 was found.
+    ...
+    -- LibXML2 was found.
+    ...
+    -- Found Boost: /ns-3-dev/vcpkg/installed/x64-linux/include (found version "1.82.0")
+    ...
+    -- Looking for include files boost/units/quantity.hpp, boost/units/systems/si.hpp
+    -- Looking for include files boost/units/quantity.hpp, boost/units/systems/si.hpp - found
+    -- Boost Units have been found.
+    ...
+    -- ---- Summary of ns-3 settings:
+    Build profile                 : default
+    Build directory               : /ns-3-dev/build
+    Build with runtime asserts    : ON
+    ...
+    GNU Scientific Library (GSL)  : ON
+    ...
+    LibXml2 support               : ON
+    ...
+    SQLite support                : ON
+    Eigen3 support                : ON
+    ...
+
+From the above, we can see that the headers and libraries installed by the packages
+were correctly found by CMake and the optional features were successfully enabled.
+
+.. _Armadillo's port on vcpkg: https://github.com/microsoft/vcpkg/blob/master/ports/armadillo/usage
+
+Note: not every vcpkg package (also known as a port) obeys
+the same pattern for usage. The user of the package needs
+to look into the usage file of said port for instructions.
+In the case of Armadillo, the corresponding file can be found
+in `Armadillo's port on vcpkg`_.
+
+Vcpkg is installed to a ``vcpkg`` directory inside the ns-3 main directory (e.g. ``ns-3-dev``).
+Packages installed via vcpkg are installed to ``ns-3-dev/vcpkg/installed/${VCPKG_TRIPLET}``,
+which is automatically added to the ``CMAKE_PREFIX_PATH``, making headers, libraries, and
+pkg-config and CMake packages discoverable via ``find_file``, ``find_library``, ``find_package``
+and ``pkg_check_modules``.
+
+CPM
+===
+
+`CPM`_ is a package manager made for CMake projects consuming CMake projects.
+Some CMake projects however, create files during the installation step, which
+is not supported by CPM, which treats the package as a CMake subproject that
+we can then depend upon. CPM may require dependencies such as ``git`` and ``tar``,
+depending on the package sources used.
+
+Let's see an example trying to find the Armadillo library via CMake.
+
+.. sourcecode:: cmake
+
+    # Check this is not a fluke
+    find_package(Armadillo)
+    message(STATUS "Armadillo was found? ${ARMADILLO_FOUND}")
+
+Reconfigure ns-3 to check if Armadillo is available.
+
+.. sourcecode:: console
+
+  ~$ ./ns3 configure
+  ...
+  -- Could NOT find Armadillo (missing: ARMADILLO_INCLUDE_DIR)
+  -- Armadillo was found? FALSE
+
+As you can see, no Armadillo found.
+We can now use CPM to install it, using the CMake
+function ``CPMAddPackage(package_info)``.
+
+.. sourcecode:: cmake
+
+    # Install Armadillo and search for it again
+    CPMAddPackage(
+        NAME ARMADILLO
+        GIT_TAG 6cada351248c9a967b137b9fcb3d160dad7c709b
+        GIT_REPOSITORY https://gitlab.com/conradsnicta/armadillo-code.git
+    )
+    find_package(Armadillo) # Loads CPM installation of Armadillo
+    message(STATUS "Armadillo was found? ${ARMADILLO_FOUND}")
+
+Sadly, we will need to reconfigure ns-3 from the scratch,
+since CMake ``find_package`` caches are problematic.
+Installing the packages can take a while, and it can look like it hanged.
+
+.. sourcecode:: console
+
+  ~$ ./ns3 clean
+  ~$ ./ns3 configure -- -DNS3_CPM=ON
+  ...
+  -- CPM: Adding package ARMADILLO@0 (6cada351248c9a967b137b9fcb3d160dad7c709b)
+  -- *** set cmake policy CMP0025 to NEW
+  -- CMAKE_CXX_STANDARD = 11
+  -- Configuring Armadillo 12.6.1
+  --
+  -- *** WARNING: variable 'CMAKE_CXX_FLAGS' is not empty; this may cause problems!
+  --
+  -- Detected Clang 6.0 or newer
+  -- ARMA_USE_EXTERN_RNG = true
+  -- CMAKE_SYSTEM_NAME          = Linux
+  -- CMAKE_CXX_COMPILER_ID      = Clang
+  -- CMAKE_CXX_COMPILER_VERSION = 15.0.7
+  -- CMAKE_COMPILER_IS_GNUCXX   =
+  --
+  -- *** Options:
+  -- BUILD_SHARED_LIBS         = ON
+  -- OPENBLAS_PROVIDES_LAPACK  = OFF
+  -- ALLOW_FLEXIBLAS_LINUX     = ON
+  -- ALLOW_OPENBLAS_MACOS      = OFF
+  -- ALLOW_BLAS_LAPACK_MACOS   = OFF
+  -- BUILD_SMOKE_TEST          = ON
+  --
+  -- *** Looking for external libraries
+  -- Found OpenBLAS: /usr/lib/x86_64-linux-gnu/libopenblas.so
+  -- Found BLAS: /usr/lib/x86_64-linux-gnu/libblas.so
+  -- Found LAPACK: /usr/lib/x86_64-linux-gnu/liblapack.so
+  -- FlexiBLAS_FOUND = NO
+  --       MKL_FOUND = NO
+  --  OpenBLAS_FOUND = YES
+  --     ATLAS_FOUND = NO
+  --      BLAS_FOUND = YES
+  --    LAPACK_FOUND = YES
+  --
+  -- *** NOTE: found both OpenBLAS and BLAS; BLAS will not be used
+  --
+  -- *** NOTE: if OpenBLAS is known to provide LAPACK functions, recommend to
+  -- *** NOTE: rerun cmake with the OPENBLAS_PROVIDES_LAPACK option enabled:
+  -- *** NOTE: cmake -D OPENBLAS_PROVIDES_LAPACK=true .
+  --
+  -- *** If the OpenBLAS library is installed in
+  -- *** /usr/local/lib or /usr/local/lib64
+  -- *** make sure the run-time linker can find it.
+  -- *** On Linux systems this can be done by editing /etc/ld.so.conf
+  -- *** or modifying the LD_LIBRARY_PATH environment variable.
+  --
+  -- Found ARPACK: /usr/lib/x86_64-linux-gnu/libarpack.so
+  -- ARPACK_FOUND = YES
+  -- Looking for SuperLU version 5
+  -- Found SuperLU: /usr/lib/x86_64-linux-gnu/libsuperlu.so
+  -- SuperLU_FOUND = YES
+  -- SuperLU_INCLUDE_DIR = /usr/include/superlu
+  --
+  -- *** Result of configuration:
+  -- *** ARMA_USE_WRAPPER    = true
+  -- *** ARMA_USE_LAPACK     = true
+  -- *** ARMA_USE_BLAS       = true
+  -- *** ARMA_USE_ATLAS      = false
+  -- *** ARMA_USE_ARPACK     = true
+  -- *** ARMA_USE_EXTERN_RNG = true
+  -- *** ARMA_USE_SUPERLU    = true
+  --
+  -- *** Armadillo wrapper library will use the following libraries:
+  -- *** ARMA_LIBS = /usr/lib/x86_64-linux-gnu/libopenblas.so;/usr/lib/x86_64-linux-gnu/liblapack.so;/usr/lib/x86_64-linux-gnu/libarpack.so;/usr/lib/x86_64-linux-gnu/libsuperlu.so
+  --
+  -- Copying /ns-3-dev/cmake-build-release/_deps/armadillo-src/include/ to /ns-3-dev/cmake-build-release/_deps/armadillo-build/tmp/include/
+  -- Generating /ns-3-dev/cmake-build-release/_deps/armadillo-build/tmp/include/config.hpp
+  -- CMAKE_CXX_FLAGS           =  -fsanitize=address,leak,undefined -Os
+  -- CMAKE_SHARED_LINKER_FLAGS =  -Wl,--no-as-needed
+  -- CMAKE_REQUIRED_INCLUDES   = /usr/include;/usr/include/superlu
+  --
+  -- CMAKE_INSTALL_PREFIX     = /usr
+  -- CMAKE_INSTALL_LIBDIR     = lib/x86_64-linux-gnu
+  -- CMAKE_INSTALL_INCLUDEDIR = include
+  -- CMAKE_INSTALL_DATADIR    = share
+  -- CMAKE_INSTALL_BINDIR     = bin
+  -- Generating '/ns-3-dev/cmake-build-release/_deps/armadillo-build/ArmadilloConfig.cmake'
+  -- Generating '/ns-3-dev/cmake-build-release/_deps/armadillo-build/ArmadilloConfigVersion.cmake'
+  -- Generating '/ns-3-dev/cmake-build-release/_deps/armadillo-build/InstallFiles/ArmadilloConfig.cmake'
+  -- Generating '/ns-3-dev/cmake-build-release/_deps/armadillo-build/InstallFiles/ArmadilloConfigVersion.cmake'
+  -- Copying /ns-3-dev/cmake-build-release/_deps/armadillo-src/misc/ to /ns-3-dev/cmake-build-release/_deps/armadillo-build/tmp/misc/
+  -- Generating '/ns-3-dev/cmake-build-release/_deps/armadillo-build/tmp/misc/armadillo.pc'
+  -- *** configuring smoke_test
+  -- Armadillo was found? TRUE
+  ...
+
+As shown above, the Armadillo library gets installed by CPM
+and it can be found by CMake's ``find_package`` function.
+Differently from other packages found via ``find_package``,
+CPM creates native CMake targets from the subprojects.
+In the case of Armadillo, the target is called ``armadillo``,
+which we can link to our targets.
+
+.. sourcecode:: cmake
+
+    # Install Armadillo
+    CPMAddPackage(
+        NAME ARMADILLO
+        GIT_TAG 6cada351248c9a967b137b9fcb3d160dad7c709b
+        GIT_REPOSITORY https://gitlab.com/conradsnicta/armadillo-code.git
+    )
+    find_package(Armadillo) # Loads CPM installation of Armadillo
+    message(STATUS "Armadillo was found? ${ARMADILLO_FOUND}")
+
+    # CPM is kind of jenky. It could get the ARMADILLO_INCLUDE_DIRS
+    # from the ArmadilloConfig.cmake file in ${CMAKE_BINARY_DIR}/_deps/armadillo-build,
+    # but it doesn't... So add its include directories directly from the source directory
+    include_directories(SYSTEM ${CMAKE_BINARY_DIR}/_deps/armadillo-src/include)
+
+    # Link to Armadillo and
+    link_libraries(armadillo)
+
+.. _`CPM's examples`: https://github.com/cpm-cmake/CPM.cmake/wiki/More-Snippets
+
+Note: using CPM can be challenging. Users are recommended
+to look at `CPM's examples`_.
+
+For example, the libraries of installed packages will be placed by default in
+the ``ns-3-dev/build/lib`` directory. On the other hand, header placement depends
+on how the CMake project was setup.
+
+If the package CMakeLists.txt was made to build in-source, headers will be
+along the source files, which will be placed in
+``${PROJECT_BINARY_DIR}/_deps/packageName-src``. When configured with the
+ns3 script, ``PROJECT_BINARY_DIR corresponds`` to ``ns-3-dev/cmake-cache``.
+
+If the package CMakeLists.txt copies the headers to an output directory
+(like ns-3 does), it will be placed in
+``${PROJECT_BINARY_DIR}/_deps/packageName-build``,
+possibly in an ``include`` subdirectory.
+
+In case it was configured to copy the headers to ``${CMAKE_BINARY_DIR}/include``,
+the headers will land on ``${PROJECT_BINARY_DIR}/include`` of the most top-level
+project. In our case, the top-level project is the NS3 project.
+
+Since the packages get installed into the ns-3 cache directory
+(``PROJECT_BINARY_DIR``), using ``./ns3 clean`` will delete them,
+requiring them to be rebuilt.
 
 Inclusion of options
 ++++++++++++++++++++
@@ -1732,7 +2330,7 @@ listed by ``./ns3 show targets`` or your IDE, check if all its dependencies were
          EXECNAME ${EXAMPLE_NAME}
          SOURCE_FILES ${EXAMPLE_SOURCE_FILES}
          HEADER_FILES ${EXAMPLE_HEADER_FILES}
-         LIBRARIES_TO_LINK ${EXAMPLE_LIBRARIES_TO_LINK} ${optional_visualizer_lib}
+         LIBRARIES_TO_LINK ${EXAMPLE_LIBRARIES_TO_LINK} ${ns3-optional-visualizer-lib}
          EXECUTABLE_DIRECTORY_PATH
            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/examples/${examplefolder}/
          ${IGNORE_PCH}
@@ -1824,26 +2422,16 @@ and modules in the contrib folder to a different list.
 
     # Add library to a global list of libraries
     if("${FOLDER}" MATCHES "src")
-      set(ns3-libs "${lib${BLIB_LIBNAME}};${ns3-libs}"
+      set(ns3-libs "${BLIB_LIBNAME};${ns3-libs}"
           CACHE INTERNAL "list of processed upstream modules"
       )
     else()
-      set(ns3-contrib-libs "${lib${BLIB_LIBNAME}};${ns3-contrib-libs}"
+      set(ns3-contrib-libs "${BLIB_LIBNAME};${ns3-contrib-libs}"
           CACHE INTERNAL "list of processed contrib modules"
       )
     endif()
 
-In the following block, we check if we are working with Xcode, which does
-not handle correctly CMake object libraries (.o files).
-
-In other platforms,
-we build an object file ``add_library(${lib${BLIB_LIBNAME}-obj} OBJECT "${BLIB_SOURCE_FILES}...)``
-and a shared library ``add_library(${lib${BLIB_LIBNAME}} SHARED ...)``.
-
-The object library contains the actual source files (``${BLIB_SOURCE_FILES}``),
-but is not linked, which mean we can reuse the object to build the static version of the libraries.
-Notice the shared library uses the object file as its source files
-``$<TARGET_OBJECTS:${lib${BLIB_LIBNAME}-obj}``.
+We build a shared library using CMake's ``add_library(${BLIB_LIBNAME} SHARED ...)``.
 
 Notice that we can also reuse precompiled headers created previously to speed up the
 parsing phase of the compilation.
@@ -1853,40 +2441,16 @@ parsing phase of the compilation.
 
   function(build_lib)
     # ...
-    if(NOT ${XCODE})
-      # Create object library with sources and headers, that will be used in
-      # lib-ns3-static and the shared library
-      add_library(
-        ${lib${BLIB_LIBNAME}-obj} OBJECT "${BLIB_SOURCE_FILES}"
-                                        "${BLIB_HEADER_FILES}"
-      )
+    add_library(${BLIB_LIBNAME} SHARED "${BLIB_SOURCE_FILES}")
 
-      if(${PRECOMPILE_HEADERS_ENABLED} AND (NOT ${IGNORE_PCH}))
-        target_precompile_headers(${lib${BLIB_LIBNAME}-obj} REUSE_FROM stdlib_pch)
-      endif()
-
-      # Create shared library with previously created object library (saving
-      # compilation time for static libraries)
-      add_library(
-        ${lib${BLIB_LIBNAME}} SHARED $<TARGET_OBJECTS:${lib${BLIB_LIBNAME}-obj}>
-      )
-    else()
-      # Xcode and CMake don't play well when using object libraries, so we have a
-      # specific path for that
-      add_library(${lib${BLIB_LIBNAME}} SHARED "${BLIB_SOURCE_FILES}")
-
-      if(${PRECOMPILE_HEADERS_ENABLED} AND (NOT ${IGNORE_PCH}))
-        target_precompile_headers(${lib${BLIB_LIBNAME}} REUSE_FROM stdlib_pch)
-      endif()
+    if(${PRECOMPILE_HEADERS_ENABLED} AND (NOT ${IGNORE_PCH}))
+      target_precompile_headers(${BLIB_LIBNAME} REUSE_FROM stdlib_pch)
     endif()
     # ...
   endfunction()
 
-In the next code block, we create an alias to ``libmodule``, ``ns3::libmodule``,
+In the next code block, we create an alias to ``module``, ``ns3::module``,
 which can later be used when importing |ns3| with CMake's ``find_package(ns3)``.
-
-Then, we associate configured headers (``config-store-config``, ``core-config.h`` and
-``version-defines.h``) to the core module.
 
 And finally associate all of the public headers of the module to that library,
 to make sure CMake will be refreshed in case one of them changes.
@@ -1895,24 +2459,14 @@ to make sure CMake will be refreshed in case one of them changes.
 
   function(build_lib)
     # ...
-    add_library(ns3::${lib${BLIB_LIBNAME}} ALIAS ${lib${BLIB_LIBNAME}})
+    add_library(ns3::${BLIB_LIBNAME} ALIAS ${BLIB_LIBNAME})
 
     # Associate public headers with library for installation purposes
-    if("${BLIB_LIBNAME}" STREQUAL "core")
-      set(config_headers ${CMAKE_HEADER_OUTPUT_DIRECTORY}/config-store-config.h
-                        ${CMAKE_HEADER_OUTPUT_DIRECTORY}/core-config.h
-      )
-      if(${NS3_ENABLE_BUILD_VERSION})
-        list(APPEND config_headers
-            ${CMAKE_HEADER_OUTPUT_DIRECTORY}/version-defines.h
-        )
-      endif()
-    endif()
     set_target_properties(
-      ${lib${BLIB_LIBNAME}}
+      ${BLIB_LIBNAME}
       PROPERTIES
         PUBLIC_HEADER
-        "${BLIB_HEADER_FILES};${BLIB_DEPRECATED_HEADER_FILES};${config_headers};${CMAKE_HEADER_OUTPUT_DIRECTORY}/${BLIB_LIBNAME}-module.h"
+        "${BLIB_HEADER_FILES};${BLIB_DEPRECATED_HEADER_FILES};${CMAKE_HEADER_OUTPUT_DIRECTORY}/${BLIB_LIBNAME}-module.h"
     )
     # ...
   endfunction()
@@ -1920,42 +2474,50 @@ to make sure CMake will be refreshed in case one of them changes.
 In the next code block, we make the library a dependency to the ClangAnalyzer's time trace report,
 which measures which step of compilation took most time and which files were responsible for that.
 
-Then, the |ns3| libraries are separated from non-|ns3| libraries, that can be propagated or not
-for libraries/executables linked to the current |ns3| module being processed.
+.. sourcecode:: cmake
+
+  function(build_lib)
+    # ...
+
+    build_lib_reexport_third_party_libraries(
+      "${BLIB_LIBNAME}" "${BLIB_LIBRARIES_TO_LINK}"
+    )
+
+    # ...
+  endfunction(build_lib)
+
+The ``build_lib_reexport_third_party_libraries`` macro then separates |ns3| libraries from non-|ns3| libraries.
+The non-|ns3| can be automatically propagated, or not, to libraries/executables linked to the current |ns3| module being processed.
+
+.. sourcecode:: cmake
+
+    function(build_lib_reexport_third_party_libraries libname libraries_to_link)
+      # Separate ns-3 and non-ns-3 libraries to manage their propagation properly
+      separate_ns3_from_non_ns3_libs(
+        "${libname}" "${libraries_to_link}" ns_libraries_to_link
+        non_ns_libraries_to_link
+      )
+
+      set(ns3-external-libs "${non_ns_libraries_to_link};${ns3-external-libs}"
+          CACHE INTERNAL
+                "list of non-ns libraries to link to NS3_STATIC and NS3_MONOLIB"
+      )
+      # ...
+    endfunction()
 
 The default is propagating these third-party libraries and their include directories, but this
 can be turned off by setting ``NS3_REEXPORT_THIRD_PARTY_LIBRARIES=OFF``
 
 .. sourcecode:: cmake
 
-  function(build_lib)
+  function(build_lib_reexport_third_party_libraries libname libraries_to_link)
     # ...
-    if(${NS3_CLANG_TIMETRACE})
-      add_dependencies(timeTraceReport ${lib${BLIB_LIBNAME}})
-    endif()
-
-    # Split ns and non-ns libraries to manage their propagation properly
-    set(non_ns_libraries_to_link)
-    set(ns_libraries_to_link)
-
-    foreach(library ${BLIB_LIBRARIES_TO_LINK})
-      remove_lib_prefix("${library}" module_name)
-
-      # Check if the module exists in the ns-3 modules list
-      # or if it is a 3rd-party library
-      if(${module_name} IN_LIST ns3-all-enabled-modules)
-        list(APPEND ns_libraries_to_link ${library})
-      else()
-        list(APPEND non_ns_libraries_to_link ${library})
-      endif()
-      unset(module_name)
-    endforeach()
 
     if(NOT ${NS3_REEXPORT_THIRD_PARTY_LIBRARIES})
       # ns-3 libraries are linked publicly, to make sure other modules can find
       # each other without being directly linked
       set(exported_libraries PUBLIC ${LIB_AS_NEEDED_PRE} ${ns_libraries_to_link}
-                            ${LIB_AS_NEEDED_POST}
+                             ${LIB_AS_NEEDED_POST}
       )
 
       # non-ns-3 libraries are linked privately, not propagating unnecessary
@@ -1969,20 +2531,40 @@ can be turned off by setting ``NS3_REEXPORT_THIRD_PARTY_LIBRARIES=OFF``
     else()
       # we export everything by default when NS3_REEXPORT_THIRD_PARTY_LIBRARIES=ON
       set(exported_libraries PUBLIC ${LIB_AS_NEEDED_PRE} ${ns_libraries_to_link}
-                            ${non_ns_libraries_to_link} ${LIB_AS_NEEDED_POST}
+                             ${non_ns_libraries_to_link} ${LIB_AS_NEEDED_POST}
       )
       set(private_libraries)
 
       # with NS3_REEXPORT_THIRD_PARTY_LIBRARIES, we export all 3rd-party library
       # include directories, allowing consumers of this module to include and link
       # the 3rd-party code with no additional setup
-      get_target_includes(${lib${BLIB_LIBNAME}} exported_include_directories)
+      get_target_includes(${libname} exported_include_directories)
+
       string(REPLACE "-I" "" exported_include_directories
-                    "${exported_include_directories}"
+                     "${exported_include_directories}"
       )
-      string(REPLACE "${CMAKE_OUTPUT_DIRECTORY}/include" ""
-                    exported_include_directories
-                    "${exported_include_directories}"
+
+      # include directories prefixed in the source or binary directory need to be
+      # treated differently
+      set(new_exported_include_directories)
+      foreach(directory ${exported_include_directories})
+        string(FIND "${directory}" "${PROJECT_SOURCE_DIR}" is_prefixed_in_subdir)
+        if(${is_prefixed_in_subdir} GREATER_EQUAL 0)
+          string(SUBSTRING "${directory}" ${is_prefixed_in_subdir} -1
+                           directory_path
+          )
+          list(APPEND new_exported_include_directories
+               $<BUILD_INTERFACE:${directory_path}>
+          )
+        else()
+          list(APPEND new_exported_include_directories ${directory})
+        endif()
+      endforeach()
+      set(exported_include_directories ${new_exported_include_directories})
+
+      string(REPLACE "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/include" ""
+                     exported_include_directories
+                     "${exported_include_directories}"
       )
     endif()
     # ...
@@ -1991,21 +2573,14 @@ can be turned off by setting ``NS3_REEXPORT_THIRD_PARTY_LIBRARIES=OFF``
 After the lists of libraries to link that should be exported (``PUBLIC``) and
 not exported (``PRIVATE``) are built, we can link them with ``target_link_libraries``.
 
-Next, we set the output name of the module library to ``n3version-modulename`` (+ optional build suffix).
-
 .. sourcecode:: cmake
 
-  function(build_lib)
+  function(build_lib_reexport_third_party_libraries libname libraries_to_link)
     # ...
-    target_link_libraries(
-      ${lib${BLIB_LIBNAME}} ${exported_libraries} ${private_libraries}
-    )
 
-    # set output name of library
-    set_target_properties(
-      ${lib${BLIB_LIBNAME}}
-      PROPERTIES OUTPUT_NAME ns${NS3_VER}-${BLIB_LIBNAME}${build_profile_suffix}
-    )
+    # Set public and private headers linked to the module library
+    target_link_libraries(${libname} ${exported_libraries} ${private_libraries})
+
     # ...
   endfunction()
 
@@ -2014,40 +2589,17 @@ use them just by linking to one of the |ns3| modules.
 
 .. sourcecode:: cmake
 
-  function(build_lib)
+  function(build_lib_reexport_third_party_libraries libname libraries_to_link)
     # ...
     # export include directories used by this library so that it can be used by
     # 3rd-party consumers of ns-3 using find_package(ns3) this will automatically
     # add the build/include path to them, so that they can ns-3 headers with
     # <ns3/something.h>
     target_include_directories(
-      ${lib${BLIB_LIBNAME}}
-      PUBLIC $<BUILD_INTERFACE:${CMAKE_OUTPUT_DIRECTORY}/include>
-            $<INSTALL_INTERFACE:include>
+      ${libname} PUBLIC $<BUILD_INTERFACE:${CMAKE_OUTPUT_DIRECTORY}/include>
+                        $<INSTALL_INTERFACE:include>
       INTERFACE ${exported_include_directories}
     )
-    # ...
-  endfunction()
-
-We append the list of third-party/external libraries for each processed module,
-and append a list of object libraries that can be later used for the static |ns3| build.
-
-.. sourcecode:: cmake
-
-  function(build_lib)
-    # ...
-    set(ns3-external-libs "${non_ns_libraries_to_link};${ns3-external-libs}"
-        CACHE INTERNAL
-              "list of non-ns libraries to link to NS3_STATIC and NS3_MONOLIB"
-    )
-    if(${NS3_STATIC} OR ${NS3_MONOLIB})
-      set(lib-ns3-static-objs
-          "$<TARGET_OBJECTS:${lib${BLIB_LIBNAME}-obj}>;${lib-ns3-static-objs}"
-          CACHE
-            INTERNAL
-            "list of object files from module used by NS3_STATIC and NS3_MONOLIB"
-      )
-    endif()
     # ...
   endfunction()
 
@@ -2061,76 +2613,121 @@ and copies header files from ``src/module`` and ``contrib/module`` to the ``incl
     # Write a module header that includes all headers from that module
     write_module_header("${BLIB_LIBNAME}" "${BLIB_HEADER_FILES}")
 
+    # ...
+
     # Copy all header files to outputfolder/include before each build
-    copy_headers_before_building_lib(
-      ${BLIB_LIBNAME} ${CMAKE_HEADER_OUTPUT_DIRECTORY} "${BLIB_HEADER_FILES}"
-      public
+    copy_headers(
+      PUBLIC_HEADER_OUTPUT_DIR ${CMAKE_HEADER_OUTPUT_DIRECTORY}
+      PUBLIC_HEADER_FILES ${BLIB_HEADER_FILES}
+      DEPRECATED_HEADER_OUTPUT_DIR ${CMAKE_HEADER_OUTPUT_DIRECTORY}
+      DEPRECATED_HEADER_FILES ${BLIB_DEPRECATED_HEADER_FILES}
+      PRIVATE_HEADER_OUTPUT_DIR ${CMAKE_HEADER_OUTPUT_DIRECTORY}
+      PRIVATE_HEADER_FILES ${BLIB_PRIVATE_HEADER_FILES}
     )
-    if(BLIB_DEPRECATED_HEADER_FILES)
-      copy_headers_before_building_lib(
-        ${BLIB_LIBNAME} ${CMAKE_HEADER_OUTPUT_DIRECTORY}
-        "${BLIB_DEPRECATED_HEADER_FILES}" deprecated
-      )
-    endif()
     # ...
   endfunction()
 
 The following block creates the test library for the module currently being processed.
+Note that it handles Windows vs non-Windows differently, since Windows requires all
+used linked symbols to be used, which results in our test-runner being unable to
+be dynamically linked to ns-3 modules. To solve that, we create the test libraries
+for the different modules as object libraries instead, and statically link to the
+test-runner executable.
 
 .. sourcecode:: cmake
 
   function(build_lib)
     # ...
-    # Check if the module tests should be built
-    set(filtered_in ON)
-    if(NS3_FILTER_MODULE_EXAMPLES_AND_TESTS)
-      set(filtered_in OFF)
-      if(${BLIB_LIBNAME} IN_LIST NS3_FILTER_MODULE_EXAMPLES_AND_TESTS)
-        set(filtered_in ON)
-      endif()
-    endif()
-
-    # Build tests if requested
-    if(${ENABLE_TESTS} AND ${filtered_in})
-      list(LENGTH BLIB_TEST_SOURCES test_source_len)
-      if(${test_source_len} GREATER 0)
-        # Create BLIB_LIBNAME of output library test of module
-        set(test${BLIB_LIBNAME} lib${BLIB_LIBNAME}-test CACHE INTERNAL "")
-        set(ns3-libs-tests "${test${BLIB_LIBNAME}};${ns3-libs-tests}"
-            CACHE INTERNAL "list of test libraries"
-        )
-
-        # Create shared library containing tests of the module
-        add_library(${test${BLIB_LIBNAME}} SHARED "${BLIB_TEST_SOURCES}")
-
-        # Link test library to the module library
-        if(${NS3_MONOLIB})
-          target_link_libraries(
-            ${test${BLIB_LIBNAME}} ${LIB_AS_NEEDED_PRE} ${lib-ns3-monolib}
-            ${LIB_AS_NEEDED_POST}
-          )
-        else()
-          target_link_libraries(
-            ${test${BLIB_LIBNAME}} ${LIB_AS_NEEDED_PRE} ${lib${BLIB_LIBNAME}}
-            "${BLIB_LIBRARIES_TO_LINK}" ${LIB_AS_NEEDED_POST}
-          )
-        endif()
-        set_target_properties(
-          ${test${BLIB_LIBNAME}}
-          PROPERTIES OUTPUT_NAME
-                    ns${NS3_VER}-${BLIB_LIBNAME}-test${build_profile_suffix}
-        )
-
-        target_compile_definitions(
-          ${test${BLIB_LIBNAME}} PRIVATE NS_TEST_SOURCEDIR="${FOLDER}/test"
-        )
-        if(${PRECOMPILE_HEADERS_ENABLED} AND (NOT ${IGNORE_PCH}))
-          target_precompile_headers(${test${BLIB_LIBNAME}} REUSE_FROM stdlib_pch)
-        endif()
-      endif()
-    endif()
+    build_lib_tests(
+        "${BLIB_LIBNAME}" "${BLIB_IGNORE_PCH}" "${FOLDER}" "${BLIB_TEST_SOURCES}" "${BLIB_TEST_LIBRARIES_TO_LINK}"
+      )
     # ...
   endfunction()
+
+  # This macro builds the test library for the module library
+  #
+  # Arguments: libname (e.g. core), ignore_pch (TRUE/FALSE), folder (src/contrib),
+  # sources (list of .cc's)
+  function(build_lib_tests libname ignore_pch folder test_sources)
+    if(${ENABLE_TESTS})
+      # Check if the module tests should be built
+      build_lib_check_examples_and_tests_filtered_in(${libname} filtered_in)
+      if(NOT ${filtered_in})
+        return()
+      endif()
+      list(LENGTH test_sources test_source_len)
+      if(${test_source_len} GREATER 0)
+        # Create libname of output library test of module
+        set(test${libname} ${libname}-test CACHE INTERNAL "")
+
+        # Create shared library containing tests of the module on UNIX and just
+        # the object file that will be part of test-runner on Windows
+        if(WIN32)
+          set(ns3-libs-tests
+              "$<TARGET_OBJECTS:${test${libname}}>;${ns3-libs-tests}"
+              CACHE INTERNAL "list of test libraries"
+          )
+          add_library(${test${libname}} OBJECT "${test_sources}")
+        else()
+          set(ns3-libs-tests "${test${libname}};${ns3-libs-tests}"
+              CACHE INTERNAL "list of test libraries"
+          )
+          add_library(${test${libname}} SHARED "${test_sources}")
+
+          # Link test library to the module library
+          if(${NS3_MONOLIB})
+            target_link_libraries(
+              ${test${libname}} ${LIB_AS_NEEDED_PRE} ${lib-ns3-monolib}
+              ${LIB_AS_NEEDED_POST}
+            )
+          else()
+            target_link_libraries(
+              ${test${libname}} ${LIB_AS_NEEDED_PRE} ${libname}
+              "${BLIB_LIBRARIES_TO_LINK}" ${LIB_AS_NEEDED_POST}
+            )
+          endif()
+          set_target_properties(
+            ${test${libname}}
+            PROPERTIES OUTPUT_NAME
+                       ns${NS3_VER}-${libname}-test${build_profile_suffix}
+          )
+        endif()
+        target_compile_definitions(
+          ${test${libname}} PRIVATE NS_TEST_SOURCEDIR="${folder}/test"
+        )
+        if(${PRECOMPILE_HEADERS_ENABLED} AND (NOT ${ignore_pch}))
+          target_precompile_headers(${test${libname}} REUSE_FROM stdlib_pch)
+        endif()
+
+        # Add dependency between tests and examples used as tests
+        examples_as_tests_dependencies("${module_examples}" "${test_sources}")
+      endif()
+    endif()
+  endfunction()
+
+The ``build_lib_tests`` macro links the test library to the module library
+and to the module's ``LIBRARIES_TO_LINK``. In some cases, test sources need
+additional libraries that are not required by the module itself. For example,
+a wifi test suite may use ``OnOffHelper`` from the ``applications`` module
+without the ``wifi`` module depending on ``applications`` at runtime. To
+handle this, ``build_lib`` accepts a ``TEST_LIBRARIES_TO_LINK`` argument
+that is passed through to ``build_lib_tests`` and linked only to the
+``module-test`` shared library, not to the module library itself.
+
+.. sourcecode:: cmake
+
+  build_lib(
+    LIBNAME wifi
+    SOURCE_FILES ...
+    HEADER_FILES ...
+    LIBRARIES_TO_LINK network internet
+    TEST_SOURCES ...
+    TEST_LIBRARIES_TO_LINK applications
+  )
+
+In this example, the ``wifi-test`` library will be linked to ``applications``,
+while the main ``wifi`` library remains free of that dependency.
+
 
 The following block checks for examples subdirectories and add them to parse their
 CMakeLists.txt file, creating the examples. It also scans for python examples.
@@ -2139,18 +2736,36 @@ CMakeLists.txt file, creating the examples. It also scans for python examples.
 
   function(build_lib)
     # ...
+
+    # Scan for C++ and Python examples and return a list of C++ examples (which
+    # can be set as dependencies of examples-as-test test suites)
+    build_lib_scan_examples(module_examples)
+
+    # ...
+  endfunction()
+
+  # This macro scans for C++ and Python examples for a given module and return a
+  # list of C++ examples
+  #
+  # Arguments: module_cpp_examples = return list of C++ examples
+  function(build_lib_scan_examples module_cpp_examples)
     # Build lib examples if requested
-    if(${ENABLE_EXAMPLES})
-      foreach(example_folder example;examples)
-        if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${example_folder})
+    set(examples_before ${ns3-execs-clean})
+    foreach(example_folder example;examples)
+      if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${example_folder})
+        if(${ENABLE_EXAMPLES})
           if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${example_folder}/CMakeLists.txt)
             add_subdirectory(${example_folder})
           endif()
-          scan_python_examples(${CMAKE_CURRENT_SOURCE_DIR}/${example_folder})
         endif()
-      endforeach()
-    endif()
-    # ...
+        scan_python_examples(${CMAKE_CURRENT_SOURCE_DIR}/${example_folder})
+      endif()
+    endforeach()
+    set(module_examples ${ns3-execs-clean})
+
+    # Return a list of module c++ examples (current examples - previous examples)
+    list(REMOVE_ITEM module_examples ${examples_before})
+    set(${module_cpp_examples} ${module_examples} PARENT_SCOPE)
   endfunction()
 
 In the next code block we add the library to the ``ns3ExportTargets``, later used for installation.
@@ -2162,7 +2777,7 @@ We also print an additional message the folder just finished being processed if 
     # ...
     # Handle package export
     install(
-      TARGETS ${lib${BLIB_LIBNAME}}
+      TARGETS ${BLIB_LIBNAME}
       EXPORT ns3ExportTargets
       ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}/
       LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/
@@ -2204,8 +2819,8 @@ Then we check if the |ns3| modules required by the example are enabled to be bui
 If the list ``missing_dependencies`` is empty, we create the example. Otherwise, we skip it.
 The example can be linked to the current module (``${lib${BLIB_EXAMPLE_LIBNAME}}``) and
 other libraries to link (``${BLIB_EXAMPLE_LIBRARIES_TO_LINK}``) and optionally to the visualizer
-module (``${optional_visualizer_lib}``).
-If the visualizer module is not enabled, ``optional_visualizer_lib`` is empty.
+module (``${ns3-optional-visualizer-lib}``).
+If the visualizer module is not enabled, ``ns3-optional-visualizer-lib`` is empty.
 
 The example can also be linked to a single |ns3| shared library (``lib-ns3-monolib``) or
 a single |ns3| static library (``lib-ns3-static``), if either ``NS3_MONOLIB=ON`` or ``NS3_STATIC=ON``.
@@ -2239,7 +2854,7 @@ Note that both of these options are handled by the ``build_exec`` macro.
          HEADER_FILES ${BLIB_EXAMPLE_HEADER_FILES}
          LIBRARIES_TO_LINK
            ${lib${BLIB_EXAMPLE_LIBNAME}} ${BLIB_EXAMPLE_LIBRARIES_TO_LINK}
-           ${optional_visualizer_lib}
+           ${ns3-optional-visualizer-lib}
          EXECUTABLE_DIRECTORY_PATH ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${FOLDER}/
          ${IGNORE_PCH}
        )
@@ -2323,7 +2938,7 @@ followed by a header configuration:
     else()
       # If it is false, we add necessary C++ definitions (e.g. NS3_MPI)
       message(STATUS "MPI was found.")
-      add_definitions(-DNS3_MPI)
+      target_compile_definitions(MPI::MPI_CXX INTERFACE NS3_MPI)
 
       # Then set ENABLE_MPI to TRUE, which can be used to check
       # if NS3_MPI is enabled AND MPI was found
@@ -2344,12 +2959,9 @@ followed by a header configuration:
   # Check for required headers and functions,
   # set flags on the right argument if header in the first argument is found
   # if they are not found, a warning is emitted
-  check_include_file_cxx("stdint.h" "HAVE_STDINT_H")
-  check_include_file_cxx("inttypes.h" "HAVE_INTTYPES_H")
   check_include_file_cxx("sys/types.h" "HAVE_SYS_TYPES_H")
   check_include_file_cxx("stat.h" "HAVE_SYS_STAT_H")
   check_include_file_cxx("dirent.h" "HAVE_DIRENT_H")
-  check_include_file_cxx("stdlib.h" "HAVE_STDLIB_H")
   check_include_file_cxx("signal.h" "HAVE_SIGNAL_H")
   check_include_file_cxx("netpacket/packet.h" "HAVE_PACKETH")
   check_function_exists("getenv" "HAVE_GETENV")
@@ -2378,13 +2990,9 @@ values are being used. So we need to check the template.
     #cmakedefine   INT64X64_USE_128
     #cmakedefine   INT64X64_USE_DOUBLE
     #cmakedefine   INT64X64_USE_CAIRO
-    #cmakedefine01 HAVE_STDINT_H
-    #cmakedefine01 HAVE_INTTYPES_H
-    #cmakedefine   HAVE_SYS_INT_TYPES_H
     #cmakedefine01 HAVE_SYS_TYPES_H
     #cmakedefine01 HAVE_SYS_STAT_H
     #cmakedefine01 HAVE_DIRENT_H
-    #cmakedefine01 HAVE_STDLIB_H
     #cmakedefine01 HAVE_GETENV
     #cmakedefine01 HAVE_SIGNAL_H
 
@@ -2413,7 +3021,7 @@ manage dependencies. Here is an example for Doxygen:
 
   # This custom macro checks for dependencies CMake find_package and program
   # dependencies and return the missing dependencies in the third argument
-  check_deps("" "doxygen;dot;dia" doxygen_docs_missing_deps)
+  check_deps(doxygen_docs_missing_deps EXECUTABLES doxygen dot dia python3)
 
   # If the variable contains missing dependencies, we stop processing doxygen targets
   if(doxygen_docs_missing_deps)
@@ -2708,12 +3316,12 @@ Compiler settings required by PCH and CCache are set in the PCH block in macros-
         <limits>
         <list>
         <map>
-        <math.h>
+        <cmath>
         <ostream>
         <set>
         <sstream>
-        <stdint.h>
-        <stdlib.h>
+        <cstdint>
+        <cstdlib>
         <string>
         <unordered_map>
         <vector>

@@ -1,18 +1,7 @@
 /*
  * Copyright © 2011 Marcos Talau
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Marcos Talau (talau@users.sourceforge.net)
  * Modified by:   Pasquale Imputato <p.imputato@gmail.com>
@@ -31,9 +20,9 @@
 using namespace ns3;
 
 /**
- * \ingroup traffic-control-test
+ * @ingroup traffic-control-test
  *
- * \brief Red Queue Disc Test Item
+ * @brief Red Queue Disc Test Item
  */
 class RedQueueDiscTestItem : public QueueDiscItem
 {
@@ -41,9 +30,9 @@ class RedQueueDiscTestItem : public QueueDiscItem
     /**
      * Constructor
      *
-     * \param p packet
-     * \param addr address
-     * \param ecnCapable ECN capable flag
+     * @param p packet
+     * @param addr address
+     * @param ecnCapable ECN capable flag
      */
     RedQueueDiscTestItem(Ptr<Packet> p, const Address& addr, bool ecnCapable);
 
@@ -73,17 +62,13 @@ RedQueueDiscTestItem::AddHeader()
 bool
 RedQueueDiscTestItem::Mark()
 {
-    if (m_ecnCapablePacket)
-    {
-        return true;
-    }
-    return false;
+    return m_ecnCapablePacket;
 }
 
 /**
- * \ingroup traffic-control-test
+ * @ingroup traffic-control-test
  *
- * \brief Red Queue Disc Test Case
+ * @brief Red Queue Disc Test Case
  */
 class RedQueueDiscTestCase : public TestCase
 {
@@ -94,15 +79,15 @@ class RedQueueDiscTestCase : public TestCase
   private:
     /**
      * Enqueue function
-     * \param queue the queue disc
-     * \param size the size
-     * \param nPkt the number of packets
-     * \param ecnCapable ECN capable flag
+     * @param queue the queue disc
+     * @param size the size
+     * @param nPkt the number of packets
+     * @param ecnCapable ECN capable flag
      */
     void Enqueue(Ptr<RedQueueDisc> queue, uint32_t size, uint32_t nPkt, bool ecnCapable);
     /**
      * Run RED test function
-     * \param mode the mode
+     * @param mode the mode
      */
     void RunRedTest(QueueSizeUnit mode);
 };
@@ -618,16 +603,16 @@ RedQueueDiscTestCase::DoRun()
 }
 
 /**
- * \ingroup traffic-control-test
+ * @ingroup traffic-control-test
  *
- * \brief Red Queue Disc Test Suite
+ * @brief Red Queue Disc Test Suite
  */
 static class RedQueueDiscTestSuite : public TestSuite
 {
   public:
     RedQueueDiscTestSuite()
-        : TestSuite("red-queue-disc", UNIT)
+        : TestSuite("red-queue-disc", Type::UNIT)
     {
-        AddTestCase(new RedQueueDiscTestCase(), TestCase::QUICK);
+        AddTestCase(new RedQueueDiscTestCase(), TestCase::Duration::QUICK);
     }
 } g_redQueueTestSuite; ///< the test suite

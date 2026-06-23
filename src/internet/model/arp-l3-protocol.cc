@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2006 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -131,7 +120,7 @@ void
 ArpL3Protocol::DoDispose()
 {
     NS_LOG_FUNCTION(this);
-    for (CacheList::iterator i = m_cacheList.begin(); i != m_cacheList.end(); ++i)
+    for (auto i = m_cacheList.begin(); i != m_cacheList.end(); ++i)
     {
         Ptr<ArpCache> cache = *i;
         cache->Dispose();
@@ -160,7 +149,7 @@ Ptr<ArpCache>
 ArpL3Protocol::FindCache(Ptr<NetDevice> device)
 {
     NS_LOG_FUNCTION(this << device);
-    for (CacheList::const_iterator i = m_cacheList.begin(); i != m_cacheList.end(); i++)
+    for (auto i = m_cacheList.begin(); i != m_cacheList.end(); i++)
     {
         if ((*i)->GetDevice() == device)
         {
@@ -191,7 +180,7 @@ ArpL3Protocol::Receive(Ptr<NetDevice> device,
     //
     // If we're connected to a real world network, then some of the fields sizes
     // in an ARP packet can vary in ways not seen in simulations.  We need to be
-    // able to detect ARP packets with headers we don't recongnize and not process
+    // able to detect ARP packets with headers we don't recognize and not process
     // them instead of crashing.  The ArpHeader will return 0 if it can't deal
     // with the received header.
     //
@@ -213,7 +202,7 @@ ArpL3Protocol::Receive(Ptr<NetDevice> device,
     }
 
     /**
-     * \internal
+     * @internal
      * Note: we do not update the ARP cache when we receive an ARP request
      *  from an unknown node. See \bugid{107}
      */
@@ -261,7 +250,7 @@ ArpL3Protocol::Receive(Ptr<NetDevice> device,
                 else
                 {
                     // ignore this reply which might well be an attempt
-                    // at poisening my arp cache.
+                    // at poisoning my arp cache.
                     NS_LOG_LOGIC("node=" << m_node->GetId() << ", got reply from "
                                          << arp.GetSourceIpv4Address()
                                          << " for non-waiting entry -- drop");
@@ -276,7 +265,7 @@ ArpL3Protocol::Receive(Ptr<NetDevice> device,
             break;
         }
     }
-    if (found == false)
+    if (!found)
     {
         NS_LOG_LOGIC("node=" << m_node->GetId() << ", got request from "
                              << arp.GetSourceIpv4Address() << " for unknown address "
@@ -303,7 +292,7 @@ ArpL3Protocol::Lookup(Ptr<Packet> packet,
                 NS_LOG_LOGIC("node=" << m_node->GetId() << ", dead entry for " << destination
                                      << " expired -- send arp request");
                 entry->MarkWaitReply(ArpCache::Ipv4PayloadHeaderPair(packet, ipHeader));
-                Simulator::Schedule(Time(MilliSeconds(m_requestJitter->GetValue())),
+                Simulator::Schedule(MilliSeconds(m_requestJitter->GetValue()),
                                     &ArpL3Protocol::SendArpRequest,
                                     this,
                                     cache,
@@ -314,16 +303,29 @@ ArpL3Protocol::Lookup(Ptr<Packet> packet,
                 NS_LOG_LOGIC("node=" << m_node->GetId() << ", alive entry for " << destination
                                      << " expired -- send arp request");
                 entry->MarkWaitReply(ArpCache::Ipv4PayloadHeaderPair(packet, ipHeader));
-                Simulator::Schedule(Time(MilliSeconds(m_requestJitter->GetValue())),
+                Simulator::Schedule(MilliSeconds(m_requestJitter->GetValue()),
                                     &ArpL3Protocol::SendArpRequest,
                                     this,
                                     cache,
                                     destination);
             }
+            else if (entry->IsWaitReply())
+            {
+                NS_LOG_LOGIC("node=" << m_node->GetId() << ", entry for " << destination
+                                     << " waiting for a reply -- adding the packet to the queue");
+                if (!entry->UpdateWaitReply(ArpCache::Ipv4PayloadHeaderPair(packet, ipHeader)))
+                {
+                    // add the Ipv4 header for tracing purposes
+                    packet->AddHeader(ipHeader);
+                    m_dropTrace(packet);
+                }
+                return false;
+            }
             else
             {
-                NS_FATAL_ERROR("Test for possibly unreachable code-- please file a bug report, "
-                               "with a test case, if this is ever hit");
+                NS_FATAL_ERROR("Test for possibly unreachable code -- please file a bug report, "
+                               "with a test case - "
+                               << *entry);
             }
         }
         else
@@ -363,8 +365,9 @@ ArpL3Protocol::Lookup(Ptr<Packet> packet,
             }
             else
             {
-                NS_LOG_LOGIC("Test for possibly unreachable code-- please file a bug report, with "
-                             "a test case, if this is ever hit");
+                NS_FATAL_ERROR("Test for possibly unreachable code -- please file a bug report, "
+                               "with a test case - "
+                               << *entry);
             }
         }
     }
@@ -375,7 +378,7 @@ ArpL3Protocol::Lookup(Ptr<Packet> packet,
                              << " -- send arp request");
         entry = cache->Add(destination);
         entry->MarkWaitReply(ArpCache::Ipv4PayloadHeaderPair(packet, ipHeader));
-        Simulator::Schedule(Time(MilliSeconds(m_requestJitter->GetValue())),
+        Simulator::Schedule(MilliSeconds(m_requestJitter->GetValue()),
                             &ArpL3Protocol::SendArpRequest,
                             this,
                             cache,
@@ -411,11 +414,11 @@ ArpL3Protocol::SendArpReply(Ptr<const ArpCache> cache,
 {
     NS_LOG_FUNCTION(this << cache << myIp << toIp << toMac);
     ArpHeader arp;
-    NS_LOG_LOGIC("ARP: sending reply from node "
-                 << m_node->GetId() << "|| src: " << cache->GetDevice()->GetAddress() << " / "
-                 << myIp << " || dst: " << toMac << " / " << toIp);
-    arp.SetReply(cache->GetDevice()->GetAddress(), myIp, toMac, toIp);
-    Ptr<Packet> packet = Create<Packet>();
+    const auto myMac = cache->GetDevice()->GetAddressFor(toMac);
+    NS_LOG_LOGIC("ARP: sending reply from node " << m_node->GetId() << "|| src: " << myMac << " / "
+                                                 << myIp << " || dst: " << toMac << " / " << toIp);
+    arp.SetReply(myMac, myIp, toMac, toIp);
+    auto packet = Create<Packet>();
     NS_ASSERT(m_tc);
     m_tc->Send(cache->GetDevice(), Create<ArpQueueDiscItem>(packet, toMac, PROT_NUMBER, arp));
 }

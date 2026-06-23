@@ -373,3 +373,13 @@ build_lib(
   TEST_SOURCES ${test_sources}
   MODULE_ENABLED_FEATURES ${emu_features}
 )
+
+# lte references mmwave symbols (IAB additions); propagate mmwave as a
+# link-time-only interface dep so any executable using lte also resolves
+# the IAB symbols without creating a CMake circular dependency.
+if(IS_DIRECTORY "${CMAKE_SOURCE_DIR}/src/mmwave")
+  set_property(
+    TARGET lte
+    APPEND PROPERTY INTERFACE_LINK_LIBRARIES $<LINK_ONLY:mmwave>
+  )
+endif()

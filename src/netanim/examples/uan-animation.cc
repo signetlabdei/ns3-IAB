@@ -1,25 +1,14 @@
 /*
  * Copyright (c) 2010 Andrea Sacco
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Andrea Sacco <andrea.sacco85@gmail.com>
  */
 
 /**
- * \file uan-animation.cc
- * \ingroup uan
+ * @file uan-animation.cc
+ * @ingroup uan
  *
  * This example showcases the "CW-MAC" described in System Design Considerations for Undersea
  * Networks article in the IEEE Journal on Selected Areas of Communications 2008 by Nathan Parrish,
@@ -98,7 +87,7 @@ void
 NetAnimExperiment::UpdatePositions(NodeContainer& nodes) const
 {
     NS_LOG_DEBUG(Simulator::Now().As(Time::S) << " Updating positions");
-    NodeContainer::Iterator it = nodes.Begin();
+    auto it = nodes.Begin();
     Ptr<UniformRandomVariable> uv = CreateObject<UniformRandomVariable>();
     uv->SetAttribute("Min", DoubleValue(0.0));
     uv->SetAttribute("Max", DoubleValue(m_boundary));

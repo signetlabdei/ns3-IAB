@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2007 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -113,8 +102,7 @@ ListPositionAllocator::Add(const std::string filePath,
 
         Vector pos(x, y, z);
         Add(pos);
-
-    } // while FetchNextRow
+    }
     NS_LOG_INFO("read " << csv.RowNumber() << " rows");
 }
 
@@ -185,7 +173,7 @@ GridPositionAllocator::GetTypeId()
             .AddAttribute("LayoutType",
                           "The type of layout.",
                           EnumValue(ROW_FIRST),
-                          MakeEnumAccessor(&GridPositionAllocator::m_layoutType),
+                          MakeEnumAccessor<LayoutType>(&GridPositionAllocator::m_layoutType),
                           MakeEnumChecker(ROW_FIRST, "RowFirst", COLUMN_FIRST, "ColumnFirst"));
     return tid;
 }
@@ -267,7 +255,7 @@ GridPositionAllocator::GetN() const
     return m_n;
 }
 
-enum GridPositionAllocator::LayoutType
+GridPositionAllocator::LayoutType
 GridPositionAllocator::GetLayoutType() const
 {
     return m_layoutType;
@@ -617,7 +605,7 @@ UniformDiscPositionAllocator::GetNext() const
     {
         x = m_rv->GetValue(-m_rho, m_rho);
         y = m_rv->GetValue(-m_rho, m_rho);
-    } while (std::sqrt(x * x + y * y) > m_rho);
+    } while (std::hypot(x, y) > m_rho);
 
     x += m_x;
     y += m_y;

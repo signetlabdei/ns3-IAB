@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2020 NITK Surathkal
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Vivek Jain <jain.vivek.anand@gmail.com>
  *          Deepak Kumaraswamy <deepakkavoor99@gmail.com>
@@ -161,7 +150,7 @@ main(int argc, char* argv[])
     Time simulationEndTime = Seconds(5);
     DataRate bottleneckBandwidth("10Mbps"); // value of x as shown in the above network topology
     Time bottleneckDelay = MilliSeconds(40);
-    DataRate regLinkBandwidth = DataRate(4 * bottleneckBandwidth.GetBitRate());
+    DataRate regLinkBandwidth(4 * bottleneckBandwidth.GetBitRate());
     Time regLinkDelay = MilliSeconds(5);
     DataRate maxPacingRate("4Gbps");
 
@@ -324,9 +313,7 @@ main(int argc, char* argv[])
     monitor->CheckForLostPackets();
     Ptr<Ipv4FlowClassifier> classifier = DynamicCast<Ipv4FlowClassifier>(flowmon.GetClassifier());
     FlowMonitor::FlowStatsContainer stats = monitor->GetFlowStats();
-    for (std::map<FlowId, FlowMonitor::FlowStats>::const_iterator i = stats.begin();
-         i != stats.end();
-         ++i)
+    for (auto i = stats.begin(); i != stats.end(); ++i)
     {
         Ipv4FlowClassifier::FiveTuple t = classifier->FindFlow(i->first);
 

@@ -1,29 +1,20 @@
 /*
  * Copyright (c) 2013 Fraunhofer FKIE
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author:
  *  Sascha Alexander Jopen <jopen@cs.uni-bonn.de>
  */
 #include "lr-wpan-interference-helper.h"
 
-#include <ns3/log.h>
-#include <ns3/spectrum-model.h>
-#include <ns3/spectrum-value.h>
+#include "ns3/log.h"
+#include "ns3/spectrum-model.h"
+#include "ns3/spectrum-value.h"
 
 namespace ns3
+{
+namespace lrwpan
 {
 
 NS_LOG_COMPONENT_DEFINE("LrWpanInterferenceHelper");
@@ -95,9 +86,8 @@ LrWpanInterferenceHelper::GetSignalPsd() const
     if (m_dirty)
     {
         // Sum up the current interference PSD.
-        std::set<Ptr<const SpectrumValue>>::const_iterator it;
         m_signal = Create<SpectrumValue>(m_spectrumModel);
-        for (it = m_signals.begin(); it != m_signals.end(); ++it)
+        for (auto it = m_signals.begin(); it != m_signals.end(); ++it)
         {
             *m_signal += *(*it);
         }
@@ -107,4 +97,5 @@ LrWpanInterferenceHelper::GetSignalPsd() const
     return m_signal->Copy();
 }
 
+} // namespace lrwpan
 } // namespace ns3

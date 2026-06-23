@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2017 Christoph Doepmann <doepmanc@informatik.hu-berlin.de>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  */
 #include "tcp-error-model.h"
@@ -28,25 +17,25 @@ using namespace ns3;
 NS_LOG_COMPONENT_DEFINE("TcpAdvertisedWindowTestSuite");
 
 /**
- * \ingroup internet-tests
- * \ingroup tests
- * \brief Socket that wraps every call to AdvertisedWindowSize ().
+ * @ingroup internet-test
+ * @ingroup tests
+ * @brief Socket that wraps every call to AdvertisedWindowSize ().
  */
 
 class TcpSocketAdvertisedWindowProxy : public TcpSocketMsgBase
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
 
-    /** \brief typedef for a cb */
+    /** @brief typedef for a cb */
     typedef Callback<void, uint16_t, uint16_t> InvalidAwndCallback;
 
     /**
-     * \brief Constructor
+     * @brief Constructor
      */
     TcpSocketAdvertisedWindowProxy()
         : TcpSocketMsgBase(),
@@ -55,33 +44,33 @@ class TcpSocketAdvertisedWindowProxy : public TcpSocketMsgBase
     }
 
     /**
-     * \brief Copy-constructor
+     * @brief Copy-constructor
      *
-     * \param other Other obj
+     * @param other Other obj
      */
     TcpSocketAdvertisedWindowProxy(const TcpSocketAdvertisedWindowProxy& other)
         : TcpSocketMsgBase(other)
     {
         m_segmentSize = other.m_segmentSize;
-        m_inwalidAwndCb = other.m_inwalidAwndCb;
+        m_invalidAwndCb = other.m_invalidAwndCb;
     }
 
     /**
-     * \brief Set the invalid AdvWnd callback
+     * @brief Set the invalid AdvWnd callback
      *
-     * \param cb callback to set
+     * @param cb callback to set
      */
     void SetInvalidAwndCb(InvalidAwndCallback cb);
 
     /**
-     * \brief Set the expected segment size
+     * @brief Set the expected segment size
      *
-     * \param seg Segment size
+     * @param seg Segment size
      */
     void SetExpectedSegmentSize(uint16_t seg)
     {
         m_segmentSize = seg;
-    };
+    }
 
   protected:
     Ptr<TcpSocketBase> Fork() override;
@@ -89,10 +78,10 @@ class TcpSocketAdvertisedWindowProxy : public TcpSocketMsgBase
 
   private:
     uint16_t OldAdvertisedWindowSize(bool scale = true) const;
-    InvalidAwndCallback m_inwalidAwndCb; //!< Callback
+    InvalidAwndCallback m_invalidAwndCb; //!< Callback
 
     /**
-     * \brief Test meta-information: size of the segments that are received.
+     * @brief Test meta-information: size of the segments that are received.
      *
      * This is necessary for making sure the calculated awnd only differs by
      * exactly that one segment that was not yet read by the application.
@@ -104,7 +93,7 @@ void
 TcpSocketAdvertisedWindowProxy::SetInvalidAwndCb(InvalidAwndCallback cb)
 {
     NS_ASSERT(!cb.IsNull());
-    m_inwalidAwndCb = cb;
+    m_invalidAwndCb = cb;
 }
 
 TypeId
@@ -159,9 +148,9 @@ TcpSocketAdvertisedWindowProxy::AdvertisedWindowSize(bool scale) const
 
             if (static_cast<uint16_t>(newAwndKnownDifference) != oldAwnd)
             {
-                if (!m_inwalidAwndCb.IsNull())
+                if (!m_invalidAwndCb.IsNull())
                 {
-                    m_inwalidAwndCb(oldAwnd, newAwnd);
+                    m_invalidAwndCb(oldAwnd, newAwnd);
                 }
             }
         }
@@ -174,8 +163,8 @@ TcpSocketAdvertisedWindowProxy::AdvertisedWindowSize(bool scale) const
  * The legacy code used for calculating the advertised window.
  *
  * This was copied from tcp-socket-base.cc before changing the formula.
- * \param scale true if should scale the window
- * \return the old adv wnd value
+ * @param scale true if should scale the window
+ * @return the old adv wnd value
  */
 uint16_t
 TcpSocketAdvertisedWindowProxy::OldAdvertisedWindowSize(bool scale) const
@@ -206,23 +195,23 @@ TcpSocketAdvertisedWindowProxy::OldAdvertisedWindowSize(bool scale) const
 NS_OBJECT_ENSURE_REGISTERED(TcpSocketAdvertisedWindowProxy);
 
 /**
- * \ingroup internet-tests
- * \ingroup test
+ * @ingroup internet-test
+ * @ingroup tests
  *
- * \brief An error model that randomly drops a given rátio of TCP segments.
+ * @brief An error model that randomly drops a given rátio of TCP segments.
  */
 class TcpDropRatioErrorModel : public TcpGeneralErrorModel
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
 
     /**
-     * \brief Constructor
-     * \param dropRatio the drop ratio
+     * @brief Constructor
+     * @param dropRatio the drop ratio
      */
     TcpDropRatioErrorModel(double dropRatio)
         : TcpGeneralErrorModel(),
@@ -237,7 +226,10 @@ class TcpDropRatioErrorModel : public TcpGeneralErrorModel
                     uint32_t packetSize) override;
 
   private:
-    void DoReset() override{};
+    void DoReset() override
+    {
+    }
+
     double m_dropRatio;                //!< Drop ratio
     Ptr<UniformRandomVariable> m_prng; //!< Random variable
 };
@@ -260,9 +252,9 @@ TcpDropRatioErrorModel::ShouldDrop(const Ipv4Header& ipHeader,
 }
 
 /**
- * \ingroup internet-tests
- * \ingroup test
- * \brief Test the new formula for calculating TCP's advertised window size.
+ * @ingroup internet-test
+ * @ingroup tests
+ * @brief Test the new formula for calculating TCP's advertised window size.
  *
  * In TcpSocketBase, the advertised window is now calculated as
  *
@@ -286,11 +278,11 @@ class TcpAdvertisedWindowTest : public TcpGeneralTest
 {
   public:
     /**
-     * \brief Constructor
-     * \param desc description
-     * \param size segment size
-     * \param packets number of packets to send
-     * \param lossRatio error ratio
+     * @brief Constructor
+     * @param desc description
+     * @param size segment size
+     * @param packets number of packets to send
+     * @param lossRatio error ratio
      */
     TcpAdvertisedWindowTest(const std::string& desc,
                             uint32_t size,
@@ -303,9 +295,10 @@ class TcpAdvertisedWindowTest : public TcpGeneralTest
     Ptr<ErrorModel> CreateReceiverErrorModel() override;
 
   private:
-    /** \brief Callback called for the update of the awnd
-     * \param oldAwnd Old advertised window
-     * \param newAwnd new value
+    /**
+     * @brief Callback called for the update of the awnd
+     * @param oldAwnd Old advertised window
+     * @param newAwnd new value
      */
     void InvalidAwndCb(uint16_t oldAwnd, uint16_t newAwnd);
     uint32_t m_pktSize;  //!< Packet size
@@ -330,7 +323,7 @@ TcpAdvertisedWindowTest::ConfigureEnvironment()
     TcpGeneralTest::ConfigureEnvironment();
     SetAppPktCount(m_pktCount);
     SetPropagationDelay(MilliSeconds(50));
-    SetTransmitStart(Seconds(2.0));
+    SetTransmitStart(Seconds(2));
     SetAppPktSize(m_pktSize);
 }
 
@@ -363,19 +356,19 @@ TcpAdvertisedWindowTest::InvalidAwndCb(uint16_t oldAwnd, uint16_t newAwnd)
 //-----------------------------------------------------------------------------
 
 /**
- * \ingroup internet-tests
- * \ingroup test
- * \brief Test the TCP's advertised window size when there is a loss of specific packets.
+ * @ingroup internet-test
+ * @ingroup tests
+ * @brief Test the TCP's advertised window size when there is a loss of specific packets.
  */
 class TcpAdvWindowOnLossTest : public TcpGeneralTest
 {
   public:
     /**
-     * \brief Constructor
-     * \param desc description
-     * \param size segment size
-     * \param packets number of packets to send
-     * \param toDrop packets to be dropped
+     * @brief Constructor
+     * @param desc description
+     * @param size segment size
+     * @param packets number of packets to send
+     * @param toDrop packets to be dropped
      */
     TcpAdvWindowOnLossTest(const std::string& desc,
                            uint32_t size,
@@ -389,9 +382,10 @@ class TcpAdvWindowOnLossTest : public TcpGeneralTest
     Ptr<ErrorModel> CreateReceiverErrorModel() override;
 
   private:
-    /** \brief Callback called for the update of the awnd
-     * \param oldAwnd Old advertised window
-     * \param newAwnd new value
+    /**
+     * @brief Callback called for the update of the awnd
+     * @param oldAwnd Old advertised window
+     * @param newAwnd new value
      */
     void InvalidAwndCb(uint16_t oldAwnd, uint16_t newAwnd);
     uint32_t m_pktSize;             //!< Packet size
@@ -416,7 +410,7 @@ TcpAdvWindowOnLossTest::ConfigureEnvironment()
     TcpGeneralTest::ConfigureEnvironment();
     SetAppPktCount(m_pktCount);
     SetPropagationDelay(MilliSeconds(50));
-    SetTransmitStart(Seconds(2.0));
+    SetTransmitStart(Seconds(2));
     SetAppPktSize(m_pktSize);
 }
 
@@ -447,7 +441,7 @@ Ptr<ErrorModel>
 TcpAdvWindowOnLossTest::CreateReceiverErrorModel()
 {
     Ptr<TcpSeqErrorModel> m_errorModel = CreateObject<TcpSeqErrorModel>();
-    for (std::vector<uint32_t>::iterator it = m_toDrop.begin(); it != m_toDrop.end(); ++it)
+    for (auto it = m_toDrop.begin(); it != m_toDrop.end(); ++it)
     {
         m_errorModel->AddSeqToKill(SequenceNumber32(*it));
     }
@@ -464,48 +458,48 @@ TcpAdvWindowOnLossTest::InvalidAwndCb(uint16_t oldAwnd, uint16_t newAwnd)
 //-----------------------------------------------------------------------------
 
 /**
- * \ingroup internet-tests
- * \ingroup test
+ * @ingroup internet-test
+ * @ingroup tests
  *
- * \brief Test Suite for TCP adv window
+ * @brief Test Suite for TCP adv window
  */
 class TcpAdvertisedWindowTestSuite : public TestSuite
 {
   public:
     TcpAdvertisedWindowTestSuite()
-        : TestSuite("tcp-advertised-window-test", UNIT)
+        : TestSuite("tcp-advertised-window-test", Type::UNIT)
     {
         AddTestCase(new TcpAdvertisedWindowTest("TCP advertised window size, small seg + no loss",
                                                 500,
                                                 100,
                                                 0.0),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
         AddTestCase(new TcpAdvertisedWindowTest("TCP advertised window size, small seg + loss",
                                                 500,
                                                 100,
                                                 0.1),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
         AddTestCase(new TcpAdvertisedWindowTest("TCP advertised window size, large seg + no loss",
                                                 1000,
                                                 100,
                                                 0.0),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
         AddTestCase(
             new TcpAdvertisedWindowTest("TCP advertised window size, large seg + small loss",
                                         1000,
                                         100,
                                         0.1),
-            TestCase::QUICK);
+            TestCase::Duration::QUICK);
         AddTestCase(new TcpAdvertisedWindowTest("TCP advertised window size, large seg + big loss",
                                                 1000,
                                                 100,
                                                 0.3),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
         AddTestCase(new TcpAdvertisedWindowTest("TCP advertised window size, complete loss",
                                                 1000,
                                                 100,
                                                 1.0),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
 
         std::vector<uint32_t> toDrop;
         toDrop.push_back(8001);

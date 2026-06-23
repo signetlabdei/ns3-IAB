@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2007 INRIA, Gustavo Carneiro
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Gustavo Carneiro <gjcarneiro@gmail.com>,
  *          Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
@@ -23,17 +12,14 @@
 #include "assert.h"
 #include "attribute.h"
 #include "log.h"
-#include "object-factory.h"
-#include "string.h"
 
 #include <cstdlib>
 #include <cstring>
-#include <sstream>
 #include <vector>
 
 /**
- * \file
- * \ingroup object
+ * @file
+ * @ingroup object
  * ns3::Object class implementation.
  */
 
@@ -59,16 +45,27 @@ bool
 Object::AggregateIterator::HasNext() const
 {
     NS_LOG_FUNCTION(this);
-    return m_current < m_object->m_aggregates->n;
+    return (m_current < m_object->m_aggregates->n) ||
+           (m_uniAggrIter != m_object->m_unidirectionalAggregates.end());
 }
 
 Ptr<const Object>
 Object::AggregateIterator::Next()
 {
     NS_LOG_FUNCTION(this);
-    Object* object = m_object->m_aggregates->buffer[m_current];
-    m_current++;
-    return object;
+    if (m_current < m_object->m_aggregates->n)
+    {
+        Object* object = m_object->m_aggregates->buffer[m_current];
+        m_current++;
+        return object;
+    }
+    else if (m_uniAggrIter != m_object->m_unidirectionalAggregates.end())
+    {
+        auto object = *m_uniAggrIter;
+        m_uniAggrIter++;
+        return object;
+    }
+    return nullptr;
 }
 
 Object::AggregateIterator::AggregateIterator(Ptr<const Object> object)
@@ -76,6 +73,7 @@ Object::AggregateIterator::AggregateIterator(Ptr<const Object> object)
       m_current(0)
 {
     NS_LOG_FUNCTION(this << object);
+    m_uniAggrIter = object->m_unidirectionalAggregates.begin();
 }
 
 TypeId
@@ -96,7 +94,7 @@ Object::Object()
     : m_tid(Object::GetTypeId()),
       m_disposed(false),
       m_initialized(false),
-      m_aggregates((struct Aggregates*)std::malloc(sizeof(struct Aggregates))),
+      m_aggregates((Aggregates*)std::malloc(sizeof(Aggregates))),
       m_getObjectCount(0)
 {
     NS_LOG_FUNCTION(this);
@@ -127,13 +125,14 @@ Object::~Object()
         std::free(m_aggregates);
     }
     m_aggregates = nullptr;
+    m_unidirectionalAggregates.clear();
 }
 
 Object::Object(const Object& o)
     : m_tid(o.m_tid),
       m_disposed(false),
       m_initialized(false),
-      m_aggregates((struct Aggregates*)std::malloc(sizeof(struct Aggregates))),
+      m_aggregates((Aggregates*)std::malloc(sizeof(Aggregates))),
       m_getObjectCount(0)
 {
     m_aggregates->n = 1;
@@ -153,6 +152,7 @@ Object::DoGetObject(TypeId tid) const
     NS_LOG_FUNCTION(this << tid);
     NS_ASSERT(CheckLoose());
 
+    // First check if the object is in the normal aggregates.
     uint32_t n = m_aggregates->n;
     TypeId objectTid = Object::GetTypeId();
     for (uint32_t i = 0; i < n; i++)
@@ -177,6 +177,20 @@ Object::DoGetObject(TypeId tid) const
             UpdateSortedArray(m_aggregates, i);
             // finally, return the match
             return const_cast<Object*>(current);
+        }
+    }
+
+    // Next check if it's a unidirectional aggregate
+    for (auto& uniItem : m_unidirectionalAggregates)
+    {
+        TypeId cur = uniItem->GetInstanceTypeId();
+        while (cur != tid && cur != objectTid)
+        {
+            cur = cur.GetParent();
+        }
+        if (cur == tid)
+        {
+            return uniItem;
         }
     }
     return nullptr;
@@ -204,6 +218,17 @@ restart:
             current->DoInitialize();
             current->m_initialized = true;
             goto restart;
+        }
+    }
+
+    // note: no need to restart because unidirectionally aggregated objects
+    // can not change the status of the actual object.
+    for (auto& uniItem : m_unidirectionalAggregates)
+    {
+        if (!uniItem->m_initialized)
+        {
+            uniItem->DoInitialize();
+            uniItem->m_initialized = true;
         }
     }
 }
@@ -239,10 +264,21 @@ restart:
             goto restart;
         }
     }
+
+    // note: no need to restart because unidirectionally aggregated objects
+    // can not change the status of the actual object.
+    for (auto& uniItem : m_unidirectionalAggregates)
+    {
+        if (!uniItem->m_disposed && uniItem->GetReferenceCount() == 1)
+        {
+            uniItem->DoDispose();
+            uniItem->m_disposed = true;
+        }
+    }
 }
 
 void
-Object::UpdateSortedArray(struct Aggregates* aggregates, uint32_t j) const
+Object::UpdateSortedArray(Aggregates* aggregates, uint32_t j) const
 {
     NS_LOG_FUNCTION(this << aggregates << j);
     while (j > 0 &&
@@ -267,8 +303,7 @@ Object::AggregateObject(Ptr<Object> o)
     Object* other = PeekPointer(o);
     // first create the new aggregate buffer.
     uint32_t total = m_aggregates->n + other->m_aggregates->n;
-    struct Aggregates* aggregates =
-        (struct Aggregates*)std::malloc(sizeof(struct Aggregates) + (total - 1) * sizeof(Object*));
+    auto aggregates = (Aggregates*)std::malloc(sizeof(Aggregates) + (total - 1) * sizeof(Object*));
     aggregates->n = total;
 
     // copy our buffer to the new buffer
@@ -281,19 +316,21 @@ Object::AggregateObject(Ptr<Object> o)
     {
         aggregates->buffer[m_aggregates->n + i] = other->m_aggregates->buffer[i];
         const TypeId typeId = other->m_aggregates->buffer[i]->GetInstanceTypeId();
+        // note: DoGetObject scans also the unidirectional aggregates
         if (DoGetObject(typeId))
         {
             NS_FATAL_ERROR("Object::AggregateObject(): "
                            "Multiple aggregation of objects of type "
-                           << other->GetInstanceTypeId() << " on objects of type " << typeId);
+                           << other->GetInstanceTypeId() << " on objects of type "
+                           << GetInstanceTypeId());
         }
         UpdateSortedArray(aggregates, m_aggregates->n + i);
     }
 
     // keep track of the old aggregate buffers for the iteration
     // of NotifyNewAggregates
-    struct Aggregates* a = m_aggregates;
-    struct Aggregates* b = other->m_aggregates;
+    Aggregates* a = m_aggregates;
+    Aggregates* b = other->m_aggregates;
 
     // Then, assign the new aggregation buffer to every object
     uint32_t n = aggregates->n;
@@ -324,7 +361,47 @@ Object::AggregateObject(Ptr<Object> o)
     std::free(b);
 }
 
-/**
+void
+Object::UnidirectionalAggregateObject(Ptr<Object> o)
+{
+    NS_LOG_FUNCTION(this << o);
+    NS_ASSERT(!m_disposed);
+    NS_ASSERT(!o->m_disposed);
+    NS_ASSERT(CheckLoose());
+    NS_ASSERT(o->CheckLoose());
+
+    Object* other = PeekPointer(o);
+
+    const TypeId typeId = other->GetInstanceTypeId();
+    // note: DoGetObject scans also the unidirectional aggregates
+    if (DoGetObject(typeId))
+    {
+        NS_FATAL_ERROR("Object::UnidirectionalAggregateObject(): "
+                       "Multiple aggregation of objects of type "
+                       << other->GetInstanceTypeId() << " on objects of type "
+                       << GetInstanceTypeId());
+    }
+
+    m_unidirectionalAggregates.emplace_back(other);
+
+    // Finally, call NotifyNewAggregate on all the objects aggregates by this object.
+    // We skip the aggregated Object and its aggregates because they are not
+    // mutually aggregated to the others.
+    // Unfortunately, we have to make a copy of the aggregated objects, because
+    // NotifyNewAggregate might change it...
+
+    std::list<Object*> aggregates;
+    for (uint32_t i = 0; i < m_aggregates->n; i++)
+    {
+        aggregates.emplace_back(m_aggregates->buffer[i]);
+    }
+    for (auto& item : aggregates)
+    {
+        item->NotifyNewAggregate();
+    }
+}
+
+/*
  * This function must be implemented in the stack that needs to notify
  * other stacks connected to the node of their presence in the node.
  */
@@ -424,7 +501,7 @@ Object::DoDelete()
     }
 
     // Now, actually delete all objects
-    struct Aggregates* aggregates = m_aggregates;
+    Aggregates* aggregates = m_aggregates;
     for (uint32_t i = 0; i < n; i++)
     {
         // There is a trick here: each time we call delete below,

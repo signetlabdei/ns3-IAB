@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2003,2007 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -23,15 +12,13 @@
 #include "ns3/simulator.h"
 #include "ns3/wifi-tx-vector.h"
 
-#define Min(a, b) ((a < b) ? a : b)
-
 namespace ns3
 {
 
 NS_LOG_COMPONENT_DEFINE("OnoeWifiManager");
 
 /**
- * \brief hold per-remote-station state for ONOE Wifi manager.
+ * @brief hold per-remote-station state for ONOE Wifi manager.
  *
  * This struct extends from WifiRemoteStation struct to hold additional
  * information required by the ONOE Wifi manager
@@ -61,7 +48,7 @@ OnoeWifiManager::GetTypeId()
             .AddConstructor<OnoeWifiManager>()
             .AddAttribute("UpdatePeriod",
                           "The interval between decisions about rate control changes",
-                          TimeValue(Seconds(1.0)),
+                          TimeValue(Seconds(1)),
                           MakeTimeAccessor(&OnoeWifiManager::m_updatePeriod),
                           MakeTimeChecker())
             .AddAttribute("RaiseThreshold",
@@ -115,7 +102,7 @@ WifiRemoteStation*
 OnoeWifiManager::DoCreateStation() const
 {
     NS_LOG_FUNCTION(this);
-    OnoeWifiRemoteStation* station = new OnoeWifiRemoteStation();
+    auto station = new OnoeWifiRemoteStation();
     station->m_nextModeUpdate = Simulator::Now() + m_updatePeriod;
     station->m_rateBlocked = false;
     station->m_shortRetry = 0;
@@ -138,7 +125,7 @@ void
 OnoeWifiManager::DoReportRtsFailed(WifiRemoteStation* st)
 {
     NS_LOG_FUNCTION(this << st);
-    OnoeWifiRemoteStation* station = static_cast<OnoeWifiRemoteStation*>(st);
+    auto station = static_cast<OnoeWifiRemoteStation*>(st);
     station->m_shortRetry++;
     station->m_rateBlocked = true; // do not change rate for retransmission
 }
@@ -147,7 +134,7 @@ void
 OnoeWifiManager::DoReportDataFailed(WifiRemoteStation* st)
 {
     NS_LOG_FUNCTION(this << st);
-    OnoeWifiRemoteStation* station = static_cast<OnoeWifiRemoteStation*>(st);
+    auto station = static_cast<OnoeWifiRemoteStation*>(st);
     station->m_longRetry++;
     station->m_rateBlocked = true; // do not change rate for retransmission
 }
@@ -159,7 +146,7 @@ OnoeWifiManager::DoReportRtsOk(WifiRemoteStation* st,
                                double rtsSnr)
 {
     NS_LOG_FUNCTION(this << st << ctsSnr << ctsMode << rtsSnr);
-    OnoeWifiRemoteStation* station = static_cast<OnoeWifiRemoteStation*>(st);
+    auto station = static_cast<OnoeWifiRemoteStation*>(st);
     station->m_rateBlocked = true; // do not change rate
 }
 
@@ -168,11 +155,11 @@ OnoeWifiManager::DoReportDataOk(WifiRemoteStation* st,
                                 double ackSnr,
                                 WifiMode ackMode,
                                 double dataSnr,
-                                uint16_t dataChannelWidth,
+                                MHz_u dataChannelWidth,
                                 uint8_t dataNss)
 {
     NS_LOG_FUNCTION(this << st << ackSnr << ackMode << dataSnr << dataChannelWidth << +dataNss);
-    OnoeWifiRemoteStation* station = static_cast<OnoeWifiRemoteStation*>(st);
+    auto station = static_cast<OnoeWifiRemoteStation*>(st);
     UpdateRetry(station);
     station->m_tx_ok++;
     station->m_rateBlocked = false; // we can change the rate for next packet
@@ -182,7 +169,7 @@ void
 OnoeWifiManager::DoReportFinalRtsFailed(WifiRemoteStation* st)
 {
     NS_LOG_FUNCTION(this << st);
-    OnoeWifiRemoteStation* station = static_cast<OnoeWifiRemoteStation*>(st);
+    auto station = static_cast<OnoeWifiRemoteStation*>(st);
     UpdateRetry(station);
     station->m_tx_err++;
     station->m_rateBlocked = false; // we can change the rate for next packet
@@ -192,7 +179,7 @@ void
 OnoeWifiManager::DoReportFinalDataFailed(WifiRemoteStation* st)
 {
     NS_LOG_FUNCTION(this << st);
-    OnoeWifiRemoteStation* station = static_cast<OnoeWifiRemoteStation*>(st);
+    auto station = static_cast<OnoeWifiRemoteStation*>(st);
     UpdateRetry(station);
     station->m_tx_err++;
     station->m_rateBlocked = false; // we can change the rate for next packet
@@ -222,9 +209,8 @@ OnoeWifiManager::UpdateMode(OnoeWifiRemoteStation* station)
      */
 
     int dir = 0;
-    int enough;
     uint8_t nrate;
-    enough = (station->m_tx_ok + station->m_tx_err >= 10);
+    bool enough = (station->m_tx_ok + station->m_tx_err >= 10);
 
     /* no packet reached -> down */
     if (station->m_tx_err > 0 && station->m_tx_ok == 0)
@@ -291,10 +277,10 @@ OnoeWifiManager::UpdateMode(OnoeWifiRemoteStation* station)
 }
 
 WifiTxVector
-OnoeWifiManager::DoGetDataTxVector(WifiRemoteStation* st, uint16_t allowedWidth)
+OnoeWifiManager::DoGetDataTxVector(WifiRemoteStation* st, MHz_u allowedWidth)
 {
     NS_LOG_FUNCTION(this << st << allowedWidth);
-    OnoeWifiRemoteStation* station = static_cast<OnoeWifiRemoteStation*>(st);
+    auto station = static_cast<OnoeWifiRemoteStation*>(st);
     UpdateMode(station);
     NS_ASSERT(station->m_txrate < GetNSupported(station));
     uint8_t rateIndex;
@@ -335,10 +321,10 @@ OnoeWifiManager::DoGetDataTxVector(WifiRemoteStation* st, uint16_t allowedWidth)
             rateIndex = station->m_txrate;
         }
     }
-    uint16_t channelWidth = GetChannelWidth(station);
-    if (channelWidth > 20 && channelWidth != 22)
+    auto channelWidth = GetChannelWidth(station);
+    if (channelWidth > MHz_u{20} && channelWidth != MHz_u{22})
     {
-        channelWidth = 20;
+        channelWidth = MHz_u{20};
     }
     WifiMode mode = GetSupported(station, rateIndex);
     uint64_t rate = mode.GetDataRate(channelWidth);
@@ -351,7 +337,7 @@ OnoeWifiManager::DoGetDataTxVector(WifiRemoteStation* st, uint16_t allowedWidth)
         mode,
         GetDefaultTxPowerLevel(),
         GetPreambleForTransmission(mode.GetModulationClass(), GetShortPreambleEnabled()),
-        800,
+        NanoSeconds(800),
         1,
         1,
         0,
@@ -363,15 +349,15 @@ WifiTxVector
 OnoeWifiManager::DoGetRtsTxVector(WifiRemoteStation* st)
 {
     NS_LOG_FUNCTION(this << st);
-    OnoeWifiRemoteStation* station = static_cast<OnoeWifiRemoteStation*>(st);
-    uint16_t channelWidth = GetChannelWidth(station);
-    if (channelWidth > 20 && channelWidth != 22)
+    auto station = static_cast<OnoeWifiRemoteStation*>(st);
+    auto channelWidth = GetChannelWidth(station);
+    if (channelWidth > MHz_u{20} && channelWidth != MHz_u{22})
     {
-        channelWidth = 20;
+        channelWidth = MHz_u{20};
     }
     UpdateMode(station);
     WifiMode mode;
-    if (GetUseNonErpProtection() == false)
+    if (!GetUseNonErpProtection())
     {
         mode = GetSupported(station, 0);
     }
@@ -383,7 +369,7 @@ OnoeWifiManager::DoGetRtsTxVector(WifiRemoteStation* st)
         mode,
         GetDefaultTxPowerLevel(),
         GetPreambleForTransmission(mode.GetModulationClass(), GetShortPreambleEnabled()),
-        800,
+        NanoSeconds(800),
         1,
         1,
         0,

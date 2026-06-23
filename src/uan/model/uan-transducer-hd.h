@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Leonard Tracy <lentracy@gmail.com>
  */
@@ -28,7 +17,7 @@ namespace ns3
 {
 
 /**
- * \ingroup uan
+ * @ingroup uan
  *
  * Half duplex implementation of transducer object
  *
@@ -45,7 +34,7 @@ class UanTransducerHd : public UanTransducer
 
     /**
      * Register this type.
-     * \return The object TypeId.
+     * @return The object TypeId.
      */
     static TypeId GetTypeId();
 
@@ -68,7 +57,7 @@ class UanTransducerHd : public UanTransducer
   private:
     State m_state;             //!< Transducer state.
     ArrivalList m_arrivalList; //!< List of arriving packets which overlap in time.
-    UanPhyList m_phyList;      //!< List of physical layers attached above this tranducer.
+    UanPhyList m_phyList;      //!< List of physical layers attached above this transducer.
     Ptr<UanChannel> m_channel; //!< The attached channel.
     EventId m_endTxEvent;      //!< Event scheduled for end of transmission.
     Time m_endTxTime;          //!< Time at which transmission will be completed.
@@ -78,7 +67,7 @@ class UanTransducerHd : public UanTransducer
     /**
      * Remove an entry from the arrival list.
      *
-     * \param arrival The packet arrival to remove.
+     * @param arrival The packet arrival to remove.
      */
     void RemoveArrival(UanPacketArrival arrival);
     /** Handle end of transmission event. */
@@ -86,8 +75,7 @@ class UanTransducerHd : public UanTransducer
 
   protected:
     void DoDispose() override;
-
-}; // class UanTransducerHd
+};
 
 } // namespace ns3
 

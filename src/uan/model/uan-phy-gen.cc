@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Leonard Tracy <lentracy@gmail.com>
  *         Andrea Sacco <andrea.sacco85@gmail.com>
@@ -20,11 +9,12 @@
 
 #include "uan-phy-gen.h"
 
+#include "acoustic-modem-energy-model.h"
 #include "uan-channel.h"
 #include "uan-net-device.h"
 #include "uan-transducer.h"
+#include "uan-tx-mode.h"
 
-#include "ns3/acoustic-modem-energy-model.h"
 #include "ns3/double.h"
 #include "ns3/energy-source-container.h"
 #include "ns3/log.h"
@@ -34,7 +24,6 @@
 #include "ns3/string.h"
 #include "ns3/trace-source-accessor.h"
 #include "ns3/traced-callback.h"
-#include "ns3/uan-tx-mode.h"
 #include "ns3/uinteger.h"
 
 namespace ns3
@@ -83,7 +72,7 @@ UanPhyCalcSinrDefault::CalcSinrDb(Ptr<Packet> pkt,
     }
 
     double intKp = -DbToKp(rxPowerDb); // This packet is in the arrivalList
-    UanTransducer::ArrivalList::const_iterator it = arrivalList.begin();
+    auto it = arrivalList.begin();
     for (; it != arrivalList.end(); it++)
     {
         intKp += DbToKp(it->GetRxPowerDb());
@@ -143,7 +132,7 @@ UanPhyCalcSinrFhFsk::CalcSinrDb(Ptr<Packet> pkt,
     // Get maximum arrival offset
     double maxAmp = -1;
     Time maxTapDelay(0);
-    UanPdp::Iterator pit = pdp.GetBegin();
+    auto pit = pdp.GetBegin();
     for (; pit != pdp.GetEnd(); pit++)
     {
         if (std::abs(pit->GetAmp()) > maxAmp)
@@ -161,7 +150,7 @@ UanPhyCalcSinrFhFsk::CalcSinrDb(Ptr<Packet> pkt,
     //  eq. 14
     double isiUpa =
         DbToKp(rxPowerDb) * pdp.SumTapsFromMaxNc(ts + clearingTime, ts); // added DpToKp()
-    UanTransducer::ArrivalList::const_iterator it = arrivalList.begin();
+    auto it = arrivalList.begin();
     double intKp = -DbToKp(effRxPowerDb);
     for (; it != arrivalList.end(); it++)
     {
@@ -310,9 +299,9 @@ UanPhyPerCommonModes::CalcPer(Ptr<Packet> pkt, double sinrDb, UanTxMode mode)
     // Amplitude Modulation", EE 242 Digital Communications and Codings, 2009
     case UanTxMode::QAM: {
         // generic EbNo
-        EbNo *= mode.GetDataRateBps() / mode.GetBandwidthHz();
+        EbNo *= static_cast<double>(mode.GetBandwidthHz()) / mode.GetDataRateBps();
 
-        double M = (double)mode.GetConstellationSize();
+        auto M = (double)mode.GetConstellationSize();
 
         // standard squared quantized QAM, even number of bits per symbol supported
         int log2sqrtM = (int)::std::log2(sqrt(M));
@@ -345,8 +334,8 @@ UanPhyPerCommonModes::CalcPer(Ptr<Packet> pkt, double sinrDb, UanTxMode mode)
             // Eq (74)
             for (int j = 0; j < sum_items; ++j)
             {
-                PbK += ::std::pow(-1.0, (double)j * pow2k / sqrtM) *
-                       (pow2k - ::std::floor((double)(j * pow2k / sqrtM) - 0.5)) *
+                PbK += ::std::pow(-1.0, ::std::floor((double)j * pow2k / sqrtM)) *
+                       (pow2k - ::std::floor((double)(j * pow2k / sqrtM) + 0.5)) *
                        erfc((2.0 * (double)j + 1.0) *
                             ::std::sqrt(3.0 * (log2M * EbNo) / (2.0 * (M - 1.0))));
 
@@ -620,7 +609,7 @@ UanPhyGen::GetTypeId()
                             MakeTraceSourceAccessor(&UanPhyGen::m_rxOkLogger),
                             "ns3::UanPhy::TracedCallback")
             .AddTraceSource("RxError",
-                            "A packet was received unsuccessfuly.",
+                            "A packet was received unsuccessfully.",
                             MakeTraceSourceAccessor(&UanPhyGen::m_rxErrLogger),
                             "ns3::UanPhy::TracedCallback")
             .AddTraceSource("Tx",
@@ -631,7 +620,7 @@ UanPhyGen::GetTypeId()
 }
 
 void
-UanPhyGen::SetEnergyModelCallback(DeviceEnergyModel::ChangeStateCallback cb)
+UanPhyGen::SetEnergyModelCallback(energy::DeviceEnergyModel::ChangeStateCallback cb)
 {
     NS_LOG_FUNCTION(this);
     m_energyCallback = cb;
@@ -656,13 +645,13 @@ UanPhyGen::EnergyDepletionHandler()
                                             << ", stopping rx/tx activities");
 
     m_state = DISABLED;
-    if (m_txEndEvent.IsRunning())
+    if (m_txEndEvent.IsPending())
     {
         Simulator::Cancel(m_txEndEvent);
         NotifyTxDrop(m_pktTx);
         m_pktTx = nullptr;
     }
-    if (m_rxEndEvent.IsRunning())
+    if (m_rxEndEvent.IsPending())
     {
         Simulator::Cancel(m_rxEndEvent);
         NotifyRxDrop(m_pktRx);
@@ -857,8 +846,9 @@ UanPhyGen::RxEndEvent(Ptr<Packet> pkt, double /* rxPowerDb */, UanTxMode txMode)
     else
     {
         m_state = IDLE;
-        UpdatePowerConsumption(IDLE);
     }
+
+    UpdatePowerConsumption(IDLE);
 
     if (m_pg->GetValue(0, 1) > m_per->CalcPer(m_pktRx, m_minRxSinrDb, txMode))
     {
@@ -1086,7 +1076,7 @@ UanPhyGen::GetInterferenceDb(Ptr<Packet> pkt)
 {
     const UanTransducer::ArrivalList& arrivalList = m_transducer->GetArrivalList();
 
-    UanTransducer::ArrivalList::const_iterator it = arrivalList.begin();
+    auto it = arrivalList.begin();
 
     double interfPower = 0;
 
@@ -1116,7 +1106,7 @@ UanPhyGen::KpToDb(double kp)
 void
 UanPhyGen::NotifyListenersRxStart()
 {
-    ListenerList::const_iterator it = m_listeners.begin();
+    auto it = m_listeners.begin();
     for (; it != m_listeners.end(); it++)
     {
         (*it)->NotifyRxStart();
@@ -1126,7 +1116,7 @@ UanPhyGen::NotifyListenersRxStart()
 void
 UanPhyGen::NotifyListenersRxGood()
 {
-    ListenerList::const_iterator it = m_listeners.begin();
+    auto it = m_listeners.begin();
     for (; it != m_listeners.end(); it++)
     {
         (*it)->NotifyRxEndOk();
@@ -1136,7 +1126,7 @@ UanPhyGen::NotifyListenersRxGood()
 void
 UanPhyGen::NotifyListenersRxBad()
 {
-    ListenerList::const_iterator it = m_listeners.begin();
+    auto it = m_listeners.begin();
     for (; it != m_listeners.end(); it++)
     {
         (*it)->NotifyRxEndError();
@@ -1146,7 +1136,7 @@ UanPhyGen::NotifyListenersRxBad()
 void
 UanPhyGen::NotifyListenersCcaStart()
 {
-    ListenerList::const_iterator it = m_listeners.begin();
+    auto it = m_listeners.begin();
     for (; it != m_listeners.end(); it++)
     {
         (*it)->NotifyCcaStart();
@@ -1156,7 +1146,7 @@ UanPhyGen::NotifyListenersCcaStart()
 void
 UanPhyGen::NotifyListenersCcaEnd()
 {
-    ListenerList::const_iterator it = m_listeners.begin();
+    auto it = m_listeners.begin();
     for (; it != m_listeners.end(); it++)
     {
         (*it)->NotifyCcaEnd();
@@ -1166,7 +1156,7 @@ UanPhyGen::NotifyListenersCcaEnd()
 void
 UanPhyGen::NotifyListenersTxStart(Time duration)
 {
-    ListenerList::const_iterator it = m_listeners.begin();
+    auto it = m_listeners.begin();
     for (; it != m_listeners.end(); it++)
     {
         (*it)->NotifyTxStart(duration);
@@ -1176,7 +1166,7 @@ UanPhyGen::NotifyListenersTxStart(Time duration)
 void
 UanPhyGen::NotifyListenersTxEnd()
 {
-    ListenerList::const_iterator it = m_listeners.begin();
+    auto it = m_listeners.begin();
     for (; it != m_listeners.end(); it++)
     {
         (*it)->NotifyTxEnd();

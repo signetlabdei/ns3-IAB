@@ -1,22 +1,12 @@
 /*
  * Copyright (c) 2022 ZHIHENG DONG
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Zhiheng Dong <dzh2077@gmail.com>
  */
 
+#include "ns3/arp-cache.h"
 #include "ns3/icmpv4-l4-protocol.h"
 #include "ns3/icmpv6-l4-protocol.h"
 #include "ns3/internet-stack-helper.h"
@@ -26,6 +16,7 @@
 #include "ns3/ipv6-address-helper.h"
 #include "ns3/ipv6-l3-protocol.h"
 #include "ns3/ipv6-routing-helper.h"
+#include "ns3/ndisc-cache.h"
 #include "ns3/neighbor-cache-helper.h"
 #include "ns3/simple-channel.h"
 #include "ns3/simple-net-device-helper.h"
@@ -40,67 +31,67 @@
 using namespace ns3;
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief Dynamic Neighbor Cache Test
+ * @brief Dynamic Neighbor Cache Test
  */
 class DynamicNeighborCacheTest : public TestCase
 {
     Ptr<Packet> m_receivedPacket; //!< Received packet
 
     /**
-     * \brief Send data immediately after being called.
-     * \param socket The sending socket.
-     * \param to IPv4 Destination address.
+     * @brief Send data immediately after being called.
+     * @param socket The sending socket.
+     * @param to IPv4 Destination address.
      */
     void DoSendDatav4(Ptr<Socket> socket, Ipv4Address to);
 
     /**
-     * \brief Send data immediately after being called.
-     * \param socket The sending socket.
-     * \param to IPv6 Destination address.
+     * @brief Send data immediately after being called.
+     * @param socket The sending socket.
+     * @param to IPv6 Destination address.
      */
     void DoSendDatav6(Ptr<Socket> socket, Ipv6Address to);
 
     /**
-     * \brief Schedules the DoSendData () function to send the data.
-     * \param socket The sending socket.
-     * \param to IPv4 Destination address.
+     * @brief Schedules the DoSendData () function to send the data.
+     * @param socket The sending socket.
+     * @param to IPv4 Destination address.
      */
     void SendData(Ptr<Socket> socket, Ipv4Address to);
 
     /**
-     * \brief Schedules the DoSendData () function to send the data.
-     * \param socket The sending socket.
-     * \param to IPv6 Destination address.
+     * @brief Schedules the DoSendData () function to send the data.
+     * @param socket The sending socket.
+     * @param to IPv6 Destination address.
      */
     void SendData(Ptr<Socket> socket, Ipv6Address to);
 
     /**
-     * \brief Add an IPv4 address to an IPv4 interface
-     * \param ipv4Interface The interface that address will be added.
-     * \param ifaceAddr The added IPv4 address.
+     * @brief Add an IPv4 address to an IPv4 interface
+     * @param ipv4Interface The interface that address will be added.
+     * @param ifaceAddr The added IPv4 address.
      */
     void AddIpv4Address(Ptr<Ipv4Interface> ipv4Interface, Ipv4InterfaceAddress ifaceAddr);
 
     /**
-     * \brief Add an IPv6 address to an IPv6 interface
-     * \param ipv6Interface The interface that address will be added.
-     * \param ifaceAddr The added IPv6 address.
+     * @brief Add an IPv6 address to an IPv6 interface
+     * @param ipv6Interface The interface that address will be added.
+     * @param ifaceAddr The added IPv6 address.
      */
     void AddIpv6Address(Ptr<Ipv6Interface> ipv6Interface, Ipv6InterfaceAddress ifaceAddr);
 
     /**
-     * \brief Remove an IPv4 address from an IPv4 interface
-     * \param ipv4Interface The interface that address will be removed from.
-     * \param index The index of IPv4 address that will be removed.
+     * @brief Remove an IPv4 address from an IPv4 interface
+     * @param ipv4Interface The interface that address will be removed from.
+     * @param index The index of IPv4 address that will be removed.
      */
     void RemoveIpv4Address(Ptr<Ipv4Interface> ipv4Interface, uint32_t index);
 
     /**
-     * \brief Remove an IPv6 address from an IPv6 interface
-     * \param ipv6Interface The interface that address will be removed from.
-     * \param index The index of IPv6 address that will be removed.
+     * @brief Remove an IPv6 address from an IPv6 interface
+     * @param ipv6Interface The interface that address will be removed from.
+     * @param index The index of IPv6 address that will be removed.
      */
     void RemoveIpv6Address(Ptr<Ipv6Interface> ipv6Interface, uint32_t index);
 
@@ -110,8 +101,8 @@ class DynamicNeighborCacheTest : public TestCase
     DynamicNeighborCacheTest();
 
     /**
-     * \brief Receive data.
-     * \param socket The receiving socket.
+     * @brief Receive data.
+     * @param socket The receiving socket.
      */
     void ReceivePkt(Ptr<Socket> socket);
 
@@ -389,56 +380,56 @@ DynamicNeighborCacheTest::DoRun()
     // Check if the arp caches are updated correctly at time 2 after an IP address is removed.
     constexpr auto arpCache =
         "ARP Cache of node 0 at time 0\n"
-        "10.0.1.2 dev 1 lladdr 04-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
-        "10.0.1.3 dev 1 lladdr 04-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
-        "10.0.1.4 dev 1 lladdr 04-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
+        "10.0.1.2 dev 1 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+        "10.0.1.3 dev 1 lladdr 03-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
+        "10.0.1.4 dev 1 lladdr 03-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
         "ARP Cache of node 1 at time 0\n"
-        "10.0.1.1 dev 1 lladdr 04-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
-        "10.0.1.3 dev 1 lladdr 04-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
-        "10.0.1.4 dev 1 lladdr 04-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
+        "10.0.1.1 dev 1 lladdr 03-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
+        "10.0.1.3 dev 1 lladdr 03-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
+        "10.0.1.4 dev 1 lladdr 03-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
         "ARP Cache of node 2 at time 0\n"
-        "10.0.1.1 dev 1 lladdr 04-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
-        "10.0.1.2 dev 1 lladdr 04-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
-        "10.0.1.4 dev 1 lladdr 04-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
+        "10.0.1.1 dev 1 lladdr 03-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
+        "10.0.1.2 dev 1 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+        "10.0.1.4 dev 1 lladdr 03-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
         "ARP Cache of node 3 at time 0\n"
-        "10.0.1.1 dev 1 lladdr 04-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
-        "10.0.1.2 dev 1 lladdr 04-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
-        "10.0.1.3 dev 1 lladdr 04-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
+        "10.0.1.1 dev 1 lladdr 03-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
+        "10.0.1.2 dev 1 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+        "10.0.1.3 dev 1 lladdr 03-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
         "ARP Cache of node 0 at time 1\n"
-        "10.0.1.2 dev 1 lladdr 04-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
-        "10.0.1.3 dev 1 lladdr 04-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
-        "10.0.1.4 dev 1 lladdr 04-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
-        "10.0.1.5 dev 1 lladdr 04-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
+        "10.0.1.2 dev 1 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+        "10.0.1.3 dev 1 lladdr 03-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
+        "10.0.1.4 dev 1 lladdr 03-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
+        "10.0.1.5 dev 1 lladdr 03-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
         "ARP Cache of node 1 at time 1\n"
-        "10.0.1.1 dev 1 lladdr 04-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
-        "10.0.1.3 dev 1 lladdr 04-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
-        "10.0.1.4 dev 1 lladdr 04-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
-        "10.0.1.5 dev 1 lladdr 04-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
+        "10.0.1.1 dev 1 lladdr 03-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
+        "10.0.1.3 dev 1 lladdr 03-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
+        "10.0.1.4 dev 1 lladdr 03-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
+        "10.0.1.5 dev 1 lladdr 03-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
         "ARP Cache of node 2 at time 1\n"
-        "10.0.1.1 dev 1 lladdr 04-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
-        "10.0.1.2 dev 1 lladdr 04-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
-        "10.0.1.4 dev 1 lladdr 04-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
+        "10.0.1.1 dev 1 lladdr 03-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
+        "10.0.1.2 dev 1 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+        "10.0.1.4 dev 1 lladdr 03-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
         "ARP Cache of node 3 at time 1\n"
-        "10.0.1.1 dev 1 lladdr 04-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
-        "10.0.1.2 dev 1 lladdr 04-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
-        "10.0.1.3 dev 1 lladdr 04-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
-        "10.0.1.5 dev 1 lladdr 04-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
+        "10.0.1.1 dev 1 lladdr 03-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
+        "10.0.1.2 dev 1 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+        "10.0.1.3 dev 1 lladdr 03-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
+        "10.0.1.5 dev 1 lladdr 03-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
         "ARP Cache of node 0 at time 2\n"
-        "10.0.1.2 dev 1 lladdr 04-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
-        "10.0.1.4 dev 1 lladdr 04-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
-        "10.0.1.5 dev 1 lladdr 04-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
+        "10.0.1.2 dev 1 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+        "10.0.1.4 dev 1 lladdr 03-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
+        "10.0.1.5 dev 1 lladdr 03-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
         "ARP Cache of node 1 at time 2\n"
-        "10.0.1.1 dev 1 lladdr 04-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
-        "10.0.1.4 dev 1 lladdr 04-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
-        "10.0.1.5 dev 1 lladdr 04-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
+        "10.0.1.1 dev 1 lladdr 03-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
+        "10.0.1.4 dev 1 lladdr 03-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
+        "10.0.1.5 dev 1 lladdr 03-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
         "ARP Cache of node 2 at time 2\n"
-        "10.0.1.1 dev 1 lladdr 04-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
-        "10.0.1.2 dev 1 lladdr 04-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
-        "10.0.1.4 dev 1 lladdr 04-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
+        "10.0.1.1 dev 1 lladdr 03-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
+        "10.0.1.2 dev 1 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+        "10.0.1.4 dev 1 lladdr 03-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
         "ARP Cache of node 3 at time 2\n"
-        "10.0.1.1 dev 1 lladdr 04-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
-        "10.0.1.2 dev 1 lladdr 04-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
-        "10.0.1.5 dev 1 lladdr 04-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n";
+        "10.0.1.1 dev 1 lladdr 03-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
+        "10.0.1.2 dev 1 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+        "10.0.1.5 dev 1 lladdr 03-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n";
     NS_TEST_EXPECT_MSG_EQ(stringStream1v4.str(), arpCache, "Arp cache is incorrect.");
 
     // Check if the ndisc caches are populated correctly at time 0,
@@ -446,92 +437,92 @@ DynamicNeighborCacheTest::DoRun()
     // Check if the ndisc caches are updated correctly at time 2 after an IP address is removed.
     constexpr auto NdiscCache =
         "NDISC Cache of node 0 at time +0s\n"
-        "2001::200:ff:fe00:2 dev 1 lladdr 04-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
-        "2001::200:ff:fe00:3 dev 1 lladdr 04-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
-        "2001::200:ff:fe00:4 dev 1 lladdr 04-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:2 dev 1 lladdr 04-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:3 dev 1 lladdr 04-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:4 dev 1 lladdr 04-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:2 dev 1 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:3 dev 1 lladdr 03-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:4 dev 1 lladdr 03-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:2 dev 1 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:3 dev 1 lladdr 03-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:4 dev 1 lladdr 03-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
         "NDISC Cache of node 1 at time +0s\n"
-        "2001::200:ff:fe00:1 dev 1 lladdr 04-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
-        "2001::200:ff:fe00:3 dev 1 lladdr 04-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
-        "2001::200:ff:fe00:4 dev 1 lladdr 04-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:1 dev 1 lladdr 04-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:3 dev 1 lladdr 04-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:4 dev 1 lladdr 04-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:1 dev 1 lladdr 03-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:3 dev 1 lladdr 03-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:4 dev 1 lladdr 03-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:1 dev 1 lladdr 03-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:3 dev 1 lladdr 03-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:4 dev 1 lladdr 03-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
         "NDISC Cache of node 2 at time +0s\n"
-        "2001::200:ff:fe00:1 dev 1 lladdr 04-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
-        "2001::200:ff:fe00:2 dev 1 lladdr 04-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
-        "2001::200:ff:fe00:4 dev 1 lladdr 04-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:1 dev 1 lladdr 04-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:2 dev 1 lladdr 04-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:4 dev 1 lladdr 04-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:1 dev 1 lladdr 03-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:2 dev 1 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:4 dev 1 lladdr 03-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:1 dev 1 lladdr 03-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:2 dev 1 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:4 dev 1 lladdr 03-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
         "NDISC Cache of node 3 at time +0s\n"
-        "2001::200:ff:fe00:1 dev 1 lladdr 04-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
-        "2001::200:ff:fe00:2 dev 1 lladdr 04-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
-        "2001::200:ff:fe00:3 dev 1 lladdr 04-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:1 dev 1 lladdr 04-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:2 dev 1 lladdr 04-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:3 dev 1 lladdr 04-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:1 dev 1 lladdr 03-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:2 dev 1 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:3 dev 1 lladdr 03-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:1 dev 1 lladdr 03-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:2 dev 1 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:3 dev 1 lladdr 03-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
         "NDISC Cache of node 0 at time +1s\n"
-        "2001::200:ff:fe00:2 dev 1 lladdr 04-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
-        "2001::200:ff:fe00:3 dev 1 lladdr 04-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
-        "2001::200:ff:fe00:4 dev 1 lladdr 04-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
-        "2001::200:ff:fe00:5 dev 1 lladdr 04-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:2 dev 1 lladdr 04-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:3 dev 1 lladdr 04-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:4 dev 1 lladdr 04-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:2 dev 1 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:3 dev 1 lladdr 03-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:4 dev 1 lladdr 03-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:5 dev 1 lladdr 03-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:2 dev 1 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:3 dev 1 lladdr 03-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:4 dev 1 lladdr 03-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
         "NDISC Cache of node 1 at time +1s\n"
-        "2001::200:ff:fe00:1 dev 1 lladdr 04-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
-        "2001::200:ff:fe00:3 dev 1 lladdr 04-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
-        "2001::200:ff:fe00:4 dev 1 lladdr 04-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
-        "2001::200:ff:fe00:5 dev 1 lladdr 04-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:1 dev 1 lladdr 04-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:3 dev 1 lladdr 04-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:4 dev 1 lladdr 04-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:1 dev 1 lladdr 03-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:3 dev 1 lladdr 03-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:4 dev 1 lladdr 03-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:5 dev 1 lladdr 03-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:1 dev 1 lladdr 03-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:3 dev 1 lladdr 03-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:4 dev 1 lladdr 03-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
         "NDISC Cache of node 2 at time +1s\n"
-        "2001::200:ff:fe00:1 dev 1 lladdr 04-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
-        "2001::200:ff:fe00:2 dev 1 lladdr 04-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
-        "2001::200:ff:fe00:4 dev 1 lladdr 04-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:1 dev 1 lladdr 04-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:2 dev 1 lladdr 04-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:4 dev 1 lladdr 04-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:1 dev 1 lladdr 03-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:2 dev 1 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:4 dev 1 lladdr 03-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:1 dev 1 lladdr 03-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:2 dev 1 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:4 dev 1 lladdr 03-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
         "NDISC Cache of node 3 at time +1s\n"
-        "2001::200:ff:fe00:1 dev 1 lladdr 04-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
-        "2001::200:ff:fe00:2 dev 1 lladdr 04-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
-        "2001::200:ff:fe00:3 dev 1 lladdr 04-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
-        "2001::200:ff:fe00:5 dev 1 lladdr 04-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:1 dev 1 lladdr 04-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:2 dev 1 lladdr 04-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:3 dev 1 lladdr 04-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:1 dev 1 lladdr 03-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:2 dev 1 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:3 dev 1 lladdr 03-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:5 dev 1 lladdr 03-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:1 dev 1 lladdr 03-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:2 dev 1 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:3 dev 1 lladdr 03-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
         "NDISC Cache of node 0 at time +2s\n"
-        "2001::200:ff:fe00:2 dev 1 lladdr 04-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
-        "2001::200:ff:fe00:4 dev 1 lladdr 04-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
-        "2001::200:ff:fe00:5 dev 1 lladdr 04-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:2 dev 1 lladdr 04-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:3 dev 1 lladdr 04-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:4 dev 1 lladdr 04-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:2 dev 1 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:4 dev 1 lladdr 03-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:5 dev 1 lladdr 03-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:2 dev 1 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:3 dev 1 lladdr 03-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:4 dev 1 lladdr 03-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
         "NDISC Cache of node 1 at time +2s\n"
-        "2001::200:ff:fe00:1 dev 1 lladdr 04-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
-        "2001::200:ff:fe00:4 dev 1 lladdr 04-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
-        "2001::200:ff:fe00:5 dev 1 lladdr 04-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:1 dev 1 lladdr 04-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:3 dev 1 lladdr 04-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:4 dev 1 lladdr 04-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:1 dev 1 lladdr 03-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:4 dev 1 lladdr 03-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:5 dev 1 lladdr 03-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:1 dev 1 lladdr 03-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:3 dev 1 lladdr 03-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:4 dev 1 lladdr 03-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
         "NDISC Cache of node 2 at time +2s\n"
-        "2001::200:ff:fe00:1 dev 1 lladdr 04-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
-        "2001::200:ff:fe00:2 dev 1 lladdr 04-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
-        "2001::200:ff:fe00:4 dev 1 lladdr 04-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:1 dev 1 lladdr 04-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:2 dev 1 lladdr 04-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:4 dev 1 lladdr 04-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:1 dev 1 lladdr 03-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:2 dev 1 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:4 dev 1 lladdr 03-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:1 dev 1 lladdr 03-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:2 dev 1 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:4 dev 1 lladdr 03-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
         "NDISC Cache of node 3 at time +2s\n"
-        "2001::200:ff:fe00:1 dev 1 lladdr 04-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
-        "2001::200:ff:fe00:2 dev 1 lladdr 04-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
-        "2001::200:ff:fe00:5 dev 1 lladdr 04-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:1 dev 1 lladdr 04-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:2 dev 1 lladdr 04-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:3 dev 1 lladdr 04-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n";
+        "2001::200:ff:fe00:1 dev 1 lladdr 03-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:2 dev 1 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:5 dev 1 lladdr 03-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:1 dev 1 lladdr 03-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:2 dev 1 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:3 dev 1 lladdr 03-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n";
     NS_TEST_EXPECT_MSG_EQ(stringStream1v6.str(), NdiscCache, "Ndisc cache is incorrect.");
 
     m_receivedPacket->RemoveAllByteTags();
@@ -540,9 +531,9 @@ DynamicNeighborCacheTest::DoRun()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief Neighbor cache on Channel Test
+ * @brief Neighbor cache on Channel Test
  */
 class ChannelTest : public TestCase
 {
@@ -609,29 +600,29 @@ ChannelTest::DoRun()
 
     // Check if arp caches are populated correctly in the first channel
     constexpr auto arpCache = "ARP Cache of node 0 at time 0\n"
-                              "10.1.1.2 dev 0 lladdr 04-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+                              "10.1.1.2 dev 0 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
                               "ARP Cache of node 1 at time 0\n"
-                              "10.1.1.1 dev 0 lladdr 04-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
+                              "10.1.1.1 dev 0 lladdr 03-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
                               "ARP Cache of node 2 at time 0\n";
     NS_TEST_EXPECT_MSG_EQ(stringStream1v4.str(), arpCache, "Arp cache is incorrect.");
 
     // Check if ndisc caches are populated correctly in the first channel
     constexpr auto NdiscCache =
         "NDISC Cache of node 0 at time +0s\n"
-        "2001::200:ff:fe00:2 dev 0 lladdr 04-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:2 dev 0 lladdr 04-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:2 dev 0 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:2 dev 0 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
         "NDISC Cache of node 1 at time +0s\n"
-        "2001::200:ff:fe00:1 dev 0 lladdr 04-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:1 dev 0 lladdr 04-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:1 dev 0 lladdr 03-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:1 dev 0 lladdr 03-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
         "NDISC Cache of node 2 at time +0s\n";
     NS_TEST_EXPECT_MSG_EQ(stringStream1v6.str(), NdiscCache, "Ndisc cache is incorrect.");
     Simulator::Destroy();
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief Neighbor Cache on NetDeviceContainer Test
+ * @brief Neighbor Cache on NetDeviceContainer Test
  */
 class NetDeviceContainerTest : public TestCase
 {
@@ -700,28 +691,28 @@ NetDeviceContainerTest::DoRun()
     constexpr auto arpCache =
         "ARP Cache of node 0 at time 0\n"
         "ARP Cache of node 1 at time 0\n"
-        "10.1.2.2 dev 1 lladdr 04-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
+        "10.1.2.2 dev 1 lladdr 03-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
         "ARP Cache of node 2 at time 0\n"
-        "10.1.2.1 dev 0 lladdr 04-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n";
+        "10.1.2.1 dev 0 lladdr 03-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n";
     NS_TEST_EXPECT_MSG_EQ(stringStream1v4.str(), arpCache, "Arp cache is incorrect.");
 
     // Check if ndisc caches are populated correctly on NetDeviceContainer net2.
     constexpr auto NdiscCache =
         "NDISC Cache of node 0 at time +0s\n"
         "NDISC Cache of node 1 at time +0s\n"
-        "2001:1::200:ff:fe00:4 dev 1 lladdr 04-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:4 dev 1 lladdr 04-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
+        "2001:1::200:ff:fe00:4 dev 1 lladdr 03-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:4 dev 1 lladdr 03-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
         "NDISC Cache of node 2 at time +0s\n"
-        "2001:1::200:ff:fe00:3 dev 0 lladdr 04-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:3 dev 0 lladdr 04-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n";
+        "2001:1::200:ff:fe00:3 dev 0 lladdr 03-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:3 dev 0 lladdr 03-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n";
     NS_TEST_EXPECT_MSG_EQ(stringStream1v6.str(), NdiscCache, "Ndisc cache is incorrect.");
     Simulator::Destroy();
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief Neighbor Cache on InterfaceContainer Test
+ * @brief Neighbor Cache on InterfaceContainer Test
  */
 class InterfaceContainerTest : public TestCase
 {
@@ -789,9 +780,9 @@ InterfaceContainerTest::DoRun()
 
     // Check if arp caches are populated correctly on Ipv4InterfaceContainer i.
     constexpr auto arpCache = "ARP Cache of node 0 at time 0\n"
-                              "10.1.1.2 dev 0 lladdr 04-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+                              "10.1.1.2 dev 0 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
                               "ARP Cache of node 1 at time 0\n"
-                              "10.1.1.1 dev 0 lladdr 04-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
+                              "10.1.1.1 dev 0 lladdr 03-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
                               "ARP Cache of node 2 at time 0\n";
     NS_TEST_EXPECT_MSG_EQ(stringStream1v4.str(), arpCache, "Arp cache is incorrect.");
 
@@ -799,19 +790,19 @@ InterfaceContainerTest::DoRun()
     constexpr auto NdiscCache =
         "NDISC Cache of node 0 at time +0s\n"
         "NDISC Cache of node 1 at time +0s\n"
-        "2001:1::200:ff:fe00:4 dev 1 lladdr 04-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:4 dev 1 lladdr 04-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
+        "2001:1::200:ff:fe00:4 dev 1 lladdr 03-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:4 dev 1 lladdr 03-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
         "NDISC Cache of node 2 at time +0s\n"
-        "2001:1::200:ff:fe00:3 dev 0 lladdr 04-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:3 dev 0 lladdr 04-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n";
+        "2001:1::200:ff:fe00:3 dev 0 lladdr 03-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:3 dev 0 lladdr 03-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n";
     NS_TEST_EXPECT_MSG_EQ(stringStream1v6.str(), NdiscCache, "Ndisc cache is incorrect.");
     Simulator::Destroy();
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief Neighbor Cache Flush Test
+ * @brief Neighbor Cache Flush Test
  */
 class FlushTest : public TestCase
 {
@@ -872,7 +863,7 @@ FlushTest::DoRun()
     Ptr<Ipv4Interface> iface = DynamicCast<Ipv4L3Protocol>(v4)->GetInterface(index);
     Ptr<ArpCache> arpCache = iface->GetArpCache();
     ArpCache::Entry* arpCacheEntry = arpCache->Add(Ipv4Address("10.1.1.4"));
-    arpCacheEntry->SetMacAddress(Mac48Address("04-06-00:00:00:00:00:01"));
+    arpCacheEntry->SetMacAddress(Mac48Address("00:00:00:00:00:01"));
     arpCacheEntry->MarkPermanent();
 
     // Manually add an PERMANENT ndisc entry
@@ -882,7 +873,7 @@ FlushTest::DoRun()
     Ptr<Ipv6Interface> ifacev6 = DynamicCast<Ipv6L3Protocol>(v6)->GetInterface(index);
     Ptr<NdiscCache> ndiscCache = ifacev6->GetNdiscCache();
     NdiscCache::Entry* ndiscCacheEntry = ndiscCache->Add(Ipv6Address("2001::200:ff:fe00:4"));
-    ndiscCacheEntry->SetMacAddress(Mac48Address("04-06-00:00:00:00:00:01"));
+    ndiscCacheEntry->SetMacAddress(Mac48Address("00:00:00:00:00:01"));
     ndiscCacheEntry->MarkPermanent();
 
     // flush auto-generated cache
@@ -893,14 +884,45 @@ FlushTest::DoRun()
     std::ostringstream stringStream1v6;
     Ptr<OutputStreamWrapper> ndiscStream = Create<OutputStreamWrapper>(&stringStream1v6);
 
-    // Print cache.
+    // Print cache at time 0.
     Ipv4RoutingHelper::PrintNeighborCacheAllAt(Seconds(0), arpStream);
     Ipv6RoutingHelper::PrintNeighborCacheAllAt(Seconds(0), ndiscStream);
 
+    // Flush cache at time 1 s.
+    Simulator::Schedule(Seconds(1), &ArpCache::Flush, arpCache);
+    Simulator::Schedule(Seconds(1), &NdiscCache::Flush, ndiscCache);
+
+    // Print cache again at time 2 s.
+    std::ostringstream stringStream2v4;
+    Ptr<OutputStreamWrapper> arpStream2 = Create<OutputStreamWrapper>(&stringStream2v4);
+    std::ostringstream stringStream2v6;
+    Ptr<OutputStreamWrapper> ndiscStream2 = Create<OutputStreamWrapper>(&stringStream2v6);
+    Ipv4RoutingHelper::PrintNeighborCacheAllAt(Seconds(2), arpStream2);
+    Ipv6RoutingHelper::PrintNeighborCacheAllAt(Seconds(2), ndiscStream2);
+
+    // Add autogenerated entries at time 3 s again.
+    Simulator::Schedule(Seconds(3), [&neighborCache]() { neighborCache.PopulateNeighborCache(); });
+
+    // Flush cache again at time 4 s.
+    Simulator::Schedule(Seconds(4), &ArpCache::Flush, arpCache);
+    Simulator::Schedule(Seconds(4), &NdiscCache::Flush, ndiscCache);
+
+    // Print cache again at time 5 s.
+    // Check that the autogenerated entries survived the Flush
+    std::ostringstream stringStream5v4;
+    Ptr<OutputStreamWrapper> arpStream5 = Create<OutputStreamWrapper>(&stringStream5v4);
+    std::ostringstream stringStream5v6;
+    Ptr<OutputStreamWrapper> ndiscStream5 = Create<OutputStreamWrapper>(&stringStream5v6);
+    // Limit the printed output to node 0
+    Ipv4RoutingHelper::PrintNeighborCacheAt(Seconds(5), m_nodes.Get(0), arpStream5);
+    Ipv6RoutingHelper::PrintNeighborCacheAt(Seconds(5), m_nodes.Get(0), ndiscStream5);
+
     Simulator::Run();
+
+    // Check the time zero output
     // Check if the STATIC_AUTOGENERATED entries are flushed and the PERMANENT entry is left.
     constexpr auto ArpCache = "ARP Cache of node 0 at time 0\n"
-                              "10.1.1.4 dev 0 lladdr 04-06-00:00:00:00:00:01 PERMANENT\n"
+                              "10.1.1.4 dev 0 lladdr 03-06-00:00:00:00:00:01 PERMANENT\n"
                               "ARP Cache of node 1 at time 0\n"
                               "ARP Cache of node 2 at time 0\n";
     NS_TEST_EXPECT_MSG_EQ(stringStream1v4.str(), ArpCache, "Arp cache is incorrect.");
@@ -908,17 +930,49 @@ FlushTest::DoRun()
     // Check if the STATIC_AUTOGENERATED entries are flushed and the PERMANENT entry is left.
     constexpr auto NdiscCache =
         "NDISC Cache of node 0 at time +0s\n"
-        "2001::200:ff:fe00:4 dev 0 lladdr 04-06-00:00:00:00:00:01 PERMANENT\n"
+        "2001::200:ff:fe00:4 dev 0 lladdr 03-06-00:00:00:00:00:01 PERMANENT\n"
         "NDISC Cache of node 1 at time +0s\n"
         "NDISC Cache of node 2 at time +0s\n";
     NS_TEST_EXPECT_MSG_EQ(stringStream1v6.str(), NdiscCache, "Ndisc cache is incorrect.");
+
+    // Check output after the first flush-- should be empty
+    constexpr auto ArpCache2 = "ARP Cache of node 0 at time 2\n"
+                               "ARP Cache of node 1 at time 2\n"
+                               "ARP Cache of node 2 at time 2\n";
+    NS_TEST_EXPECT_MSG_EQ(stringStream2v4.str(),
+                          ArpCache2,
+                          "Arp cache is incorrect after Flush().");
+    constexpr auto NdiscCache2 = "NDISC Cache of node 0 at time +2s\n"
+                                 "NDISC Cache of node 1 at time +2s\n"
+                                 "NDISC Cache of node 2 at time +2s\n";
+    NS_TEST_EXPECT_MSG_EQ(stringStream2v6.str(),
+                          NdiscCache2,
+                          "Ndisc cache is incorrect after Flush().");
+
+    // Check output after the second flush-- node 0 should still have two
+    // static autogenerated entries for IPv6 and one for IPv4.
+    // This behavior was added in the ns-3.46 release (see issue #851).
+    constexpr auto ArpCache5 =
+        "ARP Cache of node 0 at time 5\n"
+        "10.1.1.2 dev 0 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n";
+    constexpr auto NdiscCache5 =
+        "NDISC Cache of node 0 at time +5s\n"
+        "2001::200:ff:fe00:2 dev 0 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:2 dev 0 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n";
+    NS_TEST_EXPECT_MSG_EQ(stringStream5v4.str(),
+                          ArpCache5,
+                          "Arp cache is incorrect after second Flush().");
+    NS_TEST_EXPECT_MSG_EQ(stringStream5v6.str(),
+                          NdiscCache5,
+                          "Ndisc cache is incorrect after second Flush().");
+
     Simulator::Destroy();
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief Neighbor Cache on Overlapped Scope Test
+ * @brief Neighbor Cache on Overlapped Scope Test
  */
 class DuplicateTest : public TestCase
 {
@@ -986,38 +1040,40 @@ DuplicateTest::DoRun()
     Ipv6RoutingHelper::PrintNeighborCacheAllAt(Seconds(0), ndiscStream);
 
     Simulator::Run();
-    // Check if the STATIC_AUTOGENERATED entries are flushed and the PERMANENT entry is left.
+    // Check if the overlapped scope of PopulateNeighborCache() calls did
+    // not lead to duplicate entries.
     constexpr auto ArpCache =
         "ARP Cache of node 0 at time 0\n"
-        "10.1.1.2 dev 0 lladdr 04-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+        "10.1.1.2 dev 0 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
         "ARP Cache of node 1 at time 0\n"
-        "10.1.1.1 dev 0 lladdr 04-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
-        "10.1.2.2 dev 1 lladdr 04-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
+        "10.1.1.1 dev 0 lladdr 03-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
+        "10.1.2.2 dev 1 lladdr 03-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
         "ARP Cache of node 2 at time 0\n"
-        "10.1.2.1 dev 0 lladdr 04-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n";
+        "10.1.2.1 dev 0 lladdr 03-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n";
     NS_TEST_EXPECT_MSG_EQ(stringStream1v4.str(), ArpCache, "Arp cache is incorrect.");
 
-    // Check if the STATIC_AUTOGENERATED entries are flushed and the PERMANENT entry is left.
+    // Check if the overlapped scope of PopulateNeighborCache() calls did
+    // not lead to duplicate entries.
     constexpr auto NdiscCache =
         "NDISC Cache of node 0 at time +0s\n"
-        "2001::200:ff:fe00:2 dev 0 lladdr 04-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:2 dev 0 lladdr 04-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:2 dev 0 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:2 dev 0 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
         "NDISC Cache of node 1 at time +0s\n"
-        "2001::200:ff:fe00:1 dev 0 lladdr 04-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:1 dev 0 lladdr 04-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
-        "2001:1::200:ff:fe00:4 dev 1 lladdr 04-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:4 dev 1 lladdr 04-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:1 dev 0 lladdr 03-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:1 dev 0 lladdr 03-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
+        "2001:1::200:ff:fe00:4 dev 1 lladdr 03-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:4 dev 1 lladdr 03-06-00:00:00:00:00:04 STATIC_AUTOGENERATED\n"
         "NDISC Cache of node 2 at time +0s\n"
-        "2001:1::200:ff:fe00:3 dev 0 lladdr 04-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:3 dev 0 lladdr 04-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n";
+        "2001:1::200:ff:fe00:3 dev 0 lladdr 03-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:3 dev 0 lladdr 03-06-00:00:00:00:00:03 STATIC_AUTOGENERATED\n";
     NS_TEST_EXPECT_MSG_EQ(stringStream1v6.str(), NdiscCache, "Ndisc cache is incorrect.");
     Simulator::Destroy();
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief Dynamic Neighbor Cache on Reduced Scope Test
+ * @brief Dynamic Neighbor Cache on Reduced Scope Test
  */
 class DynamicPartialTest : public TestCase
 {
@@ -1026,30 +1082,30 @@ class DynamicPartialTest : public TestCase
     DynamicPartialTest();
 
     /**
-     * \brief Add an IPv4 address to an IPv4 interface
-     * \param ipv4Interface The interface that address will be added.
-     * \param ifaceAddr The added IPv4 address.
+     * @brief Add an IPv4 address to an IPv4 interface
+     * @param ipv4Interface The interface that address will be added.
+     * @param ifaceAddr The added IPv4 address.
      */
     void AddIpv4Address(Ptr<Ipv4Interface> ipv4Interface, Ipv4InterfaceAddress ifaceAddr);
 
     /**
-     * \brief Add an IPv6 address to an IPv6 interface
-     * \param ipv6Interface The interface that address will be added.
-     * \param ifaceAddr The added IPv6 address.
+     * @brief Add an IPv6 address to an IPv6 interface
+     * @param ipv6Interface The interface that address will be added.
+     * @param ifaceAddr The added IPv6 address.
      */
     void AddIpv6Address(Ptr<Ipv6Interface> ipv6Interface, Ipv6InterfaceAddress ifaceAddr);
 
     /**
-     * \brief Remove an IPv4 address from an IPv4 interface
-     * \param ipv4Interface The interface that address will be removed from.
-     * \param index The index of IPv4 address that will be removed.
+     * @brief Remove an IPv4 address from an IPv4 interface
+     * @param ipv4Interface The interface that address will be removed from.
+     * @param index The index of IPv4 address that will be removed.
      */
     void RemoveIpv4Address(Ptr<Ipv4Interface> ipv4Interface, uint32_t index);
 
     /**
-     * \brief Remove an IPv6 address from an IPv6 interface
-     * \param ipv6Interface The interface that address will be removed from.
-     * \param index The index of IPv6 address that will be removed.
+     * @brief Remove an IPv6 address from an IPv6 interface
+     * @param ipv6Interface The interface that address will be removed from.
+     * @param index The index of IPv6 address that will be removed.
      */
     void RemoveIpv6Address(Ptr<Ipv6Interface> ipv6Interface, uint32_t index);
 
@@ -1179,17 +1235,17 @@ DynamicPartialTest::DoRun()
     // Check if the dynamic neighbor cache doesn't change after an Ip address is added,
     // Check if the dynamic neighbor cache update correctly after an Ip address is removed.
     constexpr auto ArpCache = "ARP Cache of node 0 at time 0\n"
-                              "10.1.1.2 dev 0 lladdr 04-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+                              "10.1.1.2 dev 0 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
                               "ARP Cache of node 1 at time 0\n"
-                              "10.1.1.1 dev 0 lladdr 04-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
+                              "10.1.1.1 dev 0 lladdr 03-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
                               "ARP Cache of node 2 at time 0\n"
                               "ARP Cache of node 0 at time 1\n"
-                              "10.1.1.2 dev 0 lladdr 04-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+                              "10.1.1.2 dev 0 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
                               "ARP Cache of node 1 at time 1\n"
-                              "10.1.1.1 dev 0 lladdr 04-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
+                              "10.1.1.1 dev 0 lladdr 03-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
                               "ARP Cache of node 2 at time 1\n"
                               "ARP Cache of node 0 at time 2\n"
-                              "10.1.1.2 dev 0 lladdr 04-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+                              "10.1.1.2 dev 0 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
                               "ARP Cache of node 1 at time 2\n"
                               "ARP Cache of node 2 at time 2\n";
     NS_TEST_EXPECT_MSG_EQ(stringStream1v4.str(), ArpCache, "Arp cache is incorrect.");
@@ -1198,47 +1254,47 @@ DynamicPartialTest::DoRun()
     // Check if the dynamic neighbor cache update correctly after an Ip address is removed.
     constexpr auto NdiscCache =
         "NDISC Cache of node 0 at time +0s\n"
-        "2001::200:ff:fe00:2 dev 0 lladdr 04-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:2 dev 0 lladdr 04-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:2 dev 0 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:2 dev 0 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
         "NDISC Cache of node 1 at time +0s\n"
-        "2001::200:ff:fe00:1 dev 0 lladdr 04-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:1 dev 0 lladdr 04-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:1 dev 0 lladdr 03-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:1 dev 0 lladdr 03-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
         "NDISC Cache of node 2 at time +0s\n"
         "NDISC Cache of node 0 at time +1s\n"
-        "2001::200:ff:fe00:2 dev 0 lladdr 04-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:2 dev 0 lladdr 04-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:2 dev 0 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:2 dev 0 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
         "NDISC Cache of node 1 at time +1s\n"
-        "2001::200:ff:fe00:1 dev 0 lladdr 04-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:1 dev 0 lladdr 04-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:1 dev 0 lladdr 03-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:1 dev 0 lladdr 03-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
         "NDISC Cache of node 2 at time +1s\n"
         "NDISC Cache of node 0 at time +2s\n"
-        "2001::200:ff:fe00:2 dev 0 lladdr 04-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
-        "fe80::200:ff:fe00:2 dev 0 lladdr 04-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+        "2001::200:ff:fe00:2 dev 0 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:2 dev 0 lladdr 03-06-00:00:00:00:00:02 STATIC_AUTOGENERATED\n"
         "NDISC Cache of node 1 at time +2s\n"
-        "fe80::200:ff:fe00:1 dev 0 lladdr 04-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
+        "fe80::200:ff:fe00:1 dev 0 lladdr 03-06-00:00:00:00:00:01 STATIC_AUTOGENERATED\n"
         "NDISC Cache of node 2 at time +2s\n";
     NS_TEST_EXPECT_MSG_EQ(stringStream1v6.str(), NdiscCache, "Ndisc cache is incorrect.");
     Simulator::Destroy();
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief NeighborCache TestSuite
+ * @brief NeighborCache TestSuite
  */
 class NeighborCacheTestSuite : public TestSuite
 {
   public:
     NeighborCacheTestSuite()
-        : TestSuite("neighbor-cache", UNIT)
+        : TestSuite("neighbor-cache", Type::UNIT)
     {
-        AddTestCase(new DynamicNeighborCacheTest, TestCase::QUICK);
-        AddTestCase(new ChannelTest, TestCase::QUICK);
-        AddTestCase(new NetDeviceContainerTest, TestCase::QUICK);
-        AddTestCase(new InterfaceContainerTest, TestCase::QUICK);
-        AddTestCase(new FlushTest, TestCase::QUICK);
-        AddTestCase(new DuplicateTest, TestCase::QUICK);
-        AddTestCase(new DynamicPartialTest, TestCase::QUICK);
+        AddTestCase(new DynamicNeighborCacheTest, TestCase::Duration::QUICK);
+        AddTestCase(new ChannelTest, TestCase::Duration::QUICK);
+        AddTestCase(new NetDeviceContainerTest, TestCase::Duration::QUICK);
+        AddTestCase(new InterfaceContainerTest, TestCase::Duration::QUICK);
+        AddTestCase(new FlushTest, TestCase::Duration::QUICK);
+        AddTestCase(new DuplicateTest, TestCase::Duration::QUICK);
+        AddTestCase(new DynamicPartialTest, TestCase::Duration::QUICK);
     }
 };
 

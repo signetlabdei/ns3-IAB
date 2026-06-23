@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2008,2009 IITP RAS
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Kirill Andreev <andreev@iitp.ru>
  */
@@ -26,17 +15,17 @@ namespace ns3
 {
 
 /**
- * \ingroup flame
+ * @ingroup flame
  *
- * \brief Helper class used to install FLAME mesh stack (actually single
+ * @brief Helper class used to install FLAME mesh stack (actually single
  * protocol in this stack)
  */
 class FlameStack : public MeshStack
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
 
@@ -57,22 +46,22 @@ class FlameStack : public MeshStack
     void DoDispose() override;
 
     /**
-     * \brief Install a flame stack on the given MeshPointDevice
-     * \param mp The Ptr<MeshPointDevice> to use.
-     * \return true if successful
+     * @brief Install a flame stack on the given MeshPointDevice
+     * @param mp The Ptr<MeshPointDevice> to use.
+     * @return true if successful
      */
     bool InstallStack(Ptr<MeshPointDevice> mp) override;
 
     /**
-     * \brief Print flame protocol statistics.
-     * \param mp The Ptr<MeshPointDevice> to use.
-     * \param os The output stream
+     * @brief Print flame protocol statistics.
+     * @param mp The Ptr<MeshPointDevice> to use.
+     * @param os The output stream
      */
     void Report(const Ptr<MeshPointDevice> mp, std::ostream&) override;
 
     /**
-     * \brief Reset the statistics.
-     * \param mp The Ptr<MeshPointDevice> to use.
+     * @brief Reset the statistics.
+     * @param mp The Ptr<MeshPointDevice> to use.
      */
     void ResetStats(const Ptr<MeshPointDevice> mp) override;
 };

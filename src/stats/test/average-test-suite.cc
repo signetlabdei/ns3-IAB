@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2012 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mitch Watrous (watrous@u.washington.edu)
  */
@@ -29,9 +18,9 @@ using namespace ns3;
 const double TOLERANCE = 2e-14;
 
 /**
- * \ingroup stats-tests
+ * @ingroup stats-tests
  *
- * \brief Average class - Test case for a single integer.
+ * @brief Average class - Test case for a single integer.
  */
 class OneIntegerAverageTestCase : public TestCase
 {
@@ -120,9 +109,9 @@ OneIntegerAverageTestCase::DoRun()
 }
 
 /**
- * \ingroup stats-tests
+ * @ingroup stats-tests
  *
- * \brief Average class - Test case for five integers.
+ * @brief Average class - Test case for five integers.
  */
 class FiveIntegersAverageTestCase : public TestCase
 {
@@ -213,9 +202,9 @@ FiveIntegersAverageTestCase::DoRun()
 }
 
 /**
- * \ingroup stats-tests
+ * @ingroup stats-tests
  *
- * \brief Average class - Test case for five double values.
+ * @brief Average class - Test case for five double values.
  */
 class FiveDoublesAverageTestCase : public TestCase
 {
@@ -306,9 +295,9 @@ FiveDoublesAverageTestCase::DoRun()
 }
 
 /**
- * \ingroup stats-tests
+ * @ingroup stats-tests
  *
- * \brief Average class TestSuite
+ * @brief Average class TestSuite
  */
 class AverageTestSuite : public TestSuite
 {
@@ -317,11 +306,11 @@ class AverageTestSuite : public TestSuite
 };
 
 AverageTestSuite::AverageTestSuite()
-    : TestSuite("average", UNIT)
+    : TestSuite("average", Type::UNIT)
 {
-    AddTestCase(new OneIntegerAverageTestCase, TestCase::QUICK);
-    AddTestCase(new FiveIntegersAverageTestCase, TestCase::QUICK);
-    AddTestCase(new FiveDoublesAverageTestCase, TestCase::QUICK);
+    AddTestCase(new OneIntegerAverageTestCase, TestCase::Duration::QUICK);
+    AddTestCase(new FiveIntegersAverageTestCase, TestCase::Duration::QUICK);
+    AddTestCase(new FiveDoublesAverageTestCase, TestCase::Duration::QUICK);
 }
 
 /// Static variable for test initialization

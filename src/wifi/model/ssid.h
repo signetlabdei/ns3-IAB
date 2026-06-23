@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2006 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -26,11 +15,11 @@ namespace ns3
 {
 
 /**
- * \ingroup wifi
+ * @ingroup wifi
  *
  * The IEEE 802.11 SSID Information Element
  *
- * \see attribute_Ssid
+ * @see attribute_Ssid
  */
 class Ssid : public WifiInformationElement
 {
@@ -42,26 +31,27 @@ class Ssid : public WifiInformationElement
     /**
      * Create SSID from a given string
      *
-     * \param s SSID in string
+     * @param s SSID in string
      */
     Ssid(std::string s);
 
     // Implementations of pure virtual methods of WifiInformationElement
     WifiInformationElementId ElementId() const override;
+    void Print(std::ostream& os) const override;
 
     /**
      * Check if the two SSIDs are equal.
      *
-     * \param o SSID to compare to
+     * @param o SSID to compare to
      *
-     * \return true if the two SSIDs are equal,
+     * @return true if the two SSIDs are equal,
      *         false otherwise
      */
     bool IsEqual(const Ssid& o) const;
     /**
      * Check if the SSID is broadcast.
      *
-     * \return true if the SSID is broadcast,
+     * @return true if the SSID is broadcast,
      *         false otherwise
      */
     bool IsBroadcast() const;
@@ -69,7 +59,7 @@ class Ssid : public WifiInformationElement
     /**
      * Peek the SSID.
      *
-     * \return a pointer to SSID string
+     * @return a pointer to SSID string
      */
     char* PeekString() const;
 
@@ -83,21 +73,12 @@ class Ssid : public WifiInformationElement
 };
 
 /**
- * Serialize SSID to the given ostream
- *
- * \param os the output stream
- * \param ssid the SSID
- *
- * \return std::ostream
- */
-std::ostream& operator<<(std::ostream& os, const Ssid& ssid);
-/**
  * Serialize from the given istream to this SSID.
  *
- * \param is the input stream
- * \param ssid the SSID
+ * @param is the input stream
+ * @param ssid the SSID
  *
- * \return std::istream
+ * @return std::istream
  */
 std::istream& operator>>(std::istream& is, Ssid& ssid);
 

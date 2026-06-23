@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2015 ResiliNets, ITTC, University of Kansas
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Amir Modarresi <amodarresi@ittc.ku.edu>
 
@@ -35,23 +24,23 @@ using namespace ns3;
 NS_LOG_COMPONENT_DEFINE("TcpHtcpTestSuite");
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief Testing the congestion avoidance increment on TcpHtcp
+ * @brief Testing the congestion avoidance increment on TcpHtcp
  */
 class TcpHtcpIncrementTest : public TestCase
 {
   public:
     /**
-     * \brief Constructor.
-     * \param cWnd Congestion window.
-     * \param segmentSize Segment size.
-     * \param segmentsAcked Segments already ACKed.
-     * \param lastCongestion Last congestion time.
-     * \param firstAck First ACK time.
-     * \param secondAck Second ACK time.
-     * \param expectedCwnd Expected cWnd.
-     * \param name Test description.
+     * @brief Constructor.
+     * @param cWnd Congestion window.
+     * @param segmentSize Segment size.
+     * @param segmentsAcked Segments already ACKed.
+     * @param lastCongestion Last congestion time.
+     * @param firstAck First ACK time.
+     * @param secondAck Second ACK time.
+     * @param expectedCwnd Expected cWnd.
+     * @param name Test description.
      */
     TcpHtcpIncrementTest(uint32_t cWnd,
                          uint32_t segmentSize,
@@ -95,7 +84,7 @@ TcpHtcpIncrementTest::TcpHtcpIncrementTest(uint32_t cWnd,
 }
 
 /**
- * \brief Since the calculation depends on the throughput and its associated
+ * @brief Since the calculation depends on the throughput and its associated
  * timing, we schedule a few exact events. We get the value from HTCP methods
  * during the simulation and compare them with their associated expected
  * values calculated from the algorithm by hand.
@@ -125,13 +114,13 @@ TcpHtcpIncrementTest::DoRun()
                         cong,
                         m_state,
                         m_segmentsAcked,
-                        Time(ns3::MilliSeconds(80)));
+                        MilliSeconds(80));
     Simulator::Schedule(Time(m_secondAck),
                         &TcpHtcp::PktsAcked,
                         cong,
                         m_state,
                         m_segmentsAcked,
-                        Time(ns3::MilliSeconds(100)));
+                        MilliSeconds(100));
 
     Simulator::Run();
     NS_LOG_DEBUG("Simulation ran for the scheduled events");
@@ -146,9 +135,9 @@ TcpHtcpIncrementTest::DoRun()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief TCP Htcp TestSuite.
+ * @brief TCP Htcp TestSuite.
  *
  * The following tests simulate conditions after a congestion event and
  * return to 1/2 ssthresh. After that, two acks are scheduled and the
@@ -165,7 +154,7 @@ class TcpHtcpTestSuite : public TestSuite
 {
   public:
     TcpHtcpTestSuite()
-        : TestSuite("tcp-htcp-test", UNIT)
+        : TestSuite("tcp-htcp-test", Type::UNIT)
     {
         AddTestCase(new TcpHtcpIncrementTest(38 * 536,
                                              536,
@@ -175,7 +164,7 @@ class TcpHtcpTestSuite : public TestSuite
                                              ns3::MilliSeconds(1000),
                                              20383,
                                              "TcpHtcp increment test on cWnd "),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
         AddTestCase(new TcpHtcpIncrementTest(38,
                                              1,
                                              100,
@@ -184,7 +173,7 @@ class TcpHtcpTestSuite : public TestSuite
                                              ns3::MilliSeconds(1100),
                                              40,
                                              "TcpHtcp increment test on cWnd "),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
         AddTestCase(new TcpHtcpIncrementTest(53 * 1446,
                                              1446,
                                              50,
@@ -193,7 +182,7 @@ class TcpHtcpTestSuite : public TestSuite
                                              ns3::MilliSeconds(1500),
                                              76671,
                                              "TcpHtcp increment test on cWnd "),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
     }
 };
 

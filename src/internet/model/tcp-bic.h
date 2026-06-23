@@ -1,26 +1,15 @@
 /*
  * Copyright (c) 2014 Natale Patriciello <natale.patriciello@gmail.com>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  */
 
 #ifndef TCPBIC_H
 #define TCPBIC_H
 
-#include "ns3/tcp-congestion-ops.h"
-#include "ns3/tcp-recovery-ops.h"
+#include "tcp-congestion-ops.h"
+#include "tcp-recovery-ops.h"
 
 class TcpBicIncrementTest;
 class TcpBicDecrementTest;
@@ -29,9 +18,9 @@ namespace ns3
 {
 
 /**
- * \ingroup congestionOps
+ * @ingroup congestionOps
  *
- * \brief BIC congestion control algorithm
+ * @brief BIC congestion control algorithm
  *
  * In TCP Bic the congestion control problem is viewed as a search
  * problem. Taking as a starting point the current window value
@@ -68,7 +57,7 @@ namespace ns3
  * and the current cWnd size).
  *
  * The reference paper for BIC can be found in:
- * http://an.kaist.ac.kr/courses/2006/cs540/reading/bic-tcp.pdf
+ * https://web.archive.org/web/20220930220436/https://an.kaist.ac.kr/courses/2006/cs540/reading/bic-tcp.pdf
  *
  * This model has a number of configurable parameters that are exposed as
  * attributes of the TcpBic TypeId.  This model also exports trace sources,
@@ -82,19 +71,19 @@ class TcpBic : public TcpCongestionOps
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
 
     /**
-     * \brief Constructor
+     * @brief Constructor
      */
     TcpBic();
 
     /**
      * Copy constructor.
-     * \param sock The socket to copy from.
+     * @param sock The socket to copy from.
      */
     TcpBic(const TcpBic& sock);
 
@@ -106,21 +95,21 @@ class TcpBic : public TcpCongestionOps
 
   protected:
     /**
-     * \brief Bic window update after a new ack received
-     * \param tcb the socket state.
-     * \returns The number of segments acked since the last cwnd increment.
+     * @brief Bic window update after a new ack received
+     * @param tcb the socket state.
+     * @returns The number of segments acked since the last cwnd increment.
      */
     virtual uint32_t Update(Ptr<TcpSocketState> tcb);
 
   private:
     /**
-     * \brief TcpBicIncrementTest friend class (for tests).
-     * \relates TcpBicIncrementTest
+     * @brief TcpBicIncrementTest friend class (for tests).
+     * @relates TcpBicIncrementTest
      */
     friend class ::TcpBicIncrementTest;
     /**
-     * \brief TcpBicDecrementTest friend class (for tests).
-     * \relates TcpBicDecrementTest
+     * @brief TcpBicDecrementTest friend class (for tests).
+     * @relates TcpBicDecrementTest
      */
     friend class ::TcpBicDecrementTest;
 

@@ -62,7 +62,7 @@ NS_LOG_COMPONENT_DEFINE ("LenaTestDeactivateBearer");
 namespace ns3 {
 
 LenaTestBearerDeactivateSuite::LenaTestBearerDeactivateSuite ()
-    : TestSuite ("lte-test-deactivate-bearer", SYSTEM)
+    : TestSuite ("lte-test-deactivate-bearer", TestSuite::Type::SYSTEM)
 {
   NS_LOG_INFO ("creating LenaTestPssFfMacSchedulerSuite");
 
@@ -94,7 +94,7 @@ LenaTestBearerDeactivateSuite::LenaTestBearerDeactivateSuite ()
 
   AddTestCase (
       new LenaDeactivateBearerTestCase (dist_1, estThrPssDl_1, packetSize_1, 1, errorModel, true),
-      TestCase::QUICK);
+      TestCase::Duration::QUICK);
 }
 
 static LenaTestBearerDeactivateSuite lenaTestBearerDeactivateSuite; ///< the test suite

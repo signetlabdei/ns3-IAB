@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2008,2009 IITP RAS
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Kirill Andreev <andreev@iitp.ru>
  */
@@ -30,7 +19,7 @@ namespace ns3
 namespace dot11s
 {
 /**
- * \brief a IEEE 802.11s Mesh ID 7.3.2.88 of 802.11s draft 3.0
+ * @brief a IEEE 802.11s Mesh ID 7.3.2.88 of 802.11s draft 3.0
  *
  */
 class IeLinkMetricReport : public WifiInformationElement
@@ -40,17 +29,17 @@ class IeLinkMetricReport : public WifiInformationElement
     /**
      * Constructor
      *
-     * \param metric the metric
+     * @param metric the metric
      */
     IeLinkMetricReport(uint32_t metric);
     /**
      * Set metric value
-     * \param metric the metric
+     * @param metric the metric
      */
     void SetMetric(uint32_t metric);
     /**
      * Get metric value
-     * \returns the metric
+     * @returns the metric
      */
     uint32_t GetMetric() const;
 
@@ -66,25 +55,25 @@ class IeLinkMetricReport : public WifiInformationElement
     /**
      * equality operator
      *
-     * \param a lhs
-     * \param b lhs
-     * \returns true if equal
+     * @param a lhs
+     * @param b lhs
+     * @returns true if equal
      */
     friend bool operator==(const IeLinkMetricReport& a, const IeLinkMetricReport& b);
     /**
      * greater than operator
      *
-     * \param a lhs
-     * \param b lhs
-     * \returns true if equal
+     * @param a lhs
+     * @param b lhs
+     * @returns true if equal
      */
     friend bool operator>(const IeLinkMetricReport& a, const IeLinkMetricReport& b);
     /**
      * less than operator
      *
-     * \param a lhs
-     * \param b lhs
-     * \returns true if equal
+     * @param a lhs
+     * @param b lhs
+     * @returns true if equal
      */
     friend bool operator<(const IeLinkMetricReport& a, const IeLinkMetricReport& b);
 };

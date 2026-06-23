@@ -2,18 +2,7 @@
  * Copyright (c) 2014 Wireless Communications and Networking Group (WCNG),
  * University of Rochester, Rochester, NY, USA.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Cristiano Tapparello <cristiano.tapparello@rochester.edu>
  */
@@ -29,13 +18,14 @@
 #include "ns3/test.h"
 
 using namespace ns3;
+using namespace ns3::energy;
 
 NS_LOG_COMPONENT_DEFINE("BasicEnergyHarvesterTestSuite");
 
 /**
- * \ingroup energy-tests
+ * @ingroup energy-tests
  *
- * \brief Energy Harvester Test
+ * @brief Energy Harvester Test
  */
 class BasicEnergyHarvesterTestCase : public TestCase
 {
@@ -67,8 +57,8 @@ void
 BasicEnergyHarvesterTestCase::DoRun()
 {
     // set types
-    m_energySource.SetTypeId("ns3::BasicEnergySource");
-    m_energyHarvester.SetTypeId("ns3::BasicEnergyHarvester");
+    m_energySource.SetTypeId("ns3::energy::BasicEnergySource");
+    m_energyHarvester.SetTypeId("ns3::energy::BasicEnergyHarvester");
     // create node
     Ptr<Node> node = CreateObject<Node>();
 
@@ -86,8 +76,6 @@ BasicEnergyHarvesterTestCase::DoRun()
     source->ConnectEnergyHarvester(harvester);
     harvester->SetNode(node);
     harvester->SetEnergySource(source);
-
-    Time now = Simulator::Now();
 
     /*
      * The energy harvester will recharge the energy source for m_timeS seconds.
@@ -122,9 +110,9 @@ BasicEnergyHarvesterTestCase::DoRun()
 }
 
 /**
- * \ingroup energy-tests
+ * @ingroup energy-tests
  *
- * \brief Energy harvester TestSuite
+ * @brief Energy harvester TestSuite
  */
 class BasicEnergyHarvesterTestSuite : public TestSuite
 {
@@ -133,9 +121,9 @@ class BasicEnergyHarvesterTestSuite : public TestSuite
 };
 
 BasicEnergyHarvesterTestSuite::BasicEnergyHarvesterTestSuite()
-    : TestSuite("basic-energy-harvester", UNIT)
+    : TestSuite("basic-energy-harvester", Type::UNIT)
 {
-    AddTestCase(new BasicEnergyHarvesterTestCase, TestCase::QUICK);
+    AddTestCase(new BasicEnergyHarvesterTestCase, TestCase::Duration::QUICK);
 }
 
 /// create an instance of the test suite

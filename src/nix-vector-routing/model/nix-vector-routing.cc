@@ -2,18 +2,7 @@
  * Copyright (c) 2009 The Georgia Institute of Technology
  * Copyright (c) 2021 NITK Surathkal
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * This file is adapted from the old ipv4-nix-vector-routing.cc.
  *
@@ -41,16 +30,19 @@ NS_LOG_COMPONENT_DEFINE("NixVectorRouting");
 NS_OBJECT_TEMPLATE_CLASS_DEFINE(NixVectorRouting, Ipv4RoutingProtocol);
 NS_OBJECT_TEMPLATE_CLASS_DEFINE(NixVectorRouting, Ipv6RoutingProtocol);
 
+/// Flag to mark when caches are dirty and need to be flushed
 template <typename T>
 bool NixVectorRouting<T>::g_isCacheDirty = false;
 
-// Epoch starts from one to make it easier to spot an uninitialized NixVector during debug.
+/// Epoch starts from one to make it easier to spot an uninitialized NixVector during debug.
 template <typename T>
 uint32_t NixVectorRouting<T>::g_epoch = 1;
 
+/// Mapping of IP address to ns-3 node
 template <typename T>
 typename NixVectorRouting<T>::IpAddressToNodeMap NixVectorRouting<T>::g_ipAddressToNodeMap;
 
+/// Mapping of Ptr<NetDevice> to Ptr<IpInterface>.
 template <typename T>
 typename NixVectorRouting<T>::NetDeviceToIpInterfaceMap
     NixVectorRouting<T>::g_netdeviceToIpInterfaceMap;
@@ -68,7 +60,7 @@ NixVectorRouting<T>::GetTypeId()
     {
         name = "Ipv6";
     }
-    static TypeId tid = TypeId(("ns3::" + name + "NixVectorRouting"))
+    static TypeId tid = TypeId("ns3::" + name + "NixVectorRouting")
                             .SetParent<T>()
                             .SetGroupName("NixVectorRouting")
                             .template AddConstructor<NixVectorRouting<T>>();
@@ -151,8 +143,7 @@ NixVectorRouting<T>::FlushGlobalNixRoutingCache() const
 {
     NS_LOG_FUNCTION_NOARGS();
 
-    NodeList::Iterator listEnd = NodeList::End();
-    for (NodeList::Iterator i = NodeList::Begin(); i != listEnd; i++)
+    for (auto i = NodeList::Begin(); i != NodeList::End(); i++)
     {
         Ptr<Node> node = *i;
         Ptr<NixVectorRouting<T>> rp = node->GetObject<NixVectorRouting>();
@@ -207,7 +198,7 @@ NixVectorRouting<T>::GetNixVector(Ptr<Node> source, IpAddress dest, Ptr<NetDevic
     }
 
     // if source == dest, then we have a special case
-    /// \internal
+    /// @internal
     /// Do not process packets to self (see \bugid{1308})
     if (source == destNode)
     {
@@ -248,7 +239,7 @@ NixVectorRouting<T>::GetNixVectorInCache(const IpAddress& address, bool& foundIn
 
     CheckCacheStateAndFlush();
 
-    typename NixMap_t::iterator iter = m_nixCache.find(address);
+    auto iter = m_nixCache.find(address);
     if (iter != m_nixCache.end())
     {
         NS_LOG_LOGIC("Found Nix-vector in cache.");
@@ -269,7 +260,7 @@ NixVectorRouting<T>::GetIpRouteInCache(IpAddress address)
 
     CheckCacheStateAndFlush();
 
-    typename IpRouteMap_t::iterator iter = m_ipRouteCache.find(address);
+    auto iter = m_ipRouteCache.find(address);
     if (iter != m_ipRouteCache.end())
     {
         NS_LOG_LOGIC("Found IpRoute in cache.");
@@ -334,9 +325,7 @@ NixVectorRouting<T>::BuildNixVector(const std::vector<Ptr<Node>>& parentVector,
         // the index  to the nix vector.
         // the index corresponds to the neighbor index
         uint32_t offset = 0;
-        for (NetDeviceContainer::Iterator iter = netDeviceContainer.Begin();
-             iter != netDeviceContainer.End();
-             iter++)
+        for (auto iter = netDeviceContainer.Begin(); iter != netDeviceContainer.End(); iter++)
         {
             Ptr<Node> remoteNode = (*iter)->GetNode();
 
@@ -466,7 +455,7 @@ NixVectorRouting<T>::BuildIpAddressToNodeMap() const
 {
     NS_LOG_FUNCTION_NOARGS();
 
-    for (NodeList::Iterator it = NodeList::Begin(); it != NodeList::End(); ++it)
+    for (auto it = NodeList::Begin(); it != NodeList::End(); ++it)
     {
         Ptr<Node> node = *it;
         Ptr<IpL3Protocol> ip = node->GetObject<IpL3Protocol>();
@@ -528,7 +517,7 @@ NixVectorRouting<T>::GetNodeByIp(IpAddress dest) const
 
     Ptr<Node> destNode;
 
-    typename IpAddressToNodeMap::iterator iter = g_ipAddressToNodeMap.find(dest);
+    auto iter = g_ipAddressToNodeMap.find(dest);
 
     if (iter == g_ipAddressToNodeMap.end())
     {
@@ -555,7 +544,7 @@ NixVectorRouting<T>::GetInterfaceByNetDevice(Ptr<NetDevice> netDevice) const
 
     Ptr<IpInterface> ipInterface;
 
-    typename NetDeviceToIpInterfaceMap::iterator iter = g_netdeviceToIpInterfaceMap.find(netDevice);
+    auto iter = g_netdeviceToIpInterfaceMap.find(netDevice);
 
     if (iter == g_netdeviceToIpInterfaceMap.end())
     {
@@ -870,10 +859,10 @@ bool
 NixVectorRouting<T>::RouteInput(Ptr<const Packet> p,
                                 const IpHeader& header,
                                 Ptr<const NetDevice> idev,
-                                UnicastForwardCallback ucb,
-                                MulticastForwardCallback mcb,
-                                LocalDeliverCallback lcb,
-                                ErrorCallback ecb)
+                                const UnicastForwardCallback& ucb,
+                                const MulticastForwardCallback& mcb,
+                                const LocalDeliverCallback& lcb,
+                                const ErrorCallback& ecb)
 {
     NS_LOG_FUNCTION(this << p << header << header.GetSource() << header.GetDestination() << idev);
 
@@ -1012,17 +1001,15 @@ NixVectorRouting<T>::PrintRoutingTable(Ptr<OutputStreamWrapper> stream, Time::Un
 
     *os << std::resetiosflags(std::ios::adjustfield) << std::setiosflags(std::ios::left);
 
-    *os << "Node: " << m_ip->template GetObject<Node>()->GetId() << ", Time: " << Now().As(unit)
-        << ", Local time: " << m_ip->template GetObject<Node>()->GetLocalTime().As(unit)
-        << ", Nix Routing" << std::endl;
+    *os << "Node: " << m_node->GetId() << ", Time: " << Now().As(unit)
+        << ", Local time: " << m_node->GetLocalTime().As(unit) << ", Nix Routing" << std::endl;
 
     *os << "NixCache:" << std::endl;
     if (m_nixCache.size() > 0)
     {
         *os << std::setw(30) << "Destination";
         *os << "NixVector" << std::endl;
-        for (typename NixMap_t::const_iterator it = m_nixCache.begin(); it != m_nixCache.end();
-             it++)
+        for (auto it = m_nixCache.begin(); it != m_nixCache.end(); it++)
         {
             std::ostringstream dest;
             dest << it->first;
@@ -1045,9 +1032,7 @@ NixVectorRouting<T>::PrintRoutingTable(Ptr<OutputStreamWrapper> stream, Time::Un
         *os << std::setw(30) << "Gateway";
         *os << std::setw(30) << "Source";
         *os << "OutputDevice" << std::endl;
-        for (typename IpRouteMap_t::const_iterator it = m_ipRouteCache.begin();
-             it != m_ipRouteCache.end();
-             it++)
+        for (auto it = m_ipRouteCache.begin(); it != m_ipRouteCache.end(); it++)
         {
             std::ostringstream dest;
             std::ostringstream gw;
@@ -1193,9 +1178,7 @@ NixVectorRouting<T>::BFS(uint32_t numberOfNodes,
             // and scan through them.  We push them
             // to the greyNode queue, if they aren't
             // already there.
-            for (NetDeviceContainer::Iterator iter = netDeviceContainer.Begin();
-                 iter != netDeviceContainer.End();
-                 iter++)
+            for (auto iter = netDeviceContainer.Begin(); iter != netDeviceContainer.End(); iter++)
             {
                 Ptr<Node> remoteNode = (*iter)->GetNode();
                 Ptr<IpInterface> remoteIpInterface = GetInterfaceByNetDevice(*iter);
@@ -1257,8 +1240,7 @@ NixVectorRouting<T>::BFS(uint32_t numberOfNodes,
                 // and scan through them.  We push them
                 // to the greyNode queue, if they aren't
                 // already there.
-                for (NetDeviceContainer::Iterator iter = netDeviceContainer.Begin();
-                     iter != netDeviceContainer.End();
+                for (auto iter = netDeviceContainer.Begin(); iter != netDeviceContainer.End();
                      iter++)
                 {
                     Ptr<Node> remoteNode = (*iter)->GetNode();

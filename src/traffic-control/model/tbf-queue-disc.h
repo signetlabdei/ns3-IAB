@@ -2,18 +2,7 @@
  * Copyright (c) 2017 Kungliga Tekniska Högskolan
  *               2017 Universita' degli Studi di Napoli Federico II
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * TBF, The Token Bucket Filter Queueing discipline
  *
@@ -28,11 +17,12 @@
 #ifndef TBF_QUEUE_DISC_H
 #define TBF_QUEUE_DISC_H
 
+#include "queue-disc.h"
+
 #include "ns3/boolean.h"
 #include "ns3/data-rate.h"
 #include "ns3/event-id.h"
 #include "ns3/nstime.h"
-#include "ns3/queue-disc.h"
 #include "ns3/random-variable-stream.h"
 #include "ns3/trace-source-accessor.h"
 #include "ns3/traced-value.h"
@@ -41,106 +31,106 @@ namespace ns3
 {
 
 /**
- * \ingroup traffic-control
+ * @ingroup traffic-control
  *
- * \brief A TBF packet queue disc
+ * @brief A TBF packet queue disc
  */
 class TbfQueueDisc : public QueueDisc
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
 
     /**
-     * \brief TbfQueueDisc Constructor
+     * @brief TbfQueueDisc Constructor
      *
      * Create a TBF queue disc
      */
     TbfQueueDisc();
 
     /**
-     * \brief Destructor
+     * @brief Destructor
      *
      * Destructor
      */
     ~TbfQueueDisc() override;
 
     /**
-     * \brief Set the size of the first bucket in bytes.
+     * @brief Set the size of the first bucket in bytes.
      *
-     * \param burst The size of first bucket in bytes.
+     * @param burst The size of first bucket in bytes.
      */
     void SetBurst(uint32_t burst);
 
     /**
-     * \brief Get the size of the first bucket in bytes.
+     * @brief Get the size of the first bucket in bytes.
      *
-     * \returns The size of the first bucket in bytes.
+     * @returns The size of the first bucket in bytes.
      */
     uint32_t GetBurst() const;
 
     /**
-     * \brief Set the size of the second bucket in bytes.
+     * @brief Set the size of the second bucket in bytes.
      *
-     * \param mtu The size of second bucket in bytes.
+     * @param mtu The size of second bucket in bytes.
      */
     void SetMtu(uint32_t mtu);
 
     /**
-     * \brief Get the size of the second bucket in bytes.
+     * @brief Get the size of the second bucket in bytes.
      *
-     * \returns The size of the second bucket in bytes.
+     * @returns The size of the second bucket in bytes.
      */
     uint32_t GetMtu() const;
 
     /**
-     * \brief Set the rate of the tokens entering the first bucket.
+     * @brief Set the rate of the tokens entering the first bucket.
      *
-     * \param rate The rate of first bucket tokens.
+     * @param rate The rate of first bucket tokens.
      */
     void SetRate(DataRate rate);
 
     /**
-     * \brief Get the rate of the tokens entering the first bucket.
+     * @brief Get the rate of the tokens entering the first bucket.
      *
-     * \returns The rate of first bucket tokens.
+     * @returns The rate of first bucket tokens.
      */
     DataRate GetRate() const;
 
     /**
-     * \brief Set the rate of the tokens entering the second bucket.
+     * @brief Set the rate of the tokens entering the second bucket.
      *
-     * \param peakRate The rate of second bucket tokens.
+     * @param peakRate The rate of second bucket tokens.
      */
     void SetPeakRate(DataRate peakRate);
 
     /**
-     * \brief Get the rate of the tokens entering the second bucket.
+     * @brief Get the rate of the tokens entering the second bucket.
      *
-     * \returns The rate of second bucket tokens.
+     * @returns The rate of second bucket tokens.
      */
     DataRate GetPeakRate() const;
 
     /**
-     * \brief Get the current number of tokens inside the first bucket in bytes.
+     * @brief Get the current number of tokens inside the first bucket in bytes.
      *
-     * \returns The number of first bucket tokens in bytes.
+     * @returns The number of first bucket tokens in bytes.
      */
     uint32_t GetFirstBucketTokens() const;
 
     /**
-     * \brief Get the current number of tokens inside the second bucket in bytes.
+     * @brief Get the current number of tokens inside the second bucket in bytes.
      *
-     * \returns The number of second bucket tokens in bytes.
+     * @returns The number of second bucket tokens in bytes.
      */
     uint32_t GetSecondBucketTokens() const;
 
   protected:
     /**
-     * \brief Dispose of the object
+     * @brief Dispose of the object
      */
     void DoDispose() override;
 

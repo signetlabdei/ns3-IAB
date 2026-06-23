@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2006 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -65,6 +54,15 @@ CapabilityInformation::SetCfPollable()
     Set(2);
 }
 
+void
+CapabilityInformation::SetCriticalUpdate(bool flag)
+{
+    if (flag)
+    {
+        Set(6);
+    }
+}
+
 bool
 CapabilityInformation::IsEss() const
 {
@@ -93,6 +91,12 @@ bool
 CapabilityInformation::IsCfPollable() const
 {
     return Is(2);
+}
+
+bool
+CapabilityInformation::IsCriticalUpdate() const
+{
+    return Is(6);
 }
 
 void
@@ -125,14 +129,14 @@ CapabilityInformation::GetSerializedSize() const
 Buffer::Iterator
 CapabilityInformation::Serialize(Buffer::Iterator start) const
 {
-    start.WriteHtolsbU16(m_capability);
+    start.WriteU16(m_capability);
     return start;
 }
 
 Buffer::Iterator
 CapabilityInformation::Deserialize(Buffer::Iterator start)
 {
-    m_capability = start.ReadLsbtohU16();
+    m_capability = start.ReadU16();
     return start;
 }
 

@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2013 ResiliNets, ITTC, University of Kansas
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Justin P. Rohrer, Truc Anh N. Nguyen <annguyen@ittc.ku.edu>, Siddharth Gangadhar
  * <siddharth@ittc.ku.edu>
@@ -73,23 +62,23 @@ static std::map<uint32_t, uint32_t> ssThreshValue;                  //!< SlowSta
 /**
  * Get the Node Id From Context.
  *
- * \param context The context.
- * \return the node ID.
+ * @param context The context.
+ * @return the node ID.
  */
 static uint32_t
 GetNodeIdFromContext(std::string context)
 {
-    std::size_t const n1 = context.find_first_of('/', 1);
-    std::size_t const n2 = context.find_first_of('/', n1 + 1);
+    const std::size_t n1 = context.find_first_of('/', 1);
+    const std::size_t n2 = context.find_first_of('/', n1 + 1);
     return std::stoul(context.substr(n1 + 1, n2 - n1 - 1));
 }
 
 /**
  * Congestion window tracer.
  *
- * \param context The context.
- * \param oldval Old value.
- * \param newval New value.
+ * @param context The context.
+ * @param oldval Old value.
+ * @param newval New value.
  */
 static void
 CwndTracer(std::string context, uint32_t oldval, uint32_t newval)
@@ -114,9 +103,9 @@ CwndTracer(std::string context, uint32_t oldval, uint32_t newval)
 /**
  * Slow start threshold tracer.
  *
- * \param context The context.
- * \param oldval Old value.
- * \param newval New value.
+ * @param context The context.
+ * @param oldval Old value.
+ * @param newval New value.
  */
 static void
 SsThreshTracer(std::string context, uint32_t oldval, uint32_t newval)
@@ -142,9 +131,9 @@ SsThreshTracer(std::string context, uint32_t oldval, uint32_t newval)
 /**
  * RTT tracer.
  *
- * \param context The context.
- * \param oldval Old value.
- * \param newval New value.
+ * @param context The context.
+ * @param oldval Old value.
+ * @param newval New value.
  */
 static void
 RttTracer(std::string context, Time oldval, Time newval)
@@ -163,9 +152,9 @@ RttTracer(std::string context, Time oldval, Time newval)
 /**
  * RTO tracer.
  *
- * \param context The context.
- * \param oldval Old value.
- * \param newval New value.
+ * @param context The context.
+ * @param oldval Old value.
+ * @param newval New value.
  */
 static void
 RtoTracer(std::string context, Time oldval, Time newval)
@@ -184,9 +173,9 @@ RtoTracer(std::string context, Time oldval, Time newval)
 /**
  * Next TX tracer.
  *
- * \param context The context.
- * \param old Old sequence number.
- * \param nextTx Next sequence number.
+ * @param context The context.
+ * @param old Old sequence number.
+ * @param nextTx Next sequence number.
  */
 static void
 NextTxTracer(std::string context, SequenceNumber32 old [[maybe_unused]], SequenceNumber32 nextTx)
@@ -200,9 +189,9 @@ NextTxTracer(std::string context, SequenceNumber32 old [[maybe_unused]], Sequenc
 /**
  * In-flight tracer.
  *
- * \param context The context.
- * \param old Old value.
- * \param inFlight In flight value.
+ * @param context The context.
+ * @param old Old value.
+ * @param inFlight In flight value.
  */
 static void
 InFlightTracer(std::string context, uint32_t old [[maybe_unused]], uint32_t inFlight)
@@ -216,9 +205,9 @@ InFlightTracer(std::string context, uint32_t old [[maybe_unused]], uint32_t inFl
 /**
  * Next RX tracer.
  *
- * \param context The context.
- * \param old Old sequence number.
- * \param nextRx Next sequence number.
+ * @param context The context.
+ * @param old Old sequence number.
+ * @param nextRx Next sequence number.
  */
 static void
 NextRxTracer(std::string context, SequenceNumber32 old [[maybe_unused]], SequenceNumber32 nextRx)
@@ -232,8 +221,8 @@ NextRxTracer(std::string context, SequenceNumber32 old [[maybe_unused]], Sequenc
 /**
  * Congestion window trace connection.
  *
- * \param cwnd_tr_file_name Congestion window trace file name.
- * \param nodeId Node ID.
+ * @param cwnd_tr_file_name Congestion window trace file name.
+ * @param nodeId Node ID.
  */
 static void
 TraceCwnd(std::string cwnd_tr_file_name, uint32_t nodeId)
@@ -248,8 +237,8 @@ TraceCwnd(std::string cwnd_tr_file_name, uint32_t nodeId)
 /**
  * Slow start threshold trace connection.
  *
- * \param ssthresh_tr_file_name Slow start threshold trace file name.
- * \param nodeId Node ID.
+ * @param ssthresh_tr_file_name Slow start threshold trace file name.
+ * @param nodeId Node ID.
  */
 static void
 TraceSsThresh(std::string ssthresh_tr_file_name, uint32_t nodeId)
@@ -264,8 +253,8 @@ TraceSsThresh(std::string ssthresh_tr_file_name, uint32_t nodeId)
 /**
  * RTT trace connection.
  *
- * \param rtt_tr_file_name RTT trace file name.
- * \param nodeId Node ID.
+ * @param rtt_tr_file_name RTT trace file name.
+ * @param nodeId Node ID.
  */
 static void
 TraceRtt(std::string rtt_tr_file_name, uint32_t nodeId)
@@ -279,8 +268,8 @@ TraceRtt(std::string rtt_tr_file_name, uint32_t nodeId)
 /**
  * RTO trace connection.
  *
- * \param rto_tr_file_name RTO trace file name.
- * \param nodeId Node ID.
+ * @param rto_tr_file_name RTO trace file name.
+ * @param nodeId Node ID.
  */
 static void
 TraceRto(std::string rto_tr_file_name, uint32_t nodeId)
@@ -294,8 +283,8 @@ TraceRto(std::string rto_tr_file_name, uint32_t nodeId)
 /**
  * Next TX trace connection.
  *
- * \param next_tx_seq_file_name Next TX trace file name.
- * \param nodeId Node ID.
+ * @param next_tx_seq_file_name Next TX trace file name.
+ * @param nodeId Node ID.
  */
 static void
 TraceNextTx(std::string& next_tx_seq_file_name, uint32_t nodeId)
@@ -310,8 +299,8 @@ TraceNextTx(std::string& next_tx_seq_file_name, uint32_t nodeId)
 /**
  * In flight trace connection.
  *
- * \param in_flight_file_name In flight trace file name.
- * \param nodeId Node ID.
+ * @param in_flight_file_name In flight trace file name.
+ * @param nodeId Node ID.
  */
 static void
 TraceInFlight(std::string& in_flight_file_name, uint32_t nodeId)
@@ -326,8 +315,8 @@ TraceInFlight(std::string& in_flight_file_name, uint32_t nodeId)
 /**
  * Next RX trace connection.
  *
- * \param next_rx_seq_file_name Next RX trace file name.
- * \param nodeId Node ID.
+ * @param next_rx_seq_file_name Next RX trace file name.
+ * @param nodeId Node ID.
  */
 static void
 TraceNextRx(std::string& next_rx_seq_file_name, uint32_t nodeId)

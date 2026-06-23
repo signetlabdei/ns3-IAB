@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2005 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -51,7 +40,7 @@ Ipv4EndPoint::~Ipv4EndPoint()
 }
 
 Ipv4Address
-Ipv4EndPoint::GetLocalAddress()
+Ipv4EndPoint::GetLocalAddress() const
 {
     NS_LOG_FUNCTION(this);
     return m_localAddr;
@@ -65,21 +54,21 @@ Ipv4EndPoint::SetLocalAddress(Ipv4Address address)
 }
 
 uint16_t
-Ipv4EndPoint::GetLocalPort()
+Ipv4EndPoint::GetLocalPort() const
 {
     NS_LOG_FUNCTION(this);
     return m_localPort;
 }
 
 Ipv4Address
-Ipv4EndPoint::GetPeerAddress()
+Ipv4EndPoint::GetPeerAddress() const
 {
     NS_LOG_FUNCTION(this);
     return m_peerAddr;
 }
 
 uint16_t
-Ipv4EndPoint::GetPeerPort()
+Ipv4EndPoint::GetPeerPort() const
 {
     NS_LOG_FUNCTION(this);
     return m_peerPort;
@@ -101,7 +90,7 @@ Ipv4EndPoint::BindToNetDevice(Ptr<NetDevice> netdevice)
 }
 
 Ptr<NetDevice>
-Ipv4EndPoint::GetBoundNetDevice()
+Ipv4EndPoint::GetBoundNetDevice() const
 {
     NS_LOG_FUNCTION(this);
     return m_boundnetdevice;

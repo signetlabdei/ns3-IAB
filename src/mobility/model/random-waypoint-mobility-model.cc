@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2007 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -59,6 +48,11 @@ RandomWaypointMobilityModel::GetTypeId()
     return tid;
 }
 
+RandomWaypointMobilityModel::~RandomWaypointMobilityModel()
+{
+    m_event.Cancel();
+}
+
 void
 RandomWaypointMobilityModel::BeginWalk()
 {
@@ -66,15 +60,19 @@ RandomWaypointMobilityModel::BeginWalk()
     Vector m_current = m_helper.GetCurrentPosition();
     NS_ASSERT_MSG(m_position, "No position allocator added before using this model");
     Vector destination = m_position->GetNext();
+    Vector delta = destination - m_current;
+    double distance = delta.GetLength();
     double speed = m_speed->GetValue();
-    double dx = (destination.x - m_current.x);
-    double dy = (destination.y - m_current.y);
-    double dz = (destination.z - m_current.z);
-    double k = speed / std::sqrt(dx * dx + dy * dy + dz * dz);
 
-    m_helper.SetVelocity(Vector(k * dx, k * dy, k * dz));
+    NS_ASSERT_MSG(speed > 0, "Speed must be strictly positive.");
+
+    // Note: the following two lines are needed to prevent corner cases where
+    // the distance is null (and the Velocity is undefined).
+    double k = distance ? speed / distance : 0;
+    Time travelDelay = distance ? Seconds(distance / speed) : Time(0);
+
+    m_helper.SetVelocity(k * delta);
     m_helper.Unpause();
-    Time travelDelay = Seconds(CalculateDistance(destination, m_current) / speed);
     m_event.Cancel();
     m_event =
         Simulator::Schedule(travelDelay, &RandomWaypointMobilityModel::DoInitializePrivate, this);

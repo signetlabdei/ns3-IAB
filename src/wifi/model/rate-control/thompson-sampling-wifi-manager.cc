@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2021 IITP RAS
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Alexander Krotov <krotov@iitp.ru>
  */
@@ -40,9 +29,9 @@ namespace ns3
  */
 struct RateStats
 {
-    WifiMode mode;         ///< MCS
-    uint16_t channelWidth; ///< channel width in MHz
-    uint8_t nss;           ///< Number of spatial streams
+    WifiMode mode;      ///< MCS
+    MHz_u channelWidth; ///< channel width
+    uint8_t nss;        ///< Number of spatial streams
 
     double success{0.0}; ///< averaged number of successful transmissions
     double fails{0.0};   ///< averaged number of failed transmissions
@@ -105,7 +94,7 @@ WifiRemoteStation*
 ThompsonSamplingWifiManager::DoCreateStation() const
 {
     NS_LOG_FUNCTION(this);
-    ThompsonSamplingWifiRemoteStation* station = new ThompsonSamplingWifiRemoteStation();
+    auto station = new ThompsonSamplingWifiRemoteStation();
     station->m_nextMode = 0;
     station->m_lastMode = 0;
     return station;
@@ -123,7 +112,7 @@ ThompsonSamplingWifiManager::InitializeStation(WifiRemoteStation* st) const
     // Add HT, VHT or HE MCSes
     for (const auto& mode : GetPhy()->GetMcsList())
     {
-        for (uint16_t j = 20; j <= GetPhy()->GetChannelWidth(); j *= 2)
+        for (MHz_u j{20}; j <= GetPhy()->GetChannelWidth(); j *= 2)
         {
             WifiModulationClass modulationClass = WIFI_MOD_CLASS_HT;
             if (GetVhtSupported())
@@ -162,11 +151,11 @@ ThompsonSamplingWifiManager::InitializeStation(WifiRemoteStation* st) const
             if (stats.mode.GetModulationClass() == WIFI_MOD_CLASS_DSSS ||
                 stats.mode.GetModulationClass() == WIFI_MOD_CLASS_HR_DSSS)
             {
-                stats.channelWidth = 22;
+                stats.channelWidth = MHz_u{22};
             }
             else
             {
-                stats.channelWidth = 20;
+                stats.channelWidth = MHz_u{20};
             }
             stats.nss = 1;
             station->m_mcsStats.push_back(stats);
@@ -227,20 +216,20 @@ ThompsonSamplingWifiManager::UpdateNextMode(WifiRemoteStation* st) const
     for (uint32_t i = 0; i < station->m_mcsStats.size(); i++)
     {
         Decay(st, i);
-        const WifiMode mode{station->m_mcsStats.at(i).mode};
+        const auto mode{station->m_mcsStats.at(i).mode};
 
-        uint16_t guardInterval = GetModeGuardInterval(st, mode);
-        double rate = mode.GetDataRate(station->m_mcsStats.at(i).channelWidth,
-                                       guardInterval,
-                                       station->m_mcsStats.at(i).nss);
+        const auto guardInterval = GetModeGuardInterval(st, mode);
+        const auto rate = mode.GetDataRate(station->m_mcsStats.at(i).channelWidth,
+                                           guardInterval,
+                                           station->m_mcsStats.at(i).nss);
 
         // Thompson sampling
         frameSuccessRate = SampleBetaVariable(1.0 + station->m_mcsStats.at(i).success,
                                               1.0 + station->m_mcsStats.at(i).fails);
-        NS_LOG_DEBUG("Draw"
-                     << " success=" << station->m_mcsStats.at(i).success
-                     << " fails=" << station->m_mcsStats.at(i).fails
-                     << " frameSuccessRate=" << frameSuccessRate << " mode=" << mode);
+        NS_LOG_DEBUG("Draw success=" << station->m_mcsStats.at(i).success
+                                     << " fails=" << station->m_mcsStats.at(i).fails
+                                     << " frameSuccessRate=" << frameSuccessRate
+                                     << " mode=" << mode);
         if (frameSuccessRate * rate > maxThroughput)
         {
             maxThroughput = frameSuccessRate * rate;
@@ -254,7 +243,7 @@ ThompsonSamplingWifiManager::DoReportDataOk(WifiRemoteStation* st,
                                             double ackSnr,
                                             WifiMode ackMode,
                                             double dataSnr,
-                                            uint16_t dataChannelWidth,
+                                            MHz_u dataChannelWidth,
                                             uint8_t dataNss)
 {
     NS_LOG_FUNCTION(this << st << ackSnr << ackMode.GetUniqueName() << dataSnr);
@@ -271,7 +260,7 @@ ThompsonSamplingWifiManager::DoReportAmpduTxStatus(WifiRemoteStation* st,
                                                    uint16_t nFailedMpdus,
                                                    double rxSnr,
                                                    double dataSnr,
-                                                   uint16_t dataChannelWidth,
+                                                   MHz_u dataChannelWidth,
                                                    uint8_t dataNss)
 {
     NS_LOG_FUNCTION(this << st << nSuccessfulMpdus << nFailedMpdus << rxSnr << dataSnr);
@@ -297,7 +286,7 @@ ThompsonSamplingWifiManager::DoReportFinalDataFailed(WifiRemoteStation* station)
     NS_LOG_FUNCTION(this << station);
 }
 
-uint16_t
+Time
 ThompsonSamplingWifiManager::GetModeGuardInterval(WifiRemoteStation* st, WifiMode mode) const
 {
     if (mode.GetModulationClass() == WIFI_MOD_CLASS_HE)
@@ -307,35 +296,34 @@ ThompsonSamplingWifiManager::GetModeGuardInterval(WifiRemoteStation* st, WifiMod
     else if ((mode.GetModulationClass() == WIFI_MOD_CLASS_HT) ||
              (mode.GetModulationClass() == WIFI_MOD_CLASS_VHT))
     {
-        return std::max<uint16_t>(GetShortGuardIntervalSupported(st) ? 400 : 800,
-                                  GetShortGuardIntervalSupported() ? 400 : 800);
+        auto useSgi = GetShortGuardIntervalSupported(st) && GetShortGuardIntervalSupported();
+        return NanoSeconds(useSgi ? 400 : 800);
     }
     else
     {
-        return 800;
+        return NanoSeconds(800);
     }
 }
 
 WifiTxVector
-ThompsonSamplingWifiManager::DoGetDataTxVector(WifiRemoteStation* st, uint16_t allowedWidth)
+ThompsonSamplingWifiManager::DoGetDataTxVector(WifiRemoteStation* st, MHz_u allowedWidth)
 {
     NS_LOG_FUNCTION(this << st << allowedWidth);
     InitializeStation(st);
     auto station = static_cast<ThompsonSamplingWifiRemoteStation*>(st);
 
     auto& stats = station->m_mcsStats.at(station->m_nextMode);
-    WifiMode mode = stats.mode;
-    uint16_t channelWidth = std::min(stats.channelWidth, allowedWidth);
-    uint8_t nss = stats.nss;
-    uint16_t guardInterval = GetModeGuardInterval(st, mode);
+    const auto mode = stats.mode;
+    const auto channelWidth = std::min(stats.channelWidth, allowedWidth);
+    const auto nss = stats.nss;
+    const auto guardInterval = GetModeGuardInterval(st, mode);
 
     station->m_lastMode = station->m_nextMode;
 
-    NS_LOG_DEBUG("Using"
-                 << " mode=" << mode << " channelWidth=" << channelWidth << " nss=" << +nss
-                 << " guardInterval=" << guardInterval);
+    NS_LOG_DEBUG("Using mode=" << mode << " channelWidth=" << channelWidth << " nss=" << +nss
+                               << " guardInterval=" << guardInterval);
 
-    uint64_t rate = mode.GetDataRate(channelWidth, guardInterval, nss);
+    const auto rate = mode.GetDataRate(channelWidth, guardInterval, nss);
     if (m_currentRate != rate)
     {
         NS_LOG_DEBUG("New datarate: " << rate);

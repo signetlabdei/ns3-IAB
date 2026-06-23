@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2020 Lawrence Livermore National Laboratory
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Peter D. Barnes, Jr. <pdbarnes@llnl.gov>
  */
@@ -29,9 +18,13 @@
 #include <map>
 
 /**
- * \file
- * \ingroup core-examples randomvariable
- * \defgroup empirical-rng-example Core example: Empirical random variables use.
+ * @defgroup empirical-rng-example Core example: Empirical random variables use.
+ * @ingroup core-examples randomvariable
+ */
+
+/**
+ * @file
+ * @ingroup empirical-rng-example
  *
  * Example program illustrating use of ns3::EmpiricalRandomVariable
  *
@@ -50,11 +43,11 @@
 using namespace ns3;
 
 /**
- * \ingroup empirical-rng-example
+ * @ingroup empirical-rng-example
  *
- * \brief Sample the random variable only once.
- * \param mode Rng mode (Normal or Antithetic).
- * \param erv The empirical random variable.
+ * @brief Sample the random variable only once.
+ * @param mode Rng mode (Normal or Antithetic).
+ * @param erv The empirical random variable.
  */
 void
 RunSingleSample(std::string mode, Ptr<EmpiricalRandomVariable> erv)
@@ -76,13 +69,13 @@ RunSingleSample(std::string mode, Ptr<EmpiricalRandomVariable> erv)
 }
 
 /**
- * \ingroup empirical-rng-example
+ * @ingroup empirical-rng-example
  *
- * \brief Prints a stat line.
- * \param value The value to print.
- * \param count The number of times that value has been sampled.
- * \param n The total number of random values sampled.
- * \param sum The sum of the counts seen up to \p value, used to show
+ * @brief Prints a stat line.
+ * @param value The value to print.
+ * @param count The number of times that value has been sampled.
+ * @param n The total number of random values sampled.
+ * @param sum The sum of the counts seen up to \p value, used to show
  *            the CDF for \p value.
  */
 void
@@ -95,13 +88,13 @@ PrintStatsLine(const double value, const long count, const long n, const long su
 }
 
 /**
- * \ingroup empirical-rng-example
+ * @ingroup empirical-rng-example
  *
- * \brief Prints the summary.
- * \param sum The number of sampled values.
- * \param n The total number of random values to be drawn.
- * \param weighted The average of the sample.
- * \param expected The expected average of the sample.
+ * @brief Prints the summary.
+ * @param sum The number of sampled values.
+ * @param n The total number of random values to be drawn.
+ * @param weighted The average of the sample.
+ * @param expected The expected average of the sample.
  */
 void
 PrintSummary(long sum, long n, double weighted, double expected)
@@ -118,12 +111,12 @@ PrintSummary(long sum, long n, double weighted, double expected)
 }
 
 /**
- * \ingroup empirical-rng-example
+ * @ingroup empirical-rng-example
  *
- * \brief Sample the random variable.
- * \param mode Rng mode (Normal or Antithetic).
- * \param erv The empirical random variable.
- * \param n Number of samples to draw.
+ * @brief Sample the random variable.
+ * @param mode Rng mode (Normal or Antithetic).
+ * @param erv The empirical random variable.
+ * @param n Number of samples to draw.
  */
 void
 RunBothModes(std::string mode, Ptr<EmpiricalRandomVariable> erv, long n)
@@ -184,7 +177,7 @@ main(int argc, char* argv[])
     long n = 1000000;
     bool disableAnti = false;
     bool single = false;
-    CommandLine cmd;
+    CommandLine cmd(__FILE__);
     cmd.AddValue("count", "how many draws to make from the rng", n);
     cmd.AddValue("antithetic", "disable antithetic sampling", disableAnti);
     cmd.AddValue("single", "sample a single time", single);
@@ -207,14 +200,14 @@ main(int argc, char* argv[])
     // Create the ERV in sampling mode
     Ptr<EmpiricalRandomVariable> erv = CreateObject<EmpiricalRandomVariable>();
 
-    //                          // Expectation for bin
-    erv->CDF(0.0, 0.0 / 15.0);  // 0
-    erv->CDF(0.2, 1.0 / 15.0);  // 0.2 1/15  =  2/150
-    erv->CDF(0.4, 3.0 / 15.0);  // 0.4 2/15  =  8/150
-    erv->CDF(0.6, 4.0 / 15.0);  // 0.6 1/15  =  6/150
-    erv->CDF(0.8, 7.0 / 15.0);  // 0.8 3/15  = 24/150
-    erv->CDF(1.0, 9.0 / 15.0);  // 1.0 2/15  = 20/150
-    erv->CDF(1.0, 15.0 / 15.0); // 1.0 6/15  = 60/150  <avg> = 120/150 = 0.8
+    //                         // Expectation for bin
+    erv->CDF(0.0, 0.0);        // 0
+    erv->CDF(0.2, 1.0 / 15.0); // 0.2 1/15  =  2/150
+    erv->CDF(0.4, 3.0 / 15.0); // 0.4 2/15  =  8/150
+    erv->CDF(0.6, 4.0 / 15.0); // 0.6 1/15  =  6/150
+    erv->CDF(0.8, 7.0 / 15.0); // 0.8 3/15  = 24/150
+    erv->CDF(1.0, 9.0 / 15.0); // 1.0 2/15  = 20/150
+    erv->CDF(1.0, 1.0);        // 1.0 6/15  = 60/150  <avg> = 120/150 = 0.8
 
     if (single)
     {

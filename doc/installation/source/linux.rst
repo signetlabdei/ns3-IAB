@@ -21,38 +21,33 @@ extensions you need; please review the previous chapter if you need more informa
 Requirements
 ************
 
-The minimum supported version of Ubuntu is Ubuntu 16.04 LTS (as long as a modern compiler
-version such as g++ version 8 or later is added).
+The minimum supported version of Ubuntu is Ubuntu 22.04 LTS.  Older versions may also be
+suitable as long as the C++ compiler version is relatively recent.  As of the ns-3.46
+release, g++ version 11 or later is required (or clang++ version 17 or later).
+Older ns-3 releases may work with older versions of g++; check the RELEASE_NOTES.md file.
 
-  +--------------------+---------------------------------------------------------------------+
-  | **ns-3 Version**   | **apt Packages**                                                    |
-  +====================+==================+==================================================+
-  | 3.36 and later     | ``g++ python3 cmake ninja-build git``                               |
-  +--------------------+---------------------------------------------------------------------+
-  | 3.30-3.35          | ``g++ python3 git``                                                 |
-  +--------------------+---------------------------------------------------------------------+
-  | 3.29 and earlier   | ``g++ python2``                                                     |
-  +--------------------+---------------------------------------------------------------------+
-
-.. note::
-  As of January 2022 (ns-3.36 release and later), the minimum g++ version is g++-8.
-  Older Ubuntu releases (18.04, 16.04) come with an older default g++. On Ubuntu 18.04, this
-  `StackOverflow answer <https://askubuntu.com/a/1028656>`_ can be followed to install and
-  prefer g++-8. On older Ubuntu such as 16.04, to use the most recent |ns3|, you must install
-  g++-8 or g++-9 from the `Ubuntu toolchain <https://launchpad.net/%7Eubuntu-toolchain-r/+archive/ubuntu/test>`_.
++--------------------+---------------------------------------------------------------------+
+| **ns-3 Version**   | **apt Packages**                                                    |
++====================+==================+==================================================+
+| 3.36 and later     | ``g++ python3 cmake ninja-build git``                               |
++--------------------+---------------------------------------------------------------------+
+| 3.30-3.35          | ``g++ python3 git``                                                 |
++--------------------+---------------------------------------------------------------------+
+| 3.29 and earlier   | ``g++ python2``                                                     |
++--------------------+---------------------------------------------------------------------+
 
 Recommended
 ***********
 
-  +-----------------------------+------------------------------------------------------------+
-  | **Feature**                 | **apt Packages**                                           |
-  +=============================+============================================================+
-  | Compiler cache optimization | ``ccache``                                                 |
-  +-----------------------------+------------------------------------------------------------+
-  | Code linting                | ``clang-format clang-tidy``                                |
-  +-----------------------------+------------------------------------------------------------+
-  | Debugging                   | ``gdb valgrind``                                           |
-  +-----------------------------+------------------------------------------------------------+
++-----------------------------+------------------------------------------------------------+
+| **Feature**                 | **apt Packages**                                           |
++=============================+============================================================+
+| Compiler cache optimization | ``ccache``                                                 |
++-----------------------------+------------------------------------------------------------+
+| Code linting                | ``clang-format clang-tidy``                                |
++-----------------------------+------------------------------------------------------------+
+| Debugging                   | ``gdb valgrind``                                           |
++-----------------------------+------------------------------------------------------------+
 
 .. note::
   For Ubuntu 20.04 release and earlier, the version of ccache provided by apt
@@ -61,44 +56,55 @@ Recommended
   installed using apt.
 
 .. note::
-  clang-format-14 through clang-format-16 version is required.
+  Different versions of ns-3 use different versions of clang-format, resulting in
+  slightly different formatting decisions.  The ``check-style-clang-format.py``
+  file enforces a minimum and maximum major version of clang-format with which the
+  current codebase is compatible.  Since the ns-3.46 release, please consult the
+  ``RELEASE_NOTES.md`` file for the currently supported versions.
+  For some additional information about installing and using clang-format, please see the
+  `ns-3 coding style section <https://www.nsnam.org/docs/contributing/html/coding-style.html#clang-format>`_
+  on clang-format.
+
+.. note::
+  Different versions of ns-3 use different versions of clang-tidy.  Since the ns-3.46
+  release, see the ``RELEASE_NOTES.md`` file for the currently supported versions.
 
 Optional
 ********
 
 Please see below subsections for Python-related package requirements.
 
-  +-----------------------------+------------------------------------------------------------+
-  | **Feature**                 | **apt Packages**                                           |
-  +=============================+============================================================+
-  | Reading pcap traces         | ``tcpdump wireshark``                                      |
-  +-----------------------------+------------------------------------------------------------+
-  | Database support            | ``sqlite sqlite3 libsqlite3-dev``                          |
-  +-----------------------------+------------------------------------------------------------+
-  | NetAnim animator            | ``qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools``      |
-  +-----------------------------+------------------------------------------------------------+
-  | MPI-based distributed       |                                                            |
-  | simulation                  | ``openmpi-bin openmpi-common openmpi-doc libopenmpi-dev``  |
-  +-----------------------------+------------------------------------------------------------+
-  | Building Doxygen            | ``doxygen graphviz imagemagick``                           |
-  +-----------------------------+------------------------------------------------------------+
-  | Sphinx documentation        | ``python3-sphinx dia imagemagick texlive dvipng latexmk``  |
-  |                             | ``texlive-extra-utils texlive-latex-extra``                |
-  |                             | ``texlive-font-utils``                                     |
-  +-----------------------------+------------------------------------------------------------+
-  | Eigen3                      | ``libeigen3-dev``                                          |
-  +-----------------------------+------------------------------------------------------------+
-  | GNU Scientific Library      | ``gsl-bin libgsl-dev libgslcblas0``                        |
-  +-----------------------------+------------------------------------------------------------+
-  | XML config store            | ``libxml2 libxml2-dev``                                    |
-  +-----------------------------+------------------------------------------------------------+
-  | GTK-based config store      | ``libgtk-3-dev``                                           |
-  +-----------------------------+------------------------------------------------------------+
-  | Emulation with virtual      | ``lxc-utils lxc-templates``                                |
-  | machines and tap bridge     | ``vtun uml-utilities ebtables bridge-utils``               |
-  +-----------------------------+------------------------------------------------------------+
-  | Support for openflow        | ``libxml2 libxml2-dev libboost-all-dev``                   |
-  +-----------------------------+------------------------------------------------------------+
++-----------------------------+------------------------------------------------------------+
+| **Feature**                 | **apt Packages**                                           |
++=============================+============================================================+
+| Reading pcap traces         | ``tcpdump wireshark``                                      |
++-----------------------------+------------------------------------------------------------+
+| Database support            | ``sqlite sqlite3 libsqlite3-dev``                          |
++-----------------------------+------------------------------------------------------------+
+| NetAnim animator            | ``qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools``      |
++-----------------------------+------------------------------------------------------------+
+| MPI-based distributed       |                                                            |
+| simulation                  | ``openmpi-bin openmpi-common openmpi-doc libopenmpi-dev``  |
++-----------------------------+------------------------------------------------------------+
+| Building Doxygen            | ``doxygen graphviz imagemagick``                           |
++-----------------------------+------------------------------------------------------------+
+| Sphinx documentation        | ``python3-sphinx dia imagemagick texlive dvipng latexmk``  |
+|                             | ``texlive-extra-utils texlive-latex-extra``                |
+|                             | ``texlive-font-utils``                                     |
++-----------------------------+------------------------------------------------------------+
+| Eigen3                      | ``libeigen3-dev``                                          |
++-----------------------------+------------------------------------------------------------+
+| GNU Scientific Library      | ``gsl-bin libgsl-dev libgslcblas0``                        |
++-----------------------------+------------------------------------------------------------+
+| XML config store            | ``libxml2 libxml2-dev``                                    |
++-----------------------------+------------------------------------------------------------+
+| GTK-based config store      | ``libgtk-3-dev``                                           |
++-----------------------------+------------------------------------------------------------+
+| Emulation with virtual      |                                                            |
+| machines and tap bridge     | ``lxc-utils lxc-templates iproute2 iptables``              |
++-----------------------------+------------------------------------------------------------+
+| Support for openflow        | ``libxml2 libxml2-dev libboost-all-dev``                   |
++-----------------------------+------------------------------------------------------------+
 
 .. note::
   For Ubuntu 20.10 and earlier, the single 'qt5-default' package suffices for NetAnim (``apt install qt5-default``)
@@ -106,9 +112,20 @@ Please see below subsections for Python-related package requirements.
 Python bindings
 ===============
 
-ns-3.37 and newer::
+Python requires `Cppyy, <https://cppyy.readthedocs.io/en/latest/installation.html>` and specifically,
+version 3.5.0 is the latest version known to work with ns-3 at this time.
 
-  python3 -m pip install --user cppyy
+ns-3.45 and newer::
+
+  python3 -m pip install --user cppyy==3.5.0
+
+ns-3.42-3.44::
+
+  python3 -m pip install --user cppyy==3.1.2
+
+ns-3.37-3.41::
+
+  python3 -m pip install --user cppyy==2.4.2
 
 ns-3.30-3.36 (also requires pybindgen, found in the ``allinone`` directory)::
 
@@ -164,3 +181,8 @@ change to ImageMagick security policy::
    +  <policy domain="coder" rights="read|write" pattern="PDF" />
       <policy domain="coder" rights="none" pattern="XPS" />
     </policymap>
+
+If you install eigen3 via brew packaging for Linux (eigen@3), you need to add it to the CMake
+prefix path to be able to locate it properly, since brew does not symlink it.::
+
+  ./ns3 configure -- -DCMAKE_PREFIX_PATH="/home/linuxbrew/.linuxbrew/opt/eigen@3/"

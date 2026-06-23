@@ -2,18 +2,7 @@
  * Copyright (c) 2007 Georgia Tech Research Corporation
  * Copyright (c) 2009 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Ken Renard <kenneth.d.renard.ctr@mail.mil>
  *
@@ -51,9 +40,9 @@ using namespace ns3;
 NS_LOG_COMPONENT_DEFINE("Ipv6DualStackTestSuite");
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv6 dual stack Test
+ * @brief IPv6 dual stack Test
  */
 class DualStackTestCase : public TestCase
 {
@@ -65,7 +54,7 @@ class DualStackTestCase : public TestCase
     void DoTeardown() override;
 
     /**
-     * \brief Setup the test.
+     * @brief Setup the test.
      */
     void SetUpSim();
 
@@ -74,26 +63,26 @@ class DualStackTestCase : public TestCase
 
     /**
      * Handle connection created (1).
-     * \param s The socket.
-     * \param addr The peer address.
+     * @param s The socket.
+     * @param addr The peer address.
      */
     void ServerHandleConnectionCreated1(Ptr<Socket> s, const Address& addr);
     /**
      * Handle connection created (2).
-     * \param s The socket.
-     * \param addr The peer address.
+     * @param s The socket.
+     * @param addr The peer address.
      */
     void ServerHandleConnectionCreated2(Ptr<Socket> s, const Address& addr);
     /**
      * Handle connection created (3).
-     * \param s The socket.
-     * \param addr The peer address.
+     * @param s The socket.
+     * @param addr The peer address.
      */
     void ServerHandleConnectionCreated3(Ptr<Socket> s, const Address& addr);
     /**
      * Handle connection created (4).
-     * \param s The socket.
-     * \param addr The peer address.
+     * @param s The socket.
+     * @param addr The peer address.
      */
     void ServerHandleConnectionCreated4(Ptr<Socket> s, const Address& addr);
 
@@ -352,17 +341,17 @@ DualStackTestCase::DoTeardown()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv6 dual stack TestSuite
+ * @brief IPv6 dual stack TestSuite
  */
 class Ipv6DualStackTestSuite : public TestSuite
 {
   public:
     Ipv6DualStackTestSuite()
-        : TestSuite("ipv6-dual-stack", UNIT)
+        : TestSuite("ipv6-dual-stack", Type::UNIT)
     {
-        AddTestCase(new DualStackTestCase(), TestCase::QUICK);
+        AddTestCase(new DualStackTestCase(), TestCase::Duration::QUICK);
     }
 };
 

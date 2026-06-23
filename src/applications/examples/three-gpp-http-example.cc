@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2016 Magister Solutions
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Lauri Sormunen <lauri.sormunen@magister.fi>
  */
@@ -93,6 +82,17 @@ ClientEmbeddedObjectReceived(Ptr<const ThreeGppHttpClient>, Ptr<const Packet> pa
     }
 }
 
+void
+ClientPageReceived(Ptr<const ThreeGppHttpClient> client,
+                   const Time& time,
+                   uint32_t numObjects,
+                   uint32_t numBytes)
+{
+    NS_LOG_INFO("Client " << client << " has received a page that took " << time.As(Time::MS)
+                          << " ms to load with " << numObjects << " objects and " << numBytes
+                          << " bytes.");
+}
+
 int
 main(int argc, char* argv[])
 {
@@ -163,6 +163,7 @@ main(int argc, char* argv[])
     httpClient->TraceConnectWithoutContext("RxEmbeddedObject",
                                            MakeCallback(&ClientEmbeddedObjectReceived));
     httpClient->TraceConnectWithoutContext("Rx", MakeCallback(&ClientRx));
+    httpClient->TraceConnectWithoutContext("RxPage", MakeCallback(&ClientPageReceived));
 
     // Stop browsing after 30 minutes
     clientApps.Stop(Seconds(simTimeSec));

@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2005 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -35,7 +24,7 @@ class Mac48Address;
 class WifiMpdu;
 
 /**
- * \ingroup wifi
+ * @ingroup wifi
  *
  * This class handles duplicate detection and recomposition of fragments.
  */
@@ -45,7 +34,7 @@ class MacRxMiddle : public SimpleRefCount<MacRxMiddle>
     /**
      * typedef for callback
      */
-    typedef Callback<void, Ptr<const WifiMpdu>, uint8_t /* link ID */> ForwardUpCallback;
+    using ForwardUpCallback = Callback<void, Ptr<const WifiMpdu>, uint8_t /* link ID */>;
 
     MacRxMiddle();
     ~MacRxMiddle();
@@ -53,15 +42,15 @@ class MacRxMiddle : public SimpleRefCount<MacRxMiddle>
     /**
      * Set a callback to forward the packet up.
      *
-     * \param callback the callback to set
+     * @param callback the callback to set
      */
     void SetForwardCallback(ForwardUpCallback callback);
 
     /**
      * Receive an MPDU on the given link.
      *
-     * \param mpdu the MPDU
-     * \param linkId the ID of the given link
+     * @param mpdu the MPDU
+     * @param linkId the ID of the given link
      */
     void Receive(Ptr<const WifiMpdu> mpdu, uint8_t linkId);
 
@@ -70,25 +59,26 @@ class MacRxMiddle : public SimpleRefCount<MacRxMiddle>
     friend class MacRxMiddleTest;
     /**
      * Look up for OriginatorRxStatus associated with the sender address
-     * (by looking at ADDR2 field in the header).
+     * (by looking at ADDR2 field in the header) for unicast. For groupcast,
+     * the (nonconcealed) group address is used instead.
      * The method creates a new OriginatorRxStatus if one is not already presented.
      *
-     * \param hdr the MAC header
+     * @param mpdu the received MPDU
      *
-     * \return OriginatorRxStatus
+     * @return OriginatorRxStatus
      */
-    OriginatorRxStatus* Lookup(const WifiMacHeader* hdr);
+    OriginatorRxStatus& Lookup(Ptr<const WifiMpdu> mpdu);
     /**
      * Check if we have already received the packet from the sender before
      * (by looking at the sequence control field).
      *
-     * \param hdr the MAC header
-     * \param originator the packet originator status
+     * @param hdr the MAC header
+     * @param originator the packet originator status
      *
-     * \return true if we already received the packet previously,
+     * @return true if we already received the packet previously,
      *         false otherwise
      */
-    bool IsDuplicate(const WifiMacHeader* hdr, OriginatorRxStatus* originator) const;
+    bool IsDuplicate(const WifiMacHeader& hdr, const OriginatorRxStatus& originator) const;
     /**
      * Check if the received packet is a fragment and handle it appropriately.
      * If the packet is not a fragment, the method returns the packet.
@@ -97,39 +87,38 @@ class MacRxMiddle : public SimpleRefCount<MacRxMiddle>
      * If the packet is the last fragment, the method tries to re-construct the full packet
      * and return the packet if success.
      *
-     * \param packet the packet
-     * \param hdr the MAC header
-     * \param originator the packet originator status
+     * @param packet the packet
+     * @param hdr the MAC header
+     * @param originator the packet originator status
      *
-     * \return a packet if the packet is successfully reassembled (or not a fragment),
+     * @return a packet if the packet is successfully reassembled (or not a fragment),
      *         0 if we failed to reassemble the packet (e.g. missing fragments/out-of-order).
      */
     Ptr<const Packet> HandleFragments(Ptr<const Packet> packet,
-                                      const WifiMacHeader* hdr,
-                                      OriginatorRxStatus* originator);
+                                      const WifiMacHeader& hdr,
+                                      OriginatorRxStatus& originator);
 
     /**
      * typedef for a map between address and OriginatorRxStatus
      */
-    typedef std::map<Mac48Address, OriginatorRxStatus*, std::less<Mac48Address>> Originators;
+    using Originators = std::map<Mac48Address, OriginatorRxStatus, std::less<>>;
+
     /**
      * typedef for a map between address, OriginatorRxStatus, and Traffic ID
      */
-    typedef std::map<std::pair<Mac48Address, uint8_t>,
-                     OriginatorRxStatus*,
-                     std::less<std::pair<Mac48Address, uint8_t>>>
-        QosOriginators;
+    using QosOriginators =
+        std::map<std::pair<Mac48Address, uint8_t>, OriginatorRxStatus, std::less<>>;
+
     /**
      * typedef for an iterator for Originators
      */
-    typedef std::map<Mac48Address, OriginatorRxStatus*, std::less<Mac48Address>>::iterator
-        OriginatorsI;
+    using OriginatorsI = std::map<Mac48Address, OriginatorRxStatus, std::less<>>::iterator;
+
     /**
      * typedef for an iterator for QosOriginators
      */
-    typedef std::map<std::pair<Mac48Address, uint8_t>,
-                     OriginatorRxStatus*,
-                     std::less<std::pair<Mac48Address, uint8_t>>>::iterator QosOriginatorsI;
+    using QosOriginatorsI =
+        std::map<std::pair<Mac48Address, uint8_t>, OriginatorRxStatus, std::less<>>::iterator;
 
     Originators m_originatorStatus;       ///< originator status
     QosOriginators m_qosOriginatorStatus; ///< QOS originator status

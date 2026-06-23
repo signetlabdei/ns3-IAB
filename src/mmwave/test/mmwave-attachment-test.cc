@@ -160,10 +160,10 @@ public:
   MmWaveAttachmentTest ();
 };
 
-MmWaveAttachmentTest::MmWaveAttachmentTest () : TestSuite ("mmwave-attachment-test", UNIT)
+MmWaveAttachmentTest::MmWaveAttachmentTest () : TestSuite ("mmwave-attachment-test", TestSuite::Type::UNIT)
 {
   // TestDuration for TestCase can be QUICK, EXTENSIVE or TAKES_FOREVER
-  AddTestCase (new MmWaveAttachmentTestCase, TestCase::QUICK);
+  AddTestCase (new MmWaveAttachmentTestCase, TestCase::Duration::QUICK);
 }
 
 // Do not forget to allocate an instance of this TestSuite

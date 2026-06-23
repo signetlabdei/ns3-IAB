@@ -2,18 +2,7 @@
  * Copyright (c) 2008 INRIA
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr> (original node-container.cc)
  *         Nicola Baldo (wrote building-container.cc based on node-container.cc)
@@ -77,7 +66,7 @@ BuildingContainer::Create(uint32_t n)
 void
 BuildingContainer::Add(BuildingContainer other)
 {
-    for (Iterator i = other.Begin(); i != other.End(); i++)
+    for (auto i = other.Begin(); i != other.End(); i++)
     {
         m_buildings.push_back(*i);
     }
@@ -100,7 +89,7 @@ BuildingContainer
 BuildingContainer::GetGlobal()
 {
     BuildingContainer c;
-    for (BuildingList::Iterator i = BuildingList::Begin(); i != BuildingList::End(); ++i)
+    for (auto i = BuildingList::Begin(); i != BuildingList::End(); ++i)
     {
         c.Add(*i);
     }

@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2015 Natale Patriciello, <natale.patriciello@gmail.com>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  */
 
@@ -27,18 +16,18 @@ using namespace ns3;
 NS_LOG_COMPONENT_DEFINE("TcpHighSpeedTestSuite");
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief Testing the congestion avoidance increment on TcpHighSpeed
+ * @brief Testing the congestion avoidance increment on TcpHighSpeed
  */
 class TcpHighSpeedIncrementTest : public TestCase
 {
   public:
     /**
-     * \brief Constructor.
-     * \param cWnd Congestion window.
-     * \param segmentSize Segment size.
-     * \param name Test description.
+     * @brief Constructor.
+     * @param cWnd Congestion window.
+     * @param segmentSize Segment size.
+     * @param name Test description.
      */
     TcpHighSpeedIncrementTest(uint32_t cWnd, uint32_t segmentSize, const std::string& name);
 
@@ -81,18 +70,18 @@ TcpHighSpeedIncrementTest::DoRun()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief Testing the congestion avoidance decrement on TcpHighSpeed
+ * @brief Testing the congestion avoidance decrement on TcpHighSpeed
  */
 class TcpHighSpeedDecrementTest : public TestCase
 {
   public:
     /**
-     * \brief Constructor.
-     * \param cWnd Congestion window.
-     * \param segmentSize Segment size.
-     * \param name Test description.
+     * @brief Constructor.
+     * @param cWnd Congestion window.
+     * @param segmentSize Segment size.
+     * @param name Test description.
      */
     TcpHighSpeedDecrementTest(uint32_t cWnd, uint32_t segmentSize, const std::string& name);
 
@@ -134,9 +123,9 @@ TcpHighSpeedDecrementTest::DoRun()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief TcpHighSpeed Congestion window values to test.
+ * @brief TcpHighSpeed Congestion window values to test.
  */
 struct HighSpeedImportantValues
 {
@@ -175,15 +164,15 @@ static const HighSpeedImportantValues highSpeedImportantValues[]{
 #define HIGHSPEED_VALUES_N 71
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief TCP HighSpeed TestSuite
+ * @brief TCP HighSpeed TestSuite
  */
 class TcpHighSpeedTestSuite : public TestSuite
 {
   public:
     TcpHighSpeedTestSuite()
-        : TestSuite("tcp-highspeed-test", UNIT)
+        : TestSuite("tcp-highspeed-test", Type::UNIT)
     {
         std::stringstream ss;
 
@@ -194,32 +183,32 @@ class TcpHighSpeedTestSuite : public TestSuite
                 new TcpHighSpeedIncrementTest(highSpeedImportantValues[i].cwnd,
                                               1,
                                               "Highspeed increment test on cWnd " + ss.str()),
-                TestCase::QUICK);
+                TestCase::Duration::QUICK);
             AddTestCase(
                 new TcpHighSpeedIncrementTest(highSpeedImportantValues[i].cwnd * 536,
                                               536,
                                               "Highspeed increment test on cWnd " + ss.str()),
-                TestCase::QUICK);
+                TestCase::Duration::QUICK);
             AddTestCase(
                 new TcpHighSpeedIncrementTest(highSpeedImportantValues[i].cwnd * 1446,
                                               1446,
                                               "Highspeed increment test on cWnd " + ss.str()),
-                TestCase::QUICK);
+                TestCase::Duration::QUICK);
             AddTestCase(
                 new TcpHighSpeedDecrementTest(highSpeedImportantValues[i].cwnd,
                                               1,
                                               "Highspeed Decrement test on cWnd " + ss.str()),
-                TestCase::QUICK);
+                TestCase::Duration::QUICK);
             AddTestCase(
                 new TcpHighSpeedDecrementTest(highSpeedImportantValues[i].cwnd * 536,
                                               536,
                                               "Highspeed Decrement test on cWnd " + ss.str()),
-                TestCase::QUICK);
+                TestCase::Duration::QUICK);
             AddTestCase(
                 new TcpHighSpeedDecrementTest(highSpeedImportantValues[i].cwnd * 1446,
                                               1446,
                                               "Highspeed Decrement test on cWnd " + ss.str()),
-                TestCase::QUICK);
+                TestCase::Duration::QUICK);
             ss.flush();
         }
     }

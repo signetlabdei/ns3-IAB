@@ -261,6 +261,10 @@ can also create their own custom random variables by deriving from class
 * class :cpp:class:`ZetaRandomVariable`
 * class :cpp:class:`DeterministicRandomVariable`
 * class :cpp:class:`EmpiricalRandomVariable`
+* class :cpp:class:`BinomialRandomVariable`
+* class :cpp:class:`BernoulliRandomVariable`
+* class :cpp:class:`LaplacianRandomVariable`
+* class :cpp:class:`LargestExtremeValueRandomVariable`
 
 Semantics of RandomVariableStream objects
 *****************************************
