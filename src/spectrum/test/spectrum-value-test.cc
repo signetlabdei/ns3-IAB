@@ -1,29 +1,17 @@
 /*
  * Copyright (c) 2009 CTTC
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Nicola Baldo <nbaldo@cttc.es>
  */
 
-#include "spectrum-test.h"
-
-#include <ns3/log.h>
-#include <ns3/object.h>
-#include <ns3/spectrum-converter.h>
-#include <ns3/spectrum-value.h>
-#include <ns3/test.h>
+#include "ns3/log.h"
+#include "ns3/object.h"
+#include "ns3/spectrum-converter.h"
+#include "ns3/spectrum-test.h"
+#include "ns3/spectrum-value.h"
+#include "ns3/test.h"
 
 #include <cmath>
 #include <iostream>
@@ -35,18 +23,74 @@ using namespace ns3;
 #define TOLERANCE 1e-6
 
 /**
- * \ingroup spectrum-tests
+ * @ingroup spectrum-tests
  *
- * \brief Spectrum Value Test
+ * @brief Spectrum Value Test
+ */
+class SpectrumModelTestCase : public TestCase
+{
+  public:
+    /**
+     * Constructor
+     * @param a first SpectrumModel
+     * @param b second SpectrumModel
+     * @param name test name
+     * @param expectOrthogonal whether the two models are expected to be orthogonal
+     * @param expectAligned whether the two models are expected to be aligned
+     */
+    SpectrumModelTestCase(Ptr<SpectrumModel> a,
+                          Ptr<SpectrumModel> b,
+                          const std::string& name,
+                          bool expectOrthogonal,
+                          bool expectAligned);
+    void DoRun() override;
+
+  private:
+    Ptr<SpectrumModel> m_a;  //!< first SpectrumModel
+    Ptr<SpectrumModel> m_b;  //!< second SpectrumModel
+    bool m_expectOrthogonal; //!< whether the two models are expected to be orthogonal
+    bool m_expectAligned;    //!< whether the two models are expected to be aligned
+};
+
+SpectrumModelTestCase::SpectrumModelTestCase(Ptr<SpectrumModel> a,
+                                             Ptr<SpectrumModel> b,
+                                             const std::string& name,
+                                             bool expectOrthogonal,
+                                             bool expectAligned)
+    : TestCase(name),
+      m_a(a),
+      m_b(b),
+      m_expectOrthogonal(expectOrthogonal),
+      m_expectAligned(expectAligned)
+{
+}
+
+void
+SpectrumModelTestCase::DoRun()
+{
+    NS_TEST_EXPECT_MSG_EQ(
+        m_a->IsOrthogonal(*m_b),
+        m_expectOrthogonal,
+        (m_expectOrthogonal ? "Expected orthogonal models" : "Expected non-orthogonal models"));
+    NS_TEST_EXPECT_MSG_EQ(
+        m_a->IsAligned(*m_b),
+        m_expectAligned,
+        (m_expectAligned ? "Expected aligned models" : "Expected non-aligned models"));
+}
+
+/**
+ * @ingroup spectrum-tests
+ *
+ * @brief Spectrum Value Test
  */
 class SpectrumValueTestCase : public TestCase
 {
   public:
     /**
      * Constructor
-     * \param a first SpectrumValue
-     * \param b second SpectrumValue
-     * \param name test name
+     * @param a first SpectrumValue
+     * @param b second SpectrumValue
+     * @param name test name
      */
     SpectrumValueTestCase(SpectrumValue a, SpectrumValue b, std::string name);
     ~SpectrumValueTestCase() override;
@@ -55,9 +99,9 @@ class SpectrumValueTestCase : public TestCase
   private:
     /**
      * Check that two SpectrumValue are equal within a tolerance
-     * \param x first SpectrumValue
-     * \param y second SpectrumValue
-     * \return true if the two values are within the tolerance
+     * @param x first SpectrumValue
+     * @param y second SpectrumValue
+     * @return true if the two values are within the tolerance
      */
     bool MoreOrLessEqual(SpectrumValue x, SpectrumValue y);
 
@@ -94,9 +138,9 @@ SpectrumValueTestCase::DoRun()
 }
 
 /**
- * \ingroup spectrum-tests
+ * @ingroup spectrum-tests
  *
- * \brief Spectrum Value TestSuite
+ * @brief Spectrum Value TestSuite
  */
 class SpectrumValueTestSuite : public TestSuite
 {
@@ -105,7 +149,7 @@ class SpectrumValueTestSuite : public TestSuite
 };
 
 SpectrumValueTestSuite::SpectrumValueTestSuite()
-    : TestSuite("spectrum-value", UNIT)
+    : TestSuite("spectrum-value", Type::UNIT)
 {
     // NS_LOG_INFO("creating SpectrumValueTestSuite");
 
@@ -203,10 +247,10 @@ SpectrumValueTestSuite::SpectrumValueTestSuite()
     tv5 = v1 * v2;
     tv6 = v1 / v2;
 
-    AddTestCase(new SpectrumValueTestCase(tv3, v3, "tv3 = v1 + v2"), TestCase::QUICK);
-    AddTestCase(new SpectrumValueTestCase(tv4, v4, "tv4 = v1 - v2"), TestCase::QUICK);
-    AddTestCase(new SpectrumValueTestCase(tv5, v5, "tv5 = v1 * v2"), TestCase::QUICK);
-    AddTestCase(new SpectrumValueTestCase(tv6, v6, "tv6 = v1 div v2"), TestCase::QUICK);
+    AddTestCase(new SpectrumValueTestCase(tv3, v3, "tv3 = v1 + v2"), TestCase::Duration::QUICK);
+    AddTestCase(new SpectrumValueTestCase(tv4, v4, "tv4 = v1 - v2"), TestCase::Duration::QUICK);
+    AddTestCase(new SpectrumValueTestCase(tv5, v5, "tv5 = v1 * v2"), TestCase::Duration::QUICK);
+    AddTestCase(new SpectrumValueTestCase(tv6, v6, "tv6 = v1 div v2"), TestCase::Duration::QUICK);
 
     // std::cerr << v6 << std::endl;
     // std::cerr << tv6 << std::endl;
@@ -221,10 +265,10 @@ SpectrumValueTestSuite::SpectrumValueTestSuite()
     tv5 *= v2;
     tv6 /= v2;
 
-    AddTestCase(new SpectrumValueTestCase(tv3, v3, "tv3 += v2"), TestCase::QUICK);
-    AddTestCase(new SpectrumValueTestCase(tv4, v4, "tv4 -= v2"), TestCase::QUICK);
-    AddTestCase(new SpectrumValueTestCase(tv5, v5, "tv5 *= v2"), TestCase::QUICK);
-    AddTestCase(new SpectrumValueTestCase(tv6, v6, "tv6 div= v2"), TestCase::QUICK);
+    AddTestCase(new SpectrumValueTestCase(tv3, v3, "tv3 += v2"), TestCase::Duration::QUICK);
+    AddTestCase(new SpectrumValueTestCase(tv4, v4, "tv4 -= v2"), TestCase::Duration::QUICK);
+    AddTestCase(new SpectrumValueTestCase(tv5, v5, "tv5 *= v2"), TestCase::Duration::QUICK);
+    AddTestCase(new SpectrumValueTestCase(tv6, v6, "tv6 div= v2"), TestCase::Duration::QUICK);
 
     SpectrumValue tv7a(f);
     SpectrumValue tv8a(f);
@@ -234,11 +278,14 @@ SpectrumValueTestSuite::SpectrumValueTestSuite()
     tv8a = v1 - doubleValue;
     tv9a = v1 * doubleValue;
     tv10a = v1 / doubleValue;
-    AddTestCase(new SpectrumValueTestCase(tv7a, v7, "tv7a = v1 + doubleValue"), TestCase::QUICK);
-    AddTestCase(new SpectrumValueTestCase(tv8a, v8, "tv8a = v1 - doubleValue"), TestCase::QUICK);
-    AddTestCase(new SpectrumValueTestCase(tv9a, v9, "tv9a = v1 * doubleValue"), TestCase::QUICK);
+    AddTestCase(new SpectrumValueTestCase(tv7a, v7, "tv7a = v1 + doubleValue"),
+                TestCase::Duration::QUICK);
+    AddTestCase(new SpectrumValueTestCase(tv8a, v8, "tv8a = v1 - doubleValue"),
+                TestCase::Duration::QUICK);
+    AddTestCase(new SpectrumValueTestCase(tv9a, v9, "tv9a = v1 * doubleValue"),
+                TestCase::Duration::QUICK);
     AddTestCase(new SpectrumValueTestCase(tv10a, v10, "tv10a = v1 div doubleValue"),
-                TestCase::QUICK);
+                TestCase::Duration::QUICK);
 
     SpectrumValue tv7b(f);
     SpectrumValue tv8b(f);
@@ -248,11 +295,14 @@ SpectrumValueTestSuite::SpectrumValueTestSuite()
     tv8b = doubleValue - v1;
     tv9b = doubleValue * v1;
     tv10b = doubleValue / v1;
-    AddTestCase(new SpectrumValueTestCase(tv7b, v7, "tv7b =  doubleValue + v1"), TestCase::QUICK);
-    AddTestCase(new SpectrumValueTestCase(tv8b, v8, "tv8b =  doubleValue - v1"), TestCase::QUICK);
-    AddTestCase(new SpectrumValueTestCase(tv9b, v9, "tv9b =  doubleValue * v1"), TestCase::QUICK);
+    AddTestCase(new SpectrumValueTestCase(tv7b, v7, "tv7b =  doubleValue + v1"),
+                TestCase::Duration::QUICK);
+    AddTestCase(new SpectrumValueTestCase(tv8b, v8, "tv8b =  doubleValue - v1"),
+                TestCase::Duration::QUICK);
+    AddTestCase(new SpectrumValueTestCase(tv9b, v9, "tv9b =  doubleValue * v1"),
+                TestCase::Duration::QUICK);
     AddTestCase(new SpectrumValueTestCase(tv10b, v10, "tv10b = doubleValue div v1"),
-                TestCase::QUICK);
+                TestCase::Duration::QUICK);
 
     SpectrumValue v1ls3(f);
     SpectrumValue v1rs3(f);
@@ -262,18 +312,20 @@ SpectrumValueTestSuite::SpectrumValueTestSuite()
     v1ls3[0] = v1[3];
     v1ls3[1] = v1[4];
     tv1ls3 = v1 << 3;
-    AddTestCase(new SpectrumValueTestCase(tv1ls3, v1ls3, "tv1ls3 = v1 << 3"), TestCase::QUICK);
+    AddTestCase(new SpectrumValueTestCase(tv1ls3, v1ls3, "tv1ls3 = v1 << 3"),
+                TestCase::Duration::QUICK);
 
     v1rs3[3] = v1[0];
     v1rs3[4] = v1[1];
     tv1rs3 = v1 >> 3;
-    AddTestCase(new SpectrumValueTestCase(tv1rs3, v1rs3, "tv1rs3 = v1 >> 3"), TestCase::QUICK);
+    AddTestCase(new SpectrumValueTestCase(tv1rs3, v1rs3, "tv1rs3 = v1 >> 3"),
+                TestCase::Duration::QUICK);
 }
 
 /**
- * \ingroup spectrum-tests
+ * @ingroup spectrum-tests
  *
- * \brief Spectrum Converter TestSuite
+ * @brief Spectrum Converter TestSuite
  */
 class SpectrumConverterTestSuite : public TestSuite
 {
@@ -282,7 +334,7 @@ class SpectrumConverterTestSuite : public TestSuite
 };
 
 SpectrumConverterTestSuite::SpectrumConverterTestSuite()
-    : TestSuite("spectrum-converter", UNIT)
+    : TestSuite("spectrum-converter", Type::UNIT)
 {
     double f;
 
@@ -291,21 +343,19 @@ SpectrumConverterTestSuite::SpectrumConverterTestSuite()
     {
         f1.push_back(f);
     }
-    Ptr<SpectrumModel> sof1 = Create<SpectrumModel>(f1);
+    auto sof1 = Create<SpectrumModel>(f1);
 
     std::vector<double> f2;
     for (f = 2; f <= 8; f += 1)
     {
         f2.push_back(f);
     }
-    Ptr<SpectrumModel> sof2 = Create<SpectrumModel>(f2);
+    auto sof2 = Create<SpectrumModel>(f2);
 
-    Ptr<SpectrumValue> res;
-
-    Ptr<SpectrumValue> v1 = Create<SpectrumValue>(sof1);
+    auto v1 = Create<SpectrumValue>(sof1);
     *v1 = 4;
     SpectrumConverter c12(sof1, sof2);
-    res = c12.Convert(v1);
+    auto res = c12.Convert(v1);
     SpectrumValue t12(sof2);
     t12 = 4;
     t12[0] = 2;
@@ -314,10 +364,10 @@ SpectrumConverterTestSuite::SpectrumConverterTestSuite()
     //   NS_LOG_LOGIC(t12);
     //   NS_LOG_LOGIC(*res);
 
-    AddTestCase(new SpectrumValueTestCase(t12, *res, ""), TestCase::QUICK);
+    AddTestCase(new SpectrumValueTestCase(t12, *res, ""), TestCase::Duration::QUICK);
     // TEST_ASSERT(MoreOrLessEqual(t12, *res));
 
-    Ptr<SpectrumValue> v2a = Create<SpectrumValue>(sof2);
+    auto v2a = Create<SpectrumValue>(sof2);
     *v2a = -2;
     SpectrumConverter c21(sof2, sof1);
     res = c21.Convert(v2a);
@@ -326,10 +376,10 @@ SpectrumConverterTestSuite::SpectrumConverterTestSuite()
     //   NS_LOG_LOGIC(*v2a);
     //   NS_LOG_LOGIC(t21a);
     //   NS_LOG_LOGIC(*res);
-    AddTestCase(new SpectrumValueTestCase(t21a, *res, ""), TestCase::QUICK);
+    AddTestCase(new SpectrumValueTestCase(t21a, *res, ""), TestCase::Duration::QUICK);
     // TEST_ASSERT(MoreOrLessEqual(t21a, *res));
 
-    Ptr<SpectrumValue> v2b = Create<SpectrumValue>(sof2);
+    auto v2b = Create<SpectrumValue>(sof2);
     (*v2b)[0] = 3;
     (*v2b)[1] = 5;
     (*v2b)[2] = 1;
@@ -345,7 +395,79 @@ SpectrumConverterTestSuite::SpectrumConverterTestSuite()
     //   NS_LOG_LOGIC(*v2b);
     //   NS_LOG_LOGIC(t21b);
     //   NS_LOG_LOGIC(*res);
-    AddTestCase(new SpectrumValueTestCase(t21b, *res, ""), TestCase::QUICK);
+    AddTestCase(new SpectrumValueTestCase(t21b, *res, ""), TestCase::Duration::QUICK);
+
+    // orthogonal models
+    std::vector<double> f3{10, 11, 12, 13, 14};
+    auto sof3 = Create<SpectrumModel>(f3);
+    AddTestCase(
+        new SpectrumModelTestCase(sof1, sof3, "Check sof1 and sof3 are orthogonal", true, false),
+        TestCase::Duration::QUICK);
+
+    SpectrumConverter c13(sof1, sof3);
+    res = c13.Convert(v1);
+    SpectrumValue t13(sof3);
+    t13 = 0;
+    AddTestCase(
+        new SpectrumValueTestCase(t13, *res, "Check spectrum conversion with orthogonal models"),
+        TestCase::Duration::QUICK);
+
+    // non-orthogonal and non-aligned models
+    std::vector<double> f4{3, 4, 5, 6, 7};
+    auto sof4 = Create<SpectrumModel>(f4);
+    AddTestCase(new SpectrumModelTestCase(sof1,
+                                          sof4,
+                                          "Check sof1 and sof4 are not orthogonal nor aligned",
+                                          false,
+                                          false),
+                TestCase::Duration::QUICK);
+
+    SpectrumConverter c14(sof1, sof4);
+    res = c14.Convert(v1);
+    SpectrumValue t14(sof4);
+    t14 = 4;
+    t14[0] = 4;
+    t14[1] = 4;
+    t14[2] = 4;
+    t14[3] = 4;
+    t14[4] = 4;
+    AddTestCase(new SpectrumValueTestCase(
+                    t14,
+                    *res,
+                    "Check spectrum conversion with non-orthogonal and non-aligned models"),
+                TestCase::Duration::QUICK);
+
+    // aligned models
+    std::vector<double> f5{5, 7, 9};
+    auto sof5 = Create<SpectrumModel>(f5);
+    AddTestCase(
+        new SpectrumModelTestCase(sof1, sof5, "Check sof1 and sof5 are aligned", false, true),
+        TestCase::Duration::QUICK);
+
+    SpectrumConverter c15(sof1, sof5);
+    res = c15.Convert(v1);
+    SpectrumValue t15(sof5);
+    t15 = 4;
+    t15[0] = 4;
+    t15[1] = 4;
+    t15[2] = 0;
+    AddTestCase(
+        new SpectrumValueTestCase(t15, *res, "Check spectrum conversion with aligned models"),
+        TestCase::Duration::QUICK);
+
+    // aligned models with different band sizes
+    auto sof6 = Create<SpectrumModel>(std::vector<double>{1, 2.5, 4});
+    auto sof7 = Create<SpectrumModel>(std::vector<double>{2.5, 4, 5.5});
+
+    AddTestCase(
+        new SpectrumModelTestCase(sof6, sof7, "Check sof6 and sof7 are aligned", false, true),
+        TestCase::Duration::QUICK);
+
+    // models with different band sizes where only some bands are aligned
+    auto sof8 = Create<SpectrumModel>(std::vector<double>{2.5, 3.5, 4.5, 5.5});
+    AddTestCase(
+        new SpectrumModelTestCase(sof6, sof8, "Check sof6 and sof8 are not aligned", false, false),
+        TestCase::Duration::QUICK);
 }
 
 /// Static variable for test initialization

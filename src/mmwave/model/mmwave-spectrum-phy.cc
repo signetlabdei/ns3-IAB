@@ -439,8 +439,8 @@ MmWaveSpectrumPhy::StartRxData (Ptr<MmwaveSpectrumSignalParametersDataFrame> par
   switch (m_state)
     {
     case TX:
-      NS_FATAL_ERROR ("Cannot receive while transmitting");
-      break;
+      NS_LOG_INFO ("Dropping incoming data frame: PHY is transmitting (TDD)");
+      return;
 
     case RX_CTRL:
       NS_FATAL_ERROR ("Cannot receive control in data period");
@@ -501,9 +501,8 @@ MmWaveSpectrumPhy::StartRxCtrl (Ptr<MmWaveSpectrumSignalParametersDlCtrlFrame> d
   switch (m_state)
     {
     case TX:
-      NS_FATAL_ERROR ("Cannot RX while TX: according to TDD channel access, the physical layer for "
-                      "transmission cannot be used for reception");
-      break;
+      NS_LOG_INFO ("Dropping incoming ctrl frame: PHY is transmitting (TDD)");
+      return;
 
     case RX_DATA:
       NS_FATAL_ERROR ("Cannot RX data while receiving control");
@@ -520,12 +519,14 @@ MmWaveSpectrumPhy::StartRxCtrl (Ptr<MmWaveSpectrumSignalParametersDlCtrlFrame> d
             Ptr<MmWaveIabNetDevice> iabRx = DynamicCast<MmWaveIabNetDevice> (GetDevice ());
             if (ueRx || rxMcUe)
               {
-                NS_FATAL_ERROR ("UE already receiving control data from serving cell");
+                NS_LOG_WARN ("UE already receiving control data from serving cell - dropping duplicate");
+                return;
               }
-            if (iabRx && 
+            if (iabRx &&
                 iabRx->GetMtPhy ()->GetDlSpectrumPhy () == this)
             {
-               NS_FATAL_ERROR ("UE already receiving control data from serving cell");
+               NS_LOG_WARN ("IAB MT already receiving control data from serving cell - dropping duplicate");
+               return;
             }
             NS_ASSERT ((m_firstRxStart == Simulator::Now ()) &&
                        (m_firstRxDuration == dlCtrlRxParams->duration));
@@ -924,13 +925,12 @@ MmWaveSpectrumPhy::StartTxDlControlFrames (std::list<Ptr<MmWaveControlMessage>> 
     {
     case RX_DATA:
     case RX_CTRL:
-      NS_FATAL_ERROR ("cannot TX while RX: Cannot transmit while receiving");
-      break;
+      NS_LOG_INFO ("Dropping outgoing ctrl frame: PHY is receiving (TDD timing)");
+      return false;
 
     case TX:
-      NS_FATAL_ERROR (
-          "cannot TX while already Tx: Cannot transmit while a transmission is still on");
-      break;
+      NS_LOG_INFO ("Dropping outgoing ctrl frame: PHY is already transmitting");
+      return false;
 
       case IDLE: {
         NS_ASSERT (m_txPsd);

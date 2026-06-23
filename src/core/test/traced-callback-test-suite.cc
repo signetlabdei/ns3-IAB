@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #include "ns3/test.h"
@@ -21,18 +10,18 @@
 using namespace ns3;
 
 /**
- * \file
- * \ingroup tracedcallback-tests
+ * @file
+ * @ingroup tracedcallback-tests
  * TracedCallback test suite
  */
 
 /**
- * \ingroup core-tests
- * \defgroup tracedcallback-tests TracedCallback class tests
+ * @ingroup core-tests
+ * @defgroup tracedcallback-tests TracedCallback class tests
  */
 
 /**
- * \ingroup tracedcallback-tests
+ * @ingroup tracedcallback-tests
  *
  * TracedCallback Test case, check basic TracedCallback operation.
  */
@@ -50,8 +39,8 @@ class BasicTracedCallbackTestCase : public TestCase
 
     /**
      * First callback.
-     * \param a First parameter.
-     * \param b Second parameter.
+     * @param a First parameter.
+     * @param b Second parameter.
      */
     void CbOne(uint8_t a, double b);
 
@@ -134,9 +123,9 @@ BasicTracedCallbackTestCase::DoRun()
 }
 
 /**
- * \ingroup tracedcallback-tests
+ * @ingroup tracedcallback-tests
  *
- * \brief The traced callback Test Suite.
+ * @brief The traced callback Test Suite.
  */
 class TracedCallbackTestSuite : public TestSuite
 {
@@ -145,9 +134,9 @@ class TracedCallbackTestSuite : public TestSuite
 };
 
 TracedCallbackTestSuite::TracedCallbackTestSuite()
-    : TestSuite("traced-callback", UNIT)
+    : TestSuite("traced-callback", Type::UNIT)
 {
-    AddTestCase(new BasicTracedCallbackTestCase, TestCase::QUICK);
+    AddTestCase(new BasicTracedCallbackTestCase, TestCase::Duration::QUICK);
 }
 
 static TracedCallbackTestSuite

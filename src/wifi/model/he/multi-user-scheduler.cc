@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2020 Universita' degli Studi di Napoli Federico II
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Stefano Avallone <stavallo@unina.it>
  */
@@ -51,13 +40,14 @@ MultiUserScheduler::GetTypeId()
                           "even without DL traffic. A null duration indicates that such "
                           "requests shall not be made.",
                           TimeValue(Seconds(0)),
-                          MakeTimeAccessor(&MultiUserScheduler::m_accessReqInterval),
+                          MakeTimeAccessor(&MultiUserScheduler::SetAccessReqInterval,
+                                           &MultiUserScheduler::GetAccessReqInterval),
                           MakeTimeChecker())
             .AddAttribute("AccessReqAc",
                           "The Access Category for which the MultiUserScheduler makes requests "
                           "for channel access.",
                           EnumValue(AcIndex::AC_BE),
-                          MakeEnumAccessor(&MultiUserScheduler::m_accessReqAc),
+                          MakeEnumAccessor<AcIndex>(&MultiUserScheduler::m_accessReqAc),
                           MakeEnumChecker(AcIndex::AC_BE,
                                           "AC_BE",
                                           AcIndex::AC_VI,
@@ -74,11 +64,27 @@ MultiUserScheduler::GetTypeId()
                           "channel access.",
                           BooleanValue(true),
                           MakeBooleanAccessor(&MultiUserScheduler::m_restartTimerUponAccess),
-                          MakeBooleanChecker());
+                          MakeBooleanChecker())
+            .AddAttribute("DefaultTbPpduDuration",
+                          "Default duration of TB PPDUs solicited via a Basic Trigger Frame. "
+                          "This value is used to compute the Duration/ID field of BSRP Trigger "
+                          "Frames sent when the TXOP Limit is zero and the FrameExchangeManager "
+                          "continues the TXOP a SIFS after receiving response to the BSRP TF. "
+                          "This value shall also be used by subclasses when they have no other "
+                          "information available to determine the TX duration of solicited PPDUs. "
+                          "The default value roughly corresponds to half the maximum PPDU TX "
+                          "duration.",
+                          TimeValue(MilliSeconds(2)),
+                          MakeTimeAccessor(&MultiUserScheduler::m_defaultTbPpduDuration),
+                          MakeTimeChecker());
     return tid;
 }
 
 MultiUserScheduler::MultiUserScheduler()
+    : m_isUnprotectedEmlsrClient([this](uint8_t linkId, Mac48Address address) {
+          return m_apMac->GetWifiRemoteStationManager(linkId)->GetEmlsrEnabled(address) &&
+                 !m_apMac->GetFrameExchangeManager(linkId)->GetProtectedStas().contains(address);
+      })
 {
 }
 
@@ -94,7 +100,10 @@ MultiUserScheduler::DoDispose()
     m_apMac = nullptr;
     m_edca = nullptr;
     m_lastTxInfo.clear();
-    m_accessReqTimer.Cancel();
+    for (auto& accessReqTimer : m_accessReqTimers)
+    {
+        accessReqTimer.Cancel();
+    }
     Object::DoDispose();
 }
 
@@ -122,8 +131,15 @@ MultiUserScheduler::DoInitialize()
 
     if (m_accessReqInterval.IsStrictlyPositive())
     {
-        m_accessReqTimer =
-            Simulator::Schedule(m_accessReqInterval, &MultiUserScheduler::AccessReqTimeout, this);
+        NS_ASSERT(m_accessReqTimers.empty());
+        for (uint8_t id = 0; id < m_apMac->GetNLinks(); ++id)
+        {
+            m_accessReqTimers.emplace_back(
+                Simulator::Schedule(m_accessReqInterval,
+                                    &MultiUserScheduler::AccessReqTimeout,
+                                    this,
+                                    id));
+        }
     }
 }
 
@@ -132,12 +148,27 @@ MultiUserScheduler::SetAccessReqInterval(Time interval)
 {
     NS_LOG_FUNCTION(this << interval.As(Time::MS));
     m_accessReqInterval = interval;
-    // start the timer if past initialization
+    // if interval is non-zero, start the timers that are not running if we are past initialization
     if (m_accessReqInterval.IsStrictlyPositive() && IsInitialized())
     {
-        m_accessReqTimer =
-            Simulator::Schedule(m_accessReqInterval, &MultiUserScheduler::AccessReqTimeout, this);
+        m_accessReqTimers.resize(m_apMac->GetNLinks());
+        for (uint8_t id = 0; id < m_apMac->GetNLinks(); ++id)
+        {
+            if (!m_accessReqTimers[id].IsPending())
+            {
+                m_accessReqTimers[id] = Simulator::Schedule(m_accessReqInterval,
+                                                            &MultiUserScheduler::AccessReqTimeout,
+                                                            this,
+                                                            id);
+            }
+        }
     }
+}
+
+Time
+MultiUserScheduler::GetAccessReqInterval() const
+{
+    return m_accessReqInterval;
 }
 
 void
@@ -171,27 +202,33 @@ MultiUserScheduler::GetHeFem(uint8_t linkId) const
     return StaticCast<HeFrameExchangeManager>(m_apMac->GetFrameExchangeManager(linkId));
 }
 
-void
-MultiUserScheduler::AccessReqTimeout()
+Time
+MultiUserScheduler::GetExtraTimeForBsrpTfDurationId(uint8_t linkId) const
 {
-    NS_LOG_FUNCTION(this);
+    return m_defaultTbPpduDuration;
+}
+
+void
+MultiUserScheduler::AccessReqTimeout(uint8_t linkId)
+{
+    NS_LOG_FUNCTION(this << linkId);
 
     // request channel access if not requested yet
     auto edca = m_apMac->GetQosTxop(m_accessReqAc);
 
-    for (uint8_t linkId = 0; linkId < m_apMac->GetNLinks(); linkId++)
+    if (edca->GetAccessStatus(linkId) == Txop::NOT_REQUESTED)
     {
-        if (edca->GetAccessStatus(linkId) == Txop::NOT_REQUESTED)
-        {
-            m_apMac->GetChannelAccessManager(linkId)->RequestAccess(edca);
-        }
+        m_apMac->GetChannelAccessManager(linkId)->RequestAccess(edca);
     }
 
     // restart timer
     if (m_accessReqInterval.IsStrictlyPositive())
     {
-        m_accessReqTimer =
-            Simulator::Schedule(m_accessReqInterval, &MultiUserScheduler::AccessReqTimeout, this);
+        NS_ASSERT(m_accessReqTimers.size() > linkId);
+        m_accessReqTimers[linkId] = Simulator::Schedule(m_accessReqInterval,
+                                                        &MultiUserScheduler::AccessReqTimeout,
+                                                        this,
+                                                        linkId);
     }
 }
 
@@ -199,7 +236,7 @@ MultiUserScheduler::TxFormat
 MultiUserScheduler::NotifyAccessGranted(Ptr<QosTxop> edca,
                                         Time availableTime,
                                         bool initialFrame,
-                                        uint16_t allowedWidth,
+                                        MHz_u allowedWidth,
                                         uint8_t linkId)
 {
     NS_LOG_FUNCTION(this << edca << availableTime << initialFrame << allowedWidth << linkId);
@@ -210,15 +247,17 @@ MultiUserScheduler::NotifyAccessGranted(Ptr<QosTxop> edca,
     m_allowedWidth = allowedWidth;
     m_linkId = linkId;
 
-    if (m_accessReqTimer.IsRunning() && m_restartTimerUponAccess)
+    if (m_accessReqTimers.size() > linkId && m_accessReqTimers[linkId].IsPending() &&
+        m_restartTimerUponAccess)
     {
         // restart access timer
-        m_accessReqTimer.Cancel();
+        m_accessReqTimers[linkId].Cancel();
         if (m_accessReqInterval.IsStrictlyPositive())
         {
-            m_accessReqTimer = Simulator::Schedule(m_accessReqInterval,
-                                                   &MultiUserScheduler::AccessReqTimeout,
-                                                   this);
+            m_accessReqTimers[linkId] = Simulator::Schedule(m_accessReqInterval,
+                                                            &MultiUserScheduler::AccessReqTimeout,
+                                                            this,
+                                                            linkId);
         }
     }
 
@@ -242,9 +281,10 @@ MultiUserScheduler::NotifyAccessGranted(Ptr<QosTxop> edca,
 }
 
 MultiUserScheduler::TxFormat
-MultiUserScheduler::GetLastTxFormat(uint8_t linkId)
+MultiUserScheduler::GetLastTxFormat(uint8_t linkId) const
 {
-    return m_lastTxInfo[linkId].lastTxFormat;
+    const auto it = m_lastTxInfo.find(linkId);
+    return it != m_lastTxInfo.cend() ? it->second.lastTxFormat : NO_TX;
 }
 
 MultiUserScheduler::DlMuInfo&
@@ -314,6 +354,141 @@ MultiUserScheduler::CheckTriggerFrame()
         m_lastTxInfo[m_linkId].ulInfo.trigger.GetUlLength() > 76);
 
     GetHeFem(m_linkId)->SetTargetRssi(m_lastTxInfo[m_linkId].ulInfo.trigger);
+}
+
+void
+MultiUserScheduler::RemoveRecipientsFromTf(
+    uint8_t linkId,
+    CtrlTriggerHeader& trigger,
+    WifiTxParameters& txParams,
+    std::function<bool(uint8_t, Mac48Address)> predicate) const
+{
+    NS_LOG_FUNCTION(this << linkId << &txParams);
+
+    const auto& aidAddrMap = m_apMac->GetStaList(linkId);
+
+    for (auto userInfoIt = trigger.begin(); userInfoIt != trigger.end();)
+    {
+        const auto addressIt = aidAddrMap.find(userInfoIt->GetAid12());
+        NS_ASSERT_MSG(addressIt != aidAddrMap.cend(),
+                      "AID " << userInfoIt->GetAid12() << " not found");
+        const auto address = addressIt->second;
+
+        if (predicate(linkId, address))
+        {
+            NS_LOG_INFO("Removing User Info field addressed to " << address);
+
+            userInfoIt = trigger.RemoveUserInfoField(userInfoIt);
+
+            if (txParams.m_acknowledgment->method == WifiAcknowledgment::UL_MU_MULTI_STA_BA)
+            {
+                auto acknowledgment =
+                    static_cast<WifiUlMuMultiStaBa*>(txParams.m_acknowledgment.get());
+                for (auto it = acknowledgment->stationsReceivingMultiStaBa.begin();
+                     it != acknowledgment->stationsReceivingMultiStaBa.end();)
+                {
+                    if (it->first.first == address)
+                    {
+                        it = acknowledgment->stationsReceivingMultiStaBa.erase(it);
+                    }
+                    else
+                    {
+                        ++it;
+                    }
+                }
+            }
+        }
+        else
+        {
+            ++userInfoIt;
+        }
+    }
+}
+
+void
+MultiUserScheduler::RemoveRecipientsFromDlMu(
+    uint8_t linkId,
+    WifiPsduMap& psduMap,
+    WifiTxParameters& txParams,
+    std::function<bool(uint8_t, Mac48Address)> predicate) const
+{
+    NS_LOG_FUNCTION(this << linkId << &txParams);
+
+    const auto& aidAddrMap = m_apMac->GetStaList(linkId);
+
+    for (auto psduMapIt = psduMap.begin(); psduMapIt != psduMap.end();)
+    {
+        const auto addressIt = aidAddrMap.find(psduMapIt->first);
+        NS_ASSERT_MSG(addressIt != aidAddrMap.cend(), "AID " << psduMapIt->first << " not found");
+        const auto address = addressIt->second;
+
+        if (predicate(linkId, address))
+        {
+            NS_LOG_INFO("Removing PSDU addressed to " << address);
+
+            txParams.m_txVector.GetHeMuUserInfoMap().erase(psduMapIt->first);
+            psduMapIt = psduMap.erase(psduMapIt);
+
+            if (txParams.m_acknowledgment->method == WifiAcknowledgment::DL_MU_BAR_BA_SEQUENCE)
+            {
+                auto acknowledgment =
+                    static_cast<WifiDlMuBarBaSequence*>(txParams.m_acknowledgment.get());
+                acknowledgment->stationsReplyingWithNormalAck.erase(address);
+                acknowledgment->stationsReplyingWithBlockAck.erase(address);
+                acknowledgment->stationsSendBlockAckReqTo.erase(address);
+            }
+            else if (txParams.m_acknowledgment->method == WifiAcknowledgment::DL_MU_TF_MU_BAR)
+            {
+                auto acknowledgment =
+                    static_cast<WifiDlMuTfMuBar*>(txParams.m_acknowledgment.get());
+                acknowledgment->stationsReplyingWithBlockAck.erase(address);
+            }
+            else if (txParams.m_acknowledgment->method == WifiAcknowledgment::DL_MU_AGGREGATE_TF)
+            {
+                auto acknowledgment =
+                    static_cast<WifiDlMuAggregateTf*>(txParams.m_acknowledgment.get());
+                acknowledgment->stationsReplyingWithBlockAck.erase(address);
+            }
+        }
+        else
+        {
+            ++psduMapIt;
+        }
+    }
+}
+
+void
+MultiUserScheduler::NotifyProtectionCompleted(uint8_t linkId,
+                                              WifiPsduMap& psduMap,
+                                              WifiTxParameters& txParams)
+{
+    NS_LOG_FUNCTION(this << linkId << &txParams);
+
+    if (txParams.m_txVector.IsDlMu())
+    {
+        NS_ASSERT(GetLastTxFormat(linkId) == DL_MU_TX);
+
+        UpdateDlMuAfterProtection(linkId, psduMap, txParams);
+    }
+    else if (IsTrigger(psduMap))
+    {
+        NS_ASSERT(GetLastTxFormat(linkId) == UL_MU_TX);
+
+        UpdateTriggerFrameAfterProtection(linkId, GetUlMuInfo(linkId).trigger, txParams);
+
+        if (GetUlMuInfo(linkId).trigger.GetNUserInfoFields() == 0)
+        {
+            NS_LOG_INFO("No User Info field left");
+            psduMap.clear();
+        }
+        else
+        {
+            auto mpdu = GetTriggerFrame(GetUlMuInfo(linkId).trigger, linkId);
+            GetUlMuInfo(linkId).macHdr = mpdu->GetHeader();
+            psduMap =
+                WifiPsduMap{{SU_STA_ID, GetHeFem(linkId)->GetWifiPsdu(mpdu, txParams.m_txVector)}};
+        }
+    }
 }
 
 uint32_t

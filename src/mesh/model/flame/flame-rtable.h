@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 IITP RAS
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Kirill Andreev <andreev@iitp.ru>
  */
@@ -31,9 +20,9 @@ namespace ns3
 namespace flame
 {
 /**
- * \ingroup flame
+ * @ingroup flame
  *
- * \brief Routing table for FLAME
+ * @brief Routing table for FLAME
  */
 class FlameRtable : public Object
 {
@@ -54,10 +43,10 @@ class FlameRtable : public Object
         /**
          * Constructor
          *
-         * \param r retransmitter MAC address
-         * \param i interfce index
-         * \param c cost
-         * \param s sequence number
+         * @param r retransmitter MAC address
+         * @param i interfce index
+         * @param c cost
+         * @param s sequence number
          */
         LookupResult(Mac48Address r = Mac48Address::GetBroadcast(),
                      uint32_t i = INTERFACE_ANY,
@@ -71,22 +60,22 @@ class FlameRtable : public Object
         }
 
         /**
-         * \returns True for valid route
+         * @returns True for valid route
          */
         bool IsValid() const;
         /**
          * Compare route lookup results, used by tests
          *
-         * \param o the object to compare
-         * \returns true if equal
+         * @param o the object to compare
+         * @returns true if equal
          */
         bool operator==(const LookupResult& o) const;
     };
 
   public:
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
 
@@ -102,11 +91,11 @@ class FlameRtable : public Object
     /**
      * Add path
      *
-     * \param destination the destination address
-     * \param retransmitter the retransmitter address
-     * \param interface the interface
-     * \param cost the cost
-     * \param seqnum the sequence number
+     * @param destination the destination address
+     * @param retransmitter the retransmitter address
+     * @param interface the interface
+     * @param cost the cost
+     * @param seqnum the sequence number
      */
     void AddPath(const Mac48Address destination,
                  const Mac48Address retransmitter,
@@ -114,9 +103,9 @@ class FlameRtable : public Object
                  const uint8_t cost,
                  const uint16_t seqnum);
     /**
-     * \brief Lookup path to destination
-     * \param destination
-     * \return Broadcast if not found
+     * @brief Lookup path to destination
+     * @param destination
+     * @return Broadcast if not found
      */
     LookupResult Lookup(Mac48Address destination);
 

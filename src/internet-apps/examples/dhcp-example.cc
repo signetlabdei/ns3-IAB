@@ -2,18 +2,7 @@
  * Copyright (c) 2011 UPB
  * Copyright (c) 2017 NITK Surathkal
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Radu Lupu <rlupu@elcom.pub.ro>
  *         Ankit Deepak <adadeepak8@gmail.com>
@@ -156,7 +145,7 @@ main(int argc, char* argv[])
     DynamicCast<DhcpServer>(dhcpServerApp.Get(0))
         ->AddStaticDhcpEntry(devNet.Get(2)->GetAddress(), Ipv4Address("172.30.0.14"));
 
-    dhcpServerApp.Start(Seconds(0.0));
+    dhcpServerApp.Start(Seconds(0));
     dhcpServerApp.Stop(stopTime);
 
     // DHCP clients
@@ -166,25 +155,25 @@ main(int argc, char* argv[])
     dhcpClientNetDevs.Add(devNet.Get(2));
 
     ApplicationContainer dhcpClients = dhcpHelper.InstallDhcpClient(dhcpClientNetDevs);
-    dhcpClients.Start(Seconds(1.0));
+    dhcpClients.Start(Seconds(1));
     dhcpClients.Stop(stopTime);
 
     UdpEchoServerHelper echoServer(9);
 
     ApplicationContainer serverApps = echoServer.Install(p2pNodes.Get(1));
-    serverApps.Start(Seconds(0.0));
+    serverApps.Start(Seconds(0));
     serverApps.Stop(stopTime);
 
     UdpEchoClientHelper echoClient(p2pInterfaces.GetAddress(1), 9);
     echoClient.SetAttribute("MaxPackets", UintegerValue(100));
-    echoClient.SetAttribute("Interval", TimeValue(Seconds(1.0)));
+    echoClient.SetAttribute("Interval", TimeValue(Seconds(1)));
     echoClient.SetAttribute("PacketSize", UintegerValue(1024));
 
     ApplicationContainer clientApps = echoClient.Install(nodes.Get(1));
-    clientApps.Start(Seconds(10.0));
+    clientApps.Start(Seconds(10));
     clientApps.Stop(stopTime);
 
-    Simulator::Stop(stopTime + Seconds(10.0));
+    Simulator::Stop(stopTime + Seconds(10));
 
     if (tracing)
     {

@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 IITP RAS
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Kirill Andreev  <andreev@iitp.ru>
  */
@@ -93,7 +82,7 @@ HwmpSimplestRegressionTest::CreateNodes()
                                   StringValue("RowFirst"));
     mobility.SetMobilityModel("ns3::ConstantPositionMobilityModel");
     mobility.Install(*m_nodes);
-    Simulator::Schedule(Seconds(10.0), &HwmpSimplestRegressionTest::ResetPosition, this);
+    Simulator::Schedule(Seconds(10), &HwmpSimplestRegressionTest::ResetPosition, this);
 }
 
 void
@@ -119,7 +108,7 @@ HwmpSimplestRegressionTest::InstallApplications()
     m_clientSocket->SetRecvCallback(
         MakeCallback(&HwmpSimplestRegressionTest::HandleReadClient, this));
     Simulator::ScheduleWithContext(m_clientSocket->GetNode()->GetId(),
-                                   Seconds(2.0),
+                                   Seconds(2),
                                    &HwmpSimplestRegressionTest::SendData,
                                    this,
                                    m_clientSocket);
@@ -136,6 +125,8 @@ void
 HwmpSimplestRegressionTest::CreateDevices()
 {
     int64_t streamsUsed = 0;
+    int64_t streamNumber = 0;
+    int64_t streamIncrement = 1000;
     // 1. setup WiFi
     YansWifiPhyHelper wifiPhy;
     YansWifiChannelHelper wifiChannel = YansWifiChannelHelper::Default();
@@ -145,19 +136,22 @@ HwmpSimplestRegressionTest::CreateDevices()
     // 2. setup mesh
     MeshHelper mesh = MeshHelper::Default();
     mesh.SetStackInstaller("ns3::Dot11sStack");
-    mesh.SetMacType("RandomStart", TimeValue(Seconds(0.1)));
+    mesh.SetMacType("RandomStart", TimeValue(MilliSeconds(100)));
     mesh.SetNumberOfInterfaces(1);
     NetDeviceContainer meshDevices = mesh.Install(wifiPhy, *m_nodes);
     // Two devices, ten streams per mesh device
-    streamsUsed += mesh.AssignStreams(meshDevices, streamsUsed);
+    streamsUsed = mesh.AssignStreams(meshDevices, streamNumber);
+    streamNumber += streamIncrement;
     NS_TEST_ASSERT_MSG_EQ(streamsUsed, (meshDevices.GetN() * 10), "Stream assignment mismatch");
-    streamsUsed += wifiChannel.AssignStreams(chan, streamsUsed);
-    NS_TEST_ASSERT_MSG_EQ(streamsUsed, (meshDevices.GetN() * 10), "Stream assignment mismatch");
+    streamsUsed = wifiChannel.AssignStreams(chan, streamNumber);
+    streamNumber += streamIncrement;
+    NS_TEST_ASSERT_MSG_EQ(streamsUsed, 0, "No stream assignments expected for WifiChannel");
 
     // 3. setup TCP/IP
     InternetStackHelper internetStack;
+    internetStack.SetIpv6StackInstall(false);
     internetStack.Install(*m_nodes);
-    streamsUsed += internetStack.AssignStreams(*m_nodes, streamsUsed);
+    internetStack.AssignStreams(*m_nodes, streamNumber);
     Ipv4AddressHelper address;
     address.SetBase("10.1.1.0", "255.255.255.0");
     m_interfaces = address.Assign(meshDevices);
@@ -182,7 +176,7 @@ HwmpSimplestRegressionTest::SendData(Ptr<Socket> socket)
         socket->Send(Create<Packet>(100));
         m_sentPktsCounter++;
         Simulator::ScheduleWithContext(socket->GetNode()->GetId(),
-                                       Seconds(0.05),
+                                       MilliSeconds(50),
                                        &HwmpSimplestRegressionTest::SendData,
                                        this,
                                        socket);

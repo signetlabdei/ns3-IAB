@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2007 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -20,8 +9,8 @@
 #define SINGLETON_H
 
 /**
- * \file
- * \ingroup access
+ * @file
+ * @ingroup singleton
  * ns3::Singleton declaration and template implementation.
  */
 
@@ -29,8 +18,15 @@ namespace ns3
 {
 
 /**
- * \ingroup access
- * \brief A template singleton
+ * @ingroup core
+ * @defgroup singleton Singleton
+ *
+ * Template class implementing the Singleton design pattern.
+ */
+
+/**
+ * @ingroup singleton
+ * @brief A template singleton
  *
  * This template class can be used to implement the singleton pattern.
  * The underlying object will be destroyed automatically when the process
@@ -40,16 +36,16 @@ namespace ns3
  * not the process, see SimulationSingleton.
  *
  * To force your `class ExampleS` to be a singleton, inherit from Singleton:
- * \code
+ * @code
  *   class ExampleS : public Singleton<ExampleS> { ... };
- * \endcode
+ * @endcode
  *
  * Then, to reach the singleton instance, just do
- * \code
+ * @code
  *   ExampleS::Get ()->...;
- * \endcode
+ * @endcode
  *
- * \note
+ * @note
  * If you call Get() again after the object has
  * been destroyed, the object will be re-created which will result in a
  * memory leak as reported by most memory leak checkers. It is up to the
@@ -61,8 +57,8 @@ class Singleton
 {
   public:
     // Delete copy constructor and assignment operator to avoid misuse
-    Singleton<T>(const Singleton<T>&) = delete;
-    Singleton<T>& operator=(const Singleton<T>&) = delete;
+    Singleton(const Singleton<T>&) = delete;
+    Singleton& operator=(const Singleton<T>&) = delete;
 
     /**
      * Get a pointer to the singleton instance.
@@ -70,18 +66,18 @@ class Singleton
      * The instance will be automatically deleted when
      * the process exits.
      *
-     * \return A pointer to the singleton instance.
+     * @return A pointer to the singleton instance.
      */
     static T* Get();
 
   protected:
     /** Constructor. */
-    Singleton<T>()
+    Singleton()
     {
     }
 
     /** Destructor. */
-    virtual ~Singleton<T>()
+    virtual ~Singleton()
     {
     }
 };

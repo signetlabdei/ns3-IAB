@@ -1,33 +1,22 @@
 /*
  * Copyright (c) 2016 Tom Henderson
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #include "ns3/core-module.h"
 
 /**
- * \defgroup string-value-formatting StringValue parsing tests
+ * @defgroup string-value-formatting StringValue parsing tests
  * Check that StringValue parses complex values correctly.
  */
 
 /**
- * \file
- * \ingroup core-examples
- * \ingroup string-value-formatting
+ * @file
+ * @ingroup core-examples
+ * @ingroup string-value-formatting
  * Check that StringValue parses complex values correctly.
- * \todo This should really be turned into a TestSuite
+ * @todo This should really be turned into a TestSuite
  */
 
 using namespace ns3;
@@ -38,7 +27,7 @@ namespace
 {
 
 /**
- * \ingroup string-value-formatting
+ * @ingroup string-value-formatting
  *
  * StringValue formatting example test object.
  *
@@ -49,15 +38,15 @@ class FormattingTestObject : public Object
 {
   public:
     /**
-     * \brief Register this type and get the TypeId.
-     * \return the object TypeId
+     * @brief Register this type and get the TypeId.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
     /** Default constructor */
     FormattingTestObject();
     /**
      * Get the test variable
-     * \returns the test variable
+     * @returns the test variable
      */
     Ptr<RandomVariableStream> GetTestVariable() const;
 
@@ -93,7 +82,7 @@ FormattingTestObject::GetTestVariable() const
 }
 
 /**
- * \ingroup string-value-formatting
+ * @ingroup string-value-formatting
  *
  * StringValue formatting example test helper class.
  */
@@ -104,13 +93,13 @@ class FormattingTestObjectHelper
     FormattingTestObjectHelper();
     /**
      * Set an attribute by name
-     * \param name the attribute
-     * \param value the attribute value
+     * @param name the attribute
+     * @param value the attribute value
      */
     void SetAttribute(std::string name, const AttributeValue& value);
     /**
      * Create an Object as configured by SetAttribute
-     * \returns the newly created Object
+     * @returns the newly created Object
      */
     Ptr<Object> CreateFromFactory();
 

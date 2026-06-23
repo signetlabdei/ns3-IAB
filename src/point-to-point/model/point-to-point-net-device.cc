@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2007, 2008 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #include "point-to-point-net-device.h"
@@ -68,7 +57,7 @@ PointToPointNetDevice::GetTypeId()
                           MakePointerChecker<ErrorModel>())
             .AddAttribute("InterframeGap",
                           "The time to wait between packet (frame) transmissions",
-                          TimeValue(Seconds(0.0)),
+                          TimeValue(Seconds(0)),
                           MakeTimeAccessor(&PointToPointNetDevice::m_tInterframeGap),
                           MakeTimeChecker())
 
@@ -256,7 +245,7 @@ PointToPointNetDevice::TransmitStart(Ptr<Packet> p)
     Simulator::Schedule(txCompleteTime, &PointToPointNetDevice::TransmitComplete, this);
 
     bool result = m_channel->TransmitStart(p, this, txTime);
-    if (result == false)
+    if (!result)
     {
         m_phyTxDropTrace(p);
     }
@@ -471,7 +460,7 @@ Address
 PointToPointNetDevice::GetBroadcast() const
 {
     NS_LOG_FUNCTION(this);
-    return Mac48Address("ff:ff:ff:ff:ff:ff");
+    return Mac48Address::GetBroadcast();
 }
 
 bool
@@ -520,7 +509,7 @@ PointToPointNetDevice::Send(Ptr<Packet> packet, const Address& dest, uint16_t pr
     // If IsLinkUp() is false it means there is no channel to send any packet
     // over so we just hit the drop trace on the packet and return an error.
     //
-    if (IsLinkUp() == false)
+    if (!IsLinkUp())
     {
         m_macTxDropTrace(packet);
         return false;

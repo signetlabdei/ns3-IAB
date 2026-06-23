@@ -1,16 +1,5 @@
 /*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Lalith Suresh <suresh.lalith@gmail.com>
  */
@@ -43,7 +32,6 @@ ReceivePacket(Ptr<Socket> socket)
 int
 main(int argc, char* argv[])
 {
-#ifdef NS3_CLICK
     std::string clickConfigFolder = "src/click/examples";
 
     CommandLine cmd(__FILE__);
@@ -81,8 +69,8 @@ main(int argc, char* argv[])
     Address LocalAddress(InetSocketAddress(Ipv4Address::GetAny(), 50000));
     PacketSinkHelper packetSinkHelper("ns3::TcpSocketFactory", LocalAddress);
     ApplicationContainer recvapp = packetSinkHelper.Install(csmaNodes.Get(1));
-    recvapp.Start(Seconds(5.0));
-    recvapp.Stop(Seconds(10.0));
+    recvapp.Start(Seconds(5));
+    recvapp.Stop(Seconds(10));
 
     OnOffHelper onOffHelper("ns3::TcpSocketFactory", Address());
     onOffHelper.SetAttribute("OnTime", StringValue("ns3::ConstantRandomVariable[Constant=1]"));
@@ -94,19 +82,16 @@ main(int argc, char* argv[])
     onOffHelper.SetAttribute("Remote", remoteAddress);
     appcont.Add(onOffHelper.Install(csmaNodes.Get(0)));
 
-    appcont.Start(Seconds(5.0));
-    appcont.Stop(Seconds(10.0));
+    appcont.Start(Seconds(5));
+    appcont.Stop(Seconds(10));
 
     // For tracing
     csma.EnablePcap("nsclick-simple-lan", csmaDevices, false);
 
-    Simulator::Stop(Seconds(20.0));
+    Simulator::Stop(Seconds(20));
     Simulator::Run();
 
     Simulator::Destroy();
-#else
-    NS_FATAL_ERROR("Can't use ns-3-click without NSCLICK compiled in");
-#endif
 
     return 0;
 }

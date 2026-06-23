@@ -80,10 +80,10 @@ public:
   MmwaveTestSuite ();
 };
 
-MmwaveTestSuite::MmwaveTestSuite () : TestSuite ("mmwave", UNIT)
+MmwaveTestSuite::MmwaveTestSuite () : TestSuite ("mmwave", TestSuite::Type::UNIT)
 {
   // TestDuration for TestCase can be QUICK, EXTENSIVE or TAKES_FOREVER
-  AddTestCase (new MmwaveTestCase1, TestCase::QUICK);
+  AddTestCase (new MmwaveTestCase1, TestCase::Duration::QUICK);
 }
 
 // Do not forget to allocate an instance of this TestSuite

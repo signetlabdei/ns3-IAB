@@ -1,29 +1,21 @@
 /*
  * Copyright (c) 2009, 2010 MIRKO BANCHI
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mirko Banchi <mk.banchi@gmail.com>
  */
 
 #include "ns3/ap-wifi-mac.h"
+#include "ns3/attribute-container.h"
 #include "ns3/boolean.h"
 #include "ns3/config.h"
 #include "ns3/ctrl-headers.h"
 #include "ns3/double.h"
+#include "ns3/frame-exchange-manager.h"
 #include "ns3/mac-rx-middle.h"
 #include "ns3/mobility-helper.h"
+#include "ns3/multi-model-spectrum-channel.h"
 #include "ns3/originator-block-ack-agreement.h"
 #include "ns3/packet-socket-client.h"
 #include "ns3/packet-socket-helper.h"
@@ -33,22 +25,28 @@
 #include "ns3/qos-txop.h"
 #include "ns3/qos-utils.h"
 #include "ns3/recipient-block-ack-agreement.h"
+#include "ns3/spectrum-wifi-helper.h"
 #include "ns3/string.h"
 #include "ns3/test.h"
+#include "ns3/wifi-default-ack-manager.h"
 #include "ns3/wifi-mac-header.h"
+#include "ns3/wifi-mac-queue.h"
 #include "ns3/wifi-mpdu.h"
 #include "ns3/wifi-net-device.h"
+#include "ns3/wifi-phy.h"
 #include "ns3/yans-wifi-helper.h"
 
 #include <list>
 
 using namespace ns3;
 
+NS_LOG_COMPONENT_DEFINE("WifiBlockAckTest");
+
 /**
- * \ingroup wifi-test
- * \ingroup tests
+ * @ingroup wifi-test
+ * @ingroup tests
  *
- * \brief Packet Buffering Case A
+ * @brief Packet Buffering Case A
  *
  * This simple test verifies the correctness of buffering for packets received
  * under block ack. In order to completely understand this example is important to cite
@@ -151,10 +149,10 @@ PacketBufferingCaseA::DoRun()
 }
 
 /**
- * \ingroup wifi-test
- * \ingroup tests
+ * @ingroup wifi-test
+ * @ingroup tests
  *
- * \brief Packet Buffering Case B
+ * @brief Packet Buffering Case B
  *
  * ----- = old packets
  * +++++ = new packets
@@ -263,10 +261,10 @@ PacketBufferingCaseB::DoRun()
 }
 
 /**
- * \ingroup wifi-test
- * \ingroup tests
+ * @ingroup wifi-test
+ * @ingroup tests
  *
- * \brief Test for the originator block ack window
+ * @brief Test for the originator block ack window
  */
 class OriginatorBlockAckWindowTest : public TestCase
 {
@@ -667,10 +665,10 @@ OriginatorBlockAckWindowTest::DoRun()
 }
 
 /**
- * \ingroup wifi-test
- * \ingroup tests
+ * @ingroup wifi-test
+ * @ingroup tests
  *
- * \brief Test for block ack header
+ * @brief Test for block ack header
  */
 class CtrlBAckResponseHeaderTest : public TestCase
 {
@@ -764,17 +762,17 @@ CtrlBAckResponseHeaderTest::DoRun()
 }
 
 /**
- * \ingroup wifi-test
- * \ingroup tests
+ * @ingroup wifi-test
+ * @ingroup tests
  *
- * \brief Test for recipient reordering buffer operations
+ * @brief Test for recipient reordering buffer operations
  */
 class BlockAckRecipientBufferTest : public TestCase
 {
   public:
     /**
-     * \brief Constructor
-     * \param ssn the Starting Sequence Number used to initialize WinStartB
+     * @brief Constructor
+     * @param ssn the Starting Sequence Number used to initialize WinStartB
      */
     BlockAckRecipientBufferTest(uint16_t ssn);
     ~BlockAckRecipientBufferTest() override;
@@ -784,8 +782,8 @@ class BlockAckRecipientBufferTest : public TestCase
     /**
      * Keep track of MPDUs received on the given link that are forwarded up.
      *
-     * \param mpdu an MPDU that is forwarded up
-     * \param linkId the ID of the given link
+     * @param mpdu an MPDU that is forwarded up
+     * @param linkId the ID of the given link
      */
     void ForwardUp(Ptr<const WifiMpdu> mpdu, uint8_t linkId);
 
@@ -991,10 +989,10 @@ BlockAckRecipientBufferTest::DoRun()
 }
 
 /**
- * \ingroup wifi-test
- * \ingroup tests
+ * @ingroup wifi-test
+ * @ingroup tests
  *
- * \brief Test for Multi-STA block ack header
+ * @brief Test for Multi-STA block ack header
  */
 class MultiStaCtrlBAckResponseHeaderTest : public TestCase
 {
@@ -1284,7 +1282,7 @@ MultiStaCtrlBAckResponseHeaderTest::DoRun()
     uint16_t aid6 = 2045;
     bool ackType6 = true;
     uint8_t tid6 = 6;
-    Mac48Address address6 = Mac48Address("00:00:00:00:00:01");
+    Mac48Address address6("00:00:00:00:00:01");
 
     blockAck.SetAid11(aid6, 5);
     blockAck.SetAckType(ackType6, 5);
@@ -1661,10 +1659,10 @@ MultiStaCtrlBAckResponseHeaderTest::DoRun()
 }
 
 /**
- * \ingroup wifi-test
- * \ingroup tests
+ * @ingroup wifi-test
+ * @ingroup tests
  *
- * \brief Test for Block Ack Policy with aggregation disabled
+ * @brief Test for Block Ack Policy with aggregation disabled
  *
  * This test aims to check the Block Ack policy when A-MPDU aggregation is disabled.
  * In this case, a QoS station can transmit multiple QoS data frames before requesting
@@ -1713,9 +1711,9 @@ class BlockAckAggregationDisabledTest : public TestCase
     {
         /**
          * Callback for the TxopTrace trace
-         * \param startTime TXOP start time
-         * \param duration TXOP duration
-         * \param linkId the ID of the link
+         * @param startTime TXOP start time
+         * @param duration TXOP duration
+         * @param linkId the ID of the link
          */
         void Trace(Time startTime, Time duration, uint8_t linkId);
         Time m_max{Seconds(0)}; ///< max TXOP duration
@@ -1723,8 +1721,8 @@ class BlockAckAggregationDisabledTest : public TestCase
 
   public:
     /**
-     * \brief Constructor
-     * \param txop true for non-null TXOP limit
+     * @brief Constructor
+     * @param txop true for non-null TXOP limit
      */
     BlockAckAggregationDisabledTest(bool txop);
     ~BlockAckAggregationDisabledTest() override;
@@ -1742,23 +1740,23 @@ class BlockAckAggregationDisabledTest : public TestCase
 
     /**
      * Function to trace packets received by the server application
-     * \param context the context
-     * \param p the packet
-     * \param adr the address
+     * @param context the context
+     * @param p the packet
+     * @param adr the address
      */
     void L7Receive(std::string context, Ptr<const Packet> p, const Address& adr);
     /**
      * Callback invoked when PHY transmits a packet
-     * \param context the context
-     * \param p the packet
-     * \param power the tx power
+     * @param context the context
+     * @param p the packet
+     * @param power the tx power
      */
     void Transmit(std::string context, Ptr<const Packet> p, double power);
     /**
      * Callback invoked when PHY receives a packet
-     * \param context the context
-     * \param p the packet
-     * \param rxPowersW the received power per channel band in watts
+     * @param context the context
+     * @param p the packet
+     * @param rxPowersW the received power per channel band in watts
      */
     void Receive(std::string context, Ptr<const Packet> p, RxPowerWattPerChannelBand rxPowersW);
 };
@@ -1903,6 +1901,14 @@ BlockAckAggregationDisabledTest::DoRun()
                 "BeaconGeneration",
                 BooleanValue(true));
 
+    if (m_txop)
+    {
+        // set the TXOP limit on BE AC
+        mac.SetEdca(AC_BE,
+                    "TxopLimits",
+                    AttributeContainerValue<TimeValue>(std::list{MicroSeconds(4800)}));
+    }
+
     NetDeviceContainer apDevices;
     apDevices = wifi.Install(phy, mac, wifiApNode);
 
@@ -1931,10 +1937,6 @@ BlockAckAggregationDisabledTest::DoRun()
         ptr.Get<QosTxop>()->TraceConnectWithoutContext(
             "TxopTrace",
             MakeCallback(&TxopDurationTracer::Trace, &txopTracer));
-
-        // set the TXOP limit on BE AC
-        ap_device->GetMac()->GetAttribute("BE_Txop", ptr);
-        ptr.Get<QosTxop>()->SetTxopLimit(MicroSeconds(4800));
     }
 
     PacketSocketAddress socket;
@@ -1956,7 +1958,7 @@ BlockAckAggregationDisabledTest::DoRun()
     client1->SetRemote(socket);
     wifiStaNode.Get(0)->AddApplication(client1);
     client1->SetStartTime(Seconds(1));
-    client1->SetStopTime(Seconds(3.0));
+    client1->SetStopTime(Seconds(3));
 
     // the second client application generates 13 packets. Even if when the first
     // packet is queued the queue is empty, the first packet is not transmitted
@@ -1969,13 +1971,13 @@ BlockAckAggregationDisabledTest::DoRun()
     client2->SetRemote(socket);
     wifiStaNode.Get(0)->AddApplication(client2);
     client2->SetStartTime(Seconds(1.5));
-    client2->SetStopTime(Seconds(3.0));
+    client2->SetStopTime(Seconds(3));
 
     Ptr<PacketSocketServer> server = CreateObject<PacketSocketServer>();
     server->SetLocal(socket);
     wifiApNode.Get(0)->AddApplication(server);
-    server->SetStartTime(Seconds(0.0));
-    server->SetStopTime(Seconds(4.0));
+    server->SetStartTime(Seconds(0));
+    server->SetStopTime(Seconds(4));
 
     Config::Connect("/NodeList/*/ApplicationList/0/$ns3::PacketSocketServer/Rx",
                     MakeCallback(&BlockAckAggregationDisabledTest::L7Receive, this));
@@ -2006,10 +2008,243 @@ BlockAckAggregationDisabledTest::DoRun()
 }
 
 /**
- * \ingroup wifi-test
- * \ingroup tests
+ * @ingroup wifi-test
+ * @ingroup tests
  *
- * \brief Block Ack Test Suite
+ * @brief Test for Block Ack Policy with non-null BA threshold and TX window blocked.
+ *
+ * An EHT device establishes a Block Ack agreement (for TID 0) with the AP and uses a Block Ack
+ * threshold of 0.125 (i.e., Block Ack is requested if there are at least 64 * 0.125 = 8 MPDUs
+ * to be acknowledged, where 64 is the Block Ack buffer size). An application installed on the
+ * non-AP node generates 70 packets, hence an A-MPDU containing the first 64 MPDUs is transmitted.
+ * The first 5 MPDUs in that A-MPDU are corrupted. We check that:
+ *
+ * - the first A-MPDU contains MPDUs with sequence numbers from 0 to 63
+ * - the second A-MPDU contains the 5 retransmitted MPDUs (with sequence numbers from 0 to 4) only,
+ *   because the TX window is blocked
+ * - the third A-MPDU contains the remaining 6 MPDUs (with sequence numbers from 64 to 69)
+ * - 3 A-MPDUs and 3 BlockAck frames are transmitted during the simulation
+ * - the MAC queue is empty at the end of simulation (meaning that all MPDUs were acknowledged)
+ */
+class OrigBlockAckWindowStalled : public TestCase
+{
+  public:
+    /**
+     * @param mld whether the non-AP device is a multi-link device
+     */
+    OrigBlockAckWindowStalled(bool mld);
+
+    /**
+     * Callback invoked when a FEM passes PSDUs to the PHY.
+     *
+     * @param psduMap the PSDU map
+     * @param txVector the TX vector
+     * @param txPowerW the tx power in Watts
+     */
+    void Transmit(WifiConstPsduMap psduMap, WifiTxVector txVector, double txPowerW);
+
+  private:
+    void DoSetup() override;
+    void DoRun() override;
+
+    const uint8_t m_nLinks;            ///< number of links
+    const double m_baThreshold{0.125}; ///< BA threshold used by ack manager
+    const std::size_t m_nPkts{70};     ///< number of generated packets
+    Ptr<ListErrorModel> m_errorModel;  ///< error rate model to corrupt packets
+    Ptr<WifiNetDevice> m_staDevice;    ///< station WifiNetDevice
+    std::size_t m_qosCount{0};         ///< counter for transmitted QoS data frames
+    std::size_t m_baCount{0};          ///< counter for transmitted BlockAck frames
+};
+
+OrigBlockAckWindowStalled::OrigBlockAckWindowStalled(bool mld)
+    : TestCase("Test case for originator Block Ack window stalled"),
+      m_nLinks(mld ? 2 : 1)
+{
+}
+
+void
+OrigBlockAckWindowStalled::Transmit(WifiConstPsduMap psduMap,
+                                    WifiTxVector txVector,
+                                    double txPowerW)
+{
+    for (const auto& [aid, psdu] : psduMap)
+    {
+        std::stringstream ss;
+        ss << " #MPDUs " << psdu->GetNMpdus();
+        for (const auto& mpdu : *PeekPointer(psdu))
+        {
+            ss << "\n" << *mpdu;
+        }
+
+        if (const auto& hdr = (*psdu->begin())->GetHeader(); hdr.IsQosData())
+        {
+            // check sequence numbers in the transmitted A-MPDU
+            uint16_t startSeqN{0};
+            std::size_t count{0};
+
+            switch (++m_qosCount)
+            {
+            case 1:
+                startSeqN = 0;
+                count = 64;
+                break;
+            case 2:
+                startSeqN = 0;
+                count = 5;
+                break;
+            case 3:
+                startSeqN = 64;
+                count = 6;
+                break;
+            default:;
+            }
+
+            NS_TEST_EXPECT_MSG_EQ(psdu->GetNMpdus(),
+                                  count,
+                                  "Unexpected number of MPDUs in A-MPDU #" << m_qosCount);
+
+            for (const auto& mpdu : *PeekPointer(psdu))
+            {
+                NS_TEST_EXPECT_MSG_GT_OR_EQ(mpdu->GetHeader().GetSequenceNumber(),
+                                            startSeqN,
+                                            "Unexpected SeqN in A-MPDU #" << m_qosCount);
+                NS_TEST_EXPECT_MSG_LT(mpdu->GetHeader().GetSequenceNumber(),
+                                      startSeqN + count,
+                                      "Unexpected SeqN in A-MPDU #" << m_qosCount);
+            }
+
+            // reset UIDs to corrupt
+            m_errorModel->SetList({});
+
+            // corrupt the first 5 MPDUs of the second QoS data frame
+            if (m_qosCount == 1)
+            {
+                auto mpduIt = psdu->begin();
+                std::list<uint64_t> uids;
+                ss << "\nCORRUPTED";
+                for (std::size_t i = 0; i < 5; ++i, ++mpduIt)
+                {
+                    uids.push_back((*mpduIt)->GetPacket()->GetUid());
+                    ss << " " << (*mpduIt)->GetHeader().GetSequenceNumber();
+                }
+                m_errorModel->SetList(uids);
+            }
+        }
+        else if (hdr.IsBlockAck())
+        {
+            ++m_baCount;
+        }
+
+        NS_LOG_INFO(ss.str());
+    }
+    NS_LOG_INFO("TXVECTOR = " << txVector << "\n");
+}
+
+void
+OrigBlockAckWindowStalled::DoSetup()
+{
+    NodeContainer wifiStaNode(1);
+    NodeContainer wifiApNode(1);
+
+    auto channel = CreateObject<MultiModelSpectrumChannel>();
+    SpectrumWifiPhyHelper phy(m_nLinks);
+    phy.Set(0, "ChannelSettings", StringValue("{36, 0, BAND_5GHZ, 0}"));
+    if (m_nLinks > 1)
+    {
+        phy.Set(1, "ChannelSettings", StringValue("{100, 0, BAND_5GHZ, 0}"));
+    }
+    phy.SetChannel(channel);
+
+    WifiHelper wifi;
+    wifi.SetStandard(WIFI_STANDARD_80211be);
+    wifi.SetRemoteStationManager("ns3::ConstantRateWifiManager",
+                                 "DataMode",
+                                 StringValue("EhtMcs7"),
+                                 "ControlMode",
+                                 StringValue("EhtMcs0"));
+
+    WifiMacHelper mac;
+    mac.SetAckManager("ns3::WifiDefaultAckManager", "BaThreshold", DoubleValue(m_baThreshold));
+    mac.SetType("ns3::StaWifiMac", "MpduBufferSize", UintegerValue(64));
+
+    auto staDevices = wifi.Install(phy, mac, wifiStaNode);
+
+    mac.SetType("ns3::ApWifiMac");
+
+    auto apDevices = wifi.Install(phy, mac, wifiApNode);
+
+    Ptr<ListPositionAllocator> positionAlloc = CreateObject<ListPositionAllocator>();
+    positionAlloc->Add(Vector(0.0, 0.0, 0.0));
+    positionAlloc->Add(Vector(1.0, 0.0, 0.0));
+
+    MobilityHelper mobility;
+    mobility.SetPositionAllocator(positionAlloc);
+    mobility.SetMobilityModel("ns3::ConstantPositionMobilityModel");
+    mobility.Install(wifiApNode);
+    mobility.Install(wifiStaNode);
+
+    auto apDevice = DynamicCast<WifiNetDevice>(apDevices.Get(0));
+    m_staDevice = DynamicCast<WifiNetDevice>(staDevices.Get(0));
+
+    Config::ConnectWithoutContext(
+        "/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/Phys/*/PhyTxPsduBegin",
+        MakeCallback(&OrigBlockAckWindowStalled::Transmit, this));
+
+    // install post reception error model on AP
+    m_errorModel = CreateObject<ListErrorModel>();
+    apDevice->GetPhy(0)->SetPostReceptionErrorModel(m_errorModel);
+    if (m_nLinks > 1)
+    {
+        apDevice->GetPhy(1)->SetPostReceptionErrorModel(m_errorModel);
+    }
+
+    PacketSocketAddress socket;
+    socket.SetSingleDevice(m_staDevice->GetIfIndex());
+    socket.SetPhysicalAddress(apDevice->GetAddress());
+    socket.SetProtocol(1);
+
+    // give packet socket powers to nodes.
+    PacketSocketHelper packetSocket;
+    packetSocket.Install(wifiStaNode);
+    packetSocket.Install(wifiApNode);
+
+    auto client = CreateObject<PacketSocketClient>();
+    client->SetAttribute("PacketSize", UintegerValue(100));
+    client->SetAttribute("MaxPackets", UintegerValue(m_nPkts));
+    client->SetAttribute("Interval", TimeValue(Time{0}));
+    client->SetRemote(socket);
+    wifiStaNode.Get(0)->AddApplication(client);
+    client->SetStartTime(Seconds(0.5));
+    client->SetStopTime(Seconds(3));
+
+    auto server = CreateObject<PacketSocketServer>();
+    server->SetLocal(socket);
+    wifiApNode.Get(0)->AddApplication(server);
+    server->SetStartTime(Seconds(0));
+    server->SetStopTime(Seconds(4));
+}
+
+void
+OrigBlockAckWindowStalled::DoRun()
+{
+    Simulator::Stop(Seconds(3));
+    Simulator::Run();
+
+    NS_TEST_EXPECT_MSG_EQ(m_qosCount, 3, "Unexpected number of transmitted QoS data frames");
+    NS_TEST_EXPECT_MSG_EQ(m_baCount, 3, "Unexpected number of transmitted BlockAck frames");
+
+    NS_TEST_EXPECT_MSG_EQ(m_staDevice->GetMac()->GetTxopQueue(AC_BE)->IsEmpty(),
+                          true,
+                          "Expected no packet in STA queue");
+
+    Simulator::Destroy();
+}
+
+/**
+ * @ingroup wifi-test
+ * @ingroup tests
+ *
+ * @brief Block Ack Test Suite
  */
 class BlockAckTestSuite : public TestSuite
 {
@@ -2018,17 +2253,19 @@ class BlockAckTestSuite : public TestSuite
 };
 
 BlockAckTestSuite::BlockAckTestSuite()
-    : TestSuite("wifi-block-ack", UNIT)
+    : TestSuite("wifi-block-ack", Type::UNIT)
 {
-    AddTestCase(new PacketBufferingCaseA, TestCase::QUICK);
-    AddTestCase(new PacketBufferingCaseB, TestCase::QUICK);
-    AddTestCase(new OriginatorBlockAckWindowTest, TestCase::QUICK);
-    AddTestCase(new CtrlBAckResponseHeaderTest, TestCase::QUICK);
-    AddTestCase(new BlockAckRecipientBufferTest(0), TestCase::QUICK);
-    AddTestCase(new BlockAckRecipientBufferTest(4090), TestCase::QUICK);
-    AddTestCase(new MultiStaCtrlBAckResponseHeaderTest, TestCase::QUICK);
-    AddTestCase(new BlockAckAggregationDisabledTest(false), TestCase::QUICK);
-    AddTestCase(new BlockAckAggregationDisabledTest(true), TestCase::QUICK);
+    AddTestCase(new PacketBufferingCaseA, TestCase::Duration::QUICK);
+    AddTestCase(new PacketBufferingCaseB, TestCase::Duration::QUICK);
+    AddTestCase(new OriginatorBlockAckWindowTest, TestCase::Duration::QUICK);
+    AddTestCase(new CtrlBAckResponseHeaderTest, TestCase::Duration::QUICK);
+    AddTestCase(new BlockAckRecipientBufferTest(0), TestCase::Duration::QUICK);
+    AddTestCase(new BlockAckRecipientBufferTest(4090), TestCase::Duration::QUICK);
+    AddTestCase(new MultiStaCtrlBAckResponseHeaderTest, TestCase::Duration::QUICK);
+    AddTestCase(new BlockAckAggregationDisabledTest(false), TestCase::Duration::QUICK);
+    AddTestCase(new BlockAckAggregationDisabledTest(true), TestCase::Duration::QUICK);
+    AddTestCase(new OrigBlockAckWindowStalled(false), TestCase::Duration::QUICK);
+    AddTestCase(new OrigBlockAckWindowStalled(true), TestCase::Duration::QUICK);
 }
 
 static BlockAckTestSuite g_blockAckTestSuite; ///< the test suite

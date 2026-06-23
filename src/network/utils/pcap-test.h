@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2011 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@cutebugs.net>
  */
@@ -29,11 +18,11 @@
 #include <string>
 
 /**
- * \brief Test that a pair of reference/new pcap files are equal
+ * @brief Test that a pair of reference/new pcap files are equal
  *
  * The filename is interpreted as a stream.
  *
- * \param filename The name of the file to read in the reference/temporary
+ * @param filename The name of the file to read in the reference/temporary
  *        directories
  */
 #define NS_PCAP_TEST_EXPECT_EQ(filename)                                                           \
@@ -46,7 +35,7 @@
         uint32_t sec{0};                                                                           \
         uint32_t usec{0};                                                                          \
         uint32_t packets{0};                                                                       \
-        /** \todo support default PcapWriter snap length here */                                   \
+        /** @todo support default PcapWriter snap length here */                                   \
         bool diff = PcapFile::Diff(got, expected, sec, usec, packets);                             \
         NS_TEST_EXPECT_MSG_EQ(diff,                                                                \
                               false,                                                               \

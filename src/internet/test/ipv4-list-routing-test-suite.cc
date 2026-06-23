@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  */
 
@@ -20,12 +9,13 @@
 #include "ns3/ipv4-routing-protocol.h"
 #include "ns3/test.h"
 
-using namespace ns3;
+namespace ns3
+{
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv4 dummy routing class (A)
+ * @brief IPv4 dummy routing class (A)
  */
 class Ipv4ARouting : public Ipv4RoutingProtocol
 {
@@ -41,10 +31,10 @@ class Ipv4ARouting : public Ipv4RoutingProtocol
     bool RouteInput(Ptr<const Packet> p,
                     const Ipv4Header& header,
                     Ptr<const NetDevice> idev,
-                    UnicastForwardCallback ucb,
-                    MulticastForwardCallback mcb,
-                    LocalDeliverCallback lcb,
-                    ErrorCallback ecb) override
+                    const UnicastForwardCallback& ucb,
+                    const MulticastForwardCallback& mcb,
+                    const LocalDeliverCallback& lcb,
+                    const ErrorCallback& ecb) override
     {
         return false;
     }
@@ -75,9 +65,9 @@ class Ipv4ARouting : public Ipv4RoutingProtocol
 };
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv4 dummy routing class (B)
+ * @brief IPv4 dummy routing class (B)
  */
 class Ipv4BRouting : public Ipv4RoutingProtocol
 {
@@ -93,10 +83,10 @@ class Ipv4BRouting : public Ipv4RoutingProtocol
     bool RouteInput(Ptr<const Packet> p,
                     const Ipv4Header& header,
                     Ptr<const NetDevice> idev,
-                    UnicastForwardCallback ucb,
-                    MulticastForwardCallback mcb,
-                    LocalDeliverCallback lcb,
-                    ErrorCallback ecb) override
+                    const UnicastForwardCallback& ucb,
+                    const MulticastForwardCallback& mcb,
+                    const LocalDeliverCallback& lcb,
+                    const ErrorCallback& ecb) override
     {
         return false;
     }
@@ -127,9 +117,9 @@ class Ipv4BRouting : public Ipv4RoutingProtocol
 };
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv4 ListRouting negative test.
+ * @brief IPv4 ListRouting negative test.
  */
 class Ipv4ListRoutingNegativeTestCase : public TestCase
 {
@@ -161,9 +151,9 @@ Ipv4ListRoutingNegativeTestCase::DoRun()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv4 ListRouting positive test.
+ * @brief IPv4 ListRouting positive test.
  */
 class Ipv4ListRoutingPositiveTestCase : public TestCase
 {
@@ -200,20 +190,22 @@ Ipv4ListRoutingPositiveTestCase::DoRun()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv4 ListRouting TestSuite
+ * @brief IPv4 ListRouting TestSuite
  */
 class Ipv4ListRoutingTestSuite : public TestSuite
 {
   public:
     Ipv4ListRoutingTestSuite()
-        : TestSuite("ipv4-list-routing", UNIT)
+        : TestSuite("ipv4-list-routing", Type::UNIT)
     {
-        AddTestCase(new Ipv4ListRoutingPositiveTestCase(), TestCase::QUICK);
-        AddTestCase(new Ipv4ListRoutingNegativeTestCase(), TestCase::QUICK);
+        AddTestCase(new Ipv4ListRoutingPositiveTestCase(), TestCase::Duration::QUICK);
+        AddTestCase(new Ipv4ListRoutingNegativeTestCase(), TestCase::Duration::QUICK);
     }
 };
 
 static Ipv4ListRoutingTestSuite
     g_ipv4ListRoutingTestSuite; //!< Static variable for test initialization
+
+} // namespace ns3

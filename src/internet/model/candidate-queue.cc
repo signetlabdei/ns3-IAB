@@ -1,18 +1,7 @@
 /*
  * Copyright 2007 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #include "candidate-queue.h"
@@ -31,21 +20,22 @@ namespace ns3
 NS_LOG_COMPONENT_DEFINE("CandidateQueue");
 
 /**
- * \brief Stream insertion operator.
+ * @brief Stream insertion operator.
  *
- * \param os the reference to the output stream
- * \param t the SPFVertex type
- * \returns the reference to the output stream
+ * @param os the reference to the output stream
+ * @param t the SPFVertex type
+ * @returns the reference to the output stream
  */
+template <typename T>
 std::ostream&
-operator<<(std::ostream& os, const SPFVertex::VertexType& t)
+operator<<(std::ostream& os, const typename SPFVertex<T>::VertexType& t)
 {
     switch (t)
     {
-    case SPFVertex::VertexRouter:
+    case SPFVertex<T>::VertexRouter:
         os << "router";
         break;
-    case SPFVertex::VertexNetwork:
+    case SPFVertex<T>::VertexNetwork:
         os << "network";
         break;
     default:
@@ -55,15 +45,14 @@ operator<<(std::ostream& os, const SPFVertex::VertexType& t)
     return os;
 }
 
+template <typename T>
 std::ostream&
-operator<<(std::ostream& os, const CandidateQueue& q)
+operator<<(std::ostream& os, const CandidateQueue<T>& q)
 {
-    typedef CandidateQueue::CandidateList_t List_t;
-    typedef List_t::const_iterator CIter_t;
-    const CandidateQueue::CandidateList_t& list = q.m_candidates;
+    const typename CandidateQueue<T>::CandidateList_t& list = q.m_candidates;
 
     os << "*** CandidateQueue Begin (<id, distance, LSA-type>) ***" << std::endl;
-    for (CIter_t iter = list.begin(); iter != list.end(); iter++)
+    for (auto iter = list.begin(); iter != list.end(); iter++)
     {
         os << "<" << (*iter)->GetVertexId() << ", " << (*iter)->GetDistanceFromRoot() << ", "
            << (*iter)->GetVertexType() << ">" << std::endl;
@@ -72,44 +61,49 @@ operator<<(std::ostream& os, const CandidateQueue& q)
     return os;
 }
 
-CandidateQueue::CandidateQueue()
+template <typename T>
+CandidateQueue<T>::CandidateQueue()
     : m_candidates()
 {
     NS_LOG_FUNCTION(this);
 }
 
-CandidateQueue::~CandidateQueue()
+template <typename T>
+CandidateQueue<T>::~CandidateQueue()
 {
     NS_LOG_FUNCTION(this);
     Clear();
 }
 
+template <typename T>
 void
-CandidateQueue::Clear()
+CandidateQueue<T>::Clear()
 {
     NS_LOG_FUNCTION(this);
     while (!m_candidates.empty())
     {
-        SPFVertex* p = Pop();
+        SPFVertex<T>* p = Pop();
         delete p;
         p = nullptr;
     }
 }
 
+template <typename T>
 void
-CandidateQueue::Push(SPFVertex* vNew)
+CandidateQueue<T>::Push(SPFVertex<T>* vNew)
 {
     NS_LOG_FUNCTION(this << vNew);
 
-    CandidateList_t::iterator i = std::upper_bound(m_candidates.begin(),
-                                                   m_candidates.end(),
-                                                   vNew,
-                                                   &CandidateQueue::CompareSPFVertex);
+    auto i = std::upper_bound(m_candidates.begin(),
+                              m_candidates.end(),
+                              vNew,
+                              &CandidateQueue::CompareSPFVertex);
     m_candidates.insert(i, vNew);
 }
 
-SPFVertex*
-CandidateQueue::Pop()
+template <typename T>
+SPFVertex<T>*
+CandidateQueue<T>::Pop()
 {
     NS_LOG_FUNCTION(this);
     if (m_candidates.empty())
@@ -117,13 +111,14 @@ CandidateQueue::Pop()
         return nullptr;
     }
 
-    SPFVertex* v = m_candidates.front();
+    SPFVertex<T>* v = m_candidates.front();
     m_candidates.pop_front();
     return v;
 }
 
-SPFVertex*
-CandidateQueue::Top() const
+template <typename T>
+SPFVertex<T>*
+CandidateQueue<T>::Top() const
 {
     NS_LOG_FUNCTION(this);
     if (m_candidates.empty())
@@ -134,29 +129,32 @@ CandidateQueue::Top() const
     return m_candidates.front();
 }
 
+template <typename T>
 bool
-CandidateQueue::Empty() const
+CandidateQueue<T>::Empty() const
 {
     NS_LOG_FUNCTION(this);
     return m_candidates.empty();
 }
 
+template <typename T>
 uint32_t
-CandidateQueue::Size() const
+CandidateQueue<T>::Size() const
 {
     NS_LOG_FUNCTION(this);
     return m_candidates.size();
 }
 
-SPFVertex*
-CandidateQueue::Find(const Ipv4Address addr) const
+template <typename T>
+SPFVertex<T>*
+CandidateQueue<T>::Find(const IpAddress addr) const
 {
     NS_LOG_FUNCTION(this);
-    CandidateList_t::const_iterator i = m_candidates.begin();
+    auto i = m_candidates.begin();
 
     for (; i != m_candidates.end(); i++)
     {
-        SPFVertex* v = *i;
+        SPFVertex<T>* v = *i;
         if (v->GetVertexId() == addr)
         {
             return v;
@@ -166,8 +164,9 @@ CandidateQueue::Find(const Ipv4Address addr) const
     return nullptr;
 }
 
+template <typename T>
 void
-CandidateQueue::Reorder()
+CandidateQueue<T>::Reorder()
 {
     NS_LOG_FUNCTION(this);
 
@@ -183,8 +182,9 @@ CandidateQueue::Reorder()
  *
  * This ordering is necessary for implementing ECMP
  */
+template <typename T>
 bool
-CandidateQueue::CompareSPFVertex(const SPFVertex* v1, const SPFVertex* v2)
+CandidateQueue<T>::CompareSPFVertex(const SPFVertex<T>* v1, const SPFVertex<T>* v2)
 {
     NS_LOG_FUNCTION(&v1 << &v2);
 
@@ -195,13 +195,15 @@ CandidateQueue::CompareSPFVertex(const SPFVertex* v1, const SPFVertex* v2)
     }
     else if (v1->GetDistanceFromRoot() == v2->GetDistanceFromRoot())
     {
-        if (v1->GetVertexType() == SPFVertex::VertexNetwork &&
-            v2->GetVertexType() == SPFVertex::VertexRouter)
+        if (v1->GetVertexType() == SPFVertex<T>::VertexNetwork &&
+            v2->GetVertexType() == SPFVertex<T>::VertexRouter)
         {
             result = true;
         }
     }
     return result;
 }
+template class CandidateQueue<Ipv4Manager>;
+template class CandidateQueue<Ipv6Manager>;
 
 } // namespace ns3

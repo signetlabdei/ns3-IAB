@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 Dan Broyles
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Dan Broyles <dbroyl01@ku.edu>
  * Thanks to Kevin Peters, faculty advisor James P.G. Sterbenz, and the ResiliNets
@@ -21,11 +10,11 @@
 #ifndef GAUSS_MARKOV_MOBILITY_MODEL_H
 #define GAUSS_MARKOV_MOBILITY_MODEL_H
 
+#include "box.h"
 #include "constant-velocity-helper.h"
 #include "mobility-model.h"
 #include "position-allocator.h"
 
-#include "ns3/box.h"
 #include "ns3/event-id.h"
 #include "ns3/nstime.h"
 #include "ns3/object.h"
@@ -36,8 +25,8 @@ namespace ns3
 {
 
 /**
- * \ingroup mobility
- * \brief Gauss-Markov mobility model
+ * @ingroup mobility
+ * @brief Gauss-Markov mobility model
  *
  * This is a 3D version of the Gauss-Markov mobility model described in [1].
  * Unlike the other mobility models in ns-3, which are memoryless, the Gauss
@@ -53,7 +42,7 @@ namespace ns3
  * version of the "rectangle" field that is used in 2-dimensional ns-3 mobility models.
  *
  * Here is an example of how to implement the model and set the initial node positions:
- * \code
+ * @code
     MobilityHelper mobility;
 
     mobility.SetMobilityModel ("ns3::GaussMarkovMobilityModel",
@@ -73,7 +62,7 @@ namespace ns3
       "Z", StringValue ("ns3::UniformRandomVariable[Min=0|Max=10000]"));
 
     mobility.Install (wifiStaNodes);
- * \endcode
+ * @endcode
  * [1] Tracy Camp, Jeff Boleng, Vanessa Davies, "A Survey of Mobility Models
  * for Ad Hoc Network Research", Wireless Communications and Mobile Computing,
  * Wiley, vol.2 iss.5, September 2002, pp.483-502
@@ -83,10 +72,17 @@ class GaussMarkovMobilityModel : public MobilityModel
   public:
     /**
      * Register this type with the TypeId system.
-     * \return the object TypeId
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
     GaussMarkovMobilityModel();
+    ~GaussMarkovMobilityModel() override;
+
+    // Inherited from MobilityModel
+    Ptr<MobilityModel> Copy() const override
+    {
+        return CreateObject<GaussMarkovMobilityModel>(*this);
+    }
 
   private:
     /**
@@ -95,7 +91,7 @@ class GaussMarkovMobilityModel : public MobilityModel
     void Start();
     /**
      * Perform a walk operation
-     * \param timeLeft time until Start method is called again
+     * @param timeLeft time until Start method is called again
      */
     void DoWalk(Time timeLeft);
     void DoDispose() override;

@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2014 Universita' di Firenze, Italy
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Tommaso Pecorella <tommaso.pecorella@unifi.it>
  */
@@ -20,18 +9,21 @@
 #ifndef RIPNG_HELPER_H
 #define RIPNG_HELPER_H
 
-#include "ns3/ipv6-routing-helper.h"
+#include "ipv6-routing-helper.h"
+
 #include "ns3/node-container.h"
 #include "ns3/node.h"
 #include "ns3/object-factory.h"
+
+#include <map>
 
 namespace ns3
 {
 
 /**
- * \ingroup ipv6Helpers
+ * @ingroup ipv6Helpers
  *
- * \brief Helper class that adds RIPng routing to nodes.
+ * @brief Helper class that adds RIPng routing to nodes.
  *
  * This class is expected to be used in conjunction with
  * ns3::InternetStackHelper::SetRoutingHelper
@@ -47,9 +39,9 @@ class RipNgHelper : public Ipv6RoutingHelper
     RipNgHelper();
 
     /**
-     * \brief Construct an RipNgHelper from another previously
+     * @brief Construct an RipNgHelper from another previously
      * initialized instance (Copy Constructor).
-     * \param o The object to copy from.
+     * @param o The object to copy from.
      */
     RipNgHelper(const RipNgHelper& o);
 
@@ -59,7 +51,7 @@ class RipNgHelper : public Ipv6RoutingHelper
     RipNgHelper& operator=(const RipNgHelper&) = delete;
 
     /**
-     * \returns pointer to clone of this RipNgHelper
+     * @returns pointer to clone of this RipNgHelper
      *
      * This method is mainly for internal use by the other helpers;
      * clients are expected to free the dynamic memory allocated by this method
@@ -67,16 +59,16 @@ class RipNgHelper : public Ipv6RoutingHelper
     RipNgHelper* Copy() const override;
 
     /**
-     * \param node the node on which the routing protocol will run
-     * \returns a newly-created routing protocol
+     * @param node the node on which the routing protocol will run
+     * @returns a newly-created routing protocol
      *
      * This method will be called by ns3::InternetStackHelper::Install
      */
     Ptr<Ipv6RoutingProtocol> Create(Ptr<Node> node) const override;
 
     /**
-     * \param name the name of the attribute to set
-     * \param value the value of the attribute to set.
+     * @param name the name of the attribute to set
+     * @param value the value of the attribute to set.
      *
      * This method controls the attributes of ns3::RipNg
      */
@@ -88,49 +80,49 @@ class RipNgHelper : public Ipv6RoutingHelper
      * have been assigned. The Install() method should have previously been
      * called by the user.
      *
-     * \param c NetDeviceContainer of the set of net devices for which the
+     * @param c NetDeviceContainer of the set of net devices for which the
      *          SixLowPanNetDevice should be modified to use a fixed stream
-     * \param stream first stream index to use
-     * \return the number of stream indices assigned by this helper
+     * @param stream first stream index to use
+     * @return the number of stream indices assigned by this helper
      */
     int64_t AssignStreams(NodeContainer c, int64_t stream);
 
     /**
-     * \brief Install a default route in the node.
+     * @brief Install a default route in the node.
      *
      * The traffic will be routed to the nextHop, located on the specified
      * interface, unless a more specific route is found.
      *
-     * \param node the node
-     * \param nextHop the next hop
-     * \param interface the network interface
+     * @param node the node
+     * @param nextHop the next hop
+     * @param interface the network interface
      */
     void SetDefaultRouter(Ptr<Node> node, Ipv6Address nextHop, uint32_t interface);
 
     /**
-     * \brief Exclude an interface from RIPng protocol.
+     * @brief Exclude an interface from RIPng protocol.
      *
      * You have to call this function \a before installing RIPng in the nodes.
      *
      * Note: the exclusion means that RIPng will not be propagated on that interface.
      * The network prefix on that interface will be still considered in RIPng.
      *
-     * \param node the node
-     * \param interface the network interface to be excluded
+     * @param node the node
+     * @param interface the network interface to be excluded
      */
     void ExcludeInterface(Ptr<Node> node, uint32_t interface);
 
     /**
-     * \brief Set a metric for an interface.
+     * @brief Set a metric for an interface.
      *
      * You have to call this function \a before installing RIPng in the nodes.
      *
      * Note: RIPng will apply the metric on route message reception.
      * As a consequence, interface metric should be set on the receiver.
      *
-     * \param node the node
-     * \param interface the network interface
-     * \param metric the interface metric
+     * @param node the node
+     * @param interface the network interface
+     * @param metric the interface metric
      */
     void SetInterfaceMetric(Ptr<Node> node, uint32_t interface, uint8_t metric);
 

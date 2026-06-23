@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2010 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #include "ns3tcp-socket-writer.h"
@@ -62,9 +51,9 @@ const uint32_t PCAP_LINK_TYPE =
 const uint32_t PCAP_SNAPLEN = 64; //!< Don't bother to save much data.
 
 /**
- * \ingroup system-tests-tcp
+ * @ingroup system-tests-tcp
  *
- * \brief Tests of TCP implementation loss behavior.
+ * @brief Tests of TCP implementation loss behavior.
  */
 class Ns3TcpLossTestCase : public TestCase
 {
@@ -74,8 +63,8 @@ class Ns3TcpLossTestCase : public TestCase
     /**
      * Constructor.
      *
-     * \param tcpModel The TCP model name.
-     * \param testCase Testcase number.
+     * @param tcpModel The TCP model name.
+     * @param testCase Testcase number.
      */
     Ns3TcpLossTestCase(std::string tcpModel, uint32_t testCase);
 
@@ -104,10 +93,10 @@ class Ns3TcpLossTestCase : public TestCase
      * Check that the transmitted packets are consistent with the trace.
      * This callback is hooked to ns3::Ipv4L3Protocol/Tx.
      *
-     * \param context The callback context (unused).
-     * \param packet The transmitted packet.
-     * \param ipv4 The IPv4 object that did send the packet (unused).
-     * \param interface The IPv4 interface that did send the packet (unused).
+     * @param context The callback context (unused).
+     * @param packet The transmitted packet.
+     * @param ipv4 The IPv4 object that did send the packet (unused).
+     * @param interface The IPv4 interface that did send the packet (unused).
      */
     void Ipv4L3Tx(std::string context,
                   Ptr<const Packet> packet,
@@ -116,23 +105,23 @@ class Ns3TcpLossTestCase : public TestCase
     /**
      * CWND trace.
      *
-     * \param oldval The old value.
-     * \param newval The new value.
+     * @param oldval The old value.
+     * @param newval The new value.
      */
     void CwndTracer(uint32_t oldval, uint32_t newval);
     /**
      * Write to the socket until the buffer is full.
      *
-     * \param localSocket The output socket.
-     * \param txSpace The space left on the socket (unused).
+     * @param localSocket The output socket.
+     * @param txSpace The space left on the socket (unused).
      */
     void WriteUntilBufferFull(Ptr<Socket> localSocket, uint32_t txSpace);
     /**
      * Start transmitting a TCP flow.
      *
-     * \param localSocket The sending socket.
-     * \param servAddress The IPv4 address of the server (i.e., the destination address).
-     * \param servPort The TCP port of the server (i.e., the destination port).
+     * @param localSocket The sending socket.
+     * @param servAddress The IPv4 address of the server (i.e., the destination address).
+     * @param servPort The TCP port of the server (i.e., the destination port).
      */
     void StartFlow(Ptr<Socket> localSocket, Ipv4Address servAddress, uint16_t servPort);
 };
@@ -246,7 +235,7 @@ Ns3TcpLossTestCase::Ipv4L3Tx(std::string, Ptr<const Packet> packet, Ptr<Ipv4>, u
 
         NS_LOG_INFO("read " << readLen << " bytes");
 
-        uint8_t* actual = new uint8_t[readLen];
+        auto actual = new uint8_t[readLen];
         received->CopyData(actual, readLen);
 
         int result = memcmp(actual, expectedBuffer, readLen);
@@ -411,8 +400,8 @@ Ns3TcpLossTestCase::DoRun()
     PacketSinkHelper sink("ns3::TcpSocketFactory",
                           InetSocketAddress(Ipv4Address::GetAny(), servPort));
     ApplicationContainer apps = sink.Install(r1k1.Get(1));
-    apps.Start(Seconds(0.0));
-    apps.Stop(Seconds(100.0));
+    apps.Start(Seconds(0));
+    apps.Stop(Seconds(100));
 
     // Create a data source to send packets on node s0.
     // Instead of full application, here use the socket directly by
@@ -499,7 +488,7 @@ Ns3TcpLossTestCase::DoRun()
 }
 
 /**
- * \ingroup system-tests-tcp
+ * @ingroup system-tests-tcp
  *
  * TCP implementation loss behavior TestSuite.
  */
@@ -510,23 +499,23 @@ class Ns3TcpLossTestSuite : public TestSuite
 };
 
 Ns3TcpLossTestSuite::Ns3TcpLossTestSuite()
-    : TestSuite("ns3-tcp-loss", SYSTEM)
+    : TestSuite("ns3-tcp-loss", Type::SYSTEM)
 {
     // We can't use NS_TEST_SOURCEDIR variable here because we use subdirectories
     SetDataDir("src/test/ns3tcp/response-vectors");
     Packet::EnablePrinting(); // Enable packet metadata for all test cases
 
-    AddTestCase(new Ns3TcpLossTestCase("NewReno", 0), TestCase::QUICK);
-    AddTestCase(new Ns3TcpLossTestCase("NewReno", 1), TestCase::QUICK);
-    AddTestCase(new Ns3TcpLossTestCase("NewReno", 2), TestCase::QUICK);
-    AddTestCase(new Ns3TcpLossTestCase("NewReno", 3), TestCase::QUICK);
-    AddTestCase(new Ns3TcpLossTestCase("NewReno", 4), TestCase::QUICK);
+    AddTestCase(new Ns3TcpLossTestCase("NewReno", 0), TestCase::Duration::QUICK);
+    AddTestCase(new Ns3TcpLossTestCase("NewReno", 1), TestCase::Duration::QUICK);
+    AddTestCase(new Ns3TcpLossTestCase("NewReno", 2), TestCase::Duration::QUICK);
+    AddTestCase(new Ns3TcpLossTestCase("NewReno", 3), TestCase::Duration::QUICK);
+    AddTestCase(new Ns3TcpLossTestCase("NewReno", 4), TestCase::Duration::QUICK);
 
-    AddTestCase(new Ns3TcpLossTestCase("WestwoodPlus", 0), TestCase::QUICK);
-    AddTestCase(new Ns3TcpLossTestCase("WestwoodPlus", 1), TestCase::QUICK);
-    AddTestCase(new Ns3TcpLossTestCase("WestwoodPlus", 2), TestCase::QUICK);
-    AddTestCase(new Ns3TcpLossTestCase("WestwoodPlus", 3), TestCase::QUICK);
-    AddTestCase(new Ns3TcpLossTestCase("WestwoodPlus", 4), TestCase::QUICK);
+    AddTestCase(new Ns3TcpLossTestCase("WestwoodPlus", 0), TestCase::Duration::QUICK);
+    AddTestCase(new Ns3TcpLossTestCase("WestwoodPlus", 1), TestCase::Duration::QUICK);
+    AddTestCase(new Ns3TcpLossTestCase("WestwoodPlus", 2), TestCase::Duration::QUICK);
+    AddTestCase(new Ns3TcpLossTestCase("WestwoodPlus", 3), TestCase::Duration::QUICK);
+    AddTestCase(new Ns3TcpLossTestCase("WestwoodPlus", 4), TestCase::Duration::QUICK);
 }
 
 /// Do not forget to allocate an instance of this TestSuite.

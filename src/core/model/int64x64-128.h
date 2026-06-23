@@ -1,36 +1,26 @@
 /*
  * Copyright (c) 2010 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
+ * SPDX-License-Identifier: GPL-2.0-only
  */
+
+#ifndef INT64X64_128_H
+#define INT64X64_128_H
 
 #include "ns3/core-config.h"
 
-#if !defined(INT64X64_128_H) && defined(INT64X64_USE_128) && !defined(PYTHON_SCAN)
 /**
- * \ingroup highprec
+ * @ingroup highprec
  * Use uint128_t for int64x64_t implementation
  */
-#define INT64X64_128_H
+#if defined(INT64X64_USE_128) && !defined(PYTHON_SCAN)
 
 #include <cmath> // pow
 #include <stdint.h>
 
 #if defined(HAVE___UINT128_T) && !defined(HAVE_UINT128_T)
 /**
- * \ingroup highprec
+ * @ingroup highprec
  * Some compilers do not have this defined, so we define it.
  * @{
  */
@@ -40,8 +30,8 @@ typedef __int128_t int128_t;
 #endif
 
 /**
- * \file
- * \ingroup highprec
+ * @file
+ * @ingroup highprec
  * Declaration of the ns3::int64x64_t type using a native int128_t type.
  */
 
@@ -49,7 +39,7 @@ namespace ns3
 {
 
 /**
- * \internal
+ * @internal
  * The implementation documented here is based on native 128-bit integers.
  */
 class int64x64_t
@@ -58,24 +48,11 @@ class int64x64_t
     static const uint128_t HP128_MASK_HI_BIT = (((int128_t)1) << 127);
     /// Mask for fraction part.
     static const uint64_t HP_MASK_LO = 0xffffffffffffffffULL;
-    /// Mask for sign + integer part.
-    static const uint64_t HP_MASK_HI = ~HP_MASK_LO;
-    /**
-     * Floating point value of HP_MASK_LO + 1.
-     * We really want:
-     * \code
-     *   static const long double HP_MAX_64 = std:pow (2.0L, 64);
-     * \endcode
-     * but we can't call functions in const definitions.
-     *
-     * We could make this a static and initialize in int64x64-128.cc or
-     * int64x64.cc, but this requires handling static initialization order
-     * when most of the implementation is inline.  Instead, we resort to
-     * this define.
-     */
-#define HP_MAX_64 (std::pow(2.0L, 64))
 
   public:
+    /// Floating point value of HP_MASK_LO + 1.
+    static constexpr long double HP_MAX_64 = (static_cast<uint64_t>(1) << 63) * 2.0L;
+
     /**
      * Type tag for the underlying implementation.
      *
@@ -100,13 +77,13 @@ class int64x64_t
     }
 
     /**
-     * \name Construct from a floating point value.
+     * @name Construct from a floating point value.
      */
     /**
      * @{
      * Constructor from a floating point.
      *
-     * \param [in] value Floating value to represent.
+     * @param [in] value Floating value to represent.
      */
     inline int64x64_t(const double value)
     {
@@ -146,13 +123,13 @@ class int64x64_t
     /**@}*/
 
     /**
-     * \name Construct from an integral type.
+     * @name Construct from an integral type.
      */
     /**@{*/
     /**
      * Construct from an integral type.
      *
-     * \param [in] v Integer value to represent.
+     * @param [in] v Integer value to represent.
      */
     inline int64x64_t(const int v)
         : _v(v)
@@ -190,18 +167,13 @@ class int64x64_t
         _v <<= 64;
     }
 
-    inline int64x64_t(const int128_t v)
-        : _v(v)
-    {
-    }
-
     /**@}*/
 
     /**
      * Construct from explicit high and low values.
      *
-     * \param [in] hi Integer portion.
-     * \param [in] lo Fractional portion, already scaled to HP_MAX_64.
+     * @param [in] hi Integer portion.
+     * @param [in] lo Fractional portion, already scaled to HP_MAX_64.
      */
     explicit inline int64x64_t(const int64_t hi, const uint64_t lo)
     {
@@ -212,7 +184,7 @@ class int64x64_t
     /**
      * Copy constructor.
      *
-     * \param [in] o Value to copy.
+     * @param [in] o Value to copy.
      */
     inline int64x64_t(const int64x64_t& o)
         : _v(o._v)
@@ -222,8 +194,8 @@ class int64x64_t
     /**
      * Assignment.
      *
-     * \param [in] o Value to assign to this int64x64_t.
-     * \returns This int64x64_t.
+     * @param [in] o Value to assign to this int64x64_t.
+     * @returns This int64x64_t.
      */
     inline int64x64_t& operator=(const int64x64_t& o)
     {
@@ -240,12 +212,13 @@ class int64x64_t
     /**
      * Get this value as a double.
      *
-     * \return This value in floating form.
+     * @return This value in floating form.
      */
     inline double GetDouble() const
     {
         const bool negative = _v < 0;
-        const uint128_t value = negative ? -_v : _v;
+        const int128_t vTemp = _v + (_v == std::numeric_limits<int128_t>::min());
+        const uint128_t value = negative ? -vTemp : vTemp;
         const long double fhi = value >> 64;
         const long double flo = (value & HP_MASK_LO) / HP_MAX_64;
         long double retval = fhi;
@@ -257,7 +230,7 @@ class int64x64_t
     /**
      * Get the integer portion.
      *
-     * \return The integer portion of this value.
+     * @return The integer portion of this value.
      */
     inline int64_t GetHigh() const
     {
@@ -268,7 +241,7 @@ class int64x64_t
     /**
      * Get the fractional portion of this value, unscaled.
      *
-     * \return The fractional portion, unscaled, as an integer.
+     * @return The fractional portion, unscaled, as an integer.
      */
     inline uint64_t GetLow() const
     {
@@ -279,7 +252,7 @@ class int64x64_t
     /**
      * Truncate to an integer.
      * Truncation is always toward zero,
-     * \return The value truncated toward zero.
+     * @return The value truncated toward zero.
      */
     int64_t GetInt() const
     {
@@ -294,7 +267,7 @@ class int64x64_t
      * Round to the nearest int.
      * Similar to std::round this rounds halfway cases away from zero,
      * regardless of the current (floating) rounding mode.
-     * \return The value rounded to the nearest int.
+     * @return The value rounded to the nearest int.
      */
     int64_t Round() const
     {
@@ -311,9 +284,9 @@ class int64x64_t
      * Multiply this value by a Q0.128 value, presumably representing an inverse,
      * completing a division operation.
      *
-     * \param [in] o The inverse operand.
+     * @param [in] o The inverse operand.
      *
-     * \see Invert()
+     * @see Invert()
      */
     void MulByInvert(const int64x64_t& o);
 
@@ -327,22 +300,22 @@ class int64x64_t
      *
      * (Really this should be a separate type representing Q0.128.)
      *
-     * \param [in] v The value to compute the inverse of.
-     * \return A Q0.128 representation of the inverse.
+     * @param [in] v The value to compute the inverse of.
+     * @return A Q0.128 representation of the inverse.
      */
     static int64x64_t Invert(const uint64_t v);
 
   private:
     /**
-     * \name Arithmetic Operators
+     * @name Arithmetic Operators
      * Arithmetic operators for int64x64_t.
      */
     /**
      * @{
      * Arithmetic operator.
-     * \param [in] lhs Left hand argument
-     * \param [in] rhs Right hand argument
-     * \return The result of the operator.
+     * @param [in] lhs Left hand argument
+     * @param [in] rhs Right hand argument
+     * @return The result of the operator.
      */
 
     friend inline bool operator==(const int64x64_t& lhs, const int64x64_t& rhs)
@@ -387,14 +360,14 @@ class int64x64_t
     /**@}*/
 
     /**
-     * \name Unary Operators
+     * @name Unary Operators
      * Unary operators for int64x64_t.
      */
     /**
      * @{
      * Unary operator.
-     * \param [in] lhs Left hand argument
-     * \return The result of the operator.
+     * @param [in] lhs Left hand argument
+     * @return The result of the operator.
      */
     friend inline int64x64_t operator+(const int64x64_t& lhs)
     {
@@ -403,7 +376,9 @@ class int64x64_t
 
     friend inline int64x64_t operator-(const int64x64_t& lhs)
     {
-        return int64x64_t(-lhs._v);
+        int64x64_t res;
+        res._v = -lhs._v;
+        return res;
     }
 
     friend inline int64x64_t operator!(const int64x64_t& lhs)
@@ -415,14 +390,15 @@ class int64x64_t
 
     /**
      * Implement `*=`.
+     * We assert if the product cannot be encoded in int64x64_t.
      *
-     * \param [in] o The other factor.
+     * @param [in] o The other factor.
      */
     void Mul(const int64x64_t& o);
     /**
      * Implement `/=`.
      *
-     * \param [in] o The divisor.
+     * @param [in] o The divisor.
      */
     void Div(const int64x64_t& o);
     /**
@@ -430,13 +406,13 @@ class int64x64_t
      *
      * Mathematically this should produce a Q128.128 value;
      * we keep the central 128 bits, representing the Q64.64 result.
-     * We assert on integer overflow beyond the 64-bit integer portion.
+     * We might assert if the result, in uint128_t format, exceeds 2^127.
      *
-     * \param [in] a First factor.
-     * \param [in] b Second factor.
-     * \return The Q64.64 product.
+     * @param [in] a First factor.
+     * @param [in] b Second factor.
+     * @return The Q64.64 product.
      *
-     * \internal
+     * @internal
      *
      * It might be tempting to just use \pname{a} `*` \pname{b}
      * and be done with it, but it's not that simple.  With \pname{a}
@@ -453,26 +429,26 @@ class int64x64_t
     /**
      * Unsigned division of Q64.64 values.
      *
-     * \param [in] a Numerator.
-     * \param [in] b Denominator.
-     * \return The Q64.64 representation of `a / b`.
+     * @param [in] a Numerator.
+     * @param [in] b Denominator.
+     * @return The Q64.64 representation of `a / b`.
      */
     static uint128_t Udiv(const uint128_t a, const uint128_t b);
     /**
      * Unsigned multiplication of Q64.64 and Q0.128 values.
      *
-     * \param [in] a The numerator, a Q64.64 value.
-     * \param [in] b The inverse of the denominator, a Q0.128 value
-     * \return The product `a * b`, representing the ration `a / b^-1`.
+     * @param [in] a The numerator, a Q64.64 value.
+     * @param [in] b The inverse of the denominator, a Q0.128 value
+     * @return The product `a * b`, representing the ration `a / b^-1`.
      *
-     * \see Invert()
+     * @see Invert()
      */
     static uint128_t UmulByInvert(const uint128_t a, const uint128_t b);
 
     int128_t _v; //!< The Q64.64 value.
-
-}; // class int64x64_t
+};
 
 } // namespace ns3
 
+#endif /* defined(INT64X64_USE_128) && !defined(PYTHON_SCAN) */
 #endif /* INT64X64_128_H */

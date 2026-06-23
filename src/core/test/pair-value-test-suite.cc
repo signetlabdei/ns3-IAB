@@ -1,34 +1,21 @@
 /*
  * Copyright (c) 2018 Caliola Engineering, LLC.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Jared Dulmage <jared.dulmage@caliola.com>
  */
 
-#include <ns3/double.h>
-#include <ns3/integer.h>
-#include <ns3/log.h>
-#include <ns3/object.h>
-#include <ns3/pair.h>
-#include <ns3/ptr.h>
-#include <ns3/string.h>
-#include <ns3/test.h>
-#include <ns3/type-id.h>
+#include "ns3/double.h"
+#include "ns3/integer.h"
+#include "ns3/log.h"
+#include "ns3/object.h"
+#include "ns3/pair.h"
+#include "ns3/ptr.h"
+#include "ns3/string.h"
+#include "ns3/test.h"
+#include "ns3/type-id.h"
 
-#include <algorithm>
-#include <iterator>
 #include <sstream>
 #include <utility>
 
@@ -37,18 +24,18 @@ using namespace ns3;
 NS_LOG_COMPONENT_DEFINE("PairTestSuite");
 
 /**
- * \file
- * \ingroup pair-tests
+ * @file
+ * @ingroup pair-tests
  * Pairs tests.
  */
 
 /**
- * \ingroup core-tests
- * \defgroup pair-tests Pairs tests
+ * @ingroup core-tests
+ * @defgroup pair-tests Pairs tests
  */
 
 /**
- * \ingroup pair-tests
+ * @ingroup pair-tests
  *
  * Object holding pairs of values.
  */
@@ -59,8 +46,8 @@ class PairObject : public Object
     ~PairObject() override;
 
     /**
-     * \brief Get the type ID.
-     * \return The object TypeId.
+     * @brief Get the type ID.
+     * @return The object TypeId.
      */
     static TypeId GetTypeId();
 
@@ -104,11 +91,11 @@ PairObject::GetTypeId()
 }
 
 /**
- * \brief Stream insertion operator.
+ * @brief Stream insertion operator.
  *
- * \param [in] os The reference to the output stream.
- * \param [in] obj The PairObject.
- * \returns The reference to the output stream.
+ * @param [in] os The reference to the output stream.
+ * @param [in] obj The PairObject.
+ * @returns The reference to the output stream.
  */
 std::ostream&
 operator<<(std::ostream& os, const PairObject& obj)
@@ -119,7 +106,7 @@ operator<<(std::ostream& os, const PairObject& obj)
 }
 
 /**
- * \ingroup pair-tests
+ * @ingroup pair-tests
  *
  * Pair test - Test instantiation, initialization, access.
  */
@@ -164,7 +151,7 @@ PairValueTestCase::DoRun()
 }
 
 /**
- * \ingroup pair-tests
+ * @ingroup pair-tests
  *
  * Pair test - test setting through attribute interface.
  */
@@ -200,9 +187,9 @@ PairValueSettingsTestCase::DoRun()
 }
 
 /**
- * \ingroup pair-tests
+ * @ingroup pair-tests
  *
- * \brief The pair-value Test Suite.
+ * @brief The pair-value Test Suite.
  */
 class PairValueTestSuite : public TestSuite
 {
@@ -211,10 +198,10 @@ class PairValueTestSuite : public TestSuite
 };
 
 PairValueTestSuite::PairValueTestSuite()
-    : TestSuite("pair-value-test-suite", UNIT)
+    : TestSuite("pair-value-test-suite", Type::UNIT)
 {
-    AddTestCase(new PairValueTestCase(), TestCase::QUICK);
-    AddTestCase(new PairValueSettingsTestCase(), TestCase::QUICK);
+    AddTestCase(new PairValueTestCase(), TestCase::Duration::QUICK);
+    AddTestCase(new PairValueSettingsTestCase(), TestCase::Duration::QUICK);
 }
 
 static PairValueTestSuite g_pairValueTestSuite; //!< Static variable for test initialization

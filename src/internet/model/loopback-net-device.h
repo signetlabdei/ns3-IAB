@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2008 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -31,10 +20,10 @@ namespace ns3
 class Node;
 
 /**
- * \ingroup netdevice
- * \ingroup internet
+ * @ingroup netdevice
+ * @ingroup internet
  *
- * \brief Virtual network interface that loops back any data sent to it to
+ * @brief Virtual network interface that loops back any data sent to it to
  * be immediately received on the same interface.
  *
  * This NetDevice is automatically added to any node as soon as the Internet
@@ -44,8 +33,8 @@ class LoopbackNetDevice : public NetDevice
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
     LoopbackNetDevice();
@@ -86,12 +75,12 @@ class LoopbackNetDevice : public NetDevice
 
   private:
     /**
-     * Receive a packet from tge Loopback NetDevice.
+     * Receive a packet from the Loopback NetDevice.
      *
-     * \param packet a reference to the received packet
-     * \param protocol the protocol
-     * \param to destination address
-     * \param from source address
+     * @param packet a reference to the received packet
+     * @param protocol the protocol
+     * @param to destination address
+     * @param from source address
      */
     void Receive(Ptr<Packet> packet, uint16_t protocol, Mac48Address to, Mac48Address from);
 

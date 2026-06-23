@@ -1,16 +1,5 @@
 /*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  * Author: Faker Moatamri <faker.moatamri@sophia.inria.fr>
  *
  */
@@ -19,21 +8,22 @@
  */
 
 #include "ns3/arp-l3-protocol.h"
+#include "ns3/boolean.h"
 #include "ns3/inet-socket-address.h"
 #include "ns3/ipv4-interface.h"
 #include "ns3/ipv4-l3-protocol.h"
 #include "ns3/log.h"
-#include "ns3/loopback-net-device.h"
 #include "ns3/node.h"
+#include "ns3/simple-net-device.h"
 #include "ns3/simulator.h"
 #include "ns3/test.h"
 
 using namespace ns3;
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv4 Test
+ * @brief IPv4 Test
  */
 class Ipv4L3ProtocolTestCase : public TestCase
 {
@@ -58,12 +48,19 @@ Ipv4L3ProtocolTestCase::DoRun()
     Ptr<Node> node = CreateObject<Node>();
     Ptr<Ipv4L3Protocol> ipv4 = CreateObject<Ipv4L3Protocol>();
     Ptr<Ipv4Interface> interface = CreateObject<Ipv4Interface>();
-    Ptr<LoopbackNetDevice> device = CreateObject<LoopbackNetDevice>();
+    Ptr<SimpleNetDevice> device = CreateObject<SimpleNetDevice>();
+
+    // The following allows the interface to run without ARP
+    device->SetAttribute("PointToPointMode", BooleanValue(true));
+
     node->AddDevice(device);
+    node->AggregateObject(ipv4);
     interface->SetDevice(device);
     interface->SetNode(node);
+
+    // Interface 0 is the Loopback
     uint32_t index = ipv4->AddIpv4Interface(interface);
-    NS_TEST_ASSERT_MSG_EQ(index, 0, "No interface should be found??");
+    NS_TEST_ASSERT_MSG_EQ(index, 1, "The index is not 1??");
     interface->SetUp();
     Ipv4InterfaceAddress ifaceAddr1 = Ipv4InterfaceAddress("192.168.0.1", "255.255.255.0");
     interface->AddAddress(ifaceAddr1);
@@ -121,17 +118,17 @@ Ipv4L3ProtocolTestCase::DoRun()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv4 TestSuite
+ * @brief IPv4 TestSuite
  */
 class IPv4L3ProtocolTestSuite : public TestSuite
 {
   public:
     IPv4L3ProtocolTestSuite()
-        : TestSuite("ipv4-protocol", UNIT)
+        : TestSuite("ipv4-protocol", Type::UNIT)
     {
-        AddTestCase(new Ipv4L3ProtocolTestCase(), TestCase::QUICK);
+        AddTestCase(new Ipv4L3ProtocolTestCase(), TestCase::Duration::QUICK);
     }
 };
 

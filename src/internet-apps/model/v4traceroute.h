@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2019 Ritsumeikan University, Shiga, Japan
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Alberto Gallegos Ramonet <ramonet@fc.ritsumei.ac.jp>
  */
@@ -35,13 +24,13 @@ namespace ns3
 class Socket;
 
 /**
- * \ingroup internet-apps
- * \defgroup v4traceroute V4Traceroute
+ * @ingroup internet-apps
+ * @defgroup v4traceroute V4Traceroute
  */
 
 /**
- * \ingroup v4traceroute
- * \brief Traceroute application sends one ICMP ECHO request with TTL=1,
+ * @ingroup v4traceroute
+ * @brief Traceroute application sends one ICMP ECHO request with TTL=1,
  *        and after receiving an ICMP TIME EXCEED reply, it increases the
  *        TTL and repeat the process to reveal all the intermediate hops to
  *        the destination.
@@ -51,42 +40,45 @@ class V4TraceRoute : public Application
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
     V4TraceRoute();
     ~V4TraceRoute() override;
     /**
-     * \brief Prints the application traced routes into a given OutputStream.
-     * \param stream the output stream
+     * @brief Prints the application traced routes into a given OutputStream.
+     * @param stream the output stream
      */
     void Print(Ptr<OutputStreamWrapper> stream);
+
+  protected:
+    void DoDispose() override;
 
   private:
     void StartApplication() override;
     void StopApplication() override;
-    void DoDispose() override;
+
     /**
-     * \brief Return the application ID in the node.
-     * \returns the application id
+     * @brief Return the application ID in the node.
+     * @returns the application id
      */
     uint32_t GetApplicationId() const;
     /**
-     * \brief Receive an ICMP Echo
-     * \param socket the receiving socket
+     * @brief Receive an ICMP Echo
+     * @param socket the receiving socket
      *
      * This function is called by lower layers through a callback.
      */
     void Receive(Ptr<Socket> socket);
 
-    /** \brief Send one (ICMP ECHO) to the destination.*/
+    /** @brief Send one (ICMP ECHO) to the destination.*/
     void Send();
 
-    /** \brief Starts a timer after sending an ICMP ECHO.*/
+    /** @brief Starts a timer after sending an ICMP ECHO.*/
     void StartWaitReplyTimer();
 
-    /** \brief Triggers an action if an ICMP TIME EXCEED have not being received
+    /** @brief Triggers an action if an ICMP TIME EXCEED have not being received
      *         in the time defined by StartWaitReplyTimer.
      */
     void HandleWaitReplyTimeout();
@@ -110,6 +102,8 @@ class V4TraceRoute : public Application
     bool m_verbose;
     /// Start time to report total ping time
     Time m_started;
+    /// True once completion output has been emitted
+    bool m_traceComplete;
     /// Next packet will be sent
     EventId m_next;
     /// The Current probe value
@@ -118,6 +112,8 @@ class V4TraceRoute : public Application
     uint16_t m_maxProbes;
     /// The current TTL value
     uint16_t m_ttl;
+    /// The packets Type of Service
+    uint8_t m_tos;
     /// The maximum Ttl (Max number of hops to trace)
     uint32_t m_maxTtl;
     /// The wait time until the response is considered lost.

@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2008 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #ifndef REALTIME_SIMULATOR_IMPL_H
@@ -31,8 +20,8 @@
 #include <thread>
 
 /**
- * \file
- * \ingroup realtime
+ * @file
+ * @ingroup realtime
  * ns3::RealtimeSimulatorImpl declaration.
  */
 
@@ -40,14 +29,14 @@ namespace ns3
 {
 
 /**
- * \ingroup simulator
- * \defgroup realtime Realtime Simulator
+ * @ingroup simulator
+ * @defgroup realtime Realtime Simulator
  *
  * Realtime simulator implementation.
  */
 
 /**
- * \ingroup realtime
+ * @ingroup realtime
  *
  * Realtime version of SimulatorImpl.
  */
@@ -56,7 +45,7 @@ class RealtimeSimulatorImpl : public SimulatorImpl
   public:
     /**
      * Get the registered TypeId for this class.
-     * \returns The TypeId.
+     * @returns The TypeId.
      */
     static TypeId GetTypeId();
 
@@ -77,7 +66,7 @@ class RealtimeSimulatorImpl : public SimulatorImpl
          *
          * Falling behind by more than the hard limit tolerance triggers
          * a fatal error.
-         * \see SetHardLimit
+         * @see SetHardLimit
          */
         SYNC_HARD_LIMIT,
     };
@@ -91,7 +80,7 @@ class RealtimeSimulatorImpl : public SimulatorImpl
     void Destroy() override;
     bool IsFinished() const override;
     void Stop() override;
-    void Stop(const Time& delay) override;
+    EventId Stop(const Time& delay) override;
     EventId Schedule(const Time& delay, EventImpl* event) override;
     void ScheduleWithContext(uint32_t context, const Time& delay, EventImpl* event) override;
     EventId ScheduleNow(EventImpl* event) override;
@@ -108,7 +97,7 @@ class RealtimeSimulatorImpl : public SimulatorImpl
     uint32_t GetContext() const override;
     uint64_t GetEventCount() const override;
 
-    /** \copydoc ScheduleWithContext(uint32_t,const Time&,EventImpl*) */
+    /** @copydoc ScheduleWithContext(uint32_t,const Time&,EventImpl*) */
     void ScheduleRealtimeWithContext(uint32_t context, const Time& delay, EventImpl* event);
     /**
      * Schedule a future event execution (in the same context).
@@ -120,8 +109,8 @@ class RealtimeSimulatorImpl : public SimulatorImpl
     /**
      * Schedule an event to run at the current virtual time.
      *
-     * \param [in] context Event context.
-     * \param [in] event The event to schedule.
+     * @param [in] context Event context.
+     * @param [in] event The event to schedule.
      */
     void ScheduleRealtimeNowWithContext(uint32_t context, EventImpl* event);
     /**
@@ -132,26 +121,26 @@ class RealtimeSimulatorImpl : public SimulatorImpl
     void ScheduleRealtimeNow(EventImpl* event);
     /**
      * Get the current real time from the synchronizer.
-     * \returns The current real time.
+     * @returns The current real time.
      */
     Time RealtimeNow() const;
 
     /**
      * Set the SynchronizationMode.
      *
-     * \param [in] mode The new SynchronizationMode.
+     * @param [in] mode The new SynchronizationMode.
      */
     void SetSynchronizationMode(RealtimeSimulatorImpl::SynchronizationMode mode);
     /**
      * Get the SynchronizationMode.
-     * \returns The current SynchronizationMode.
+     * @returns The current SynchronizationMode.
      */
     RealtimeSimulatorImpl::SynchronizationMode GetSynchronizationMode() const;
 
     /**
      * Set the fatal error threshold for SynchronizationMode SYNC_HARD_LIMIT.
      *
-     * \param [in] limit The maximum amount of real time we are allowed to fall
+     * @param [in] limit The maximum amount of real time we are allowed to fall
      *     behind before we trigger a fatal error.
      */
     void SetHardLimit(Time limit);
@@ -159,24 +148,24 @@ class RealtimeSimulatorImpl : public SimulatorImpl
      * Get the current fatal error threshold for SynchronizationMode
      * SYNC_HARD_LIMIT.
      *
-     * \returns The hard limit threshold.
+     * @returns The hard limit threshold.
      */
     Time GetHardLimit() const;
 
   private:
     /**
      * Is the simulator running?
-     * \returns \c true if we are running.
+     * @returns \c true if we are running.
      */
     bool Running() const;
     /**
      * Check that the Synchronizer is locked to the real time clock.
-     * \return \c true if the Synchronizer is locked.
+     * @return \c true if the Synchronizer is locked.
      */
     bool Realtime() const;
     /**
      * Get the timestep of the next event.
-     * \returns The timestep of the next event.
+     * @returns The timestep of the next event.
      */
     uint64_t NextTs() const;
     /** Process the next event. */
@@ -194,7 +183,7 @@ class RealtimeSimulatorImpl : public SimulatorImpl
     bool m_running;
 
     /**
-     * \name Mutex-protected variables.
+     * @name Mutex-protected variables.
      *
      * These variables are protected by #m_mutex.
      */

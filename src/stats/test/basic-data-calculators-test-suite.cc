@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2011 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mitch Watrous (watrous@u.washington.edu)
  */
@@ -28,9 +17,9 @@ using namespace ns3;
 const double TOLERANCE = 1e-13;
 
 /**
- * \ingroup stats-tests
+ * @ingroup stats-tests
  *
- * \brief MinMaxAvgTotalCalculator class - Test case for a single integer.
+ * @brief MinMaxAvgTotalCalculator class - Test case for a single integer.
  */
 class OneIntegerTestCase : public TestCase
 {
@@ -102,9 +91,9 @@ OneIntegerTestCase::DoRun()
 }
 
 /**
- * \ingroup stats-tests
+ * @ingroup stats-tests
  *
- * \brief MinMaxAvgTotalCalculator class - Test case for five integers.
+ * @brief MinMaxAvgTotalCalculator class - Test case for five integers.
  */
 class FiveIntegersTestCase : public TestCase
 {
@@ -176,9 +165,9 @@ FiveIntegersTestCase::DoRun()
 }
 
 /**
- * \ingroup stats-tests
+ * @ingroup stats-tests
  *
- * \brief MinMaxAvgTotalCalculator class - Test case for five double values.
+ * @brief MinMaxAvgTotalCalculator class - Test case for five double values.
  */
 class FiveDoublesTestCase : public TestCase
 {
@@ -250,9 +239,9 @@ FiveDoublesTestCase::DoRun()
 }
 
 /**
- * \ingroup stats-tests
+ * @ingroup stats-tests
  *
- * \brief MinMaxAvgTotalCalculator class TestSuite
+ * @brief MinMaxAvgTotalCalculator class TestSuite
  */
 class BasicDataCalculatorsTestSuite : public TestSuite
 {
@@ -261,11 +250,11 @@ class BasicDataCalculatorsTestSuite : public TestSuite
 };
 
 BasicDataCalculatorsTestSuite::BasicDataCalculatorsTestSuite()
-    : TestSuite("basic-data-calculators", UNIT)
+    : TestSuite("basic-data-calculators", Type::UNIT)
 {
-    AddTestCase(new OneIntegerTestCase, TestCase::QUICK);
-    AddTestCase(new FiveIntegersTestCase, TestCase::QUICK);
-    AddTestCase(new FiveDoublesTestCase, TestCase::QUICK);
+    AddTestCase(new OneIntegerTestCase, TestCase::Duration::QUICK);
+    AddTestCase(new FiveIntegersTestCase, TestCase::Duration::QUICK);
+    AddTestCase(new FiveDoublesTestCase, TestCase::Duration::QUICK);
 }
 
 /// Static variable for test initialization

@@ -46,7 +46,7 @@ NS_LOG_COMPONENT_DEFINE ("LteUplinkSinrTest");
 /**
  * TestSuite
  */
-LteUplinkSinrTestSuite::LteUplinkSinrTestSuite () : TestSuite ("lte-uplink-sinr", SYSTEM)
+LteUplinkSinrTestSuite::LteUplinkSinrTestSuite () : TestSuite ("lte-uplink-sinr", TestSuite::Type::SYSTEM)
 {
   /**
    * Build Spectrum Model values for the TX signal
@@ -85,11 +85,11 @@ LteUplinkSinrTestSuite::LteUplinkSinrTestSuite () : TestSuite ("lte-uplink-sinr"
 
   AddTestCase (new LteUplinkDataSinrTestCase (rxPsd1, rxPsd2, theoreticalSinr1,
                                               "sdBm = [-46 -inf] and [-inf -48]"),
-               TestCase::QUICK);
+               TestCase::Duration::QUICK);
 
   AddTestCase (new LteUplinkSrsSinrTestCase (rxPsd1, rxPsd2, theoreticalSinr1,
                                              "sdBm = [-46 -inf] and [-inf -48]"),
-               TestCase::QUICK);
+               TestCase::Duration::QUICK);
 
   /**
    * TX signals #2: Power Spectral Density of the signals of interest = [-63 -inf] and [-inf -61] dBm and BW = [20 22] MHz
@@ -108,11 +108,11 @@ LteUplinkSinrTestSuite::LteUplinkSinrTestSuite () : TestSuite ("lte-uplink-sinr"
 
   AddTestCase (new LteUplinkDataSinrTestCase (rxPsd3, rxPsd4, theoreticalSinr2,
                                               "sdBm = [-63 -inf] and [-inf -61]"),
-               TestCase::QUICK);
+               TestCase::Duration::QUICK);
 
   AddTestCase (new LteUplinkSrsSinrTestCase (rxPsd3, rxPsd4, theoreticalSinr2,
                                              "sdBm = [-63 -inf] and [-inf -61]"),
-               TestCase::QUICK);
+               TestCase::Duration::QUICK);
 }
 
 static LteUplinkSinrTestSuite lteUplinkSinrTestSuite;

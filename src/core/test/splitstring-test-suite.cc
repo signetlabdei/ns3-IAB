@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2022 Lawrence Livermore National Laboratory
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Peter D. Barnes, Jr. <pdbarnes@llnl.gov>
  */
@@ -27,18 +16,18 @@ namespace tests
 {
 
 /**
- * \file
- * \ingroup core-tests
+ * @file
+ * @ingroup core-tests
  * SplitString test suite implementation.
  */
 
 /**
- * \ingroup core-tests
- * \defgroup environ-var-tests Environment variable caching tests
+ * @ingroup core-tests
+ * @defgroup environ-var-tests Environment variable caching tests
  */
 
 /**
- * \ingroup core-tests
+ * @ingroup core-tests
  *
  * SplitString tests.
  */
@@ -58,16 +47,17 @@ class SplitStringTestCase : public TestCase
     /**
      * Read \p str and check that it contains only the key,value pairs
      * from \p expect.
-     * \param where The test condition being checked.
-     * \param str The environment variable to parse and check.
-     * \param expect The set of key,values expected.
+     * @param where The test condition being checked.
+     * @param str The environment variable to parse and check.
+     * @param expect The set of key,values expected.
      */
     void Check(const std::string& where, const std::string& str, const StringVector& expect);
 
     /** Test suite delimiter. */
     const std::string m_delimiter{":|:"};
 
-}; // class SplitStringTestCase
+    // end of class SplitStringTestCase
+};
 
 SplitStringTestCase::SplitStringTestCase()
     : TestCase("split-string")
@@ -131,7 +121,7 @@ SplitStringTestCase::DoRun()
 }
 
 /**
- * \ingroup typeid-tests
+ * @ingroup typeid-tests
  *
  * TypeId test suites.
  */
@@ -148,7 +138,7 @@ SplitStringTestSuite::SplitStringTestSuite()
 }
 
 /**
- * \ingroup environ-var-tests
+ * @ingroup environ-var-tests
  * Static variable for test initialization.
  */
 static SplitStringTestSuite g_SplitStringTestSuite;

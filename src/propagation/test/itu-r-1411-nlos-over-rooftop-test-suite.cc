@@ -1,39 +1,28 @@
 /*
  * Copyright (c) 2011,2012 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Marco Miozzo <marco.miozzo@cttc.es>
  *         Nicola Baldo <nbaldo@cttc.es>
  */
 
-#include <ns3/constant-position-mobility-model.h>
-#include <ns3/double.h>
-#include <ns3/enum.h>
-#include <ns3/itu-r-1411-nlos-over-rooftop-propagation-loss-model.h>
-#include <ns3/log.h>
-#include <ns3/string.h>
-#include <ns3/test.h>
+#include "ns3/constant-position-mobility-model.h"
+#include "ns3/double.h"
+#include "ns3/enum.h"
+#include "ns3/itu-r-1411-nlos-over-rooftop-propagation-loss-model.h"
+#include "ns3/log.h"
+#include "ns3/string.h"
+#include "ns3/test.h"
 
 using namespace ns3;
 
 NS_LOG_COMPONENT_DEFINE("ItuR1411NlosOverRooftopPropagationLossModelTest");
 
 /**
- * \ingroup propagation-tests
+ * @ingroup propagation-tests
  *
- * \brief ItuR1411NlosOverRooftopPropagationLossModel Test Case
+ * @brief ItuR1411NlosOverRooftopPropagationLossModel Test Case
  *
  */
 class ItuR1411NlosOverRooftopPropagationLossModelTestCase : public TestCase
@@ -42,14 +31,14 @@ class ItuR1411NlosOverRooftopPropagationLossModelTestCase : public TestCase
     /**
      * Constructor
      *
-     * \param freq carrier frequency in Hz
-     * \param dist 2D distance between UT and BS in meters
-     * \param hb height of BS in meters
-     * \param hm height of UT in meters
-     * \param env environment type
-     * \param city city type
-     * \param refValue reference loss value
-     * \param name TestCase name
+     * @param freq carrier frequency in Hz
+     * @param dist 2D distance between UT and BS in meters
+     * @param hb height of BS in meters
+     * @param hm height of UT in meters
+     * @param env environment type
+     * @param city city type
+     * @param refValue reference loss value
+     * @param name TestCase name
      */
     ItuR1411NlosOverRooftopPropagationLossModelTestCase(double freq,
                                                         double dist,
@@ -66,8 +55,8 @@ class ItuR1411NlosOverRooftopPropagationLossModelTestCase : public TestCase
 
     /**
      * Create a MobilityModel
-     * \param index mobility model index
-     * \return a new MobilityModel
+     * @param index mobility model index
+     * @return a new MobilityModel
      */
     Ptr<MobilityModel> CreateMobilityModel(uint16_t index);
 
@@ -131,9 +120,9 @@ ItuR1411NlosOverRooftopPropagationLossModelTestCase::DoRun()
 }
 
 /**
- * \ingroup propagation-tests
+ * @ingroup propagation-tests
  *
- * \brief ItuR1411NlosOverRooftopPropagationLossModel TestSuite
+ * @brief ItuR1411NlosOverRooftopPropagationLossModel TestSuite
  *
  */
 class ItuR1411NlosOverRooftopPropagationLossModelTestSuite : public TestSuite
@@ -144,7 +133,7 @@ class ItuR1411NlosOverRooftopPropagationLossModelTestSuite : public TestSuite
 
 ItuR1411NlosOverRooftopPropagationLossModelTestSuite::
     ItuR1411NlosOverRooftopPropagationLossModelTestSuite()
-    : TestSuite("itu-r-1411-nlos-over-rooftop", SYSTEM)
+    : TestSuite("itu-r-1411-nlos-over-rooftop", Type::SYSTEM)
 {
     LogComponentEnable("ItuR1411NlosOverRooftopPropagationLossModelTest", LOG_LEVEL_ALL);
 
@@ -158,7 +147,7 @@ ItuR1411NlosOverRooftopPropagationLossModelTestSuite::
                     LargeCity,
                     143.68,
                     "f=2114Mhz, dist=900, urban large city"),
-                TestCase::QUICK);
+                TestCase::Duration::QUICK);
     AddTestCase(new ItuR1411NlosOverRooftopPropagationLossModelTestCase(
                     1.865e9,
                     500,
@@ -168,7 +157,7 @@ ItuR1411NlosOverRooftopPropagationLossModelTestSuite::
                     LargeCity,
                     132.84,
                     "f=2114Mhz, dist=900, urban large city"),
-                TestCase::QUICK);
+                TestCase::Duration::QUICK);
 }
 
 /// Static variable for test initialization

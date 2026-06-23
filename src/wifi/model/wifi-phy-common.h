@@ -2,18 +2,7 @@
  * Copyright (c) 2005,2006,2007 INRIA
  * Copyright (c) 2020 Orange Labs
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  *          Rediet <getachew.redieteab@orange.com>
@@ -22,16 +11,20 @@
 #ifndef WIFI_PHY_COMMON_H
 #define WIFI_PHY_COMMON_H
 
+#include "wifi-spectrum-value-helper.h"
 #include "wifi-standards.h"
+#include "wifi-types.h"
 
 #include "ns3/fatal-error.h"
 #include "ns3/ptr.h"
 
 #include <ostream>
+#include <set>
+#include <vector>
 
 /**
- * \file
- * \ingroup wifi
+ * @file
+ * @ingroup wifi
  * Declaration of the following enums:
  * - ns3::WifiPreamble
  * - ns3::WifiModulationClass
@@ -48,31 +41,138 @@ class WifiMode;
 class Time;
 
 /**
+ * typedef for a pair of start and stop frequencies to represent a band
+ */
+using WifiSpectrumBandFrequencies = std::pair<Hz_u, Hz_u>;
+
+/// WifiSpectrumBandInfo structure containing info about a spectrum band
+struct WifiSpectrumBandInfo
+{
+    std::vector<WifiSpectrumBandIndices>
+        indices; //!< the start and stop indices for each segment of the band
+    std::vector<WifiSpectrumBandFrequencies>
+        frequencies; //!< the start and stop frequencies for each segment of the band
+};
+
+/// vector of spectrum bands
+using WifiSpectrumBands = std::vector<WifiSpectrumBandInfo>;
+
+/// A map of the received power for each band
+using RxPowerWattPerChannelBand = std::map<WifiSpectrumBandInfo, Watt_u>;
+
+/**
+ * @ingroup wifi
+ * Compare two bands.
+ *
+ * @param lhs the band on the left of operator<
+ * @param rhs the band on the right of operator<
+ * @return true if the start/stop frequencies of the first segment of left are lower than the
+ * start/stop frequencies of the first segment of right. If the first segment is the same for left
+ * and right, it return true if the start/stop frequencies of the second segment of left are lower
+ * than the start/stop frequencies of the second segment of right. Otherwise, the function return
+ * false.
+ */
+inline bool
+operator<(const WifiSpectrumBandInfo& lhs, const WifiSpectrumBandInfo& rhs)
+{
+    if (lhs.frequencies.front() == rhs.frequencies.front())
+    {
+        return lhs.frequencies.back() < rhs.frequencies.back();
+    }
+    return lhs.frequencies.front() < rhs.frequencies.front();
+}
+
+/**
+ * @brief Stream insertion operator.
+ *
+ * @param os the stream
+ * @param band the band
+ * @returns a reference to the stream
+ */
+inline std::ostream&
+operator<<(std::ostream& os, const WifiSpectrumBandInfo& band)
+{
+    NS_ASSERT(band.indices.size() == band.frequencies.size());
+    for (std::size_t segmentIndex = 0; segmentIndex < band.indices.size(); ++segmentIndex)
+    {
+        os << "indices segment" << segmentIndex << ": [" << band.indices.at(segmentIndex).first
+           << "-" << band.indices.at(segmentIndex).second << "], frequencies segment"
+           << segmentIndex << ": [" << band.frequencies.at(segmentIndex).first << "Hz-"
+           << band.frequencies.at(segmentIndex).second << "Hz] ";
+    }
+    return os;
+}
+
+/**
  * These constants define the various convolutional coding rates
  * used for the OFDM transmission modes in the IEEE 802.11
  * standard. DSSS (for example) rates which do not have an explicit
  * coding stage in their generation should have this parameter set to
  * WIFI_CODE_RATE_UNDEFINED.
- * \note This typedef and constants could be converted to an enum or scoped
- * enum if pybindgen is upgraded to support Callback<WifiCodeRate>
  */
-typedef uint16_t WifiCodeRate;
-const uint16_t WIFI_CODE_RATE_UNDEFINED = 0; //!< undefined coding rate
-const uint16_t WIFI_CODE_RATE_1_2 = 1;       //!< 1/2 coding rate
-const uint16_t WIFI_CODE_RATE_2_3 = 2;       //!< 2/3 coding rate
-const uint16_t WIFI_CODE_RATE_3_4 = 3;       //!< 3/4 coding rate
-const uint16_t WIFI_CODE_RATE_5_6 = 4;       //!< 5/6 coding rate
-const uint16_t WIFI_CODE_RATE_5_8 = 5;       //!< 5/8 coding rate
-const uint16_t WIFI_CODE_RATE_13_16 = 6;     //!< 13/16 coding rate
-const uint16_t WIFI_CODE_RATE_1_4 = 7;       //!< 1/4 coding rate
-const uint16_t WIFI_CODE_RATE_13_28 = 8;     //!< 13/28 coding rate
-const uint16_t WIFI_CODE_RATE_13_21 = 9;     //!< 13/21 coding rate
-const uint16_t WIFI_CODE_RATE_52_63 = 10;    //!< 52/63 coding rate
-const uint16_t WIFI_CODE_RATE_13_14 = 11;    //!< 13/14 coding rate
-const uint16_t WIFI_CODE_RATE_7_8 = 12;      //!< 7/8 coding rate
+enum WifiCodeRate : uint16_t
+{
+    WIFI_CODE_RATE_UNDEFINED, //!< undefined coding rate
+    WIFI_CODE_RATE_1_2,       //!< 1/2 coding rate
+    WIFI_CODE_RATE_2_3,       //!< 2/3 coding rate
+    WIFI_CODE_RATE_3_4,       //!< 3/4 coding rate
+    WIFI_CODE_RATE_5_6,       //!< 5/6 coding rate
+    WIFI_CODE_RATE_5_8,       //!< 5/8 coding rate
+    WIFI_CODE_RATE_13_16,     //!< 13/16 coding rate
+    WIFI_CODE_RATE_1_4,       //!< 1/4 coding rate
+    WIFI_CODE_RATE_13_28,     //!< 13/28 coding rate
+    WIFI_CODE_RATE_13_21,     //!< 13/21 coding rate
+    WIFI_CODE_RATE_52_63,     //!< 52/63 coding rate
+    WIFI_CODE_RATE_13_14,     //!< 13/14 coding rate
+    WIFI_CODE_RATE_7_8,       //!< 7/8 coding rate
+};
 
 /**
- * \ingroup wifi
+ * @brief Stream insertion operator.
+ *
+ * @param os the stream
+ * @param codeRate the code rate
+ * @returns a reference to the stream
+ */
+inline std::ostream&
+operator<<(std::ostream& os, const WifiCodeRate& codeRate)
+{
+    switch (codeRate)
+    {
+    case WIFI_CODE_RATE_UNDEFINED:
+        return (os << "Code rate undefined");
+    case WIFI_CODE_RATE_1_2:
+        return (os << "Code rate 1/2");
+    case WIFI_CODE_RATE_2_3:
+        return (os << "Code rate 2/3");
+    case WIFI_CODE_RATE_3_4:
+        return (os << "Code rate 3/4");
+    case WIFI_CODE_RATE_5_6:
+        return (os << "Code rate 5/6");
+    case WIFI_CODE_RATE_5_8:
+        return (os << "Code rate 5/8");
+    case WIFI_CODE_RATE_13_16:
+        return (os << "Code rate 13/16");
+    case WIFI_CODE_RATE_1_4:
+        return (os << "Code rate 1/4");
+    case WIFI_CODE_RATE_13_28:
+        return (os << "Code rate 13/28");
+    case WIFI_CODE_RATE_13_21:
+        return (os << "Code rate 13/21");
+    case WIFI_CODE_RATE_52_63:
+        return (os << "Code rate 52/63");
+    case WIFI_CODE_RATE_13_14:
+        return (os << "Code rate 13/14");
+    case WIFI_CODE_RATE_7_8:
+        return (os << "Code rate 7/8");
+    default:
+        NS_FATAL_ERROR("Unknown code rate");
+        return (os << "Unknown");
+    }
+}
+
+/**
+ * @ingroup wifi
  * The type of preamble to be used by an IEEE 802.11 transmission
  */
 enum WifiPreamble
@@ -94,11 +194,11 @@ enum WifiPreamble
 };
 
 /**
- * \brief Stream insertion operator.
+ * @brief Stream insertion operator.
  *
- * \param os the stream
- * \param preamble the preamble
- * \returns a reference to the stream
+ * @param os the stream
+ * @param preamble the preamble
+ * @returns a reference to the stream
  */
 inline std::ostream&
 operator<<(std::ostream& os, const WifiPreamble& preamble)
@@ -140,7 +240,7 @@ operator<<(std::ostream& os, const WifiPreamble& preamble)
 }
 
 /**
- * \ingroup wifi
+ * @ingroup wifi
  * This enumeration defines the modulation classes per
  * (Table 10-6 "Modulation classes"; IEEE 802.11-2016, with
  * updated in 802.11ax/D6.0 as Table 10-9).
@@ -165,11 +265,11 @@ enum WifiModulationClass
 };
 
 /**
- * \brief Stream insertion operator.
+ * @brief Stream insertion operator.
  *
- * \param os the stream
- * \param modulation the WifiModulationClass
- * \returns a reference to the stream
+ * @param os the stream
+ * @param modulation the WifiModulationClass
+ * @returns a reference to the stream
  */
 inline std::ostream&
 operator<<(std::ostream& os, const WifiModulationClass& modulation)
@@ -207,7 +307,7 @@ operator<<(std::ostream& os, const WifiModulationClass& modulation)
 }
 
 /**
- * \ingroup wifi
+ * @ingroup wifi
  * The type of PPDU field (grouped for convenience)
  */
 enum WifiPpduField
@@ -236,11 +336,11 @@ enum WifiPpduField
 };
 
 /**
- * \brief Stream insertion operator.
+ * @brief Stream insertion operator.
  *
- * \param os the stream
- * \param field the PPDU field
- * \returns a reference to the stream
+ * @param os the stream
+ * @param field the PPDU field
+ * @returns a reference to the stream
  */
 inline std::ostream&
 operator<<(std::ostream& os, const WifiPpduField& field)
@@ -272,7 +372,7 @@ operator<<(std::ostream& os, const WifiPpduField& field)
 }
 
 /**
- * \ingroup wifi
+ * @ingroup wifi
  * The type of PPDU (SU, DL MU, or UL MU)
  */
 enum WifiPpduType
@@ -283,11 +383,11 @@ enum WifiPpduType
 };
 
 /**
- * \brief Stream insertion operator.
+ * @brief Stream insertion operator.
  *
- * \param os the stream
- * \param type the PPDU type
- * \returns a reference to the stream
+ * @param os the stream
+ * @param type the PPDU type
+ * @returns a reference to the stream
  */
 inline std::ostream&
 operator<<(std::ostream& os, const WifiPpduType& type)
@@ -307,7 +407,7 @@ operator<<(std::ostream& os, const WifiPpduType& type)
 }
 
 /**
- * \ingroup wifi
+ * @ingroup wifi
  * Enumeration of the possible reception failure reasons.
  */
 enum WifiPhyRxfailureReason
@@ -332,18 +432,19 @@ enum WifiPhyRxfailureReason
     PREAMBLE_DETECTION_PACKET_SWITCH,
     FRAME_CAPTURE_PACKET_SWITCH,
     OBSS_PD_CCA_RESET,
-    HE_TB_PPDU_TOO_LATE,
+    PPDU_TOO_LATE,
     FILTERED,
     DMG_HEADER_FAILURE,
-    DMG_ALLOCATION_ENDED
+    DMG_ALLOCATION_ENDED,
+    SIGNAL_DETECTION_ABORTED_BY_TX
 };
 
 /**
- * \brief Stream insertion operator.
+ * @brief Stream insertion operator.
  *
- * \param os the stream
- * \param reason the failure reason
- * \returns a reference to the stream
+ * @param os the stream
+ * @param reason the failure reason
+ * @returns a reference to the stream
  */
 inline std::ostream&
 operator<<(std::ostream& os, const WifiPhyRxfailureReason& reason)
@@ -388,14 +489,16 @@ operator<<(std::ostream& os, const WifiPhyRxfailureReason& reason)
         return (os << "FRAME_CAPTURE_PACKET_SWITCH");
     case OBSS_PD_CCA_RESET:
         return (os << "OBSS_PD_CCA_RESET");
-    case HE_TB_PPDU_TOO_LATE:
-        return (os << "HE_TB_PPDU_TOO_LATE");
+    case PPDU_TOO_LATE:
+        return (os << "PPDU_TOO_LATE");
     case FILTERED:
         return (os << "FILTERED");
     case DMG_HEADER_FAILURE:
         return (os << "DMG_HEADER_FAILURE");
     case DMG_ALLOCATION_ENDED:
         return (os << "DMG_ALLOCATION_ENDED");
+    case SIGNAL_DETECTION_ABORTED_BY_TX:
+        return (os << "SIGNAL_DETECTION_ABORTED_BY_TX");
     case UNKNOWN:
     default:
         NS_FATAL_ERROR("Unknown reason");
@@ -404,7 +507,7 @@ operator<<(std::ostream& os, const WifiPhyRxfailureReason& reason)
 }
 
 /**
- * \ingroup wifi
+ * @ingroup wifi
  * Enumeration of the possible channel-list parameter elements
  * defined in Table 8-5 of IEEE 802.11-2016.
  */
@@ -413,15 +516,16 @@ enum WifiChannelListType : uint8_t
     WIFI_CHANLIST_PRIMARY = 0,
     WIFI_CHANLIST_SECONDARY,
     WIFI_CHANLIST_SECONDARY40,
-    WIFI_CHANLIST_SECONDARY80
+    WIFI_CHANLIST_SECONDARY80,
+    WIFI_CHANLIST_SECONDARY160
 };
 
 /**
- * \brief Stream insertion operator.
+ * @brief Stream insertion operator.
  *
- * \param os the stream
- * \param type the wifi channel list type
- * \returns a reference to the stream
+ * @param os the stream
+ * @param type the wifi channel list type
+ * @returns a reference to the stream
  */
 inline std::ostream&
 operator<<(std::ostream& os, WifiChannelListType type)
@@ -436,51 +540,90 @@ operator<<(std::ostream& os, WifiChannelListType type)
         return (os << "SECONDARY40");
     case WIFI_CHANLIST_SECONDARY80:
         return (os << "SECONDARY80");
+    case WIFI_CHANLIST_SECONDARY160:
+        return (os << "SECONDARY160");
     default:
-        NS_FATAL_ERROR("Unknown wifi channel type");
+        NS_FATAL_ERROR("Unknown wifi channel type " << +type);
         return (os << "UNKNOWN");
     }
 }
 
 /**
- * Convert the guard interval to nanoseconds based on the WifiMode.
+ * @brief Stream insertion operator.
  *
- * \param mode the WifiMode
- * \param device pointer to the WifiNetDevice object
- *
- * \return the guard interval duration in nanoseconds
+ * @param os the stream
+ * @param width the wifi channel width type
+ * @returns a reference to the stream
  */
-uint16_t ConvertGuardIntervalToNanoSeconds(WifiMode mode, const Ptr<WifiNetDevice> device);
+inline std::ostream&
+operator<<(std::ostream& os, WifiChannelWidthType width)
+{
+    switch (width)
+    {
+    case WifiChannelWidthType::CW_20MHZ:
+        return (os << "20MHz");
+    case WifiChannelWidthType::CW_22MHZ:
+        return (os << "22MHz");
+    case WifiChannelWidthType::CW_5MHZ:
+        return (os << "5MHz");
+    case WifiChannelWidthType::CW_10MHZ:
+        return (os << "10MHz");
+    case WifiChannelWidthType::CW_40MHZ:
+        return (os << "40MHz");
+    case WifiChannelWidthType::CW_80MHZ:
+        return (os << "80MHz");
+    case WifiChannelWidthType::CW_160MHZ:
+        return (os << "160MHz");
+    case WifiChannelWidthType::CW_80_PLUS_80MHZ:
+        return (os << "80+80MHz");
+    case WifiChannelWidthType::CW_320MHZ:
+        return (os << "320MHz");
+    case WifiChannelWidthType::CW_2160MHZ:
+        return (os << "2160MHz");
+    default:
+    case WifiChannelWidthType::MAX:
+        return (os << "UNKNOWN");
+    }
+}
 
 /**
- * Convert the guard interval to nanoseconds based on the WifiMode.
+ * Get the guard interval for a given WifiMode.
  *
- * \param mode the WifiMode
- * \param htShortGuardInterval whether HT/VHT short guard interval is enabled
- * \param heGuardInterval the HE guard interval duration
+ * @param mode the WifiMode
+ * @param device pointer to the WifiNetDevice object
  *
- * \return the guard interval duration in nanoseconds
+ * @return the guard interval duration to use for the mode
  */
-uint16_t ConvertGuardIntervalToNanoSeconds(WifiMode mode,
-                                           bool htShortGuardInterval,
-                                           Time heGuardInterval);
+Time GetGuardIntervalForMode(WifiMode mode, const Ptr<WifiNetDevice> device);
+
+/**
+ * Get the guard interval for a given WifiMode.
+ *
+ * @param mode the WifiMode
+ * @param htShortGuardInterval whether HT/VHT short guard interval is enabled
+ * @param heGuardInterval the HE guard interval duration
+ *
+ * @return the guard interval duration to use for the mode
+ */
+Time GetGuardIntervalForMode(WifiMode mode, bool htShortGuardInterval, Time heGuardInterval);
 
 /**
  * Return the preamble to be used for the transmission.
  *
- * \param modulation the modulation selected for the transmission
- * \param useShortPreamble whether short preamble should be used
+ * @param modulation the modulation selected for the transmission
+ * @param useShortPreamble whether short preamble should be used
  *
- * \return the preamble to be used for the transmission
+ * @return the preamble to be used for the transmission
  */
-WifiPreamble GetPreambleForTransmission(WifiModulationClass modulation, bool useShortPreamble);
+WifiPreamble GetPreambleForTransmission(WifiModulationClass modulation,
+                                        bool useShortPreamble = false);
 
 /**
  * Return the modulation class corresponding to the given preamble type.
  * Only preamble types used by HT/VHT/HE/EHT can be passed to this function.
  *
- * \param preamble the given preamble type (must be one defined by HT standard or later)
- * \return the modulation class corresponding to the given preamble type
+ * @param preamble the given preamble type (must be one defined by HT standard or later)
+ * @return the modulation class corresponding to the given preamble type
  */
 WifiModulationClass GetModulationClassForPreamble(WifiPreamble preamble);
 
@@ -488,10 +631,10 @@ WifiModulationClass GetModulationClassForPreamble(WifiPreamble preamble);
  * Return whether the modulation class of the selected mode for the
  * control answer frame is allowed.
  *
- * \param modClassReq modulation class of the request frame
- * \param modClassAnswer modulation class of the answer frame
+ * @param modClassReq modulation class of the request frame
+ * @param modClassAnswer modulation class of the answer frame
  *
- * \return true if the modulation class of the selected mode for the
+ * @return true if the modulation class of the selected mode for the
  * control answer frame is allowed, false otherwise
  */
 bool IsAllowedControlAnswerModulationClass(WifiModulationClass modClassReq,
@@ -502,59 +645,111 @@ bool IsAllowedControlAnswerModulationClass(WifiModulationClass modClassReq,
  * the PHY layers defining the aPPDUMaxTime characteristic (HT, VHT and HE).
  * Return zero otherwise.
  *
- * \param preamble the preamble type
+ * @param preamble the preamble type
  *
- * \return the maximum PPDU duration, if defined, and zero otherwise
+ * @return the maximum PPDU duration, if defined, and zero otherwise
  */
 Time GetPpduMaxTime(WifiPreamble preamble);
 
 /**
  * Return true if a preamble corresponds to a multi-user transmission.
  *
- * \param preamble the preamble
- * \return true if the provided preamble corresponds to a multi-user transmission
+ * @param preamble the preamble
+ * @return true if the provided preamble corresponds to a multi-user transmission
  */
 bool IsMu(WifiPreamble preamble);
 
 /**
  * Return true if a preamble corresponds to a downlink multi-user transmission.
  *
- * \param preamble the preamble
- * \return true if the provided preamble corresponds to a downlink multi-user transmission
+ * @param preamble the preamble
+ * @return true if the provided preamble corresponds to a downlink multi-user transmission
  */
 bool IsDlMu(WifiPreamble preamble);
 
 /**
  * Return true if a preamble corresponds to a uplink multi-user transmission.
  *
- * \param preamble the preamble
- * \return true if the provided preamble corresponds to a uplink multi-user transmission
+ * @param preamble the preamble
+ * @return true if the provided preamble corresponds to a uplink multi-user transmission
  */
 bool IsUlMu(WifiPreamble preamble);
 
 /**
  * Return the modulation class corresponding to a given standard.
  *
- * \param standard the standard
- * \return the modulation class corresponding to the standard
+ * In the case of WIFI_STANDARD_80211b, two modulation classes are supported
+ * (WIFI_MOD_CLASS_DSSS and WIFI_MOD_CLASS_HR_DSSS); this method will return
+ * the latter.
+ *
+ * @param standard the standard
+ * @return the modulation class corresponding to the standard
  */
 WifiModulationClass GetModulationClassForStandard(WifiStandard standard);
 
 /**
- * Get the maximum channel width in MHz allowed for the given modulation class.
+ * Get the supported channel width set that can be advertised in PHY capabilities.
  *
- * \param modulation the modulation class
- * \return the maximum channel width in MHz allowed for the given modulation class
+ * @param standard the standard
+ * @param band the PHY band
+ * @return the supported channel width set that can be advertised for the given standard and band
  */
-uint16_t GetMaximumChannelWidth(WifiModulationClass modulation);
+std::set<MHz_u> GetSupportedChannelWidthSet(WifiStandard standard, WifiPhyBand band);
+
+/**
+ * Get the maximum channel width allowed for the given modulation class.
+ *
+ * @param modulation the modulation class
+ * @return the maximum channel width allowed for the given modulation class
+ */
+MHz_u GetMaximumChannelWidth(WifiModulationClass modulation);
+
+/**
+ * Get the total channel width for the channel width type.
+ *
+ * @param width the channel width type
+ * @return the total channel width for the channel width type
+ */
+MHz_u GetChannelWidthInMhz(WifiChannelWidthType width);
 
 /**
  * Return true if a preamble corresponds to an EHT transmission.
  *
- * \param preamble the preamble
- * \return true if the provided preamble corresponds to an EHT transmission
+ * @param preamble the preamble
+ * @return true if the provided preamble corresponds to an EHT transmission
  */
 bool IsEht(WifiPreamble preamble);
+
+/**
+ * @brief map a given channel list type to the corresponding scaling factor
+ */
+const std::map<WifiChannelListType, dBm_u> channelTypeToScalingFactor{
+    {WIFI_CHANLIST_PRIMARY, 0.0},
+    {WIFI_CHANLIST_SECONDARY, 0.0},
+    {WIFI_CHANLIST_SECONDARY40, 3.0},
+    {WIFI_CHANLIST_SECONDARY80, 6.0},
+    {WIFI_CHANLIST_SECONDARY160, 12.0},
+};
+
+/**
+ * A struct for both SNR and PER
+ */
+struct SnrPer
+{
+    double snr{0.0}; ///< SNR in linear scale
+    double per{1.0}; ///< PER
+};
+
+/**
+ * A pair containing information on the PHY header chunk, namely
+ * the start and stop times of the chunk and the WifiMode used.
+ */
+typedef std::pair<std::pair<Time /* start */, Time /* stop */>, WifiMode> PhyHeaderChunkInfo;
+/**
+ * A map of PhyHeaderChunkInfo elements per PPDU field.
+ * @see PhyHeaderChunkInfo
+ */
+typedef std::map<WifiPpduField, PhyHeaderChunkInfo> PhyHeaderSections;
 
 } // namespace ns3
 

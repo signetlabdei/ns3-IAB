@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2016 NITK Surathkal
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Shravya Ks <shravya.ks0@gmail.com>
  *          Smriti Murali <m.smriti.95@gmail.com>
@@ -297,15 +286,9 @@ PieQueueDisc::DropEarly(Ptr<QueueDiscItem> item, uint32_t qSize)
     }
 
     // Safeguard PIE to be work conserving (Section 4.1 of RFC 8033)
-    if ((m_qDelayOld.GetSeconds() < (0.5 * m_qDelayRef.GetSeconds())) && (m_dropProb < 0.2))
-    {
-        return false;
-    }
-    else if (GetMaxSize().GetUnit() == QueueSizeUnit::BYTES && qSize <= 2 * m_meanPktSize)
-    {
-        return false;
-    }
-    else if (GetMaxSize().GetUnit() == QueueSizeUnit::PACKETS && qSize <= 2)
+    if ((m_qDelayOld.GetSeconds() < (0.5 * m_qDelayRef.GetSeconds()) && m_dropProb < 0.2) ||
+        (GetMaxSize().GetUnit() == QueueSizeUnit::BYTES && qSize <= 2 * m_meanPktSize) ||
+        (GetMaxSize().GetUnit() == QueueSizeUnit::PACKETS && qSize <= 2))
     {
         return false;
     }
@@ -328,12 +311,7 @@ PieQueueDisc::DropEarly(Ptr<QueueDiscItem> item, uint32_t qSize)
     }
 
     double u = m_uv->GetValue();
-    if (u > p)
-    {
-        return false;
-    }
-
-    return true;
+    return u <= p;
 }
 
 void
@@ -442,7 +420,7 @@ PieQueueDisc::CalculateP()
         m_burstAllowance -= m_tUpdate;
     }
 
-    uint32_t burstResetLimit = static_cast<uint32_t>(BURST_RESET_TIMEOUT / m_tUpdate.GetSeconds());
+    auto burstResetLimit = static_cast<uint32_t>(BURST_RESET_TIMEOUT / m_tUpdate.GetSeconds());
     if ((qDelay.GetSeconds() < 0.5 * m_qDelayRef.GetSeconds()) &&
         (m_qDelayOld.GetSeconds() < (0.5 * m_qDelayRef.GetSeconds())) && (m_dropProb == 0) &&
         !missingInitFlag)
@@ -537,7 +515,7 @@ PieQueueDisc::DoDequeue()
             if (m_dqCount >= m_dqThreshold)
             {
                 Time dqTime = Now() - m_dqStart;
-                if (dqTime > Seconds(0))
+                if (dqTime.IsStrictlyPositive())
                 {
                     if (m_avgDqRate == 0)
                     {

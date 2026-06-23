@@ -3,18 +3,7 @@
  * Copyright (c) 2007-2009 Strasbourg University (original Ping6 code)
  * Copyright (c) 2008 INRIA (original Ping code)
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Chandrakant Jena <chandrakant.barcelona@gmail.com>
  *         Tommaso Pecorella <tommaso.pecorella@unifi.it>
@@ -69,7 +58,7 @@ Ping::GetTypeId()
             .AddAttribute("VerboseMode",
                           "Configure verbose, quiet, or silent output",
                           EnumValue(VerboseMode::VERBOSE),
-                          MakeEnumAccessor(&Ping::m_verbose),
+                          MakeEnumAccessor<VerboseMode>(&Ping::m_verbose),
                           MakeEnumChecker(VerboseMode::VERBOSE,
                                           "Verbose",
                                           VerboseMode::QUIET,
@@ -103,6 +92,12 @@ Ping::GetTypeId()
                           TimeValue(Seconds(1)),
                           MakeTimeAccessor(&Ping::m_timeout),
                           MakeTimeChecker())
+            .AddAttribute("Tos",
+                          "The Type of Service used to send the ICMP Echo Requests. "
+                          "All 8 bits of the TOS byte are set (including ECN bits).",
+                          UintegerValue(0),
+                          MakeUintegerAccessor(&Ping::m_tos),
+                          MakeUintegerChecker<uint8_t>())
             .AddTraceSource("Tx",
                             "The sequence number and ICMP echo response packet.",
                             MakeTraceSourceAccessor(&Ping::m_txTrace),
@@ -206,7 +201,7 @@ Ping::Receive(Ptr<Socket> socket)
                     NS_LOG_INFO("Packet too short, discarding");
                     return;
                 }
-                uint8_t* buf = new uint8_t[dataSize];
+                auto buf = new uint8_t[dataSize];
                 echo.GetData(buf);
                 uint64_t appSignature = Read64(buf);
                 delete[] buf;
@@ -286,7 +281,7 @@ Ping::Receive(Ptr<Socket> socket)
             switch (type)
             {
             case Icmpv6Header::ICMPV6_ECHO_REPLY: {
-                Icmpv6Echo echo(0);
+                Icmpv6Echo echo(false);
                 packet->RemoveHeader(echo);
 
                 if (echo.GetId() != PING_ID)
@@ -305,7 +300,7 @@ Ping::Receive(Ptr<Socket> socket)
                     NS_LOG_INFO("Packet too short, discarding");
                     return;
                 }
-                uint8_t* buf = new uint8_t[dataSize];
+                auto buf = new uint8_t[dataSize];
                 packet->CopyData(buf, dataSize);
                 uint64_t appSignature = Read64(buf);
                 delete[] buf;
@@ -426,7 +421,7 @@ Ping::Send()
     // (where any difference would show up anyway) and borrow that code.  Don't
     // be too surprised when you see that this is a little endian convention.
     //
-    uint8_t* data = new uint8_t[m_size];
+    auto data = new uint8_t[m_size];
     memset(data, 0, m_size);
     NS_ASSERT_MSG(m_size >= 16, "ECHO Payload size must be at least 16 bytes");
 
@@ -455,8 +450,8 @@ Ping::Send()
             header.EnableChecksum();
         }
         p->AddHeader(header);
-        returnValue =
-            m_socket->SendTo(p, 0, InetSocketAddress(Ipv4Address::ConvertFrom(m_destination), 0));
+        auto dest = InetSocketAddress(Ipv4Address::ConvertFrom(m_destination), 0);
+        returnValue = m_socket->SendTo(p, 0, dest);
     }
     else
     {
@@ -556,6 +551,7 @@ Ping::StartApplication()
         NS_ASSERT_MSG(m_socket, "Ping::StartApplication: can not create socket.");
         m_socket->SetAttribute("Protocol", UintegerValue(1)); // icmp
         m_socket->SetRecvCallback(MakeCallback(&Ping::Receive, this));
+        m_socket->SetIpTos(m_tos);
         m_useIpv6 = false;
 
         Ipv4Address dst = Ipv4Address::ConvertFrom(m_destination);
@@ -583,15 +579,13 @@ Ping::StartApplication()
     {
         if (Ipv4Address::IsMatchingType(m_interfaceAddress))
         {
-            InetSocketAddress senderInet =
-                InetSocketAddress(Ipv4Address::ConvertFrom(m_interfaceAddress));
+            InetSocketAddress senderInet(Ipv4Address::ConvertFrom(m_interfaceAddress));
             int status = m_socket->Bind(senderInet);
             NS_ASSERT_MSG(status == 0, "Failed to bind IPv4 socket");
         }
         else if (Ipv6Address::IsMatchingType(m_interfaceAddress))
         {
-            Inet6SocketAddress senderInet =
-                Inet6SocketAddress(Ipv6Address::ConvertFrom(m_interfaceAddress));
+            auto senderInet = Inet6SocketAddress(Ipv6Address::ConvertFrom(m_interfaceAddress));
             int status = m_socket->Bind(senderInet);
             NS_ASSERT_MSG(status == 0, "Failed to bind IPv6 socket");
         }
@@ -620,11 +614,11 @@ void
 Ping::StopApplication()
 {
     NS_LOG_FUNCTION(this);
-    if (m_stopEvent.IsRunning())
+    if (m_stopEvent.IsPending())
     {
         m_stopEvent.Cancel();
     }
-    if (m_next.IsRunning())
+    if (m_next.IsPending())
     {
         m_next.Cancel();
     }

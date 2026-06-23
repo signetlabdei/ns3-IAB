@@ -77,7 +77,6 @@ public:
    *  \return The object TypeId.
    */
   static TypeId GetTypeId (void);
-  TypeId GetInstanceTypeId () const;
   virtual void DoInitialize ();
   virtual void DoDispose ();
 

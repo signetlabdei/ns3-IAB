@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2012 University of Washington, 2012 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Alina Quereilhac <alina.quereilhac@inria.fr>
  *
@@ -64,7 +53,7 @@ main(int argc, char* argv[])
     cmd.Parse(argc, argv);
 
     std::string factory;
-    if (tcpMode == 1)
+    if (tcpMode)
     {
         factory = "ns3::TcpSocketFactory";
     }
@@ -120,8 +109,8 @@ main(int argc, char* argv[])
 
     PacketSinkHelper sinkHelper(factory, sinkLocalAddress);
     ApplicationContainer sinkApp = sinkHelper.Install(serverNode);
-    sinkApp.Start(Seconds(0.0));
-    sinkApp.Stop(Seconds(30.0));
+    sinkApp.Start(Seconds(0));
+    sinkApp.Stop(Seconds(30));
     fd.EnablePcap("fd2fd-onoff-server", serverDevice);
 
     // client
@@ -133,11 +122,11 @@ main(int argc, char* argv[])
     onoff.SetAttribute("DataRate", DataRateValue(dataRate));
     onoff.SetAttribute("PacketSize", UintegerValue(packetSize));
     ApplicationContainer clientApps = onoff.Install(clientNode);
-    clientApps.Start(Seconds(2.0));
-    clientApps.Stop(Seconds(29.0));
+    clientApps.Start(Seconds(2));
+    clientApps.Stop(Seconds(29));
     fd.EnablePcap("fd2fd-onoff-client", clientDevice);
 
-    Simulator::Stop(Seconds(30.0));
+    Simulator::Stop(Seconds(30));
     Simulator::Run();
     Simulator::Destroy();
 

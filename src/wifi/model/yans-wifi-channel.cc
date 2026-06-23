@@ -1,24 +1,14 @@
 /*
  * Copyright (c) 2006,2007 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage, <mathieu.lacage@sophia.inria.fr>
  */
 
 #include "yans-wifi-channel.h"
 
+#include "wifi-net-device.h"
 #include "wifi-ppdu.h"
 #include "wifi-psdu.h"
 #include "wifi-utils.h"
@@ -31,7 +21,6 @@
 #include "ns3/propagation-delay-model.h"
 #include "ns3/propagation-loss-model.h"
 #include "ns3/simulator.h"
-#include "ns3/wifi-net-device.h"
 
 namespace ns3
 {
@@ -87,12 +76,12 @@ YansWifiChannel::SetPropagationDelayModel(const Ptr<PropagationDelayModel> delay
 }
 
 void
-YansWifiChannel::Send(Ptr<YansWifiPhy> sender, Ptr<const WifiPpdu> ppdu, double txPowerDbm) const
+YansWifiChannel::Send(Ptr<YansWifiPhy> sender, Ptr<const WifiPpdu> ppdu, dBm_u txPower) const
 {
-    NS_LOG_FUNCTION(this << sender << ppdu << txPowerDbm);
+    NS_LOG_FUNCTION(this << sender << ppdu << txPower);
     Ptr<MobilityModel> senderMobility = sender->GetMobility();
     NS_ASSERT(senderMobility);
-    for (PhyList::const_iterator i = m_phyList.begin(); i != m_phyList.end(); i++)
+    for (auto i = m_phyList.begin(); i != m_phyList.end(); i++)
     {
         if (sender != (*i))
         {
@@ -102,14 +91,14 @@ YansWifiChannel::Send(Ptr<YansWifiPhy> sender, Ptr<const WifiPpdu> ppdu, double 
                 continue;
             }
 
-            Ptr<MobilityModel> receiverMobility = (*i)->GetMobility()->GetObject<MobilityModel>();
-            Time delay = m_delay->GetDelay(senderMobility, receiverMobility);
-            double rxPowerDbm = m_loss->CalcRxPower(txPowerDbm, senderMobility, receiverMobility);
+            auto receiverMobility = (*i)->GetMobility()->GetObject<MobilityModel>();
+            const auto delay = m_delay->GetDelay(senderMobility, receiverMobility);
+            const dBm_u rxPower{m_loss->CalcRxPower(txPower, senderMobility, receiverMobility)};
             NS_LOG_DEBUG("propagation: txPower="
-                         << txPowerDbm << "dbm, rxPower=" << rxPowerDbm << "dbm, "
+                         << txPower << "dBm, rxPower=" << rxPower << "dBm, "
                          << "distance=" << senderMobility->GetDistanceFrom(receiverMobility)
                          << "m, delay=" << delay);
-            Ptr<NetDevice> dstNetDevice = (*i)->GetDevice();
+            auto dstNetDevice = (*i)->GetDevice();
             uint32_t dstNode;
             if (!dstNetDevice)
             {
@@ -125,28 +114,34 @@ YansWifiChannel::Send(Ptr<YansWifiPhy> sender, Ptr<const WifiPpdu> ppdu, double 
                                            &YansWifiChannel::Receive,
                                            (*i),
                                            ppdu,
-                                           rxPowerDbm);
+                                           rxPower);
         }
     }
 }
 
 void
-YansWifiChannel::Receive(Ptr<YansWifiPhy> phy, Ptr<const WifiPpdu> ppdu, double rxPowerDbm)
+YansWifiChannel::Receive(Ptr<YansWifiPhy> phy, Ptr<const WifiPpdu> ppdu, dBm_u rxPower)
 {
-    NS_LOG_FUNCTION(phy << ppdu << rxPowerDbm);
+    NS_LOG_FUNCTION(phy << ppdu << rxPower);
+    const auto totalRxPower = rxPower + phy->GetRxGain();
+    phy->TraceSignalArrival(ppdu, totalRxPower, ppdu->GetTxDuration());
     // Do no further processing if signal is too weak
     // Current implementation assumes constant RX power over the PPDU duration
     // Compare received TX power per MHz to normalized RX sensitivity
-    uint16_t txWidth = ppdu->GetTransmissionChannelWidth();
-    if ((rxPowerDbm + phy->GetRxGain()) < phy->GetRxSensitivity() + RatioToDb(txWidth / 20.0))
+    const auto txWidth = ppdu->GetTxChannelWidth();
+    if (totalRxPower < phy->GetRxSensitivity() + RatioToDb(txWidth / MHz_u{20}))
     {
-        NS_LOG_INFO("Received signal too weak to process: " << rxPowerDbm << " dBm");
+        NS_LOG_INFO("Received signal too weak to process: " << rxPower << " dBm");
         return;
     }
     RxPowerWattPerChannelBand rxPowerW;
     rxPowerW.insert(
-        {std::make_pair(0, 0), (DbmToW(rxPowerDbm + phy->GetRxGain()))}); // dummy band for YANS
-    phy->StartReceivePreamble(ppdu, rxPowerW, ppdu->GetTxDuration());
+        {{{{0, 0}}, {{Hz_u{0}, Hz_u{0}}}}, (DbmToW(totalRxPower))}); // dummy band for YANS
+    // Use ScheduleNow so StartReceivePreamble runs after all cleanup callbacks
+    // Capture by value to avoid dangling references after this function returns
+    Simulator::ScheduleNow([phy, ppdu, rxPowerW]() mutable {
+        phy->StartReceivePreamble(ppdu, rxPowerW, ppdu->GetTxDuration());
+    });
 }
 
 std::size_t

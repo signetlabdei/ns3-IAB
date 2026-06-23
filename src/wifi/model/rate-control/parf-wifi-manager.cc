@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2014 Universidad de la República - Uruguay
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Matias Richart <mrichart@fing.edu.uy>
  */
@@ -23,8 +12,6 @@
 #include "ns3/log.h"
 #include "ns3/uinteger.h"
 #include "ns3/wifi-phy.h"
-
-#define Min(a, b) ((a < b) ? a : b)
 
 namespace ns3
 {
@@ -99,8 +86,7 @@ void
 ParfWifiManager::SetupPhy(const Ptr<WifiPhy> phy)
 {
     NS_LOG_FUNCTION(this << phy);
-    m_minPower = 0;
-    m_maxPower = phy->GetNTxPower() - 1;
+    m_maxPowerLevel = WIFI_MIN_TX_PWR_LEVEL + phy->GetNTxPowerLevels() - 1;
     WifiRemoteStationManager::SetupPhy(phy);
 }
 
@@ -126,7 +112,7 @@ WifiRemoteStation*
 ParfWifiManager::DoCreateStation() const
 {
     NS_LOG_FUNCTION(this);
-    ParfWifiRemoteStation* station = new ParfWifiRemoteStation();
+    auto station = new ParfWifiRemoteStation();
 
     station->m_nSuccess = 0;
     station->m_nFail = 0;
@@ -151,12 +137,12 @@ ParfWifiManager::CheckInit(ParfWifiRemoteStation* station)
         station->m_nSupported = GetNSupported(station);
         station->m_rateIndex = station->m_nSupported - 1;
         station->m_prevRateIndex = station->m_nSupported - 1;
-        station->m_powerLevel = m_maxPower;
-        station->m_prevPowerLevel = m_maxPower;
+        station->m_powerLevel = m_maxPowerLevel;
+        station->m_prevPowerLevel = m_maxPowerLevel;
         WifiMode mode = GetSupported(station, station->m_rateIndex);
-        uint16_t channelWidth = GetChannelWidth(station);
-        DataRate rate = DataRate(mode.GetDataRate(channelWidth));
-        double power = GetPhy()->GetPowerDbm(m_maxPower);
+        auto channelWidth = GetChannelWidth(station);
+        DataRate rate(mode.GetDataRate(channelWidth));
+        const auto power = GetPhy()->GetPower(m_maxPowerLevel);
         m_powerChange(power, power, station->m_state->m_address);
         m_rateChange(rate, rate, station->m_state->m_address);
         station->m_initialized = true;
@@ -182,7 +168,7 @@ void
 ParfWifiManager::DoReportDataFailed(WifiRemoteStation* st)
 {
     NS_LOG_FUNCTION(this << st);
-    ParfWifiRemoteStation* station = static_cast<ParfWifiRemoteStation*>(st);
+    auto station = static_cast<ParfWifiRemoteStation*>(st);
     CheckInit(station);
     station->m_nAttempt++;
     station->m_nFail++;
@@ -213,7 +199,7 @@ ParfWifiManager::DoReportDataFailed(WifiRemoteStation* st)
         if (station->m_nRetry == 1)
         {
             // need recovery fallback
-            if (station->m_powerLevel < m_maxPower)
+            if (station->m_powerLevel < m_maxPowerLevel)
             {
                 NS_LOG_DEBUG("station=" << station << " inc power");
                 station->m_powerLevel++;
@@ -228,7 +214,7 @@ ParfWifiManager::DoReportDataFailed(WifiRemoteStation* st)
         if (((station->m_nRetry - 1) % 2) == 1)
         {
             // need normal fallback
-            if (station->m_powerLevel == m_maxPower)
+            if (station->m_powerLevel == m_maxPowerLevel)
             {
                 if (station->m_rateIndex != 0)
                 {
@@ -269,11 +255,11 @@ ParfWifiManager::DoReportDataOk(WifiRemoteStation* st,
                                 double ackSnr,
                                 WifiMode ackMode,
                                 double dataSnr,
-                                uint16_t dataChannelWidth,
+                                MHz_u dataChannelWidth,
                                 uint8_t dataNss)
 {
     NS_LOG_FUNCTION(this << st << ackSnr << ackMode << dataSnr << dataChannelWidth << +dataNss);
-    ParfWifiRemoteStation* station = static_cast<ParfWifiRemoteStation*>(st);
+    auto station = static_cast<ParfWifiRemoteStation*>(st);
     CheckInit(station);
     station->m_nAttempt++;
     station->m_nSuccess++;
@@ -296,7 +282,7 @@ ParfWifiManager::DoReportDataOk(WifiRemoteStation* st,
     else if (station->m_nSuccess == m_successThreshold || station->m_nAttempt == m_attemptThreshold)
     {
         // we are at the maximum rate, we decrease power
-        if (station->m_powerLevel != m_minPower)
+        if (station->m_powerLevel != m_minPowerLevel)
         {
             NS_LOG_DEBUG("station=" << station << " dec power");
             station->m_powerLevel--;
@@ -320,22 +306,21 @@ ParfWifiManager::DoReportFinalDataFailed(WifiRemoteStation* station)
 }
 
 WifiTxVector
-ParfWifiManager::DoGetDataTxVector(WifiRemoteStation* st, uint16_t allowedWidth)
+ParfWifiManager::DoGetDataTxVector(WifiRemoteStation* st, MHz_u allowedWidth)
 {
     NS_LOG_FUNCTION(this << st << allowedWidth);
-    ParfWifiRemoteStation* station = static_cast<ParfWifiRemoteStation*>(st);
-    uint16_t channelWidth = GetChannelWidth(station);
-    if (channelWidth > 20 && channelWidth != 22)
+    auto station = static_cast<ParfWifiRemoteStation*>(st);
+    auto channelWidth = GetChannelWidth(station);
+    if (channelWidth > MHz_u{20} && channelWidth != MHz_u{22})
     {
-        channelWidth = 20;
+        channelWidth = MHz_u{20};
     }
     CheckInit(station);
     WifiMode mode = GetSupported(station, station->m_rateIndex);
-    DataRate rate = DataRate(mode.GetDataRate(channelWidth));
-    DataRate prevRate =
-        DataRate(GetSupported(station, station->m_prevRateIndex).GetDataRate(channelWidth));
-    double power = GetPhy()->GetPowerDbm(station->m_powerLevel);
-    double prevPower = GetPhy()->GetPowerDbm(station->m_prevPowerLevel);
+    DataRate rate(mode.GetDataRate(channelWidth));
+    DataRate prevRate(GetSupported(station, station->m_prevRateIndex).GetDataRate(channelWidth));
+    const auto power = GetPhy()->GetPower(station->m_powerLevel);
+    const auto prevPower = GetPhy()->GetPower(station->m_prevPowerLevel);
     if (station->m_prevPowerLevel != station->m_powerLevel)
     {
         m_powerChange(prevPower, power, station->m_state->m_address);
@@ -350,7 +335,7 @@ ParfWifiManager::DoGetDataTxVector(WifiRemoteStation* st, uint16_t allowedWidth)
         mode,
         station->m_powerLevel,
         GetPreambleForTransmission(mode.GetModulationClass(), GetShortPreambleEnabled()),
-        800,
+        NanoSeconds(800),
         1,
         1,
         0,
@@ -362,16 +347,16 @@ WifiTxVector
 ParfWifiManager::DoGetRtsTxVector(WifiRemoteStation* st)
 {
     NS_LOG_FUNCTION(this << st);
-    /// \todo we could/should implement the ARF algorithm for
+    /// @todo we could/should implement the ARF algorithm for
     /// RTS only by picking a single rate within the BasicRateSet.
-    ParfWifiRemoteStation* station = static_cast<ParfWifiRemoteStation*>(st);
-    uint16_t channelWidth = GetChannelWidth(station);
-    if (channelWidth > 20 && channelWidth != 22)
+    auto station = static_cast<ParfWifiRemoteStation*>(st);
+    auto channelWidth = GetChannelWidth(station);
+    if (channelWidth > MHz_u{20} && channelWidth != MHz_u{22})
     {
-        channelWidth = 20;
+        channelWidth = MHz_u{20};
     }
     WifiMode mode;
-    if (GetUseNonErpProtection() == false)
+    if (!GetUseNonErpProtection())
     {
         mode = GetSupported(station, 0);
     }
@@ -383,7 +368,7 @@ ParfWifiManager::DoGetRtsTxVector(WifiRemoteStation* st)
         mode,
         GetDefaultTxPowerLevel(),
         GetPreambleForTransmission(mode.GetModulationClass(), GetShortPreambleEnabled()),
-        800,
+        NanoSeconds(800),
         1,
         1,
         0,

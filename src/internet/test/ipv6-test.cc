@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 Strasbourg University
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Sebastien Vincent <vincent@clarinet.u-strasbg.fr>
  *         Faker Moatamri <faker.moatamri@sophia.inria.fr>
@@ -31,9 +20,9 @@
 using namespace ns3;
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv6 Test
+ * @brief IPv6 Test
  */
 class Ipv6L3ProtocolTestCase : public TestCase
 {
@@ -175,20 +164,20 @@ Ipv6L3ProtocolTestCase::DoRun()
     NS_TEST_ASSERT_MSG_EQ(num, 1, "Number of addresses should be 1??");
 
     Simulator::Destroy();
-} // end DoRun
+}
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv6 TestSuite
+ * @brief IPv6 TestSuite
  */
 class IPv6L3ProtocolTestSuite : public TestSuite
 {
   public:
     IPv6L3ProtocolTestSuite()
-        : TestSuite("ipv6-protocol", UNIT)
+        : TestSuite("ipv6-protocol", Type::UNIT)
     {
-        AddTestCase(new Ipv6L3ProtocolTestCase(), TestCase::QUICK);
+        AddTestCase(new Ipv6L3ProtocolTestCase(), TestCase::Duration::QUICK);
     }
 };
 

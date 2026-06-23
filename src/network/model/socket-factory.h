@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2007 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -28,9 +17,9 @@ namespace ns3
 class Socket;
 
 /**
- * \ingroup socket
+ * @ingroup socket
  *
- * \brief Object to create transport layer instances that provide a
+ * @brief Object to create transport layer instances that provide a
  * socket API to applications.
  *
  * This base class defines the API for creating sockets.
@@ -42,22 +31,22 @@ class Socket;
  * sockets, you need to subclass this factory class, implement CreateSocket,
  * instantiate the object, and aggregate it to the node.
  *
- * \see Udp
- * \see UdpImpl
+ * @see Udp
+ * @see UdpImpl
  */
 class SocketFactory : public Object
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
 
     SocketFactory();
 
     /**
-     * \return smart pointer to Socket
+     * @return smart pointer to Socket
      *
      * Base class method for creating socket instances.
      */

@@ -4,18 +4,7 @@
  * Copyright (c) 2019 SIGNET Lab, Department of Information Engineering,
  * University of Padova
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #ifndef BUILDINGS_CHANNEL_CONDITION_MODEL_H
@@ -29,9 +18,10 @@ namespace ns3
 class MobilityModel;
 
 /**
- * \ingroup buildings
+ * @ingroup buildings
+ * @ingroup propagation
  *
- * \brief Determines the channel condition based on the buildings deployed in the
+ * @brief Determines the channel condition based on the buildings deployed in the
  * scenario
  *
  * Code adapted from MmWave3gppBuildingsPropagationLossModel
@@ -41,8 +31,8 @@ class BuildingsChannelConditionModel : public ChannelConditionModel
   public:
     /**
      * Get the type ID.
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
 
@@ -59,9 +49,9 @@ class BuildingsChannelConditionModel : public ChannelConditionModel
     /**
      * Computes the condition of the channel between a and b.
      *
-     * \param a mobility model
-     * \param b mobility model
-     * \return the condition of the channel between a and b
+     * @param a mobility model
+     * @param b mobility model
+     * @return the condition of the channel between a and b
      */
     Ptr<ChannelCondition> GetChannelCondition(Ptr<const MobilityModel> a,
                                               Ptr<const MobilityModel> b) const override;
@@ -72,19 +62,19 @@ class BuildingsChannelConditionModel : public ChannelConditionModel
      * 'stream'. Return the number of streams (possibly zero) that
      * have been assigned.
      *
-     * \param stream
-     * \return the number of stream indices assigned by this model
+     * @param stream
+     * @return the number of stream indices assigned by this model
      */
     int64_t AssignStreams(int64_t stream) override;
 
   private:
     /**
-     * \brief Checks if the line of sight between position l1 and position l2 is
+     * @brief Checks if the line of sight between position l1 and position l2 is
      *        blocked by a building.
      *
-     * \param l1 position
-     * \param l2 position
-     * \return true if the line of sight is blocked, false otherwise
+     * @param l1 position
+     * @param l2 position
+     * @return true if the line of sight is blocked, false otherwise
      */
     bool IsLineOfSightBlocked(const Vector& l1, const Vector& l2) const;
 };

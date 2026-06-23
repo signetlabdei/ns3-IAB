@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2005 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -29,9 +18,9 @@ namespace ns3
 {
 
 /**
- * \ingroup packet
+ * @ingroup packet
  *
- * \brief Protocol header serialization and deserialization.
+ * @brief Protocol header serialization and deserialization.
  *
  * Every Protocol header which needs to be inserted or removed
  * from a Packet instance must derive from this base class and
@@ -39,20 +28,23 @@ namespace ns3
  *
  * Sample code which shows how to create a new type of Header, and how to use it,
  * is shown in the sample file samples/main-packet-header.cc
+ *
+ * Inheritance graph was not generated because of its size.
+ * @hideinheritancegraph
  */
 class Header : public Chunk
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
     ~Header() override;
 
     using Chunk::Deserialize;
     /**
-     * \returns the expected size of the header.
+     * @returns the expected size of the header.
      *
      * This method is used by Packet::AddHeader
      * to store a header into the byte buffer of a packet. This method
@@ -61,7 +53,7 @@ class Header : public Chunk
      */
     virtual uint32_t GetSerializedSize() const = 0;
     /**
-     * \param start an iterator which points to where the header should
+     * @param start an iterator which points to where the header should
      *        be written.
      *
      * This method is used by Packet::AddHeader to
@@ -72,9 +64,9 @@ class Header : public Chunk
      */
     virtual void Serialize(Buffer::Iterator start) const = 0;
     /**
-     * \param start an iterator which points to where the header should
+     * @param start an iterator which points to where the header should
      *        read from.
-     * \returns the number of bytes read.
+     * @returns the number of bytes read.
      *
      * This method is used by Packet::RemoveHeader to
      * re-create a header from the byte buffer of a packet.
@@ -90,7 +82,7 @@ class Header : public Chunk
      */
     uint32_t Deserialize(Buffer::Iterator start) override = 0;
     /**
-     * \param os output stream
+     * @param os output stream
      * This method is used by Packet::Print to print the
      * content of a header as ascii data to a c++ output stream.
      * Although the header is free to format its output as it
@@ -105,11 +97,11 @@ class Header : public Chunk
 };
 
 /**
- * \brief Stream insertion operator.
+ * @brief Stream insertion operator.
  *
- * \param os the stream
- * \param header the header
- * \returns a reference to the stream
+ * @param os the stream
+ * @param header the header
+ * @returns a reference to the stream
  */
 std::ostream& operator<<(std::ostream& os, const Header& header);
 

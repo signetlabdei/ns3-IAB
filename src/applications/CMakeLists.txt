@@ -12,9 +12,15 @@ build_lib(
     model/onoff-application.cc
     model/packet-loss-counter.cc
     model/packet-sink.cc
+    model/rta-tig-mobile-gaming.cc
     model/seq-ts-echo-header.cc
     model/seq-ts-header.cc
     model/seq-ts-size-header.cc
+    model/sink-application.cc
+    model/source-application.cc
+    model/tgax-video-traffic.cc
+    model/tgax-virtual-desktop.cc
+    model/tgax-voip-traffic.cc
     model/three-gpp-http-client.cc
     model/three-gpp-http-header.cc
     model/three-gpp-http-server.cc
@@ -36,9 +42,15 @@ build_lib(
     model/onoff-application.h
     model/packet-loss-counter.h
     model/packet-sink.h
+    model/rta-tig-mobile-gaming.h
     model/seq-ts-echo-header.h
     model/seq-ts-header.h
     model/seq-ts-size-header.h
+    model/sink-application.h
+    model/source-application.h
+    model/tgax-video-traffic.h
+    model/tgax-virtual-desktop.h
+    model/tgax-voip-traffic.h
     model/three-gpp-http-client.h
     model/three-gpp-http-header.h
     model/three-gpp-http-server.h
@@ -49,9 +61,13 @@ build_lib(
     model/udp-server.h
     model/udp-trace-client.h
   LIBRARIES_TO_LINK ${libinternet}
-                    ${libstats}
   TEST_SOURCES
     test/three-gpp-http-client-server-test.cc
     test/bulk-send-application-test-suite.cc
     test/udp-client-server-test.cc
+    test/tgax-video-traffic-test-suite.cc
+    test/tgax-voip-traffic-test-suite.cc
+    test/tgax-virtual-desktop-test-suite.cc
+    test/rta-tig-mobile-gaming-test-suite.cc
+  GENERATE_EXPORT_HEADER
 )

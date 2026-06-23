@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2008 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #ifndef IPV4_ADDRESS_HELPER_H
@@ -27,7 +16,7 @@ namespace ns3
 {
 
 /**
- * \ingroup ipv4Helpers
+ * @ingroup ipv4Helpers
  *
  * @brief A helper class to make life easier while doing simple IPv4 address
  * assignment in scripts.
@@ -180,9 +169,9 @@ class Ipv4AddressHelper
 
   private:
     /**
-     * \brief Returns the number of address bits (hostpart) for a given netmask
-     * \param maskbits the netmask
-     * \returns the number of bits in the hostpart
+     * @brief Returns the number of address bits (hostpart) for a given netmask
+     * @param maskbits the netmask
+     * @returns the number of bits in the hostpart
      */
     uint32_t NumAddressBits(uint32_t maskbits) const;
 

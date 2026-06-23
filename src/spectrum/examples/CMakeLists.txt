@@ -6,7 +6,6 @@ build_lib_example(
     ${libinternet}
     ${libmobility}
     ${libspectrum}
-    ${libmmwave}
 )
 
 build_lib_example(
@@ -17,7 +16,6 @@ build_lib_example(
     ${libinternet}
     ${libmobility}
     ${libspectrum}
-    ${libmmwave}
 )
 
 build_lib_example(
@@ -28,7 +26,6 @@ build_lib_example(
     ${libinternet}
     ${libmobility}
     ${libspectrum}
-    ${libmmwave}
 )
 
 build_lib_example(
@@ -38,7 +35,6 @@ build_lib_example(
     ${libcore}
     ${libmobility}
     ${libspectrum}
-    ${libmmwave}
 )
 
 build_lib_example(
@@ -48,5 +44,62 @@ build_lib_example(
     ${libcore}
     ${libmobility}
     ${libspectrum}
-    ${libmmwave}
+)
+
+build_lib_example(
+  NAME three-gpp-channel-example
+  SOURCE_FILES three-gpp-channel-example.cc
+  LIBRARIES_TO_LINK
+    ${libcore}
+    ${liblte}
+    ${libmobility}
+    ${libspectrum}
+)
+
+if("${sionna_deps}"
+   STREQUAL
+   ""
+   AND (NOT
+        WIN32)
+)
+  build_lib_example(
+    NAME sionna-rt-channel-example
+    SOURCE_FILES sionna-rt-channel-example.cc
+    LIBRARIES_TO_LINK
+      ${libcore}
+      ${liblte}
+      ${libmobility}
+      ${libspectrum}
+  )
+endif()
+
+build_lib_example(
+  NAME three-gpp-two-ray-channel-calibration
+  SOURCE_FILES three-gpp-two-ray-channel-calibration.cc
+  LIBRARIES_TO_LINK
+    ${libcore}
+    ${liblte}
+    ${libmobility}
+    ${libspectrum}
+)
+
+build_lib_example(
+  NAME three-gpp-ntn-channel-example
+  SOURCE_FILES three-gpp-ntn-channel-example.cc
+  LIBRARIES_TO_LINK
+    ${libcore}
+    ${libmobility}
+    ${libspectrum}
+)
+
+build_lib_example(
+  NAME three-gpp-channel-consistency-example
+  SOURCE_FILES three-gpp-channel-consistency-example.cc
+  LIBRARIES_TO_LINK
+    ${libantenna}
+    ${libbuildings}
+    ${libcore}
+    ${libmobility}
+    ${libpropagation}
+    ${libspectrum}
 )

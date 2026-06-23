@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2013
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Ghada Badawy <gbadawy@gmail.com>
  *          Sébastien Deronne <sebastien.deronne@gmail.com>
@@ -33,10 +22,10 @@ namespace ns3
 {
 
 /**
- * \brief The HT Capabilities Information Element
- * \ingroup wifi
+ * @brief The HT Capabilities Information Element
+ * @ingroup wifi
  *
- * This class knows how to serialise and deserialise the HT Capabilities Information Element
+ * This class knows how to serialize and deserialize the HT Capabilities Information Element
  */
 class HtCapabilities : public WifiInformationElement
 {
@@ -49,35 +38,35 @@ class HtCapabilities : public WifiInformationElement
     /**
      * Set the HT Capabilities Info field in the HT Capabilities information element.
      *
-     * \param ctrl the HT Capabilities Info field in the HT Capabilities information element
+     * @param ctrl the HT Capabilities Info field in the HT Capabilities information element
      */
     void SetHtCapabilitiesInfo(uint16_t ctrl);
     /**
      * Set the A-MPDU Parameters field in the HT Capabilities information element.
      *
-     * \param ctrl the A-MPDU Parameters field in the HT Capabilities information element
+     * @param ctrl the A-MPDU Parameters field in the HT Capabilities information element
      */
     void SetAmpduParameters(uint8_t ctrl);
     /**
      * Set the Supported MCS Set field in the HT Capabilities information element.
      *
-     * \param ctrl1 the first 64 bytes of the Supported MCS Set field in the HT Capabilities
+     * @param ctrl1 the first 64 bytes of the Supported MCS Set field in the HT Capabilities
      * information element
-     * \param ctrl2 the last 64 bytes of the Supported MCS Set field in the HT Capabilities
+     * @param ctrl2 the last 64 bytes of the Supported MCS Set field in the HT Capabilities
      * information element
      */
     void SetSupportedMcsSet(uint64_t ctrl1, uint64_t ctrl2);
     /**
      * Set the Extended HT Capabilities field in the HT Capabilities information element.
      *
-     * \param ctrl the Extended HT Capabilities field in the HT Capabilities information element
+     * @param ctrl the Extended HT Capabilities field in the HT Capabilities information element
      */
     void SetExtendedHtCapabilities(uint16_t ctrl);
     /**
      * Set the Transmit Beamforming (TxBF) Capabilities field in the HT Capabilities information
      * element.
      *
-     * \param ctrl the Transmit Beamforming (TxBF) Capabilities field in the HT Capabilities
+     * @param ctrl the Transmit Beamforming (TxBF) Capabilities field in the HT Capabilities
      * information element
      */
     void SetTxBfCapabilities(uint32_t ctrl);
@@ -85,7 +74,7 @@ class HtCapabilities : public WifiInformationElement
      * Set the the Antenna Selection (ASEL) Capabilities field in the HT Capabilities information
      * element.
      *
-     * \param ctrl the Antenna Selection (ASEL) Capabilities field in the HT Capabilities
+     * @param ctrl the Antenna Selection (ASEL) Capabilities field in the HT Capabilities
      * information element
      */
     void SetAntennaSelectionCapabilities(uint8_t ctrl);
@@ -93,101 +82,101 @@ class HtCapabilities : public WifiInformationElement
     /**
      * Set the LDPC field.
      *
-     * \param ldpc the LDPC field
+     * @param ldpc the LDPC field
      */
     void SetLdpc(uint8_t ldpc);
     /**
      * Set the supported channel width field.
      *
-     * \param supportedChannelWidth the supported channel width field
+     * @param supportedChannelWidth the supported channel width field
      */
     void SetSupportedChannelWidth(uint8_t supportedChannelWidth);
     /**
      * Set the short guard interval 20 field.
      *
-     * \param shortGuardInterval the short guard interval
+     * @param shortGuardInterval the short guard interval
      */
     void SetShortGuardInterval20(uint8_t shortGuardInterval);
     /**
      * Set the short guard interval 40 field.
      *
-     * \param shortGuardInterval the short guard interval
+     * @param shortGuardInterval the short guard interval
      */
     void SetShortGuardInterval40(uint8_t shortGuardInterval);
     /**
      * Set the maximum AMSDU length.
      *
-     * \param maxAmsduLength Either 3839 or 7935
+     * @param maxAmsduLength Either 3839 or 7935
      */
     void SetMaxAmsduLength(uint16_t maxAmsduLength);
     /**
      * Set the LSIG protection support.
      *
-     * \param lSigProtection the LSIG protection support field
+     * @param lSigProtection the LSIG protection support field
      */
     void SetLSigProtectionSupport(uint8_t lSigProtection);
 
     /**
      * Set the maximum AMPDU length.
      *
-     * \param maxAmpduLength 2^(13 + x) - 1, x in the range 0 to 3
+     * @param maxAmpduLength 2^(13 + x) - 1, x in the range 0 to 3
      */
     void SetMaxAmpduLength(uint32_t maxAmpduLength);
 
     /**
      * Set the receive MCS bitmask.
      *
-     * \param index the index of the receive MCS
+     * @param index the index of the receive MCS
      */
     void SetRxMcsBitmask(uint8_t index);
     /**
      * Set the receive highest supported data rate.
      *
-     * \param maxSupportedRate the maximum supported data rate
+     * @param maxSupportedRate the maximum supported data rate
      */
     void SetRxHighestSupportedDataRate(uint16_t maxSupportedRate);
     /**
      * Set the transmit MCS set defined.
      *
-     * \param txMcsSetDefined the TX MCS set defined
+     * @param txMcsSetDefined the TX MCS set defined
      */
     void SetTxMcsSetDefined(uint8_t txMcsSetDefined);
     /**
      * Set the transmit / receive MCS set unequal.
      *
-     * \param txRxMcsSetUnequal the TX/RX MCS set unequal field
+     * @param txRxMcsSetUnequal the TX/RX MCS set unequal field
      */
     void SetTxRxMcsSetUnequal(uint8_t txRxMcsSetUnequal);
     /**
      * Set the transmit maximum N spatial streams.
      *
-     * \param maxTxSpatialStreams the maximum number of TX SSs
+     * @param maxTxSpatialStreams the maximum number of TX SSs
      */
     void SetTxMaxNSpatialStreams(uint8_t maxTxSpatialStreams);
     /**
      * Set the transmit unequal modulation.
      *
-     * \param txUnequalModulation the TX unequal modulation field
+     * @param txUnequalModulation the TX unequal modulation field
      */
     void SetTxUnequalModulation(uint8_t txUnequalModulation);
 
     /**
      * Return the HT Capabilities Info field in the HT Capabilities information element.
      *
-     * \return the HT Capabilities Info field in the HT Capabilities information element
+     * @return the HT Capabilities Info field in the HT Capabilities information element
      */
     uint16_t GetHtCapabilitiesInfo() const;
     /**
      * Return the A-MPDU Parameters field in the HT Capabilities information element.
      *
-     * \return the A-MPDU Parameters field in the HT Capabilities information element
+     * @return the A-MPDU Parameters field in the HT Capabilities information element
      */
     uint8_t GetAmpduParameters() const;
     /**
      * Return the first 64 bytes of the Supported MCS Set field in the HT Capabilities information
      * element.
      *
-     * \return the first 64 bytes of the Supported MCS Set field in the HT Capabilities information
+     * @return the first 64 bytes of the Supported MCS Set field in the HT Capabilities information
      * element
      */
     uint64_t GetSupportedMcsSet1() const;
@@ -195,21 +184,21 @@ class HtCapabilities : public WifiInformationElement
      * Return the last 64 bytes of the Supported MCS Set field in the HT Capabilities information
      * element.
      *
-     * \return the last 64 bytes of the Supported MCS Set field in the HT Capabilities information
+     * @return the last 64 bytes of the Supported MCS Set field in the HT Capabilities information
      * element
      */
     uint64_t GetSupportedMcsSet2() const;
     /**
      * Return the Extended HT Capabilities field in the HT Capabilities information element.
      *
-     * \return the Extended HT Capabilities field in the HT Capabilities information element
+     * @return the Extended HT Capabilities field in the HT Capabilities information element
      */
     uint16_t GetExtendedHtCapabilities() const;
     /**
      * Return the Transmit Beamforming (TxBF) Capabilities field in the HT Capabilities information
      * element.
      *
-     * \return the Transmit Beamforming (TxBF) Capabilities field in the HT Capabilities information
+     * @return the Transmit Beamforming (TxBF) Capabilities field in the HT Capabilities information
      * element
      */
     uint32_t GetTxBfCapabilities() const;
@@ -217,7 +206,7 @@ class HtCapabilities : public WifiInformationElement
      * Return the Antenna Selection (ASEL) Capabilities field in the HT Capabilities information
      * element.
      *
-     * \return the Antenna Selection (ASEL) Capabilities field in the HT Capabilities information
+     * @return the Antenna Selection (ASEL) Capabilities field in the HT Capabilities information
      * element
      */
     uint8_t GetAntennaSelectionCapabilities() const;
@@ -225,45 +214,45 @@ class HtCapabilities : public WifiInformationElement
     /**
      * Return LDPC.
      *
-     * \return the LDPC value
+     * @return the LDPC value
      */
     uint8_t GetLdpc() const;
     /**
      * Return the supported channel width.
      *
-     * \return the supported channel width
+     * @return the supported channel width
      */
     uint8_t GetSupportedChannelWidth() const;
     /**
      * Return the short guard interval 20 value.
      *
-     * \return the short guard interval 20 value
+     * @return the short guard interval 20 value
      */
     uint8_t GetShortGuardInterval20() const;
     /**
      * Return the maximum A-MSDU length.
      *
-     * \return the maximum A-MSDU length
+     * @return the maximum A-MSDU length
      */
     uint16_t GetMaxAmsduLength() const;
     /**
      * Return the maximum A-MPDU length.
      *
-     * \return the maximum A-MPDU length
+     * @return the maximum A-MPDU length
      */
     uint32_t GetMaxAmpduLength() const;
     /**
      * Return the is MCS supported flag.
      *
-     * \param mcs is MCS supported flag
+     * @param mcs is MCS supported flag
      *
-     * \return true if successful
+     * @return true if successful
      */
     bool IsSupportedMcs(uint8_t mcs) const;
     /**
      * Return the receive highest supported antennas.
      *
-     * \return the receive highest supported antennas
+     * @return the receive highest supported antennas
      */
     uint8_t GetRxHighestSupportedAntennas() const;
 
@@ -271,6 +260,7 @@ class HtCapabilities : public WifiInformationElement
     uint16_t GetInformationFieldSize() const override;
     void SerializeInformationField(Buffer::Iterator start) const override;
     uint16_t DeserializeInformationField(Buffer::Iterator start, uint16_t length) override;
+    void Print(std::ostream& os) const override;
 
     // HT Capabilities Info field
     uint8_t m_ldpc;                  ///< LDPC
@@ -322,8 +312,8 @@ class HtCapabilities : public WifiInformationElement
     uint8_t m_implicitTxBfCapable;                  ///< implicit transmit BF capable
     uint8_t m_calibration;                          ///< calibration
     uint8_t m_explicitCsiTxBfCapable;               ///< explicit CSI transmit BF capable
-    uint8_t m_explicitNoncompressedSteeringCapable; ///< explicit non compressed steeering capable
-    uint8_t m_explicitCompressedSteeringCapable;    ///< explicit compressed steeering capable
+    uint8_t m_explicitNoncompressedSteeringCapable; ///< explicit non compressed steering capable
+    uint8_t m_explicitCompressedSteeringCapable;    ///< explicit compressed steering capable
     uint8_t m_explicitTxBfCsiFeedback;              ///< explicit transmit BF CSI feedback
     uint8_t
         m_explicitNoncompressedBfFeedbackCapable;  ///< explicit non compressed BF feedback capable
@@ -349,16 +339,6 @@ class HtCapabilities : public WifiInformationElement
     uint8_t m_txSoundingPpdusCapable;                   ///< sounding PPDUS capable
     uint8_t m_reservedASel;                             ///< reserved ASEL
 };
-
-/**
- * output stream output operator
- *
- * \param os output stream
- * \param htcapabilities the HT capabilities
- *
- * \returns output stream
- */
-std::ostream& operator<<(std::ostream& os, const HtCapabilities& htcapabilities);
 
 } // namespace ns3
 

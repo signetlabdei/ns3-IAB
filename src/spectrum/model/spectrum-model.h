@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 CTTC
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Nicola Baldo <nbaldo@cttc.es>
  */
@@ -20,25 +9,26 @@
 #ifndef SPECTRUM_MODEL_H
 #define SPECTRUM_MODEL_H
 
-#include <ns3/simple-ref-count.h>
+#include "ns3/simple-ref-count.h"
 
+#include <cstddef>
 #include <vector>
 
 namespace ns3
 {
 
 /**
- * \defgroup spectrum Spectrum Models
+ * @defgroup spectrum Spectrum Models
  */
 
 /**
- * \ingroup spectrum
- * \ingroup tests
- * \defgroup spectrum-tests Spectrum Models tests
+ * @ingroup spectrum
+ * @ingroup tests
+ * @defgroup spectrum-tests Spectrum Models tests
  */
 
 /**
- * \ingroup spectrum
+ * @ingroup spectrum
  *
  * The building block of a SpectrumModel. This struct models
  * a frequency band defined by the frequency interval [fl, fc] and
@@ -53,6 +43,14 @@ struct BandInfo
     double fl; //!< lower limit of subband
     double fc; //!< center frequency
     double fh; //!< upper limit of subband
+
+    /**
+     * Three-way comparison operator
+     *
+     * @param rhs right hand side
+     * @return deduced comparison type
+     */
+    auto operator<=>(const BandInfo& rhs) const = default;
 };
 
 /// Container of BandInfo
@@ -72,10 +70,10 @@ class SpectrumModel : public SimpleRefCount<SpectrumModel>
 {
   public:
     /**
-     * Comparison operator. Returns true if the two SpectumModels are identical
-     * \param lhs left operand
-     * \param rhs right operand
-     * \returns true if the two operands are identical
+     * Comparison operator. Returns true if the two SpectrumModels are identical
+     * @param lhs left operand
+     * @param rhs right operand
+     * @returns true if the two operands are identical
      */
     friend bool operator==(const SpectrumModel& lhs, const SpectrumModel& rhs);
 
@@ -120,28 +118,48 @@ class SpectrumModel : public SimpleRefCount<SpectrumModel>
     SpectrumModelUid_t GetUid() const;
 
     /**
-     * Const Iterator to the model Bands container start.
+     * Const Iterator to the model Bands container start, i.e. to the band with lowest frequency.
      *
      * @return a const iterator to the start of the vector of bands
      */
     Bands::const_iterator Begin() const;
+
     /**
-     * Const Iterator to the model Bands container end.
+     * Const Iterator to the model Bands container end, i.e. after the band with highest frequency.
      *
      * @return a const iterator to past-the-end of the vector of bands
      */
     Bands::const_iterator End() const;
 
     /**
-     * Check if another SpectrumModels has bands orthogonal to our bands.
+     * Check if another SpectrumModel has bands orthogonal to our bands.
      *
-     * \param other another SpectrumModel
-     * \returns true if bands are orthogonal
+     * @param other another SpectrumModel
+     * @returns true if bands are orthogonal
      */
     bool IsOrthogonal(const SpectrumModel& other) const;
 
+    /**
+     * Check if another SpectrumModel is aligned with our bands.
+     * This means that both SpectrumModels have boundaries for each band that are common between the
+     * two models. In this case, the conversion between the two models is just a matter of copying
+     * values in the overlapping bands and setting to zero the values in the non-overlapping bands.
+     *
+     * @param other another SpectrumModel
+     * @returns true if bands are aligned
+     */
+    bool IsAligned(const SpectrumModel& other) const;
+
   private:
+    /**
+     * Initialize internal variables
+     */
+    void InitModel();
+
     Bands m_bands;            //!< Actual definition of frequency bands within this SpectrumModel
+    bool m_contiguousBands;   //!< Whether the bands are contiguous (i.e., no gap between adjacent
+                              //!< bands)
+    bool m_uniqueBandSize;    //!< Whether all bands have the same size
     SpectrumModelUid_t m_uid; //!< unique id for a given set of frequencies
     static SpectrumModelUid_t m_uidCount; //!< counter to assign m_uids
 };

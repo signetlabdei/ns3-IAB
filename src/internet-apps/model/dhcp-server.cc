@@ -2,18 +2,7 @@
  * Copyright (c) 2011 UPB
  * Copyright (c) 2017 NITK Surathkal
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Radu Lupu <rlupu@elcom.pub.ro>
  *         Ankit Deepak <adadeepak8@gmail.com>
@@ -35,6 +24,7 @@
 #include "ns3/socket.h"
 
 #include <algorithm>
+#include <limits>
 
 namespace ns3
 {
@@ -144,7 +134,8 @@ DhcpServer::StartApplication()
             // set infinite GRANTED_LEASED_TIME for my address
 
             myOwnAddress = ipv4->GetAddress(ifIndex, addrIndex).GetLocal();
-            m_leasedAddresses[Address()] = std::make_pair(myOwnAddress, 0xffffffff);
+            DhcpChaddr null = {};
+            m_leasedAddresses[null] = std::make_pair(myOwnAddress, PERMANENT_LEASE);
             break;
         }
     }
@@ -160,7 +151,7 @@ DhcpServer::StartApplication()
     uint32_t range = m_maxAddress.Get() - m_minAddress.Get() + 1;
     for (uint32_t searchSeq = 0; searchSeq < range; searchSeq++)
     {
-        Ipv4Address poolAddress = Ipv4Address(m_minAddress.Get() + searchSeq);
+        Ipv4Address poolAddress(m_minAddress.Get() + searchSeq);
         if (poolAddress != myOwnAddress)
         {
             NS_LOG_LOGIC("Adding " << poolAddress << " to the pool");
@@ -192,19 +183,18 @@ DhcpServer::TimerHandler()
     NS_LOG_FUNCTION(this);
 
     // Set up timeout events and release of unsolicited addresses from the list
-    LeasedAddressIter i;
-    for (i = m_leasedAddresses.begin(); i != m_leasedAddresses.end(); i++)
+    for (auto [k, v] : m_leasedAddresses)
     {
         // update the address state
-        if (i->second.second != 0xffffffff && i->second.second != 0)
+        if (v.second != PERMANENT_LEASE && v.second != 0)
         {
-            i->second.second--;
-            if (i->second.second == 0)
+            v.second--;
+            if (v.second == 0)
             {
                 NS_LOG_INFO("Address leased state expired, address removed - "
-                            << "chaddr: " << i->first << " IP address " << i->second.first);
-                i->second.second = 0;
-                m_expiredAddresses.push_front(i->first);
+                            << "chaddr: " << DhcpChaddrToString(k) << " IP address " << v.first);
+                v.second = 0;
+                m_expiredAddresses.push_front(k);
             }
         }
     }
@@ -252,23 +242,23 @@ DhcpServer::SendOffer(Ptr<NetDevice> iDev, DhcpHeader header, InetSocketAddress 
     NS_LOG_FUNCTION(this << iDev << header << from);
 
     DhcpHeader newDhcpHeader;
-    Address sourceChaddr = header.GetChaddr();
+    DhcpChaddr sourceChaddr = header.GetChaddr();
     uint32_t tran = header.GetTran();
     Ptr<Packet> packet = nullptr;
     Ipv4Address offeredAddress;
 
     NS_LOG_INFO("DHCP DISCOVER from: " << from.GetIpv4() << " source port: " << from.GetPort());
 
-    LeasedAddressIter iter = m_leasedAddresses.find(sourceChaddr);
+    auto iter = m_leasedAddresses.find(sourceChaddr);
     if (iter != m_leasedAddresses.end())
     {
         // We know this client from some time ago
         if (m_leasedAddresses[sourceChaddr].second != 0 &&
-            m_leasedAddresses[sourceChaddr].second != 0xffffffff)
+            m_leasedAddresses[sourceChaddr].second != PERMANENT_LEASE)
         {
             NS_LOG_LOGIC("This client is sending a DISCOVER but it has still a lease active - "
                          "perhaps it didn't shut down gracefully: "
-                         << sourceChaddr);
+                         << DhcpChaddrToString(sourceChaddr));
         }
 
         m_expiredAddresses.remove(sourceChaddr);
@@ -288,7 +278,7 @@ DhcpServer::SendOffer(Ptr<NetDevice> iDev, DhcpHeader header, InetSocketAddress 
             // there's still hope: reuse the old ones.
             if (!m_expiredAddresses.empty())
             {
-                Address oldestChaddr = m_expiredAddresses.back();
+                DhcpChaddr oldestChaddr = m_expiredAddresses.back();
                 m_expiredAddresses.pop_back();
                 offeredAddress = m_leasedAddresses[oldestChaddr].first;
                 m_leasedAddresses.erase(oldestChaddr);
@@ -330,8 +320,7 @@ DhcpServer::SendOffer(Ptr<NetDevice> iDev, DhcpHeader header, InetSocketAddress 
                               InetSocketAddress(Ipv4Address("255.255.255.255"), from.GetPort()))) >=
             0)
         {
-            NS_LOG_INFO("DHCP OFFER"
-                        << " Offered Address: " << offeredAddress);
+            NS_LOG_INFO("DHCP OFFER Offered Address: " << offeredAddress);
         }
         else
         {
@@ -346,7 +335,7 @@ DhcpServer::SendAck(Ptr<NetDevice> iDev, DhcpHeader header, InetSocketAddress fr
     NS_LOG_FUNCTION(this << iDev << header << from);
 
     DhcpHeader newDhcpHeader;
-    Address sourceChaddr = header.GetChaddr();
+    DhcpChaddr sourceChaddr = header.GetChaddr();
     uint32_t tran = header.GetTran();
     Ptr<Packet> packet = nullptr;
     Ipv4Address address = header.GetReq();
@@ -354,8 +343,7 @@ DhcpServer::SendAck(Ptr<NetDevice> iDev, DhcpHeader header, InetSocketAddress fr
     NS_LOG_INFO("DHCP REQUEST from: " << from.GetIpv4() << " source port: " << from.GetPort()
                                       << " - refreshed addr: " << address);
 
-    LeasedAddressIter iter;
-    iter = m_leasedAddresses.find(sourceChaddr);
+    auto iter = m_leasedAddresses.find(sourceChaddr);
     if (iter != m_leasedAddresses.end())
     {
         // update the lease time of this address - send ACK
@@ -405,34 +393,29 @@ DhcpServer::SendAck(Ptr<NetDevice> iDev, DhcpHeader header, InetSocketAddress fr
 }
 
 void
-DhcpServer::AddStaticDhcpEntry(Address chaddr, Ipv4Address addr)
+DhcpServer::AddStaticDhcpEntry(Address macAddr, Ipv4Address addr)
 {
-    NS_LOG_FUNCTION(this << chaddr << addr);
-    Address cleanedCaddr;
+    NS_LOG_FUNCTION(this << macAddr << addr);
+    DhcpChaddr chAddr{};
 
     NS_ASSERT_MSG(addr.Get() >= m_minAddress.Get() && addr.Get() <= m_maxAddress.Get(),
                   "Required address is not in the pool " << addr << " is not in [" << m_minAddress
                                                          << ", " << m_maxAddress << "]");
+    NS_ASSERT_MSG(macAddr.GetLength() <= 16,
+                  "DHCP server can not handle a chaddr larger than 16 bytes");
+    macAddr.CopyTo(chAddr.data());
 
-    // We need to cleanup the type from the stored chaddr, or later we'll fail to compare it.
-    // Moreover, the length is always 16, because chaddr is 16 bytes.
-    uint8_t buffer[Address::MAX_SIZE];
-    std::memset(buffer, 0, Address::MAX_SIZE);
-    uint32_t len = chaddr.CopyTo(buffer);
-    NS_ASSERT_MSG(len <= 16, "DHCP server can not handle a chaddr larger than 16 bytes");
-    cleanedCaddr.CopyFrom(buffer, 16);
+    NS_ASSERT_MSG(m_leasedAddresses.find(chAddr) == m_leasedAddresses.end(),
+                  "Client has already an active lease: " << m_leasedAddresses[chAddr].first);
 
-    NS_ASSERT_MSG(m_leasedAddresses.find(cleanedCaddr) == m_leasedAddresses.end(),
-                  "Client has already an active lease: " << m_leasedAddresses[cleanedCaddr].first);
-
-    AvailableAddress::iterator it =
-        find(m_availableAddresses.begin(), m_availableAddresses.end(), addr);
+    auto it = find(m_availableAddresses.begin(), m_availableAddresses.end(), addr);
     NS_ASSERT_MSG(
         it == m_availableAddresses.end(),
         "Required address is not available (perhaps it has been already assigned): " << addr);
 
     m_availableAddresses.remove(addr);
-    m_leasedAddresses[cleanedCaddr] = std::make_pair(addr, 0xffffffff);
+    NS_LOG_INFO("Added a static lease for " << DhcpChaddrToString(chAddr) << " -> " << addr);
+    m_leasedAddresses[chAddr] = std::make_pair(addr, PERMANENT_LEASE);
 }
 
 } // Namespace ns3

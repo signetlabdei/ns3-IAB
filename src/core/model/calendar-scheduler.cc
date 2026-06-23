@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  * Author: Alexander Krotov <krotov@iitp.ru>
@@ -22,17 +11,15 @@
 
 #include "assert.h"
 #include "boolean.h"
-#include "event-impl.h"
 #include "log.h"
 #include "type-id.h"
 
 #include <list>
 #include <string>
-#include <utility>
 
 /**
- * \file
- * \ingroup scheduler
+ * @file
+ * @ingroup scheduler
  * ns3::CalendarScheduler class implementation.
  */
 
@@ -137,8 +124,8 @@ CalendarScheduler::DoInsert(const Event& ev)
     NS_LOG_LOGIC("insert in bucket=" << bucket);
 
     // insert in bucket list.
-    Bucket::iterator end = m_buckets[bucket].end();
-    for (Bucket::iterator i = m_buckets[bucket].begin(); i != end; ++i)
+    auto end = m_buckets[bucket].end();
+    for (auto i = m_buckets[bucket].begin(); i != end; ++i)
     {
         if (Order(ev.key, i->key))
         {
@@ -267,8 +254,8 @@ CalendarScheduler::Remove(const Event& ev)
     // bucket index of event
     uint32_t bucket = Hash(ev.key.m_ts);
 
-    Bucket::iterator end = m_buckets[bucket].end();
-    for (Bucket::iterator i = m_buckets[bucket].begin(); i != end; ++i)
+    auto end = m_buckets[bucket].end();
+    for (auto i = m_buckets[bucket].begin(); i != end; ++i)
     {
         if (i->key.m_uid == ev.key.m_uid)
         {
@@ -341,7 +328,7 @@ CalendarScheduler::CalculateNewWidth()
         samples.push_back(DoRemoveNext());
     }
     // put them back
-    for (std::list<Scheduler::Event>::const_iterator i = samples.begin(); i != samples.end(); ++i)
+    for (auto i = samples.begin(); i != samples.end(); ++i)
     {
         DoInsert(*i);
     }
@@ -353,9 +340,9 @@ CalendarScheduler::CalculateNewWidth()
 
     // finally calculate inter-time average over samples.
     uint64_t totalSeparation = 0;
-    std::list<Scheduler::Event>::const_iterator end = samples.end();
-    std::list<Scheduler::Event>::const_iterator cur = samples.begin();
-    std::list<Scheduler::Event>::const_iterator next = cur;
+    auto end = samples.end();
+    auto cur = samples.begin();
+    auto next = cur;
     next++;
     while (next != end)
     {
@@ -395,8 +382,8 @@ CalendarScheduler::DoResize(uint32_t newSize, uint64_t newWidth)
 
     for (uint32_t i = 0; i < oldNBuckets; i++)
     {
-        Bucket::iterator end = oldBuckets[i].end();
-        for (Bucket::iterator j = oldBuckets[i].begin(); j != end; ++j)
+        auto end = oldBuckets[i].end();
+        for (auto j = oldBuckets[i].begin(); j != end; ++j)
         {
             DoInsert(*j);
         }

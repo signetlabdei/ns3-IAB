@@ -1,27 +1,16 @@
 /*
  * Copyright (c) 2017 Lawrence Livermore National Laboratory
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Gustavo Carneiro <gjc@inescporto.pt>
  * Author: Peter D. Barnes, Jr. <pdbarnes@llnl.gov>
  */
 
 /**
- * \file
- * \ingroup core-examples
- * \ingroup logging
+ * @file
+ * @ingroup core-examples
+ * @ingroup logging
  * Example program that demonstrates ShowProgress.
  */
 
@@ -33,7 +22,6 @@
 #include "ns3/core-module.h"
 
 #include <chrono>
-#include <iomanip>
 #include <string>
 #include <thread>
 
@@ -50,14 +38,14 @@ namespace
  *
  * Inspired by PHOLD.
  */
-class Hold : public SimpleRefCount<Hold>
+class Hold
 {
   public:
     /**
      * Create a Hold with mean inter-event time \pname{wait},
      * changing workload every \pname{interval}.
-     * \param wait The mean inter-event time.
-     * \param interval How often to change work load.  This
+     * @param wait The mean inter-event time.
+     * @param interval How often to change work load.  This
      *                 should be an order of magnitude larger than \pname{wait}.
      */
     Hold(Time wait, Time interval)
@@ -72,7 +60,7 @@ class Hold : public SimpleRefCount<Hold>
     /**
      * Create a hold with a specified random number generator for the
      * \pname{wait} time.  The RNG value will be interpreted as seconds.
-     * \param rng The random variable generator to use for the inter-event time.
+     * @param rng The random variable generator to use for the inter-event time.
      */
     Hold(Ptr<RandomVariableStream> rng)
         : m_rng(rng)
@@ -103,7 +91,8 @@ class Hold : public SimpleRefCount<Hold>
     /** Time between switching workloads. */
     Time m_interval;
 
-}; // class HOLD
+    // end of class HOLD
+};
 
 } // unnamed namespace
 
@@ -130,7 +119,7 @@ main(int argc, char** argv)
               << "average event sleep time:  " << wait.As(Time::MS) << "\n"
               << "total simulation run time: " << stop.As(Time::S) << std::endl;
 
-    Ptr<Hold> h = Create<Hold>(wait, interval);
+    auto h = std::make_unique<Hold>(wait, interval);
     h->Event();
 
     Simulator::Stop(stop);

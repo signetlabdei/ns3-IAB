@@ -1,16 +1,5 @@
 /*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  */
 
@@ -24,10 +13,10 @@ using namespace ns3;
 NS_LOG_COMPONENT_DEFINE("TcpRxBufferTestSuite");
 
 /**
- * \ingroup internet-tests
- * \ingroup tests
+ * @ingroup internet-test
+ * @ingroup tests
  *
- * \brief The TcpRxBuffer Test
+ * @brief The TcpRxBuffer Test
  */
 class TcpRxBufferTestCase : public TestCase
 {
@@ -39,7 +28,7 @@ class TcpRxBufferTestCase : public TestCase
     void DoTeardown() override;
 
     /**
-     * \brief Test the SACK list update.
+     * @brief Test the SACK list update.
      */
     void TestUpdateSACKList();
 };
@@ -60,7 +49,6 @@ TcpRxBufferTestCase::TestUpdateSACKList()
 {
     TcpRxBuffer rxBuf;
     TcpOptionSack::SackList sackList;
-    TcpOptionSack::SackList::iterator it;
     Ptr<Packet> p = Create<Packet>(100);
     TcpHeader h;
 
@@ -83,7 +71,7 @@ TcpRxBufferTestCase::TestUpdateSACKList()
                           "Sequence number differs from expected");
     sackList = rxBuf.GetSackList();
     NS_TEST_ASSERT_MSG_EQ(sackList.size(), 1, "SACK list should contain one element");
-    it = sackList.begin();
+    auto it = sackList.begin();
     NS_TEST_ASSERT_MSG_EQ(it->first, SequenceNumber32(501), "SACK block different than expected");
     NS_TEST_ASSERT_MSG_EQ(it->second, SequenceNumber32(601), "SACK block different than expected");
 
@@ -295,17 +283,17 @@ TcpRxBufferTestCase::DoTeardown()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief the TestSuite for the TcpRxBuffer test case
+ * @brief the TestSuite for the TcpRxBuffer test case
  */
 class TcpRxBufferTestSuite : public TestSuite
 {
   public:
     TcpRxBufferTestSuite()
-        : TestSuite("tcp-rx-buffer", UNIT)
+        : TestSuite("tcp-rx-buffer", Type::UNIT)
     {
-        AddTestCase(new TcpRxBufferTestCase, TestCase::QUICK);
+        AddTestCase(new TcpRxBufferTestCase, TestCase::Duration::QUICK);
     }
 };
 

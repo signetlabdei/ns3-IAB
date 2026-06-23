@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  */
 
@@ -21,12 +10,13 @@
 #include "ns3/ipv6-routing-protocol.h"
 #include "ns3/test.h"
 
-using namespace ns3;
+namespace ns3
+{
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv6 dummy routing class (A)
+ * @brief IPv6 dummy routing class (A)
  */
 class Ipv6ARouting : public Ipv6RoutingProtocol
 {
@@ -42,10 +32,10 @@ class Ipv6ARouting : public Ipv6RoutingProtocol
     bool RouteInput(Ptr<const Packet> p,
                     const Ipv6Header& header,
                     Ptr<const NetDevice> idev,
-                    UnicastForwardCallback ucb,
-                    MulticastForwardCallback mcb,
-                    LocalDeliverCallback lcb,
-                    ErrorCallback ecb) override
+                    const UnicastForwardCallback& ucb,
+                    const MulticastForwardCallback& mcb,
+                    const LocalDeliverCallback& lcb,
+                    const ErrorCallback& ecb) override
     {
         return false;
     }
@@ -86,13 +76,15 @@ class Ipv6ARouting : public Ipv6RoutingProtocol
     {
     }
 
-    void PrintRoutingTable(Ptr<OutputStreamWrapper> stream, Time::Unit unit) const override{};
+    void PrintRoutingTable(Ptr<OutputStreamWrapper> stream, Time::Unit unit) const override
+    {
+    }
 };
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv6 dummy routing class (B)
+ * @brief IPv6 dummy routing class (B)
  */
 class Ipv6BRouting : public Ipv6RoutingProtocol
 {
@@ -108,10 +100,10 @@ class Ipv6BRouting : public Ipv6RoutingProtocol
     bool RouteInput(Ptr<const Packet> p,
                     const Ipv6Header& header,
                     Ptr<const NetDevice> idev,
-                    UnicastForwardCallback ucb,
-                    MulticastForwardCallback mcb,
-                    LocalDeliverCallback lcb,
-                    ErrorCallback ecb) override
+                    const UnicastForwardCallback& ucb,
+                    const MulticastForwardCallback& mcb,
+                    const LocalDeliverCallback& lcb,
+                    const ErrorCallback& ecb) override
     {
         return false;
     }
@@ -152,13 +144,15 @@ class Ipv6BRouting : public Ipv6RoutingProtocol
     {
     }
 
-    void PrintRoutingTable(Ptr<OutputStreamWrapper> stream, Time::Unit unit) const override{};
+    void PrintRoutingTable(Ptr<OutputStreamWrapper> stream, Time::Unit unit) const override
+    {
+    }
 };
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv6 ListRouting negative test.
+ * @brief IPv6 ListRouting negative test.
  */
 class Ipv6ListRoutingNegativeTestCase : public TestCase
 {
@@ -190,9 +184,9 @@ Ipv6ListRoutingNegativeTestCase::DoRun()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv6 ListRouting positive test.
+ * @brief IPv6 ListRouting positive test.
  */
 class Ipv6ListRoutingPositiveTestCase : public TestCase
 {
@@ -229,20 +223,22 @@ Ipv6ListRoutingPositiveTestCase::DoRun()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv6 ListRouting TestSuite
+ * @brief IPv6 ListRouting TestSuite
  */
 class Ipv6ListRoutingTestSuite : public TestSuite
 {
   public:
     Ipv6ListRoutingTestSuite()
-        : TestSuite("ipv6-list-routing", UNIT)
+        : TestSuite("ipv6-list-routing", Type::UNIT)
     {
-        AddTestCase(new Ipv6ListRoutingPositiveTestCase(), TestCase::QUICK);
-        AddTestCase(new Ipv6ListRoutingNegativeTestCase(), TestCase::QUICK);
+        AddTestCase(new Ipv6ListRoutingPositiveTestCase(), TestCase::Duration::QUICK);
+        AddTestCase(new Ipv6ListRoutingNegativeTestCase(), TestCase::Duration::QUICK);
     }
 };
 
 static Ipv6ListRoutingTestSuite
     g_ipv6ListRoutingTestSuite; //!< Static variable for test initialization
+
+} // namespace ns3

@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2018 NITK Surathkal
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Vivek Jain <jain.vivek.anand@gmail.com>
  *          Viyom Mittal <viyommittal@gmail.com>
@@ -32,22 +21,22 @@ namespace ns3
 NS_LOG_COMPONENT_DEFINE("TcpBbrTestSuite");
 
 /**
- * \brief Testing whether BBR enables pacing
+ * @brief Testing whether BBR enables pacing
  */
 class TcpBbrPacingEnableTest : public TestCase
 {
   public:
     /**
-     * \brief constructor
-     * \param pacing pacing configuration
-     * \param name description of the test
+     * @brief constructor
+     * @param pacing pacing configuration
+     * @param name description of the test
      */
     TcpBbrPacingEnableTest(bool pacing, const std::string& name);
 
   private:
     void DoRun() override;
     /**
-     * \brief Execute the test.
+     * @brief Execute the test.
      */
     void ExecuteTest();
     bool m_pacing; //!< Initial pacing configuration.
@@ -62,7 +51,7 @@ TcpBbrPacingEnableTest::TcpBbrPacingEnableTest(bool pacing, const std::string& n
 void
 TcpBbrPacingEnableTest::DoRun()
 {
-    Simulator::Schedule(Seconds(0.0), &TcpBbrPacingEnableTest::ExecuteTest, this);
+    Simulator::Schedule(Seconds(0), &TcpBbrPacingEnableTest::ExecuteTest, this);
     Simulator::Run();
     Simulator::Destroy();
 }
@@ -81,23 +70,23 @@ TcpBbrPacingEnableTest::ExecuteTest()
 }
 
 /**
- * \brief Tests whether BBR sets correct value of pacing and cwnd gain based on different state.
+ * @brief Tests whether BBR sets correct value of pacing and cwnd gain based on different state.
  */
 class TcpBbrCheckGainValuesTest : public TestCase
 {
   public:
     /**
-     * \brief constructor
-     * \param state BBR state/mode under test
-     * \param highGain value of pacing and cwnd gain
-     * \param name description of the test
+     * @brief constructor
+     * @param state BBR state/mode under test
+     * @param highGain value of pacing and cwnd gain
+     * @param name description of the test
      */
     TcpBbrCheckGainValuesTest(TcpBbr::BbrMode_t state, double highGain, const std::string& name);
 
   private:
     void DoRun() override;
     /**
-     * \brief Execute the test.
+     * @brief Execute the test.
      */
     void ExecuteTest();
     TcpBbr::BbrMode_t m_mode; //!< BBR mode under test
@@ -116,7 +105,7 @@ TcpBbrCheckGainValuesTest::TcpBbrCheckGainValuesTest(TcpBbr::BbrMode_t state,
 void
 TcpBbrCheckGainValuesTest::DoRun()
 {
-    Simulator::Schedule(Seconds(0.0), &TcpBbrCheckGainValuesTest::ExecuteTest, this);
+    Simulator::Schedule(Seconds(0), &TcpBbrCheckGainValuesTest::ExecuteTest, this);
     Simulator::Run();
     Simulator::Destroy();
 }
@@ -181,51 +170,51 @@ TcpBbrCheckGainValuesTest::ExecuteTest()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief TCP BBR TestSuite
+ * @brief TCP BBR TestSuite
  */
 class TcpBbrTestSuite : public TestSuite
 {
   public:
     /**
-     * \brief constructor
+     * @brief constructor
      */
     TcpBbrTestSuite()
-        : TestSuite("tcp-bbr-test", UNIT)
+        : TestSuite("tcp-bbr-test", Type::UNIT)
     {
         AddTestCase(new TcpBbrPacingEnableTest(true, "BBR must keep pacing feature on"),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
 
         AddTestCase(new TcpBbrPacingEnableTest(false, "BBR must turn on pacing feature"),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
 
         AddTestCase(
             new TcpBbrCheckGainValuesTest(
                 TcpBbr::BBR_STARTUP,
                 4,
                 "BBR should enter to STARTUP phase and set cwnd and pacing gain accordingly"),
-            TestCase::QUICK);
+            TestCase::Duration::QUICK);
 
         AddTestCase(new TcpBbrCheckGainValuesTest(
                         TcpBbr::BBR_DRAIN,
                         4,
                         "BBR should enter to DRAIN phase and set cwnd and pacing gain accordingly"),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
 
         AddTestCase(
             new TcpBbrCheckGainValuesTest(
                 TcpBbr::BBR_PROBE_BW,
                 4,
                 "BBR should enter to BBR_PROBE_BW phase and set cwnd and pacing gain accordingly"),
-            TestCase::QUICK);
+            TestCase::Duration::QUICK);
 
         AddTestCase(
             new TcpBbrCheckGainValuesTest(
                 TcpBbr::BBR_PROBE_RTT,
                 4,
                 "BBR should enter to BBR_PROBE_RTT phase and set cwnd and pacing gain accordingly"),
-            TestCase::QUICK);
+            TestCase::Duration::QUICK);
     }
 };
 

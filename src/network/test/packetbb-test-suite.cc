@@ -1,19 +1,7 @@
-/* vim: set ts=2 sw=2 sta expandtab ai si cin: */
 /*
  * Copyright (c) 2009 Drexel University
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Tom Wambold <tom5760@gmail.com>
  */
@@ -30,20 +18,20 @@
 using namespace ns3;
 
 /**
- * \ingroup network-test
- * \ingroup tests
+ * @ingroup network-test
+ * @ingroup tests
  *
- * \brief PacketBb TestCase
+ * @brief PacketBb TestCase
  */
 class PbbTestCase : public TestCase
 {
   public:
     /**
      * Constructor
-     * \param name Test name.
-     * \param packet Packet to test.
-     * \param buffer Buffer to test.
-     * \param size Buffer size.
+     * @param name Test name.
+     * @param packet Packet to test.
+     * @param buffer Buffer to test.
+     * @param size Buffer size.
      */
     PbbTestCase(std::string name, Ptr<PbbPacket> packet, uint8_t* buffer, uint32_t size);
     ~PbbTestCase() override;
@@ -94,7 +82,7 @@ PbbTestCase::TestSerialize()
 
     int memrv = memcmp(newBuffer.PeekData(), m_refBuffer.PeekData(), newBuffer.GetSize());
 
-    NS_TEST_ASSERT_MSG_EQ(memrv, 0, "serialization faled, buffers differ");
+    NS_TEST_ASSERT_MSG_EQ(memrv, 0, "serialization failed, buffers differ");
 }
 
 void
@@ -111,10 +99,10 @@ PbbTestCase::TestDeserialize()
 }
 
 /**
- * \ingroup network-test
- * \ingroup tests
+ * @ingroup network-test
+ * @ingroup tests
  *
- * \brief PacketBb TestSuite
+ * @brief PacketBb TestSuite
  */
 class PbbTestSuite : public TestSuite
 {
@@ -123,7 +111,7 @@ class PbbTestSuite : public TestSuite
 };
 
 PbbTestSuite::PbbTestSuite()
-    : TestSuite("packetbb-test-suite", UNIT)
+    : TestSuite("packetbb-test-suite", Type::UNIT)
 {
     /* Test 1
      *    ,------------------
@@ -136,7 +124,8 @@ PbbTestSuite::PbbTestSuite()
     {
         Ptr<PbbPacket> packet = Create<PbbPacket>();
         uint8_t buffer[] = {0x00};
-        AddTestCase(new PbbTestCase("1", packet, buffer, sizeof(buffer)), TestCase::QUICK);
+        AddTestCase(new PbbTestCase("1", packet, buffer, sizeof(buffer)),
+                    TestCase::Duration::QUICK);
     }
 
     /* Test 2
@@ -152,7 +141,8 @@ PbbTestSuite::PbbTestSuite()
         Ptr<PbbPacket> packet = Create<PbbPacket>();
         packet->SetSequenceNumber(2);
         uint8_t buffer[] = {0x08, 0x00, 0x02};
-        AddTestCase(new PbbTestCase("2", packet, buffer, sizeof(buffer)), TestCase::QUICK);
+        AddTestCase(new PbbTestCase("2", packet, buffer, sizeof(buffer)),
+                    TestCase::Duration::QUICK);
     }
 
     /* Test 3
@@ -164,16 +154,24 @@ PbbTestSuite::PbbTestSuite()
      * | * Packet seq number: 3
      * `------------------
      * This test has the phastlv flag set to 1 with no tlvs.
-     * I'll come back to this one later.
+     *
+     * Note: it is not possible to run this test with the current test class.
+     * The bytecode of the packet should be:
+     * - pkt-header (8 bits): 0x0c (phasseqnum and phastlv)
+     * - pkt-seq-num (16 bits): 0x00, 0x03
+     * - tlvs-length (16 bits): 0x00, 0x00 (i.e., no TLVs)
+     *
+     * RFC 5444 doesn't forbid this, but it doesn't foresee it either.
+     * The packet is questionable, but it is not malformed.
      */
-#if 0
-  {
-    Ptr<PbbPacket> packet = Create<PbbPacket> ();
-    packet->SetSequenceNumber (3);
-    uint8_t buffer[] = { 0x0c, 0x00, 0x03, 0x00, 0x00};
-    AddTestCase (new PbbTestCase ("3", packet, buffer, sizeof(buffer)), TestCase::QUICK);
-  }
-#endif
+    {
+        Ptr<PbbPacket> packet = Create<PbbPacket>();
+        packet->SetSequenceNumber(3);
+        packet->ForceTlv(true);
+        uint8_t buffer[] = {0x0c, 0x00, 0x03, 0x00, 0x00};
+        AddTestCase(new PbbTestCase("3", packet, buffer, sizeof(buffer)),
+                    TestCase::Duration::QUICK);
+    }
 
     /* Test 4
      * ,------------------
@@ -197,7 +195,8 @@ PbbTestSuite::PbbTestSuite()
 
         packet->TlvPushBack(tlv);
         uint8_t buffer[] = {0x0c, 0x00, 0x04, 0x00, 0x02, 0x01, 0x00};
-        AddTestCase(new PbbTestCase("4", packet, buffer, sizeof(buffer)), TestCase::QUICK);
+        AddTestCase(new PbbTestCase("4", packet, buffer, sizeof(buffer)),
+                    TestCase::Duration::QUICK);
     }
 
     /* Test 5
@@ -230,7 +229,8 @@ PbbTestSuite::PbbTestSuite()
         packet->TlvPushBack(tlv2);
 
         uint8_t buffer[] = {0x0c, 0x00, 0x05, 0x00, 0x05, 0x01, 0x00, 0x02, 0x80, 0x64};
-        AddTestCase(new PbbTestCase("5", packet, buffer, sizeof(buffer)), TestCase::QUICK);
+        AddTestCase(new PbbTestCase("5", packet, buffer, sizeof(buffer)),
+                    TestCase::Duration::QUICK);
     }
 
     /* Test 6
@@ -284,7 +284,8 @@ PbbTestSuite::PbbTestSuite()
             0x03,
             0x04,
         };
-        AddTestCase(new PbbTestCase("6", packet, buffer, sizeof(buffer)), TestCase::QUICK);
+        AddTestCase(new PbbTestCase("6", packet, buffer, sizeof(buffer)),
+                    TestCase::Duration::QUICK);
     }
 
     /* Test 7
@@ -443,7 +444,8 @@ PbbTestSuite::PbbTestSuite()
             0x1b, 0x1c, 0x1d, 0x1e, 0x1f, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28,
             0x29, 0x2a, 0x2b, 0x2c,
         };
-        AddTestCase(new PbbTestCase("7", packet, buffer, sizeof(buffer)), TestCase::QUICK);
+        AddTestCase(new PbbTestCase("7", packet, buffer, sizeof(buffer)),
+                    TestCase::Duration::QUICK);
     }
 
     /* Test 8
@@ -493,7 +495,8 @@ PbbTestSuite::PbbTestSuite()
             0x00,
             0x00,
         };
-        AddTestCase(new PbbTestCase("8", packet, buffer, sizeof(buffer)), TestCase::QUICK);
+        AddTestCase(new PbbTestCase("8", packet, buffer, sizeof(buffer)),
+                    TestCase::Duration::QUICK);
     }
 
     /* Test 9
@@ -546,7 +549,8 @@ PbbTestSuite::PbbTestSuite()
             0x03, 0x00, 0x06, 0x00, 0x00, 0x02, 0x83, 0x00, /* [14] used to be 0x80 */
             0x0a, 0x0a, 0x00, 0x00, 0x01, 0x00, 0x00,
         };
-        AddTestCase(new PbbTestCase("9", packet, buffer, sizeof(buffer)), TestCase::QUICK);
+        AddTestCase(new PbbTestCase("9", packet, buffer, sizeof(buffer)),
+                    TestCase::Duration::QUICK);
     }
 
     /* Test 10
@@ -601,7 +605,8 @@ PbbTestSuite::PbbTestSuite()
             0x03, 0x00, 0x06, 0x00, 0x00, 0x02, 0xa3, 0x00, /* [14] used to be 0xa0 */
             0x0b, 0x0a, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00,
         };
-        AddTestCase(new PbbTestCase("10", packet, buffer, sizeof(buffer)), TestCase::QUICK);
+        AddTestCase(new PbbTestCase("10", packet, buffer, sizeof(buffer)),
+                    TestCase::Duration::QUICK);
     }
 
     /* Test 11
@@ -658,7 +663,8 @@ PbbTestSuite::PbbTestSuite()
             0x00, 0x06, 0x00, 0x00, 0x02, 0xe3, 0x00, /* [14] used to be 0xe0 */
             0x0c, 0x0a, 0x00, 0x00, 0x01, 0xff, 0x01, 0x00, 0x00,
         };
-        AddTestCase(new PbbTestCase("11", packet, buffer, sizeof(buffer)), TestCase::QUICK);
+        AddTestCase(new PbbTestCase("11", packet, buffer, sizeof(buffer)),
+                    TestCase::Duration::QUICK);
     }
 
     /* Test 12
@@ -717,67 +723,14 @@ PbbTestSuite::PbbTestSuite()
             0x00, 0x00, 0x02, 0xf3, 0x00, /* [14] - 0xf0 */
             0x0e, 0x0a, 0x00, 0x00, 0x01, 0xff, 0x01, 0x30, 0x39, 0x00, 0x00,
         };
-        AddTestCase(new PbbTestCase("12", packet, buffer, sizeof(buffer)), TestCase::QUICK);
+        AddTestCase(new PbbTestCase("12", packet, buffer, sizeof(buffer)),
+                    TestCase::Duration::QUICK);
     }
 
     /* Test 13
-     * ,------------------
-     * |  PACKET
-     * |------------------
-     * | * Packet version:    0
-     * | * Packet flags:  12
-     * | * Packet seq number: 13
-     * |    | * Packet TLV Block
-     * |    |     - TLV
-     * |    |         Flags = 0
-     * |    |         Type = 1; Value = (warning: parameter is NULL)
-     * |    ,-------------------
-     * |    |  MESSAGE
-     * |    |-------------------
-     * |    | * Message type:       1
-     * |    | * Message flags:  0
-     * |    `-------------------
-     * |
-     * |    ,-------------------
-     * |    |  MESSAGE
-     * |    |-------------------
-     * |    | * Message type:       2
-     * |    | * Message flags:  240
-     * |    | * Originator address: 10.0.0.1
-     * |    | * Hop limit:          255
-     * |    | * Hop count:          1
-     * |    | * Message seq number: 12345
-     * |    `-------------------
-     * |
-     * `------------------
+     * Test 13 has been removed because it was identical to test 12
+     * The following tests have not been renumbered
      */
-    {
-        Ptr<PbbPacket> packet = Create<PbbPacket>();
-        packet->SetSequenceNumber(13);
-
-        Ptr<PbbTlv> tlv1 = Create<PbbTlv>();
-        tlv1->SetType(1);
-        packet->TlvPushBack(tlv1);
-
-        Ptr<PbbMessageIpv4> msg1 = Create<PbbMessageIpv4>();
-        msg1->SetType(1);
-        packet->MessagePushBack(msg1);
-
-        Ptr<PbbMessageIpv4> msg2 = Create<PbbMessageIpv4>();
-        msg2->SetType(2);
-        msg2->SetOriginatorAddress(Ipv4Address("10.0.0.1"));
-        msg2->SetHopLimit(255);
-        msg2->SetHopCount(1);
-        msg2->SetSequenceNumber(12345);
-        packet->MessagePushBack(msg2);
-
-        uint8_t buffer[] = {
-            0x0c, 0x00, 0x0d, 0x00, 0x02, 0x01, 0x00, 0x01, 0x03, 0x00, 0x06,
-            0x00, 0x00, 0x02, 0xf3, 0x00, /* [14] - 0xf0 */
-            0x0e, 0x0a, 0x00, 0x00, 0x01, 0xff, 0x01, 0x30, 0x39, 0x00, 0x00,
-        };
-        AddTestCase(new PbbTestCase("13", packet, buffer, sizeof(buffer)), TestCase::QUICK);
-    }
 
     /* Test 14
      * ,------------------
@@ -844,7 +797,8 @@ PbbTestSuite::PbbTestSuite()
             0x08, 0x00, 0x02, 0x01, 0x00, 0x02, 0xf3, 0x00, 0x0e, 0x0a, /* [16] - 0xf0 */
             0x00, 0x00, 0x01, 0xff, 0x01, 0x30, 0x39, 0x00, 0x00,
         };
-        AddTestCase(new PbbTestCase("14", packet, buffer, sizeof(buffer)), TestCase::QUICK);
+        AddTestCase(new PbbTestCase("14", packet, buffer, sizeof(buffer)),
+                    TestCase::Duration::QUICK);
     }
 
     /* Test 15
@@ -922,7 +876,8 @@ PbbTestSuite::PbbTestSuite()
             0x00, 0x00, 0x01, 0xff, 0x01, 0x30, 0x39, 0x00, 0x00, 0x01,
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         };
-        AddTestCase(new PbbTestCase("15", packet, buffer, sizeof(buffer)), TestCase::QUICK);
+        AddTestCase(new PbbTestCase("15", packet, buffer, sizeof(buffer)),
+                    TestCase::Duration::QUICK);
     }
 
     /* Test 16
@@ -1000,7 +955,8 @@ PbbTestSuite::PbbTestSuite()
             0x00, 0x00, 0x01, 0xff, 0x01, 0x30, 0x39, 0x00, 0x00, 0x01,
             0x00, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00,
         };
-        AddTestCase(new PbbTestCase("16", packet, buffer, sizeof(buffer)), TestCase::QUICK);
+        AddTestCase(new PbbTestCase("16", packet, buffer, sizeof(buffer)),
+                    TestCase::Duration::QUICK);
     }
 
     /* Test 17
@@ -1078,7 +1034,8 @@ PbbTestSuite::PbbTestSuite()
             0x00, 0x00, 0x01, 0xff, 0x01, 0x30, 0x39, 0x00, 0x00, 0x01,
             0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00,
         };
-        AddTestCase(new PbbTestCase("17", packet, buffer, sizeof(buffer)), TestCase::QUICK);
+        AddTestCase(new PbbTestCase("17", packet, buffer, sizeof(buffer)),
+                    TestCase::Duration::QUICK);
     }
 
     /* Test 18
@@ -1156,7 +1113,8 @@ PbbTestSuite::PbbTestSuite()
             0x00, 0x00, 0x01, 0xff, 0x01, 0x30, 0x39, 0x00, 0x00, 0x01,
             0x00, 0x0a, 0x00, 0x00, 0x00, 0x00, 0x00,
         };
-        AddTestCase(new PbbTestCase("18", packet, buffer, sizeof(buffer)), TestCase::QUICK);
+        AddTestCase(new PbbTestCase("18", packet, buffer, sizeof(buffer)),
+                    TestCase::Duration::QUICK);
     }
 
     /* Test 19
@@ -1234,7 +1192,8 @@ PbbTestSuite::PbbTestSuite()
             0x00, 0x00, 0x01, 0xff, 0x01, 0x30, 0x39, 0x00, 0x00, 0x01,
             0x00, 0x0a, 0x00, 0x00, 0x01, 0x00, 0x00,
         };
-        AddTestCase(new PbbTestCase("19", packet, buffer, sizeof(buffer)), TestCase::QUICK);
+        AddTestCase(new PbbTestCase("19", packet, buffer, sizeof(buffer)),
+                    TestCase::Duration::QUICK);
     }
 
     /* Test 20
@@ -1314,7 +1273,8 @@ PbbTestSuite::PbbTestSuite()
             0x00, 0x00, 0x01, 0xff, 0x01, 0x30, 0x39, 0x00, 0x00, 0x02,
             0x80, 0x03, 0x0a, 0x00, 0x00, 0x01, 0x02, 0x00, 0x00,
         };
-        AddTestCase(new PbbTestCase("20", packet, buffer, sizeof(buffer)), TestCase::QUICK);
+        AddTestCase(new PbbTestCase("20", packet, buffer, sizeof(buffer)),
+                    TestCase::Duration::QUICK);
     }
 
     /* Test 21
@@ -1394,7 +1354,8 @@ PbbTestSuite::PbbTestSuite()
             0x00, 0x00, 0x01, 0xff, 0x01, 0x30, 0x39, 0x00, 0x00, 0x02, 0xc0,
             0x01, 0x0a, 0x01, 0x02, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00,
         };
-        AddTestCase(new PbbTestCase("21", packet, buffer, sizeof(buffer)), TestCase::QUICK);
+        AddTestCase(new PbbTestCase("21", packet, buffer, sizeof(buffer)),
+                    TestCase::Duration::QUICK);
     }
 
     /* Test 22
@@ -1484,7 +1445,8 @@ PbbTestSuite::PbbTestSuite()
             0x00, 0x00, 0x01, 0xff, 0x01, 0x30, 0x39, 0x00, 0x00, 0x02, 0xc0, 0x01, 0x0a, 0x01,
             0x02, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x02, 0x20, 0x03, 0x0a, 0x0b, 0x00, 0x00,
         };
-        AddTestCase(new PbbTestCase("22", packet, buffer, sizeof(buffer)), TestCase::QUICK);
+        AddTestCase(new PbbTestCase("22", packet, buffer, sizeof(buffer)),
+                    TestCase::Duration::QUICK);
     }
 
     /* Test 23
@@ -1586,7 +1548,8 @@ PbbTestSuite::PbbTestSuite()
             0x00, 0x00, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x0a, 0x00, 0x00, 0x05, 0x0a,
             0x00, 0x00, 0x06, 0x20, 0x20, 0x10, 0x18, 0x00, 0x00,
         };
-        AddTestCase(new PbbTestCase("23", packet, buffer, sizeof(buffer)), TestCase::QUICK);
+        AddTestCase(new PbbTestCase("23", packet, buffer, sizeof(buffer)),
+                    TestCase::Duration::QUICK);
     }
 
     /* Test 24
@@ -1695,7 +1658,8 @@ PbbTestSuite::PbbTestSuite()
             0x00, 0x00, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x0a, 0x00, 0x00, 0x05, 0x0a,
             0x00, 0x00, 0x06, 0x20, 0x20, 0x10, 0x18, 0x00, 0x02, 0x01, 0x00,
         };
-        AddTestCase(new PbbTestCase("24", packet, buffer, sizeof(buffer)), TestCase::QUICK);
+        AddTestCase(new PbbTestCase("24", packet, buffer, sizeof(buffer)),
+                    TestCase::Duration::QUICK);
     }
 
     /* Test 25
@@ -1806,7 +1770,8 @@ PbbTestSuite::PbbTestSuite()
             0x00, 0x00, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x0a, 0x00, 0x00, 0x05, 0x0a,
             0x00, 0x00, 0x06, 0x20, 0x20, 0x10, 0x18, 0x00, 0x03, 0x01, 0x40, 0x01,
         };
-        AddTestCase(new PbbTestCase("25", packet, buffer, sizeof(buffer)), TestCase::QUICK);
+        AddTestCase(new PbbTestCase("25", packet, buffer, sizeof(buffer)),
+                    TestCase::Duration::QUICK);
     }
 
     /* Test 26
@@ -1919,7 +1884,8 @@ PbbTestSuite::PbbTestSuite()
             0x00, 0x0b, 0x00, 0x00, 0x00, 0x0a, 0x00, 0x00, 0x05, 0x0a, 0x00, 0x00, 0x06,
             0x20, 0x20, 0x10, 0x18, 0x00, 0x04, 0x01, 0x20, 0x01, 0x03,
         };
-        AddTestCase(new PbbTestCase("26", packet, buffer, sizeof(buffer)), TestCase::QUICK);
+        AddTestCase(new PbbTestCase("26", packet, buffer, sizeof(buffer)),
+                    TestCase::Duration::QUICK);
     }
 
     /* Test 27
@@ -2037,7 +2003,8 @@ PbbTestSuite::PbbTestSuite()
             0x00, 0x00, 0x00, 0x0a, 0x00, 0x00, 0x05, 0x0a, 0x00, 0x00, 0x06, 0x20, 0x20, 0x10,
             0x18, 0x00, 0x08, 0x01, 0x34, 0x01, 0x03, 0x03, 0x01, 0x02, 0x03,
         };
-        AddTestCase(new PbbTestCase("27", packet, buffer, sizeof(buffer)), TestCase::QUICK);
+        AddTestCase(new PbbTestCase("27", packet, buffer, sizeof(buffer)),
+                    TestCase::Duration::QUICK);
     }
 
     /* Test 28
@@ -2274,7 +2241,8 @@ PbbTestSuite::PbbTestSuite()
             0x1e, 0x1f, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b,
             0x2c,
         };
-        AddTestCase(new PbbTestCase("28", packet, buffer, sizeof(buffer)), TestCase::QUICK);
+        AddTestCase(new PbbTestCase("28", packet, buffer, sizeof(buffer)),
+                    TestCase::Duration::QUICK);
     }
 
     /* Test 29
@@ -2309,7 +2277,8 @@ PbbTestSuite::PbbTestSuite()
             0x00,
             0x00,
         };
-        AddTestCase(new PbbTestCase("29", packet, buffer, sizeof(buffer)), TestCase::QUICK);
+        AddTestCase(new PbbTestCase("29", packet, buffer, sizeof(buffer)),
+                    TestCase::Duration::QUICK);
     }
 
     /* Test 30
@@ -2341,7 +2310,8 @@ PbbTestSuite::PbbTestSuite()
             0x00, 0x01, 0x8f, 0x00, 0x16, 0xab, 0xcd, 0x00, 0x00, 0x00, 0x00, 0x00,
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00,
         };
-        AddTestCase(new PbbTestCase("30", packet, buffer, sizeof(buffer)), TestCase::QUICK);
+        AddTestCase(new PbbTestCase("30", packet, buffer, sizeof(buffer)),
+                    TestCase::Duration::QUICK);
     }
 
     /* Test 31
@@ -2383,7 +2353,8 @@ PbbTestSuite::PbbTestSuite()
             0x00, 0x01, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00,
         };
-        AddTestCase(new PbbTestCase("31", packet, buffer, sizeof(buffer)), TestCase::QUICK);
+        AddTestCase(new PbbTestCase("31", packet, buffer, sizeof(buffer)),
+                    TestCase::Duration::QUICK);
     }
 
     /* Test 32
@@ -2427,7 +2398,8 @@ PbbTestSuite::PbbTestSuite()
             0x80, 0x0f, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
             0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x02, 0x00, 0x00,
         };
-        AddTestCase(new PbbTestCase("32", packet, buffer, sizeof(buffer)), TestCase::QUICK);
+        AddTestCase(new PbbTestCase("32", packet, buffer, sizeof(buffer)),
+                    TestCase::Duration::QUICK);
     }
 
     /* Test 33
@@ -2471,7 +2443,8 @@ PbbTestSuite::PbbTestSuite()
             0xc0, 0x0d, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
             0x00, 0x00, 0x00, 0x02, 0x00, 0x02, 0x00, 0x11, 0x00, 0x00,
         };
-        AddTestCase(new PbbTestCase("33", packet, buffer, sizeof(buffer)), TestCase::QUICK);
+        AddTestCase(new PbbTestCase("33", packet, buffer, sizeof(buffer)),
+                    TestCase::Duration::QUICK);
     }
 
     /* Test 34
@@ -2525,7 +2498,8 @@ PbbTestSuite::PbbTestSuite()
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x02,
             0x00, 0x11, 0x00, 0x00, 0x02, 0xa0, 0x01, 0x00, 0x0e, 0x10, 0x11, 0x00, 0x00,
         };
-        AddTestCase(new PbbTestCase("34", packet, buffer, sizeof(buffer)), TestCase::QUICK);
+        AddTestCase(new PbbTestCase("34", packet, buffer, sizeof(buffer)),
+                    TestCase::Duration::QUICK);
     }
 
     /* Test 35
@@ -2592,7 +2566,8 @@ PbbTestSuite::PbbTestSuite()
             0x00, 0x00, 0x00, 0x05, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
             0x00, 0x00, 0x00, 0x00, 0x00, 0x06, 0x80, 0x80, 0x40, 0x30, 0x00, 0x00,
         };
-        AddTestCase(new PbbTestCase("35", packet, buffer, sizeof(buffer)), TestCase::QUICK);
+        AddTestCase(new PbbTestCase("35", packet, buffer, sizeof(buffer)),
+                    TestCase::Duration::QUICK);
     }
 
     /* Test 36
@@ -2874,7 +2849,8 @@ PbbTestSuite::PbbTestSuite()
             0x00, 0x00, 0x05, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
             0x00, 0x00, 0x00, 0x06, 0x80, 0x80, 0x40, 0x30, 0x00, 0x00,
         };
-        AddTestCase(new PbbTestCase("36", packet, buffer, sizeof(buffer)), TestCase::QUICK);
+        AddTestCase(new PbbTestCase("36", packet, buffer, sizeof(buffer)),
+                    TestCase::Duration::QUICK);
     }
 
     /* Test 37
@@ -3156,7 +3132,8 @@ PbbTestSuite::PbbTestSuite()
             0x00, 0x00, 0x05, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
             0x00, 0x00, 0x00, 0x06, 0x80, 0x80, 0x40, 0x30, 0x00, 0x00,
         };
-        AddTestCase(new PbbTestCase("37", packet, buffer, sizeof(buffer)), TestCase::QUICK);
+        AddTestCase(new PbbTestCase("37", packet, buffer, sizeof(buffer)),
+                    TestCase::Duration::QUICK);
     }
 }
 

@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2020 NITK Surathkal
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Bhaskar Kataria <bhaskar.k7920@gmail.com>
  *          Tom Henderson <tomhend@u.washington.edu>
@@ -528,7 +517,7 @@ main(int argc, char* argv[])
     ////////////////////////////////////////////////////////////
     // command-line argument parsing                          //
     ////////////////////////////////////////////////////////////
-    CommandLine cmd;
+    CommandLine cmd(__FILE__);
     cmd.AddValue("n0TcpType", "n0 TCP type (bic, dctcp, or reno)", n0TcpType);
     cmd.AddValue("n1TcpType", "n1 TCP type (bic, dctcp, or reno)", n1TcpType);
     cmd.AddValue("scenarioNum",
@@ -681,7 +670,7 @@ main(int argc, char* argv[])
     }
     else
     {
-        NS_FATAL_ERROR("Fatal error:  scenario unavailble");
+        NS_FATAL_ERROR("Fatal error:  scenario unavailable");
     }
 
     std::ofstream pingOfStream;
@@ -775,7 +764,7 @@ main(int argc, char* argv[])
         proto->SetAttribute("SocketType", TypeIdValue(n1TcpTypeId));
     }
 
-    // InternetStackHelper will install a base TrafficControLayer on the node,
+    // InternetStackHelper will install a base TrafficControlLayer on the node,
     // but the Ipv4AddressHelper below will install the default FqCoDelQueueDisc
     // on all single device nodes.  The below code overrides the configuration
     // that is normally done by the Ipv4AddressHelper::Install() method by

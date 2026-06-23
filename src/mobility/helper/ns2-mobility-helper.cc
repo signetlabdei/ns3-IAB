@@ -2,18 +2,7 @@
  * Copyright (c) 2007 INRIA
  *               2009,2010 Contributors
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  * Contributors: Thomas Waldecker <twaldecker@rocketmail.com>
@@ -60,7 +49,6 @@ NS_LOG_COMPONENT_DEFINE("Ns2MobilityHelper");
 #define NS2_Z_COORD "Z_"
 #define NS2_SETDEST "setdest"
 #define NS2_SET "set"
-#define NS2_NODEID "$node_("
 #define NS2_NS_SCH "$ns_"
 
 /**
@@ -93,111 +81,114 @@ struct DestinationPoint
     EventId m_stopEvent;    //!< Event scheduling node's stop. May be canceled if needed.
     double m_travelStartTime;   //!< Travel start time is needed to calculate actually traveled time
     double m_targetArrivalTime; //!< When a station arrives to a destination
+
     DestinationPoint()
         : m_startPosition(Vector(0, 0, 0)),
           m_speed(Vector(0, 0, 0)),
           m_finalPosition(Vector(0, 0, 0)),
           m_travelStartTime(0),
-          m_targetArrivalTime(0){};
+          m_targetArrivalTime(0)
+    {
+    }
 };
 
 /**
  * Parses a line of ns2 mobility
- * \param str the string to parse
- * \returns The parsed line
+ * @param str the string to parse
+ * @returns The parsed line
  */
 static ParseResult ParseNs2Line(const std::string& str);
 
 /**
  * Put out blank spaces at the start and end of a line
- * \param str input line
- * \returns the line trimmed
+ * @param str input line
+ * @returns the line trimmed
  */
 static std::string TrimNs2Line(const std::string& str);
 
 /**
  * Checks if a string represents a number or it has others characters than digits and point.
- * \param s the string to check
- * \returns true if the string represents a number
+ * @param s the string to check
+ * @returns true if the string represents a number
  */
 static bool IsNumber(const std::string& s);
 
 /**
  * Check if s string represents a numeric value
- * \param str string to check
- * \param ret numeric value to return
- * \return true if string represents a numeric value
+ * @param str string to check
+ * @param ret numeric value to return
+ * @return true if string represents a numeric value
  */
 template <class T>
 static bool IsVal(const std::string& str, T& ret);
 
 /**
  * Checks if the value between brackets is a correct nodeId number
- * \param str string to check
- * \returns true if the string represents a nodeId number
+ * @param str string to check
+ * @returns true if the string represents a nodeId number
  */
 static bool HasNodeIdNumber(std::string str);
 
 /**
  * Gets nodeId number in string format from the string like $node_(4)
- * \param str string to de-tokenize
- * \returns A string with the nodeId number
+ * @param str string to de-tokenize
+ * @returns A string with the nodeId number
  */
 static std::string GetNodeIdFromToken(std::string str);
 
 /**
  * Get node id number in int format
- * \param pr the ParseResult to analyze
- * \returns the node ID (as an int)
+ * @param pr the ParseResult to analyze
+ * @returns the node ID (as an int)
  */
 static int GetNodeIdInt(ParseResult pr);
 
 /**
  * Get node id number in string format
- * \param pr the ParseResult to analyze
- * \returns the node ID (as a string)
+ * @param pr the ParseResult to analyze
+ * @returns the node ID (as a string)
  */
 static std::string GetNodeIdString(ParseResult pr);
 
 /**
  * Add one coord to a vector position
- * \param actPos actual position (overwritten)
- * \param coord coordinate (x, y, or z)
- * \param value value of the coordinate
- * \return The vector of the position
+ * @param actPos actual position (overwritten)
+ * @param coord coordinate (x, y, or z)
+ * @param value value of the coordinate
+ * @return The vector of the position
  */
 static Vector SetOneInitialCoord(Vector actPos, std::string& coord, double value);
 
 /**
  * Check if this corresponds to a line like this: $node_(0) set X_ 123
- * \param pr the ParseResult to analyze
- * \returns true if the ParseResult looks like a coordinate without a scheduled time
+ * @param pr the ParseResult to analyze
+ * @returns true if the ParseResult looks like a coordinate without a scheduled time
  */
 static bool IsSetInitialPos(ParseResult pr);
 
 /**
  * Check if this corresponds to a line like this: $ns_ at 1 "$node_(0) setdest 2 3 4"
- * \param pr the ParseResult to analyze
- * \returns true if the ParseResult looks like a coordinate with a scheduled time and destination
+ * @param pr the ParseResult to analyze
+ * @returns true if the ParseResult looks like a coordinate with a scheduled time and destination
  */
 static bool IsSchedSetPos(ParseResult pr);
 
 /**
  * Check if this corresponds to a line like this: $ns_ at 1 "$node_(0) set X_ 2"
- * \param pr the ParseResult to analyze
- * \returns true if the ParseResult looks like a coordinate with a scheduled time
+ * @param pr the ParseResult to analyze
+ * @returns true if the ParseResult looks like a coordinate with a scheduled time
  */
 static bool IsSchedMobilityPos(ParseResult pr);
 
 /**
  * Set waypoints and speed for movement.
- * \param model mobility model
- * \param lastPos last position
- * \param at initial movement time
- * \param xFinalPosition final position (X axis)
- * \param yFinalPosition final position (Y axis)
- * \param speed movement speed
- * \returns A descriptor of the movement
+ * @param model mobility model
+ * @param lastPos last position
+ * @param at initial movement time
+ * @param xFinalPosition final position (X axis)
+ * @param yFinalPosition final position (Y axis)
+ * @param speed movement speed
+ * @returns A descriptor of the movement
  */
 static DestinationPoint SetMovement(Ptr<ConstantVelocityMobilityModel> model,
                                     Vector lastPos,
@@ -208,10 +199,10 @@ static DestinationPoint SetMovement(Ptr<ConstantVelocityMobilityModel> model,
 
 /**
  * Set initial position for a node
- * \param model mobility model
- * \param coord coordinate (x, y, or z)
- * \param coordVal value of the coordinate
- * \return The vector of the position
+ * @param model mobility model
+ * @param coord coordinate (x, y, or z)
+ * @param coordVal value of the coordinate
+ * @return The vector of the position
  */
 static Vector SetInitialPosition(Ptr<ConstantVelocityMobilityModel> model,
                                  std::string coord,
@@ -219,11 +210,11 @@ static Vector SetInitialPosition(Ptr<ConstantVelocityMobilityModel> model,
 
 /**
  * Schedule a set of position for a node
- * \param model mobility model
- * \param at initial movement time
- * \param coord coordinate (x, y, or z)
- * \param coordVal value of the coordinate
- * \return The vector of the position at the given time
+ * @param model mobility model
+ * @param at initial movement time
+ * @param coord coordinate (x, y, or z)
+ * @param coordVal value of the coordinate
+ * @return The vector of the position at the given time
  */
 static Vector SetSchedPosition(Ptr<ConstantVelocityMobilityModel> model,
                                double at,
@@ -523,7 +514,7 @@ ParseNs2Line(const std::string& str)
     {
         std::string x;
         s >> x;
-        if (x.length() == 0)
+        if (x.empty())
         {
             continue;
         }
@@ -620,10 +611,10 @@ IsVal(const std::string& str, T& ret)
     {
         return false;
     }
-    else if (IsNumber(str))
+
+    if (IsNumber(str))
     {
-        std::string s2 = str;
-        std::istringstream s(s2);
+        std::istringstream s(str);
         s >> ret;
         return true;
     }
@@ -651,15 +642,8 @@ HasNodeIdNumber(std::string str)
 
     nodeId = str.substr(startNodeId + 1, endNodeId - (startNodeId + 1)); // set node id
 
-    //   is number              is integer                                       is not negative
-    if (IsNumber(nodeId) && (nodeId.find_first_of('.') == std::string::npos) && (nodeId[0] != '-'))
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    //     is number           is integer                                        is not negative
+    return IsNumber(nodeId) && nodeId.find_first_of('.') == std::string::npos && nodeId[0] != '-';
 }
 
 std::string
@@ -689,8 +673,6 @@ GetNodeIdInt(ParseResult pr)
         result = pr.ivals[0];
         break;
     case 7: // line like $ns_ at 4 "$node_(0) set X_ 28"
-        result = pr.ivals[3];
-        break;
     case 8: // line like $ns_ at 1 "$node_(0) setdest 2 3 4"
         result = pr.ivals[3];
         break;
@@ -708,13 +690,9 @@ GetNodeIdString(ParseResult pr)
     {
     case 4: // line like $node_(0) set X_ 11
         return pr.svals[0];
-        break;
     case 7: // line like $ns_ at 4 "$node_(0) set X_ 28"
-        return pr.svals[3];
-        break;
     case 8: // line like $ns_ at 1 "$node_(0) setdest 2 3 4"
         return pr.svals[3];
-        break;
     default:
         return "";
     }
@@ -803,8 +781,8 @@ SetMovement(Ptr<ConstantVelocityMobilityModel> model,
     if (speed > 0)
     {
         // first calculate the time; time = distance / speed
-        double time = std::sqrt(std::pow(xFinalPosition - retval.m_finalPosition.x, 2) +
-                                std::pow(yFinalPosition - retval.m_finalPosition.y, 2)) /
+        double time = std::hypot(xFinalPosition - retval.m_finalPosition.x,
+                                 yFinalPosition - retval.m_finalPosition.y) /
                       speed;
         NS_LOG_DEBUG("at=" << at << " time=" << time);
         if (time == 0)
@@ -865,7 +843,7 @@ SetSchedPosition(Ptr<ConstantVelocityMobilityModel> model,
     position.y = model->GetPosition().y;
     position.z = model->GetPosition().z;
 
-    // Chedule next positions
+    // Schedule next positions
     Simulator::Schedule(Seconds(at), &ConstantVelocityMobilityModel::SetPosition, model, position);
 
     return position;

@@ -1,21 +1,10 @@
 /*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 /**
- * \file
- * \ingroup mpi
+ * @file
+ * @ingroup mpi
  *
  * TestDistributed creates a dumbbell topology and logically splits it in
  * half.  The left half is placed on logical processor 0 and the right half
@@ -226,7 +215,7 @@ main(int argc, char* argv[])
         Ipv4GlobalRoutingHelper::PopulateRoutingTables();
     }
 
-    if (tracing == true)
+    if (tracing)
     {
         if (systemId == 0)
         {
@@ -258,7 +247,7 @@ main(int argc, char* argv[])
                                                            MakeCallback(&SinkTracer::SinkTrace));
             }
         }
-        sinkApp.Start(Seconds(1.0));
+        sinkApp.Start(Seconds(1));
         sinkApp.Stop(Seconds(5));
     }
 
@@ -277,7 +266,7 @@ main(int argc, char* argv[])
             clientHelper.SetAttribute("Remote", remoteAddress);
             clientApps.Add(clientHelper.Install(leftLeafNodes.Get(i)));
         }
-        clientApps.Start(Seconds(1.0));
+        clientApps.Start(Seconds(1));
         clientApps.Stop(Seconds(5));
     }
 

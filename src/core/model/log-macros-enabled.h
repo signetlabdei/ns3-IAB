@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2006,2007 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -21,8 +10,8 @@
 #define NS3_LOG_MACROS_ENABLED_H
 
 /**
- * \file
- * \ingroup logging
+ * @file
+ * @ingroup logging
  * NS_LOG and related logging macro definitions.
  */
 
@@ -33,9 +22,9 @@
 // for use by NS_FATAL_...
 
 /**
- * \ingroup logging
+ * @ingroup logging
  * Implementation details for NS_LOG_APPEND_TIME_PREFIX.
- * \internal
+ * @internal
  * Logging implementation macro; should not be called directly.
  * We define this separately so we can reuse the definition
  * in NS_FATAL.
@@ -52,9 +41,9 @@
     } while (false)
 
 /**
- * \ingroup logging
+ * @ingroup logging
  * Implementation details for NS_LOG_APPEND_NODE_PREFIX.
- * \internal
+ * @internal
  * Logging implementation macro; should not be called directly.
  * We define this separately so we can reuse the definition
  * in NS_FATAL.
@@ -73,9 +62,9 @@
 #ifdef NS3_LOG_ENABLE
 
 /**
- * \ingroup logging
+ * @ingroup logging
  * Append the simulation time to a log message.
- * \internal
+ * @internal
  * Logging implementation macro; should not be called directly.
  */
 #define NS_LOG_APPEND_TIME_PREFIX                                                                  \
@@ -85,9 +74,9 @@
     }
 
 /**
- * \ingroup logging
+ * @ingroup logging
  * Append the simulation node id to a log message.
- * \internal
+ * @internal
  * Logging implementation macro; should not be called directly.
  */
 #define NS_LOG_APPEND_NODE_PREFIX                                                                  \
@@ -97,9 +86,9 @@
     }
 
 /**
- * \ingroup logging
+ * @ingroup logging
  * Append the function name to a log message.
- * \internal
+ * @internal
  * Logging implementation macro; should not be called directly.
  */
 #define NS_LOG_APPEND_FUNC_PREFIX                                                                  \
@@ -109,9 +98,9 @@
     }
 
 /**
- * \ingroup logging
+ * @ingroup logging
  * Append the log severity level to a log message.
- * \internal
+ * @internal
  * Logging implementation macro; should not be called directly.
  */
 #define NS_LOG_APPEND_LEVEL_PREFIX(level)                                                          \
@@ -122,7 +111,7 @@
 
 #ifndef NS_LOG_APPEND_CONTEXT
 /**
- * \ingroup logging
+ * @ingroup logging
  * Append the node id (or other file-local programmatic context, such as
  * MPI rank) to a log message.
  *
@@ -131,19 +120,19 @@
  *
  * Preferred format is something like (assuming the node id is
  * accessible from `var`:
- * \code
+ * @code
  *   if (var)
  *     {
  *       std::clog << "[node " << var->GetObject<Node> ()->GetId () << "] ";
  *     }
- * \endcode
+ * @endcode
  */
 #define NS_LOG_APPEND_CONTEXT
 #endif /* NS_LOG_APPEND_CONTEXT */
 
 #ifndef NS_LOG_CONDITION
 /**
- * \ingroup logging
+ * @ingroup logging
  * Limit logging output based on some file-local condition,
  * such as MPI rank.
  *
@@ -152,15 +141,15 @@
  *
  * Since this appears immediately before the `do { ... } while false`
  * construct of \c NS_LOG(level, msg), it must have the form
- * \code
+ * @code
  *   #define NS_LOG_CONDITION    if (condition)
- * \endcode
+ * @endcode
  */
 #define NS_LOG_CONDITION
 #endif
 
 /**
- * \ingroup logging
+ * @ingroup logging
  *
  * This macro allows you to log an arbitrary message at a specific
  * log level.
@@ -169,13 +158,13 @@
  * message such as "my string" << aNumber << "my oth stream".
  *
  * Typical usage looks like:
- * \code
+ * @code
  * NS_LOG (LOG_DEBUG, "a number="<<aNumber<<", anotherNumber="<<anotherNumber);
- * \endcode
+ * @endcode
  *
- * \param [in] level The log level
- * \param [in] msg The message to log
- * \internal
+ * @param [in] level The log level
+ * @param [in] msg The message to log
+ * @internal
  * Logging implementation macro; should not be called directly.
  */
 #define NS_LOG(level, msg)                                                                         \
@@ -189,16 +178,18 @@
             NS_LOG_APPEND_CONTEXT;                                                                 \
             NS_LOG_APPEND_FUNC_PREFIX;                                                             \
             NS_LOG_APPEND_LEVEL_PREFIX(level);                                                     \
+            auto flags = std::clog.setf(std::ios_base::boolalpha);                                 \
             std::clog << msg << std::endl;                                                         \
+            std::clog.flags(flags);                                                                \
         }                                                                                          \
     } while (false)
 
 /**
- * \ingroup logging
+ * @ingroup logging
  *
  * Output the name of the function.
  *
- * This should be used only in static functions; most member functions
+ * This should be used only in static functions without arguments; most member functions
  * should instead use NS_LOG_FUNCTION().
  */
 #define NS_LOG_FUNCTION_NOARGS()                                                                   \
@@ -215,25 +206,27 @@
     } while (false)
 
 /**
- * \ingroup logging
+ * @ingroup logging
  *
  * If log level LOG_FUNCTION is enabled, this macro will output
  * all input parameters separated by ", ".
  *
  * Typical usage looks like:
- * \code
+ * @code
  * NS_LOG_FUNCTION (aNumber<<anotherNumber);
- * \endcode
+ * @endcode
  * And the output will look like:
- * \code
+ * @code
  * Component:Function (aNumber, anotherNumber)
- * \endcode
+ * @endcode
  *
  * To facilitate function tracing, most functions should begin with
- * (at least) NS_LOG_FUNCTION(this).  Static functions should use
- * NS_LOG_FUNCTION_NOARGS() instead.
+ * (at least) NS_LOG_FUNCTION(this).
  *
- * \param [in] parameters The parameters to output.
+ * Static functions should use NS_LOG_FUNCTION(args) when they have arguments,
+ * and NS_LOG_FUNCTION_NOARGS() when they have no arguments.
+ *
+ * @param [in] parameters The parameters to output.
  */
 #define NS_LOG_FUNCTION(parameters)                                                                \
     NS_LOG_CONDITION                                                                               \
@@ -245,23 +238,27 @@
             NS_LOG_APPEND_NODE_PREFIX;                                                             \
             NS_LOG_APPEND_CONTEXT;                                                                 \
             std::clog << g_log.Name() << ":" << __FUNCTION__ << "(";                               \
+            auto flags = std::clog.setf(std::ios_base::boolalpha);                                 \
             ns3::ParameterLogger(std::clog) << parameters;                                         \
+            std::clog.flags(flags);                                                                \
             std::clog << ")" << std::endl;                                                         \
         }                                                                                          \
     } while (false)
 
 /**
- * \ingroup logging
+ * @ingroup logging
  *
  * Output the requested message unconditionally.
  *
- * \param [in] msg The message to log
+ * @param [in] msg The message to log
  */
 #define NS_LOG_UNCOND(msg)                                                                         \
     NS_LOG_CONDITION                                                                               \
     do                                                                                             \
     {                                                                                              \
+        auto flags = std::clog.setf(std::ios_base::boolalpha);                                     \
         std::clog << msg << std::endl;                                                             \
+        std::clog.flags(flags);                                                                    \
     } while (false)
 
 #endif /* NS3_LOG_ENABLE */

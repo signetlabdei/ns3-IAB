@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2006,2007 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -49,7 +38,7 @@ RandomWalk2dMobilityModel::GetTypeId()
                           MakeRectangleChecker())
             .AddAttribute("Time",
                           "Change current direction and speed after moving for this delay.",
-                          TimeValue(Seconds(1.0)),
+                          TimeValue(Seconds(1)),
                           MakeTimeAccessor(&RandomWalk2dMobilityModel::m_modeTime),
                           MakeTimeChecker())
             .AddAttribute("Distance",
@@ -61,7 +50,8 @@ RandomWalk2dMobilityModel::GetTypeId()
                           "The mode indicates the condition used to "
                           "change the current speed and direction",
                           EnumValue(RandomWalk2dMobilityModel::MODE_DISTANCE),
-                          MakeEnumAccessor(&RandomWalk2dMobilityModel::m_mode),
+                          MakeEnumAccessor<RandomWalk2dMobilityModel::Mode>(
+                              &RandomWalk2dMobilityModel::m_mode),
                           MakeEnumChecker(RandomWalk2dMobilityModel::MODE_DISTANCE,
                                           "Distance",
                                           RandomWalk2dMobilityModel::MODE_TIME,
@@ -79,21 +69,66 @@ RandomWalk2dMobilityModel::GetTypeId()
     return tid;
 }
 
-void
-RandomWalk2dMobilityModel::DoInitialize()
+RandomWalk2dMobilityModel::~RandomWalk2dMobilityModel()
 {
-    DoInitializePrivate();
-    MobilityModel::DoInitialize();
+    m_event.Cancel();
 }
 
 void
-RandomWalk2dMobilityModel::DoInitializePrivate()
+RandomWalk2dMobilityModel::DoInitialize()
 {
+    NS_LOG_FUNCTION(this);
+    DrawRandomVelocityAndDistance();
+    MobilityModel::DoInitialize();
+}
+
+// Set new velocity and distance to travel, and call DoWalk() to initiate movement
+void
+RandomWalk2dMobilityModel::DrawRandomVelocityAndDistance()
+{
+    NS_LOG_FUNCTION(this);
     m_helper.Update();
+    Vector position = m_helper.GetCurrentPosition();
+
     double speed = m_speed->GetValue();
     double direction = m_direction->GetValue();
-    Vector vector(std::cos(direction) * speed, std::sin(direction) * speed, 0.0);
-    m_helper.SetVelocity(vector);
+    Vector velocity(std::cos(direction) * speed, std::sin(direction) * speed, 0.0);
+    if (m_bounds.IsOnTheBorder(position))
+    {
+        switch (m_bounds.GetClosestSideOrCorner(position))
+        {
+        case Rectangle::RIGHTSIDE:
+            velocity.x = -1 * std::abs(velocity.x);
+            break;
+        case Rectangle::LEFTSIDE:
+            velocity.x = std::abs(velocity.x);
+            break;
+        case Rectangle::TOPSIDE:
+            velocity.y = -1 * std::abs(velocity.y);
+            break;
+        case Rectangle::BOTTOMSIDE:
+            velocity.y = std::abs(velocity.y);
+            break;
+        case Rectangle::TOPRIGHTCORNER:
+            velocity.x = -1 * std::abs(velocity.x);
+            velocity.y = -1 * std::abs(velocity.y);
+            break;
+        case Rectangle::TOPLEFTCORNER:
+            velocity.x = std::abs(velocity.x);
+            velocity.y = -1 * std::abs(velocity.y);
+            break;
+        case Rectangle::BOTTOMRIGHTCORNER:
+            velocity.x = -1 * std::abs(velocity.x);
+            velocity.y = std::abs(velocity.y);
+            break;
+        case Rectangle::BOTTOMLEFTCORNER:
+            velocity.x = std::abs(velocity.x);
+            velocity.y = std::abs(velocity.y);
+            break;
+        }
+    }
+    NS_LOG_INFO("Setting new velocity to " << velocity);
+    m_helper.SetVelocity(velocity);
     m_helper.Unpause();
 
     Time delayLeft;
@@ -105,27 +140,49 @@ RandomWalk2dMobilityModel::DoInitializePrivate()
     {
         delayLeft = Seconds(m_modeDistance / speed);
     }
+    NS_LOG_INFO("Setting delayLeft for DoWalk() to " << delayLeft.As(Time::S));
     DoWalk(delayLeft);
 }
 
+// Notify course change and schedule event for either a wall rebound or a new velocity
 void
 RandomWalk2dMobilityModel::DoWalk(Time delayLeft)
 {
+    NS_LOG_FUNCTION(this << delayLeft.As(Time::S));
     Vector position = m_helper.GetCurrentPosition();
-    Vector speed = m_helper.GetVelocity();
+    Vector velocity = m_helper.GetVelocity();
     Vector nextPosition = position;
-    nextPosition.x += speed.x * delayLeft.GetSeconds();
-    nextPosition.y += speed.y * delayLeft.GetSeconds();
+    nextPosition.x += velocity.x * delayLeft.GetSeconds();
+    nextPosition.y += velocity.y * delayLeft.GetSeconds();
     m_event.Cancel();
     if (m_bounds.IsInside(nextPosition))
     {
-        m_event =
-            Simulator::Schedule(delayLeft, &RandomWalk2dMobilityModel::DoInitializePrivate, this);
+        NS_LOG_INFO("Scheduling new velocity in " << delayLeft.As(Time::S));
+        m_event = Simulator::Schedule(delayLeft,
+                                      &RandomWalk2dMobilityModel::DrawRandomVelocityAndDistance,
+                                      this);
     }
     else
     {
-        nextPosition = m_bounds.CalculateIntersection(position, speed);
-        Time delay = Seconds((nextPosition.x - position.x) / speed.x);
+        nextPosition = m_bounds.CalculateIntersection(position, velocity);
+        double delaySeconds = std::numeric_limits<double>::max();
+        if (velocity.x != 0)
+        {
+            delaySeconds =
+                std::min(delaySeconds, std::abs((nextPosition.x - position.x) / velocity.x));
+        }
+        else if (velocity.y != 0)
+        {
+            delaySeconds =
+                std::min(delaySeconds, std::abs((nextPosition.y - position.y) / velocity.y));
+        }
+        else
+        {
+            NS_ABORT_MSG("RandomWalk2dMobilityModel::DoWalk: unable to calculate the rebound time "
+                         "(the node is stationary).");
+        }
+        Time delay = Seconds(delaySeconds);
+        NS_LOG_INFO("Scheduling a rebound event in " << (delayLeft - delay).As(Time::S));
         m_event = Simulator::Schedule(delay,
                                       &RandomWalk2dMobilityModel::Rebound,
                                       this,
@@ -134,25 +191,35 @@ RandomWalk2dMobilityModel::DoWalk(Time delayLeft)
     NotifyCourseChange();
 }
 
+// Set a velocity from the previous velocity, and start motion with remaining time
 void
 RandomWalk2dMobilityModel::Rebound(Time delayLeft)
 {
+    NS_LOG_FUNCTION(this << delayLeft.As(Time::S));
     m_helper.UpdateWithBounds(m_bounds);
     Vector position = m_helper.GetCurrentPosition();
-    Vector speed = m_helper.GetVelocity();
-    switch (m_bounds.GetClosestSide(position))
+    Vector velocity = m_helper.GetVelocity();
+    switch (m_bounds.GetClosestSideOrCorner(position))
     {
-    case Rectangle::RIGHT:
-    case Rectangle::LEFT:
-        speed.x = -speed.x;
+    case Rectangle::RIGHTSIDE:
+    case Rectangle::LEFTSIDE:
+        velocity.x = -velocity.x;
         break;
-    case Rectangle::TOP:
-    case Rectangle::BOTTOM:
-        speed.y = -speed.y;
+    case Rectangle::TOPSIDE:
+    case Rectangle::BOTTOMSIDE:
+        velocity.y = -velocity.y;
+        break;
+    case Rectangle::TOPRIGHTCORNER:
+    case Rectangle::BOTTOMRIGHTCORNER:
+    case Rectangle::TOPLEFTCORNER:
+    case Rectangle::BOTTOMLEFTCORNER:
+        velocity.x = -velocity.x;
+        velocity.y = -velocity.y;
         break;
     }
-    m_helper.SetVelocity(speed);
+    m_helper.SetVelocity(velocity);
     m_helper.Unpause();
+    NS_LOG_INFO("Rebounding with new velocity " << velocity);
     DoWalk(delayLeft);
 }
 
@@ -160,6 +227,7 @@ void
 RandomWalk2dMobilityModel::DoDispose()
 {
     // chain up
+    NS_LOG_FUNCTION(this);
     MobilityModel::DoDispose();
 }
 
@@ -173,10 +241,12 @@ RandomWalk2dMobilityModel::DoGetPosition() const
 void
 RandomWalk2dMobilityModel::DoSetPosition(const Vector& position)
 {
+    NS_LOG_FUNCTION(this << position);
     NS_ASSERT(m_bounds.IsInside(position));
     m_helper.SetPosition(position);
     m_event.Cancel();
-    m_event = Simulator::ScheduleNow(&RandomWalk2dMobilityModel::DoInitializePrivate, this);
+    m_event =
+        Simulator::ScheduleNow(&RandomWalk2dMobilityModel::DrawRandomVelocityAndDistance, this);
 }
 
 Vector
@@ -188,6 +258,7 @@ RandomWalk2dMobilityModel::DoGetVelocity() const
 int64_t
 RandomWalk2dMobilityModel::DoAssignStreams(int64_t stream)
 {
+    NS_LOG_FUNCTION(this << stream);
     m_speed->SetStream(stream);
     m_direction->SetStream(stream + 1);
     return 2;

@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2010 Network Security Lab, University of Washington, Seattle.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Sidharth Nabar <snabar@uw.edu>, He Wu <mdzz@u.washington.edu>
  *
@@ -26,8 +15,8 @@
 #define ENERGY_SOURCE_H
 
 #include "device-energy-model-container.h" // #include "device-energy-model.h"
+#include "energy-harvester.h"
 
-#include "ns3/energy-harvester.h"
 #include "ns3/node.h"
 #include "ns3/object.h"
 #include "ns3/ptr.h"
@@ -35,21 +24,25 @@
 
 namespace ns3
 {
+namespace energy
+{
+
+class EnergyHarvester;
 
 /**
- * \defgroup energy Energy Models
+ * @defgroup energy Energy Models
  */
 
 /**
- * \ingroup energy
- * \ingroup tests
- * \defgroup energy-tests Energy module tests
+ * @ingroup energy
+ * @ingroup tests
+ * @defgroup energy-tests Energy module tests
  */
 
 /**
- * \ingroup energy
+ * @ingroup energy
  *
- * \brief Energy source base class.
+ * @brief Energy source base class.
  *
  * This is the base class for energy sources. Energy sources keep track of
  * remaining energy. Device energy models will be updating the remaining energy
@@ -80,22 +73,19 @@ namespace ns3
  * energy in different units (eg. kWh), a simple converter function should
  * suffice.
  */
-
-class EnergyHarvester;
-
 class EnergySource : public Object
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return The object TypeId.
+     * @brief Get the type ID.
+     * @return The object TypeId.
      */
     static TypeId GetTypeId();
     EnergySource();
     ~EnergySource() override;
 
     /**
-     * \returns Supply voltage of the energy source.
+     * @returns Supply voltage of the energy source.
      *
      * Set method is to be defined in child class only if necessary. For sources
      * with a fixed supply voltage, set method is not needed.
@@ -103,7 +93,7 @@ class EnergySource : public Object
     virtual double GetSupplyVoltage() const = 0;
 
     /**
-     * \returns Initial energy (capacity) of the energy source.
+     * @returns Initial energy (capacity) of the energy source.
      *
      * Set method is to be defined in child class only if necessary. For sources
      * with a fixed initial energy (energy capacity), set method is not needed.
@@ -111,12 +101,12 @@ class EnergySource : public Object
     virtual double GetInitialEnergy() const = 0;
 
     /**
-     * \returns Remaining energy at the energy source.
+     * @returns Remaining energy at the energy source.
      */
     virtual double GetRemainingEnergy() = 0;
 
     /**
-     * \return Energy fraction = remaining energy / initial energy [0, 1]
+     * @return Energy fraction = remaining energy / initial energy [0, 1]
      *
      * This function returns the percentage of energy left in the energy source.
      */
@@ -130,14 +120,14 @@ class EnergySource : public Object
     virtual void UpdateEnergySource() = 0;
 
     /**
-     * \brief Sets pointer to node containing this EnergySource.
+     * @brief Sets pointer to node containing this EnergySource.
      *
-     * \param node Pointer to node containing this EnergySource.
+     * @param node Pointer to node containing this EnergySource.
      */
     void SetNode(Ptr<Node> node);
 
     /**
-     * \returns Pointer to node containing this EnergySource.
+     * @returns Pointer to node containing this EnergySource.
      *
      * When a subclass needs to get access to the underlying node base class to
      * print the nodeId for example, it can invoke this method.
@@ -145,7 +135,7 @@ class EnergySource : public Object
     Ptr<Node> GetNode() const;
 
     /**
-     * \param deviceEnergyModelPtr Pointer to device energy model.
+     * @param deviceEnergyModelPtr Pointer to device energy model.
      *
      * This function appends a device energy model to the end of a list of
      * DeviceEnergyModelInfo structs.
@@ -153,14 +143,14 @@ class EnergySource : public Object
     void AppendDeviceEnergyModel(Ptr<DeviceEnergyModel> deviceEnergyModelPtr);
 
     /**
-     * \param tid TypeId of the DeviceEnergyModel we are searching for.
-     * \returns List of pointers to DeviceEnergyModel objects installed on node.
+     * @param tid TypeId of the DeviceEnergyModel we are searching for.
+     * @returns List of pointers to DeviceEnergyModel objects installed on node.
      */
     DeviceEnergyModelContainer FindDeviceEnergyModels(TypeId tid);
 
     /**
-     * \param name name of the DeviceEnergyModel we are searching for.
-     * \returns List of pointers to DeviceEnergyModel objects installed on node.
+     * @param name name of the DeviceEnergyModel we are searching for.
+     * @returns List of pointers to DeviceEnergyModel objects installed on node.
      */
     DeviceEnergyModelContainer FindDeviceEnergyModels(std::string name);
 
@@ -179,7 +169,7 @@ class EnergySource : public Object
     void DisposeDeviceModels();
 
     /**
-     * \param energyHarvesterPtr Pointer to energy harvester.
+     * @param energyHarvesterPtr Pointer to energy harvester.
      *
      * This function connect an energy harvester to the energy source. After the
      * execution of this method, the pointer to the energy harvester is appended
@@ -219,7 +209,7 @@ class EnergySource : public Object
 
   protected:
     /**
-     * \returns Total current draw from all DeviceEnergyModels.
+     * @returns Total current draw from all DeviceEnergyModels.
      */
     double CalculateTotalCurrent();
 
@@ -253,6 +243,7 @@ class EnergySource : public Object
     void BreakDeviceEnergyModelRefCycle();
 };
 
+} // namespace energy
 } // namespace ns3
 
 #endif /* ENERGY_SOURCE_H */

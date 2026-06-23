@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2007 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #include "ns3/drop-tail-queue.h"
@@ -22,8 +11,8 @@
 using namespace ns3;
 
 /**
- * \ingroup network-test
- * \ingroup tests
+ * @ingroup network-test
+ * @ingroup tests
  *
  * DropTailQueue unit tests.
  */
@@ -88,18 +77,18 @@ DropTailQueueTestCase::DoRun()
 }
 
 /**
- * \ingroup network-test
- * \ingroup tests
+ * @ingroup network-test
+ * @ingroup tests
  *
- * \brief DropTail Queue TestSuite
+ * @brief DropTail Queue TestSuite
  */
 class DropTailQueueTestSuite : public TestSuite
 {
   public:
     DropTailQueueTestSuite()
-        : TestSuite("drop-tail-queue", UNIT)
+        : TestSuite("drop-tail-queue", Type::UNIT)
     {
-        AddTestCase(new DropTailQueueTestCase(), TestCase::QUICK);
+        AddTestCase(new DropTailQueueTestCase(), TestCase::Duration::QUICK);
     }
 };
 

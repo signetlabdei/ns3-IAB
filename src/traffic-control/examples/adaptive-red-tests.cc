@@ -1,19 +1,7 @@
-
 /*
  * Copyright (c) 2015 NITK Surathkal
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mohit P. Tahiliani <tahiliani@nitk.edu.in>
  *
@@ -104,7 +92,7 @@ std::stringstream filePlotQueueDiscAvg; //!< Output file name for queue disc ave
 /**
  * Check the queue disc size and write its stats to the output files.
  *
- * \param queue The queue to check.
+ * @param queue The queue to check.
  */
 void
 CheckQueueDiscSize(Ptr<QueueDisc> queue)
@@ -130,7 +118,7 @@ CheckQueueDiscSize(Ptr<QueueDisc> queue)
 /**
  * Setup the apps.
  *
- * \param test The test number.
+ * @param test The test number.
  */
 void
 BuildAppsTest(uint32_t test)
@@ -509,10 +497,8 @@ main(int argc, char* argv[])
 
     if (writeForPlot)
     {
-        filePlotQueueDisc << pathOut << "/"
-                          << "ared-queue-disc.plotme";
-        filePlotQueueDiscAvg << pathOut << "/"
-                             << "ared-queue-disc_avg.plotme";
+        filePlotQueueDisc << pathOut << "/ared-queue-disc.plotme";
+        filePlotQueueDiscAvg << pathOut << "/ared-queue-disc_avg.plotme";
 
         remove(filePlotQueueDisc.str().c_str());
         remove(filePlotQueueDiscAvg.str().c_str());

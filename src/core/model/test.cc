@@ -1,29 +1,24 @@
 /*
  * Copyright (c) 2009 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #include "test.h"
 
-#include "abort.h"
 #include "assert.h"
-#include "des-metrics.h"
+#include "config.h"
+#include "fatal-error.h"
 #include "log.h"
+#include "rng-seed-manager.h"
 #include "singleton.h"
 #include "system-path.h"
 
+#ifdef ENABLE_DES_METRICS
+#include "des-metrics.h"
+#endif
+
+#include <algorithm>
 #include <cmath>
 #include <cstring>
 #include <list>
@@ -31,9 +26,9 @@
 #include <vector>
 
 /**
- * \file
- * \ingroup testing
- * \brief ns3::TestCase, ns3::TestSuite, ns3::TestRunner implementations,
+ * @file
+ * @ingroup testing
+ * @brief ns3::TestCase, ns3::TestSuite, ns3::TestRunner implementations,
  */
 
 namespace ns3
@@ -63,15 +58,11 @@ TestDoubleIsEqual(const double x1, const double x2, const double epsilon)
     delta = std::ldexp(epsilon, exponent);
     difference = x1 - x2;
 
-    if (difference > delta || difference < -delta)
-    {
-        return false;
-    }
-    return true;
+    return difference <= delta && difference >= -delta;
 }
 
 /**
- * \ingroup testingimpl
+ * @ingroup testingimpl
  * Container for details of a test failure.
  */
 struct TestCaseFailure
@@ -79,12 +70,12 @@ struct TestCaseFailure
     /**
      * Constructor.
      *
-     * \param [in] _cond    The name of the condition being tested.
-     * \param [in] _actual  The actual value returned by the test.
-     * \param [in] _limit   The expected value.
-     * \param [in] _message The associated message.
-     * \param [in] _file    The source file.
-     * \param [in] _line    The source line.
+     * @param [in] _cond    The name of the condition being tested.
+     * @param [in] _actual  The actual value returned by the test.
+     * @param [in] _limit   The expected value.
+     * @param [in] _message The associated message.
+     * @param [in] _file    The source file.
+     * @param [in] _line    The source line.
      */
     TestCaseFailure(std::string _cond,
                     std::string _actual,
@@ -103,9 +94,9 @@ struct TestCaseFailure
 /**
  * Output streamer for TestCaseFailure.
  *
- * \param [in,out] os The output stream.
- * \param [in] failure The TestCaseFailure to print.
- * \returns The stream.
+ * @param [in,out] os The output stream.
+ * @param [in] failure The TestCaseFailure to print.
+ * @returns The stream.
  */
 std::ostream&
 operator<<(std::ostream& os, const TestCaseFailure& failure)
@@ -118,7 +109,7 @@ operator<<(std::ostream& os, const TestCaseFailure& failure)
 }
 
 /**
- * \ingroup testingimpl
+ * @ingroup testingimpl
  * Container for results from a TestCase.
  */
 struct TestCase::Result
@@ -135,9 +126,9 @@ struct TestCase::Result
 };
 
 /**
- * \ingroup testingimpl
+ * @ingroup testingimpl
  * Container for all tests.
- * \todo Move TestRunnerImpl to separate file.
+ * @todo Move TestRunnerImpl to separate file.
  */
 class TestRunnerImpl : public Singleton<TestRunnerImpl>
 {
@@ -147,16 +138,16 @@ class TestRunnerImpl : public Singleton<TestRunnerImpl>
 
     /**
      * Add a new top-level TestSuite.
-     * \param [in] testSuite The new TestSuite.
+     * @param [in] testSuite The new TestSuite.
      */
     void AddTestSuite(TestSuite* testSuite);
-    /** \copydoc TestCase::MustAssertOnFailure() */
+    /** @copydoc TestCase::MustAssertOnFailure() */
     bool MustAssertOnFailure() const;
-    /** \copydoc TestCase::MustContinueOnFailure() */
+    /** @copydoc TestCase::MustContinueOnFailure() */
     bool MustContinueOnFailure() const;
     /**
      * Check if this run should update the reference data.
-     * \return \c true if we should update the reference data.
+     * @return \c true if we should update the reference data.
      */
     bool MustUpdateData() const;
     /**
@@ -165,22 +156,22 @@ class TestRunnerImpl : public Singleton<TestRunnerImpl>
      * The root directory is defined by the presence of two files:
      * "VERSION" and "LICENSE".
      *
-     * \returns The path to the root.
+     * @returns The path to the root.
      */
     std::string GetTopLevelSourceDir() const;
     /**
      * Get the path to temporary directory.
-     * \return The temporary directory path.
+     * @return The temporary directory path.
      */
     std::string GetTempDir() const;
-    /** \copydoc TestRunner::Run() */
+    /** @copydoc TestRunner::Run() */
     int Run(int argc, char* argv[]);
 
   private:
     /**
      * Check if this is the root of the source tree.
-     * \param [in] path The path to test.
-     * \returns \c true if \pname{path} is the root.
+     * @param [in] path The path to test.
+     * @returns \c true if \pname{path} is the root.
      */
     bool IsTopLevelSourceDir(std::string path) const;
     /**
@@ -199,25 +190,25 @@ class TestRunnerImpl : public Singleton<TestRunnerImpl>
      *    '"'        | "&39;"
      *    '\'        | "&quot;"
      *
-     * \param [in] xml The raw string.
-     * \returns The sanitized string.
+     * @param [in] xml The raw string.
+     * @returns The sanitized string.
      */
     std::string ReplaceXmlSpecialCharacters(std::string xml) const;
     /**
      * Print the test report.
      *
-     * \param [in] test The TestCase to print.
-     * \param [in,out] os The output stream.
-     * \param [in] xml Generate XML output if \c true.
-     * \param [in] level Indentation level.
+     * @param [in] test The TestCase to print.
+     * @param [in,out] os The output stream.
+     * @param [in] xml Generate XML output if \c true.
+     * @param [in] level Indentation level.
      */
     void PrintReport(TestCase* test, std::ostream* os, bool xml, int level);
     /**
      * Print the list of all requested test suites.
      *
-     * \param [in] begin Iterator to the first TestCase to print.
-     * \param [in] end Iterator to the end of the list.
-     * \param [in] printTestType Prepend the test type label if \c true.
+     * @param [in] begin Iterator to the first TestCase to print.
+     * @param [in] end Iterator to the end of the list.
+     * @param [in] printTestType Prepend the test type label if \c true.
      */
     void PrintTestNameList(std::list<TestCase*>::const_iterator begin,
                            std::list<TestCase*>::const_iterator end,
@@ -226,7 +217,7 @@ class TestRunnerImpl : public Singleton<TestRunnerImpl>
     void PrintTestTypeList() const;
     /**
      * Print the help text.
-     * \param [in] programName The name of the invoking program.
+     * @param [in] programName The name of the invoking program.
      */
     void PrintHelp(const char* programName) const;
     /**
@@ -235,14 +226,14 @@ class TestRunnerImpl : public Singleton<TestRunnerImpl>
      * Test name and type constraints are or'ed.  The duration constraint
      * is and'ed.
      *
-     * \param [in] testName Include a specific test by name.
-     * \param [in] testType Include all tests of give type.
-     * \param [in] maximumTestDuration Restrict to tests shorter than this.
-     * \returns The list of tests matching the filter constraints.
+     * @param [in] testName Include a specific test by name.
+     * @param [in] testType Include all tests of give type.
+     * @param [in] filteredTestDuration Restrict tests that match these durations.
+     * @returns The list of tests matching the filter constraints.
      */
     std::list<TestCase*> FilterTests(std::string testName,
-                                     enum TestSuite::Type testType,
-                                     enum TestCase::TestDuration maximumTestDuration);
+                                     TestSuite::Type testType,
+                                     std::vector<TestCase::Duration> filteredTestDuration);
 
     /** Container type for the test. */
     typedef std::vector<TestSuite*> TestSuiteVector;
@@ -283,7 +274,7 @@ TestCase::TestCase(std::string name)
       m_runner(nullptr),
       m_result(nullptr),
       m_name(name),
-      m_duration(TestCase::QUICK)
+      m_duration(TestCase::Duration::QUICK)
 {
     NS_LOG_FUNCTION(this << name);
 }
@@ -294,7 +285,7 @@ TestCase::~TestCase()
     NS_ASSERT(m_runner == nullptr);
     m_parent = nullptr;
     delete m_result;
-    for (std::vector<TestCase*>::const_iterator i = m_children.begin(); i != m_children.end(); ++i)
+    for (auto i = m_children.begin(); i != m_children.end(); ++i)
     {
         delete *i;
     }
@@ -302,7 +293,7 @@ TestCase::~TestCase()
 }
 
 void
-TestCase::AddTestCase(TestCase* testCase, enum TestCase::TestDuration duration)
+TestCase::AddTestCase(TestCase* testCase, TestCase::Duration duration)
 {
     NS_LOG_FUNCTION(&testCase << duration);
 
@@ -355,10 +346,12 @@ TestCase::Run(TestRunnerImpl* runner)
     NS_LOG_FUNCTION(this << runner);
     m_result = new Result();
     m_runner = runner;
+    Config::Reset();
     DoSetup();
     m_result->clock.Start();
-    for (std::vector<TestCase*>::const_iterator i = m_children.begin(); i != m_children.end(); ++i)
+    for (auto i = m_children.begin(); i != m_children.end(); ++i)
     {
+        RngSeedManager::ResetNextStreamIndex();
         TestCase* test = *i;
         test->Run(runner);
         if (IsFailed())
@@ -370,6 +363,7 @@ TestCase::Run(TestRunnerImpl* runner)
 out:
     m_result->clock.End();
     DoTeardown();
+    Config::Reset();
     m_runner = nullptr;
 }
 
@@ -575,7 +569,7 @@ TestRunnerImpl::IsTopLevelSourceDir(std::string path) const
     //
 
     std::list<std::string> files = SystemPath::ReadFiles(path);
-    for (std::list<std::string>::const_iterator i = files.begin(); i != files.end(); ++i)
+    for (auto i = files.begin(); i != files.end(); ++i)
     {
         if (*i == "VERSION")
         {
@@ -633,7 +627,7 @@ TestRunnerImpl::ReplaceXmlSpecialCharacters(std::string xml) const
     {
         char character = xml[i];
 
-        specials_map::const_iterator it = specials.find(character);
+        auto it = specials.find(character);
 
         if (it == specials.end())
         {
@@ -652,7 +646,7 @@ struct Indent
 {
     /**
      * Constructor.
-     * \param [in] level The number of steps.  A step is "  ".
+     * @param [in] level The number of steps.  A step is "  ".
      */
     Indent(int level);
     /** The number of steps. */
@@ -667,9 +661,9 @@ Indent::Indent(int _level)
 
 /**
  * Output streamer for Indent.
- * \param [in,out] os The output stream.
- * \param [in] val The Indent object.
- * \returns The stream.
+ * @param [in,out] os The output stream.
+ * @param [in] val The Indent object.
+ * @returns The stream.
  */
 std::ostream&
 operator<<(std::ostream& os, const Indent& val)
@@ -762,34 +756,40 @@ TestRunnerImpl::PrintHelp(const char* program_name) const
         << "Usage: " << program_name << " [OPTIONS]" << std::endl
         << std::endl
         << "Options: " << std::endl
-        << "  --help                 : print these options" << std::endl
-        << "  --print-test-name-list : print the list of names of tests available" << std::endl
-        << "  --list                 : an alias for --print-test-name-list" << std::endl
-        << "  --print-test-types     : print the type of tests along with their names" << std::endl
-        << "  --print-test-type-list : print the list of types of tests available" << std::endl
-        << "  --print-temp-dir       : print name of temporary directory before running "
+        << "  --help                   : print these options" << std::endl
+        << "  --print-test-name-list   : print the list of names of tests available" << std::endl
+        << "  --list                   : an alias for --print-test-name-list" << std::endl
+        << "  --print-test-types       : print the type of tests along with their names"
         << std::endl
-        << "                           the tests" << std::endl
-        << "  --test-type=TYPE       : process only tests of type TYPE" << std::endl
-        << "  --test-name=NAME       : process only test whose name matches NAME" << std::endl
-        << "  --suite=NAME           : an alias (here for compatibility reasons only) " << std::endl
-        << "                           for --test-name=NAME" << std::endl
-        << "  --assert-on-failure    : when a test fails, crash immediately (useful" << std::endl
-        << "                           when running under a debugger" << std::endl
-        << "  --stop-on-failure      : when a test fails, stop immediately" << std::endl
-        << "  --fullness=FULLNESS    : choose the duration of tests to run: QUICK, " << std::endl
-        << "                           EXTENSIVE, or TAKES_FOREVER, where EXTENSIVE " << std::endl
-        << "                           includes QUICK and TAKES_FOREVER includes " << std::endl
-        << "                           QUICK and EXTENSIVE (only QUICK tests are " << std::endl
-        << "                           run by default)" << std::endl
-        << "  --verbose              : print details of test execution" << std::endl
-        << "  --xml                  : format test run output as xml" << std::endl
-        << "  --tempdir=DIR          : set temp dir for tests to store output files" << std::endl
-        << "  --datadir=DIR          : set data dir for tests to read reference files" << std::endl
-        << "  --out=FILE             : send test result to FILE instead of standard "
-        << "output" << std::endl
-        << "  --append=FILE          : append test result to FILE instead of standard "
-        << "output" << std::endl;
+        << "  --print-test-type-list   : print the list of types of tests available" << std::endl
+        << "  --print-temp-dir         : print name of temporary directory before running "
+        << std::endl
+        << "                             the tests" << std::endl
+        << "  --test-type=TYPE         : process only tests of type TYPE" << std::endl
+        << "  --test-name=NAME         : process only test whose name matches NAME" << std::endl
+        << "  --suite=NAME             : an alias (here for compatibility reasons only) "
+        << std::endl
+        << "                             for --test-name=NAME" << std::endl
+        << "  --assert-on-failure      : when a test fails, crash immediately (useful" << std::endl
+        << "                             when running under a debugger" << std::endl
+        << "  --stop-on-failure        : when a test fails, stop immediately" << std::endl
+        << "  --fullness=FULLNESS      : choose the duration of tests to run: QUICK, " << std::endl
+        << "                             EXTENSIVE, or TAKES_FOREVER, where EXTENSIVE " << std::endl
+        << "                             includes QUICK and TAKES_FOREVER includes " << std::endl
+        << "                             QUICK and EXTENSIVE (only QUICK tests are " << std::endl
+        << "                             run by default)" << std::endl
+        << "  --only-fullness=FULLNESS : choose the duration of tests to run: QUICK, " << std::endl
+        << "                             EXTENSIVE, TAKES_FOREVER (only tests marked " << std::endl
+        << "                             with fullness will be executed)" << std::endl
+        << "  --verbose                : print details of test execution" << std::endl
+        << "  --xml                    : format test run output as xml" << std::endl
+        << "  --tempdir=DIR            : set temp dir for tests to store output files" << std::endl
+        << "  --datadir=DIR            : set data dir for tests to read reference files"
+        << std::endl
+        << "  --out=FILE               : send test result to FILE instead of standard output"
+        << std::endl
+        << "  --append=FILE            : append test result to FILE instead of standard output"
+        << std::endl;
 }
 
 void
@@ -800,15 +800,15 @@ TestRunnerImpl::PrintTestNameList(std::list<TestCase*>::const_iterator begin,
     NS_LOG_FUNCTION(this << &begin << &end << printTestType);
     std::map<TestSuite::Type, std::string> label;
 
-    label[TestSuite::ALL] = "all          ";
-    label[TestSuite::UNIT] = "unit         ";
-    label[TestSuite::SYSTEM] = "system       ";
-    label[TestSuite::EXAMPLE] = "example      ";
-    label[TestSuite::PERFORMANCE] = "performance  ";
+    label[TestSuite::Type::ALL] = "all                  ";
+    label[TestSuite::Type::UNIT] = "unit                 ";
+    label[TestSuite::Type::SYSTEM] = "system               ";
+    label[TestSuite::Type::EXAMPLE] = "example-as-test      ";
+    label[TestSuite::Type::PERFORMANCE] = "performance          ";
 
-    for (std::list<TestCase*>::const_iterator i = begin; i != end; ++i)
+    for (auto i = begin; i != end; ++i)
     {
-        TestSuite* test = dynamic_cast<TestSuite*>(*i);
+        auto test = dynamic_cast<TestSuite*>(*i);
         NS_ASSERT(test != nullptr);
         if (printTestType)
         {
@@ -822,29 +822,31 @@ void
 TestRunnerImpl::PrintTestTypeList() const
 {
     NS_LOG_FUNCTION(this);
-    std::cout << "  core:        Run all TestSuite-based tests (exclude examples)" << std::endl;
-    std::cout << "  example:     Examples (to see if example programs run successfully)"
-              << std::endl;
-    std::cout
-        << "  performance: Performance Tests (check to see if the system is as fast as expected)"
-        << std::endl;
-    std::cout << "  system:      System Tests (spans modules to check integration of modules)"
-              << std::endl;
-    std::cout << "  unit:        Unit Tests (within modules to check basic functionality)"
+    std::cout << "  core:            Run all TestSuite-based tests (exclude examples)" << std::endl
+              << "  example:         Examples (to see if example programs run successfully)"
+              << std::endl
+              << "  example-as-test: Examples (which are tested against reference outputs)"
+              << std::endl
+              << "  performance:     Performance Tests (check to see if the system is as fast as "
+                 "expected)"
+              << std::endl
+              << "  system:          System Tests (spans modules to check integration of modules)"
+              << std::endl
+              << "  unit:            Unit Tests (within modules to check basic functionality)"
               << std::endl;
 }
 
 std::list<TestCase*>
 TestRunnerImpl::FilterTests(std::string testName,
-                            enum TestSuite::Type testType,
-                            enum TestCase::TestDuration maximumTestDuration)
+                            TestSuite::Type testType,
+                            std::vector<TestCase::Duration> filteredTestDuration)
 {
     NS_LOG_FUNCTION(this << testName << testType);
     std::list<TestCase*> tests;
     for (uint32_t i = 0; i < m_suites.size(); ++i)
     {
         TestSuite* test = m_suites[i];
-        if (testType != TestSuite::ALL && test->GetTestType() != testType)
+        if (testType != TestSuite::Type::ALL && test->GetTestType() != testType)
         {
             // skip test
             continue;
@@ -856,14 +858,16 @@ TestRunnerImpl::FilterTests(std::string testName,
         }
 
         // Remove any test cases that should be skipped.
-        std::vector<TestCase*>::iterator j;
-        for (j = test->m_children.begin(); j != test->m_children.end();)
+        for (auto j = test->m_children.begin(); j != test->m_children.end();)
         {
             TestCase* testCase = *j;
 
             // If this test case takes longer than the maximum test
             // duration that should be run, then don't run it.
-            if (testCase->m_duration > maximumTestDuration)
+            auto it = std::find(filteredTestDuration.begin(),
+                                filteredTestDuration.end(),
+                                testCase->m_duration);
+            if (it == filteredTestDuration.end())
             {
                 // Free this test case's memory.
                 delete *j;
@@ -893,13 +897,14 @@ TestRunnerImpl::Run(int argc, char* argv[])
     std::string testTypeString = "";
     std::string out = "";
     std::string fullness = "";
+    std::string onlyFullness = "";
     bool xml = false;
     bool append = false;
     bool printTempDir = false;
     bool printTestTypeList = false;
     bool printTestNameList = false;
     bool printTestTypeAndName = false;
-    enum TestCase::TestDuration maximumTestDuration = TestCase::QUICK;
+    std::vector<TestCase::Duration> filteredTestDuration{TestCase::Duration::QUICK};
     char* progname = argv[0];
 
     char** argi = argv;
@@ -929,11 +934,6 @@ TestRunnerImpl::Run(int argc, char* argv[])
         {
             m_updateData = true;
         }
-        else if (arg == "--help")
-        {
-            PrintHelp(progname);
-            return 0;
-        }
         else if (arg == "--print-test-name-list" || arg == "--list")
         {
             printTestNameList = true;
@@ -958,11 +958,8 @@ TestRunnerImpl::Run(int argc, char* argv[])
         {
             testTypeString = arg.substr(arg.find_first_of('=') + 1);
         }
-        else if (arg.find("--test-name=") != std::string::npos)
-        {
-            testName = arg.substr(arg.find_first_of('=') + 1);
-        }
-        else if (arg.find("--suite=") != std::string::npos)
+        else if (arg.find("--test-name=") != std::string::npos ||
+                 arg.find("--suite=") != std::string::npos)
         {
             testName = arg.substr(arg.find_first_of('=') + 1);
         }
@@ -981,15 +978,17 @@ TestRunnerImpl::Run(int argc, char* argv[])
             // Set the maximum test length allowed.
             if (fullness == "QUICK")
             {
-                maximumTestDuration = TestCase::QUICK;
+                filteredTestDuration = {TestCase::Duration::QUICK};
             }
             else if (fullness == "EXTENSIVE")
             {
-                maximumTestDuration = TestCase::EXTENSIVE;
+                filteredTestDuration = {TestCase::Duration::QUICK, TestCase::Duration::EXTENSIVE};
             }
             else if (fullness == "TAKES_FOREVER")
             {
-                maximumTestDuration = TestCase::TAKES_FOREVER;
+                filteredTestDuration = {TestCase::Duration::QUICK,
+                                        TestCase::Duration::EXTENSIVE,
+                                        TestCase::Duration::TAKES_FOREVER};
             }
             else
             {
@@ -998,38 +997,58 @@ TestRunnerImpl::Run(int argc, char* argv[])
                 return 3;
             }
         }
+        else if (arg.find("--only-fullness=") != std::string::npos)
+        {
+            onlyFullness = arg.substr(arg.find_first_of('=') + 1);
+
+            // Set the maximum test length allowed.
+            if (onlyFullness == "QUICK")
+            {
+                filteredTestDuration = {TestCase::Duration::QUICK};
+            }
+            else if (onlyFullness == "EXTENSIVE")
+            {
+                filteredTestDuration = {TestCase::Duration::EXTENSIVE};
+            }
+            else if (onlyFullness == "TAKES_FOREVER")
+            {
+                filteredTestDuration = {TestCase::Duration::TAKES_FOREVER};
+            }
+            else
+            {
+                // Wrong fullness option
+                PrintHelp(progname);
+                return 4;
+            }
+        }
         else
         {
-            // un-recognized command-line argument
+            // Print the help if arg == "--help" or arg is an un-recognized command-line argument
             PrintHelp(progname);
             return 0;
         }
         argi++;
     }
-    enum TestSuite::Type testType;
-    if (testTypeString.empty())
+    TestSuite::Type testType;
+    if (testTypeString.empty() || testTypeString == "core")
     {
-        testType = TestSuite::ALL;
-    }
-    else if (testTypeString == "core")
-    {
-        testType = TestSuite::ALL;
+        testType = TestSuite::Type::ALL;
     }
     else if (testTypeString == "example")
     {
-        testType = TestSuite::EXAMPLE;
+        testType = TestSuite::Type::EXAMPLE;
     }
     else if (testTypeString == "unit")
     {
-        testType = TestSuite::UNIT;
+        testType = TestSuite::Type::UNIT;
     }
     else if (testTypeString == "system")
     {
-        testType = TestSuite::SYSTEM;
+        testType = TestSuite::Type::SYSTEM;
     }
     else if (testTypeString == "performance")
     {
-        testType = TestSuite::PERFORMANCE;
+        testType = TestSuite::Type::PERFORMANCE;
     }
     else
     {
@@ -1038,7 +1057,15 @@ TestRunnerImpl::Run(int argc, char* argv[])
         return 1;
     }
 
-    std::list<TestCase*> tests = FilterTests(testName, testType, maximumTestDuration);
+    if (!fullness.empty() && !onlyFullness.empty())
+    {
+        std::cout << "Invalid simultaneous use of '--fullness' and '--only-fullness'. "
+                  << "Use only one of them." << std::endl;
+        PrintHelp(progname);
+        return 5;
+    }
+
+    std::list<TestCase*> tests = FilterTests(testName, testType, filteredTestDuration);
 
     if (m_tempDir.empty())
     {
@@ -1094,7 +1121,7 @@ TestRunnerImpl::Run(int argc, char* argv[])
         return 1;
     }
 
-    for (std::list<TestCase*>::const_iterator i = tests.begin(); i != tests.end(); ++i)
+    for (auto i = tests.begin(); i != tests.end(); ++i)
     {
         TestCase* test = *i;
 
@@ -1147,6 +1174,40 @@ TestRunner::Run(int argc, char* argv[])
 {
     NS_LOG_FUNCTION(argc << argv);
     return TestRunnerImpl::Get()->Run(argc, argv);
+}
+
+std::ostream&
+operator<<(std::ostream& os, TestSuite::Type type)
+{
+    switch (type)
+    {
+    case TestSuite::Type::ALL:
+        return os << "ALL";
+    case TestSuite::Type::UNIT:
+        return os << "UNIT";
+    case TestSuite::Type::SYSTEM:
+        return os << "SYSTEM";
+    case TestSuite::Type::EXAMPLE:
+        return os << "EXAMPLE";
+    case TestSuite::Type::PERFORMANCE:
+        return os << "PERFORMANCE";
+    };
+    return os << "UNKNOWN(" << static_cast<uint32_t>(type) << ")";
+}
+
+std::ostream&
+operator<<(std::ostream& os, TestCase::Duration duration)
+{
+    switch (duration)
+    {
+    case TestCase::Duration::QUICK:
+        return os << "QUICK";
+    case TestCase::Duration::EXTENSIVE:
+        return os << "EXTENSIVE";
+    case TestCase::Duration::TAKES_FOREVER:
+        return os << "TAKES_FOREVER";
+    };
+    return os << "UNKNOWN(" << static_cast<uint32_t>(duration) << ")";
 }
 
 } // namespace ns3

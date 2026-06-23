@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2015 Natale Patriciello <natale.patriciello@gmail.com>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  */
 
@@ -27,16 +16,16 @@ using namespace ns3;
 NS_LOG_COMPONENT_DEFINE("TcpZeroWindowTestSuite");
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief Testing the congestion avoidance increment on TCP ZeroWindow
+ * @brief Testing the congestion avoidance increment on TCP ZeroWindow
  */
 class TcpZeroWindowTest : public TcpGeneralTest
 {
   public:
     /**
-     * \brief Constructor.
-     * \param desc Test description.
+     * @brief Constructor.
+     * @param desc Test description.
      */
     TcpZeroWindowTest(const std::string& desc);
 
@@ -56,7 +45,7 @@ class TcpZeroWindowTest : public TcpGeneralTest
     void ConfigureProperties() override;
 
     /**
-     * \brief Increase the receiver buffer size.
+     * @brief Increase the receiver buffer size.
      */
     void IncreaseBufSize();
 
@@ -83,7 +72,7 @@ TcpZeroWindowTest::ConfigureEnvironment()
     TcpGeneralTest::ConfigureEnvironment();
     SetAppPktCount(20);
     SetMTU(500);
-    SetTransmitStart(Seconds(2.0));
+    SetTransmitStart(Seconds(2));
     SetPropagationDelay(MilliSeconds(50));
 }
 
@@ -106,7 +95,7 @@ TcpZeroWindowTest::CreateReceiverSocket(Ptr<Node> node)
     Ptr<TcpSocketMsgBase> socket = TcpGeneralTest::CreateReceiverSocket(node);
 
     socket->SetAttribute("RcvBufSize", UintegerValue(0));
-    Simulator::Schedule(Seconds(10.0), &TcpZeroWindowTest::IncreaseBufSize, this);
+    Simulator::Schedule(Seconds(10), &TcpZeroWindowTest::IncreaseBufSize, this);
 
     return socket;
 }
@@ -236,7 +225,7 @@ TcpZeroWindowTest::ProcessedAck(const Ptr<const TcpSocketState> tcb,
         if (h.GetFlags() & TcpHeader::SYN)
         {
             EventId persistentEvent = GetPersistentEvent(SENDER);
-            NS_TEST_ASSERT_MSG_EQ(persistentEvent.IsRunning(),
+            NS_TEST_ASSERT_MSG_EQ(persistentEvent.IsPending(),
                                   true,
                                   "Persistent event not started");
         }
@@ -247,17 +236,17 @@ TcpZeroWindowTest::ProcessedAck(const Ptr<const TcpSocketState> tcb,
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief TCP ZeroWindow TestSuite
+ * @brief TCP ZeroWindow TestSuite
  */
 class TcpZeroWindowTestSuite : public TestSuite
 {
   public:
     TcpZeroWindowTestSuite()
-        : TestSuite("tcp-zero-window-test", UNIT)
+        : TestSuite("tcp-zero-window-test", Type::UNIT)
     {
-        AddTestCase(new TcpZeroWindowTest("zero window test"), TestCase::QUICK);
+        AddTestCase(new TcpZeroWindowTest("zero window test"), TestCase::Duration::QUICK);
     }
 };
 

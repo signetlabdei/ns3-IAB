@@ -2,18 +2,7 @@
  * Copyright (c) 2007 INRIA
  * Copyright (c) 2011 The Boeing Company
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  */
 
@@ -35,87 +24,41 @@ NS_LOG_COMPONENT_DEFINE("Mac16Address");
 
 ATTRIBUTE_HELPER_CPP(Mac16Address);
 
-#define ASCII_a (0x41)
-#define ASCII_z (0x5a)
-#define ASCII_A (0x61)
-#define ASCII_Z (0x7a)
-#define ASCII_COLON (0x3a)
-#define ASCII_ZERO (0x30)
-
-/**
- * Converts a char to lower case.
- * \param c the char
- * \returns the lower case
- */
-static char
-AsciiToLowCase(char c)
-{
-    if (c >= ASCII_a && c <= ASCII_z)
-    {
-        return c;
-    }
-    else if (c >= ASCII_A && c <= ASCII_Z)
-    {
-        return c + (ASCII_a - ASCII_A);
-    }
-    else
-    {
-        return c;
-    }
-}
-
 uint64_t Mac16Address::m_allocationIndex = 0;
-
-Mac16Address::Mac16Address()
-{
-    NS_LOG_FUNCTION(this);
-    memset(m_address, 0, 2);
-}
 
 Mac16Address::Mac16Address(const char* str)
 {
     NS_LOG_FUNCTION(this << str);
-    int i = 0;
-    while (*str != 0 && i < 2)
-    {
-        uint8_t byte = 0;
-        while (*str != ASCII_COLON && *str != 0)
-        {
-            byte <<= 4;
-            char low = AsciiToLowCase(*str);
-            if (low >= ASCII_a)
-            {
-                byte |= low - ASCII_a + 10;
-            }
-            else
-            {
-                byte |= low - ASCII_ZERO;
-            }
-            str++;
-        }
-        m_address[i] = byte;
-        i++;
-        if (*str == 0)
-        {
-            break;
-        }
-        str++;
-    }
-    NS_ASSERT(i == 2);
+    NS_ASSERT_MSG(strlen(str) <= 5, "Mac16Address: illegal string (too long) " << str);
+
+    unsigned int bytes[2];
+    int charsRead = 0;
+
+    int i = sscanf(str, "%02x:%02x%n", bytes, bytes + 1, &charsRead);
+    NS_ASSERT_MSG(i == 2 && !str[charsRead], "Mac16Address: illegal string " << str);
+
+    std::copy(std::begin(bytes), std::end(bytes), std::begin(m_address));
+}
+
+Mac16Address::Mac16Address(uint16_t addr)
+{
+    NS_LOG_FUNCTION(this);
+    m_address[1] = addr & 0xFF;
+    m_address[0] = (addr >> 8) & 0xFF;
 }
 
 void
 Mac16Address::CopyFrom(const uint8_t buffer[2])
 {
     NS_LOG_FUNCTION(this << &buffer);
-    memcpy(m_address, buffer, 2);
+    std::copy(buffer, buffer + 2, m_address.begin());
 }
 
 void
 Mac16Address::CopyTo(uint8_t buffer[2]) const
 {
     NS_LOG_FUNCTION(this << &buffer);
-    memcpy(buffer, m_address, 2);
+    std::copy(m_address.begin(), m_address.end(), buffer);
 }
 
 bool
@@ -125,7 +68,8 @@ Mac16Address::IsMatchingType(const Address& address)
     return address.CheckCompatible(GetType(), 2);
 }
 
-Mac16Address::operator Address() const
+Mac16Address::
+operator Address() const
 {
     return ConvertTo();
 }
@@ -136,7 +80,7 @@ Mac16Address::ConvertFrom(const Address& address)
     NS_LOG_FUNCTION(address);
     NS_ASSERT(address.CheckCompatible(GetType(), 2));
     Mac16Address retval;
-    address.CopyTo(retval.m_address);
+    address.CopyTo(retval.m_address.data());
     return retval;
 }
 
@@ -144,7 +88,16 @@ Address
 Mac16Address::ConvertTo() const
 {
     NS_LOG_FUNCTION(this);
-    return Address(GetType(), m_address, 2);
+    return Address(GetType(), m_address.data(), 2);
+}
+
+uint16_t
+Mac16Address::ConvertToInt() const
+{
+    uint16_t addr = m_address[1] & (0xFF);
+    addr |= (m_address[0] << 8) & (0xFF << 8);
+
+    return addr;
 }
 
 Mac16Address
@@ -176,7 +129,7 @@ Mac16Address::GetType()
 {
     NS_LOG_FUNCTION_NOARGS();
 
-    static uint8_t type = Address::Register();
+    static uint8_t type = Address::Register("MacAddress", 2);
     return type;
 }
 
@@ -185,7 +138,7 @@ Mac16Address::GetBroadcast()
 {
     NS_LOG_FUNCTION_NOARGS();
 
-    static Mac16Address broadcast = Mac16Address("ff:ff");
+    static Mac16Address broadcast("ff:ff");
     return broadcast;
 }
 
@@ -212,11 +165,7 @@ bool
 Mac16Address::IsBroadcast() const
 {
     NS_LOG_FUNCTION(this);
-    if (m_address[0] == 0xff && m_address[1] == 0xff)
-    {
-        return true;
-    }
-    return false;
+    return m_address[0] == 0xff && m_address[1] == 0xff;
 }
 
 bool
@@ -225,29 +174,22 @@ Mac16Address::IsMulticast() const
     NS_LOG_FUNCTION(this);
     uint8_t val = m_address[0];
     val >>= 5;
-    if (val == 0x4)
-    {
-        return true;
-    }
-    return false;
+    return val == 0x4;
 }
 
 std::ostream&
 operator<<(std::ostream& os, const Mac16Address& address)
 {
-    uint8_t ad[2];
-    address.CopyTo(ad);
-
+    std::ios_base::fmtflags ff = os.flags();
     os.setf(std::ios::hex, std::ios::basefield);
-    os.fill('0');
-    for (uint8_t i = 0; i < 1; i++)
-    {
-        os << std::setw(2) << (uint32_t)ad[i] << ":";
-    }
-    // Final byte not suffixed by ":"
-    os << std::setw(2) << (uint32_t)ad[1];
-    os.setf(std::ios::dec, std::ios::basefield);
-    os.fill(' ');
+    auto fill = os.fill('0');
+
+    os << std::setw(2) << static_cast<uint32_t>(address.m_address[0]) << ":";
+    os << std::setw(2) << static_cast<uint32_t>(address.m_address[1]);
+
+    os.flags(ff); // Restore stream flags
+    os.fill(fill);
+
     return os;
 }
 

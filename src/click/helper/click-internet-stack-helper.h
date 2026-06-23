@@ -1,24 +1,11 @@
 /*
  * Copyright (c) 2008 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  * Author: Lalith Suresh  <suresh.lalith@gmail.com>
  */
-
-#ifdef NS3_CLICK
 
 #ifndef CLICK_INTERNET_STACK_HELPER_H
 #define CLICK_INTERNET_STACK_HELPER_H
@@ -41,7 +28,7 @@ class Node;
 class Ipv4RoutingHelper;
 
 /**
- * \brief aggregate Click/IP/TCP/UDP functionality to existing Nodes.
+ * @brief aggregate Click/IP/TCP/UDP functionality to existing Nodes.
  *
  * This helper has been adapted from the InternetStackHelper class and
  * nodes will not be able to use Ipv6 functionalities.
@@ -59,7 +46,20 @@ class ClickInternetStackHelper : public PcapHelperForIpv4, public AsciiTraceHelp
      * Destroy the ClickInternetStackHelper
      */
     ~ClickInternetStackHelper() override;
-    ClickInternetStackHelper(const ClickInternetStackHelper&);
+
+    /**
+     * Copy constructor.
+     *
+     * @param o Object to copy from.
+     */
+    ClickInternetStackHelper(const ClickInternetStackHelper& o);
+
+    /**
+     * Assignment operator.
+     *
+     * @param o Object to copy from.
+     * @return Reference to updated object.
+     */
     ClickInternetStackHelper& operator=(const ClickInternetStackHelper& o);
 
     /**
@@ -72,7 +72,7 @@ class ClickInternetStackHelper : public PcapHelperForIpv4, public AsciiTraceHelp
      * ns3::Udp, and ns3::Tcp classes onto the provided node.  This method will
      * assert if called on a node that already has an Ipv4 object aggregated to it.
      *
-     * \param nodeName The name of the node on which to install the stack.
+     * @param nodeName The name of the node on which to install the stack.
      */
     void Install(std::string nodeName) const;
 
@@ -81,7 +81,7 @@ class ClickInternetStackHelper : public PcapHelperForIpv4, public AsciiTraceHelp
      * ns3::Udp, and ns3::Tcp classes onto the provided node.  This method will
      * assert if called on a node that already has an Ipv4 object aggregated to it.
      *
-     * \param node The node on which to install the stack.
+     * @param node The node on which to install the stack.
      */
     void Install(Ptr<Node> node) const;
 
@@ -91,7 +91,7 @@ class ClickInternetStackHelper : public PcapHelperForIpv4, public AsciiTraceHelp
      * The program will assert if this method is called on a container with a
      * node that already has an Ipv4 object aggregated to it.
      *
-     * \param c NodeContainer that holds the set of nodes on which to install the
+     * @param c NodeContainer that holds the set of nodes on which to install the
      * new stacks.
      */
     void Install(NodeContainer c) const;
@@ -102,72 +102,44 @@ class ClickInternetStackHelper : public PcapHelperForIpv4, public AsciiTraceHelp
     void InstallAll() const;
 
     /**
-     * \brief set the Tcp stack which will not need any other parameter.
-     *
-     * This function sets up the tcp stack to the given TypeId. It should not be
-     * used for NSC stack setup because the nsc stack needs the Library attribute
-     * to be setup, please use instead the version that requires an attribute
-     * and a value. If you choose to use this function anyways to set nsc stack
-     * the default value for the linux library will be used: "liblinux2.6.26.so".
-     *
-     * \param tid the type id, typically it is set to  "ns3::TcpL4Protocol"
-     */
-    void SetTcp(std::string tid);
-
-    /**
-     * \brief This function is used to setup the Network Simulation Cradle stack with library value.
-     *
-     * Give the NSC stack a shared library file name to use when creating the
-     * stack implementation.  The attr string is actually the attribute name to
-     * be setup and val is its value. The attribute is the stack implementation
-     * to be used and the value is the shared library name.
-     *
-     * \param tid The type id, for the case of nsc it would be "ns3::NscTcpL4Protocol"
-     * \param attr The attribute name that must be setup, for example "Library"
-     * \param val The attribute value, which will be in fact the shared library name
-     * (example:"liblinux2.6.26.so")
-     */
-    void SetTcp(std::string tid, std::string attr, const AttributeValue& val);
-
-    /**
-     * \brief Set a Click file to be used for a group of nodes.
-     * \param c NodeContainer of nodes
-     * \param clickfile Click file to be used
+     * @brief Set a Click file to be used for a group of nodes.
+     * @param c NodeContainer of nodes
+     * @param clickfile Click file to be used
      */
     void SetClickFile(NodeContainer c, std::string clickfile);
 
     /**
-     * \brief Set a Click file to be used for a node.
-     * \param node Node for which Click file is to be set
-     * \param clickfile Click file to be used
+     * @brief Set a Click file to be used for a node.
+     * @param node Node for which Click file is to be set
+     * @param clickfile Click file to be used
      */
     void SetClickFile(Ptr<Node> node, std::string clickfile);
 
     /**
-     * \brief Set defines to be used for a group of nodes.
-     * \param c NodeContainer of nodes
-     * \param defines Defines mapping to be used
+     * @brief Set defines to be used for a group of nodes.
+     * @param c NodeContainer of nodes
+     * @param defines Defines mapping to be used
      */
     void SetDefines(NodeContainer c, std::map<std::string, std::string> defines);
 
     /**
-     * \brief Set defines to be used for a node.
-     * \param node Node for which the defines are to be set
-     * \param defines Defines mapping to be used
+     * @brief Set defines to be used for a node.
+     * @param node Node for which the defines are to be set
+     * @param defines Defines mapping to be used
      */
     void SetDefines(Ptr<Node> node, std::map<std::string, std::string> defines);
 
     /**
-     * \brief Set a Click routing table element for a group of nodes.
-     * \param c NodeContainer of nodes
-     * \param rt Click Routing Table element name
+     * @brief Set a Click routing table element for a group of nodes.
+     * @param c NodeContainer of nodes
+     * @param rt Click Routing Table element name
      */
     void SetRoutingTableElement(NodeContainer c, std::string rt);
 
     /**
-     * \brief Set a Click routing table element for a node.
-     * \param node Node for which Click file is to be set
-     * \param rt Click Routing Table element name
+     * @brief Set a Click routing table element for a node.
+     * @param node Node for which Click file is to be set
+     * @param rt Click Routing Table element name
      */
     void SetRoutingTableElement(Ptr<Node> node, std::string rt);
 
@@ -178,6 +150,7 @@ class ClickInternetStackHelper : public PcapHelperForIpv4, public AsciiTraceHelp
      * @param prefix Filename prefix to use for pcap files.
      * @param ipv4 Ptr to the Ipv4 interface on which you want to enable tracing.
      * @param interface Interface ID on the Ipv4 on which you want to enable tracing.
+     * @param explicitFilename Whether the filename is explicit or not.
      */
     void EnablePcapIpv4Internal(std::string prefix,
                                 Ptr<Ipv4> ipv4,
@@ -192,6 +165,7 @@ class ClickInternetStackHelper : public PcapHelperForIpv4, public AsciiTraceHelp
      * @param prefix Filename prefix to use for ascii trace files.
      * @param ipv4 Ptr to the Ipv4 interface on which you want to enable tracing.
      * @param interface Interface ID on the Ipv4 on which you want to enable tracing.
+     * @param explicitFilename Whether the filename is explicit or not.
      */
     void EnableAsciiIpv4Internal(Ptr<OutputStreamWrapper> stream,
                                  std::string prefix,
@@ -199,34 +173,53 @@ class ClickInternetStackHelper : public PcapHelperForIpv4, public AsciiTraceHelp
                                  uint32_t interface,
                                  bool explicitFilename) override;
 
+    /**
+     * Initialize stack helper.
+     * Called by both constructor and Reset().
+     */
     void Initialize();
-    ObjectFactory m_tcpFactory;
 
+    /**
+     * Create and aggregate object from type ID.
+     *
+     * @param node Node.
+     * @param typeId Type ID.
+     */
     static void CreateAndAggregateObjectFromTypeId(Ptr<Node> node, const std::string typeId);
 
-    static void Cleanup();
-
+    /**
+     * Check if PCAP is hooked.
+     *
+     * @param ipv4 IPv4 stack.
+     * @return True if PCAP is hooked.
+     */
     bool PcapHooked(Ptr<Ipv4> ipv4);
 
+    /**
+     * Check if ASCII is hooked.
+     *
+     * @param ipv4 IPv4 stack.
+     * @return True if ASCII is hooked.
+     */
     bool AsciiHooked(Ptr<Ipv4> ipv4);
 
     /**
-     * \brief IPv4 install state (enabled/disabled) ?
+     * @brief IPv4 install state (enabled/disabled) ?
      */
     bool m_ipv4Enabled;
 
     /**
-     * \brief Node to Click file mapping
+     * @brief Node to Click file mapping
      */
     std::map<Ptr<Node>, std::string> m_nodeToClickFileMap;
 
     /**
-     * \brief Node to Click defines mapping
+     * @brief Node to Click defines mapping
      */
     std::map<Ptr<Node>, std::map<std::string, std::string>> m_nodeToDefinesMap;
 
     /**
-     * \brief Node to Routing Table Element mapping
+     * @brief Node to Routing Table Element mapping
      */
     std::map<Ptr<Node>, std::string> m_nodeToRoutingTableElementMap;
 };
@@ -234,5 +227,3 @@ class ClickInternetStackHelper : public PcapHelperForIpv4, public AsciiTraceHelp
 } // namespace ns3
 
 #endif /* CLICK_INTERNET_STACK_HELPER_H */
-
-#endif /* NS3_CLICK */

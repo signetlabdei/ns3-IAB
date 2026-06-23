@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2007 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -34,88 +23,42 @@ NS_LOG_COMPONENT_DEFINE("Mac48Address");
 
 ATTRIBUTE_HELPER_CPP(Mac48Address);
 
-#define ASCII_a (0x41)
-#define ASCII_z (0x5a)
-#define ASCII_A (0x61)
-#define ASCII_Z (0x7a)
-#define ASCII_COLON (0x3a)
-#define ASCII_ZERO (0x30)
-
-/**
- * Converts a char to lower case.
- * \param c the char
- * \returns the lower case
- */
-static char
-AsciiToLowCase(char c)
-{
-    NS_LOG_FUNCTION(c);
-    if (c >= ASCII_a && c <= ASCII_z)
-    {
-        return c;
-    }
-    else if (c >= ASCII_A && c <= ASCII_Z)
-    {
-        return c + (ASCII_a - ASCII_A);
-    }
-    else
-    {
-        return c;
-    }
-}
-
 uint64_t Mac48Address::m_allocationIndex = 0;
-
-Mac48Address::Mac48Address()
-{
-    NS_LOG_FUNCTION(this);
-    std::memset(m_address, 0, 6);
-}
 
 Mac48Address::Mac48Address(const char* str)
 {
     NS_LOG_FUNCTION(this << str);
-    int i = 0;
-    while (*str != 0 && i < 6)
-    {
-        uint8_t byte = 0;
-        while (*str != ASCII_COLON && *str != 0)
-        {
-            byte <<= 4;
-            char low = AsciiToLowCase(*str);
-            if (low >= ASCII_a)
-            {
-                byte |= low - ASCII_a + 10;
-            }
-            else
-            {
-                byte |= low - ASCII_ZERO;
-            }
-            str++;
-        }
-        m_address[i] = byte;
-        i++;
-        if (*str == 0)
-        {
-            break;
-        }
-        str++;
-    }
-    NS_ASSERT(i == 6);
+    NS_ASSERT_MSG(strlen(str) <= 17, "Mac48Address: illegal string (too long) " << str);
+
+    unsigned int bytes[6];
+    int charsRead = 0;
+
+    int i = sscanf(str,
+                   "%02x:%02x:%02x:%02x:%02x:%02x%n",
+                   bytes,
+                   bytes + 1,
+                   bytes + 2,
+                   bytes + 3,
+                   bytes + 4,
+                   bytes + 5,
+                   &charsRead);
+    NS_ASSERT_MSG(i == 6 && !str[charsRead], "Mac48Address: illegal string " << str);
+
+    std::copy(std::begin(bytes), std::end(bytes), std::begin(m_address));
 }
 
 void
 Mac48Address::CopyFrom(const uint8_t buffer[6])
 {
     NS_LOG_FUNCTION(this << &buffer);
-    std::memcpy(m_address, buffer, 6);
+    std::copy(buffer, buffer + 6, m_address.begin());
 }
 
 void
 Mac48Address::CopyTo(uint8_t buffer[6]) const
 {
     NS_LOG_FUNCTION(this << &buffer);
-    std::memcpy(buffer, m_address, 6);
+    std::copy(m_address.begin(), m_address.end(), buffer);
 }
 
 bool
@@ -125,7 +68,8 @@ Mac48Address::IsMatchingType(const Address& address)
     return address.CheckCompatible(GetType(), 6);
 }
 
-Mac48Address::operator Address() const
+Mac48Address::
+operator Address() const
 {
     return ConvertTo();
 }
@@ -134,7 +78,7 @@ Address
 Mac48Address::ConvertTo() const
 {
     NS_LOG_FUNCTION(this);
-    return Address(GetType(), m_address, 6);
+    return Address(GetType(), m_address.data(), 6);
 }
 
 Mac48Address
@@ -143,7 +87,7 @@ Mac48Address::ConvertFrom(const Address& address)
     NS_LOG_FUNCTION(&address);
     NS_ASSERT(address.CheckCompatible(GetType(), 6));
     Mac48Address retval;
-    address.CopyTo(retval.m_address);
+    address.CopyTo(retval.m_address.data());
     return retval;
 }
 
@@ -179,7 +123,7 @@ uint8_t
 Mac48Address::GetType()
 {
     NS_LOG_FUNCTION_NOARGS();
-    static uint8_t type = Address::Register();
+    static uint8_t type = Address::Register("MacAddress", 6);
     return type;
 }
 
@@ -201,7 +145,7 @@ Mac48Address
 Mac48Address::GetBroadcast()
 {
     NS_LOG_FUNCTION_NOARGS();
-    static Mac48Address broadcast = Mac48Address("ff:ff:ff:ff:ff:ff");
+    static Mac48Address broadcast("ff:ff:ff:ff:ff:ff");
     return broadcast;
 }
 
@@ -209,7 +153,7 @@ Mac48Address
 Mac48Address::GetMulticastPrefix()
 {
     NS_LOG_FUNCTION_NOARGS();
-    static Mac48Address multicast = Mac48Address("01:00:5e:00:00:00");
+    static Mac48Address multicast("01:00:5e:00:00:00");
     return multicast;
 }
 
@@ -217,7 +161,7 @@ Mac48Address
 Mac48Address::GetMulticast6Prefix()
 {
     NS_LOG_FUNCTION_NOARGS();
-    static Mac48Address multicast = Mac48Address("33:33:00:00:00:00");
+    static Mac48Address multicast("33:33:00:00:00:00");
     return multicast;
 }
 
@@ -285,19 +229,20 @@ Mac48Address::GetMulticast(Ipv6Address addr)
 std::ostream&
 operator<<(std::ostream& os, const Mac48Address& address)
 {
-    uint8_t ad[6];
-    address.CopyTo(ad);
-
+    std::ios_base::fmtflags ff = os.flags();
     os.setf(std::ios::hex, std::ios::basefield);
-    os.fill('0');
-    for (uint8_t i = 0; i < 5; i++)
-    {
-        os << std::setw(2) << (uint32_t)ad[i] << ":";
-    }
-    // Final byte not suffixed by ":"
-    os << std::setw(2) << (uint32_t)ad[5];
-    os.setf(std::ios::dec, std::ios::basefield);
-    os.fill(' ');
+    auto fill = os.fill('0');
+
+    os << std::setw(2) << static_cast<uint32_t>(address.m_address[0]) << ":";
+    os << std::setw(2) << static_cast<uint32_t>(address.m_address[1]) << ":";
+    os << std::setw(2) << static_cast<uint32_t>(address.m_address[2]) << ":";
+    os << std::setw(2) << static_cast<uint32_t>(address.m_address[3]) << ":";
+    os << std::setw(2) << static_cast<uint32_t>(address.m_address[4]) << ":";
+    os << std::setw(2) << static_cast<uint32_t>(address.m_address[5]);
+
+    os.flags(ff); // Restore stream flags
+    os.fill(fill);
+
     return os;
 }
 

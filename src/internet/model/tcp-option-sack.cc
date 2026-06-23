@@ -2,18 +2,7 @@
  * Copyright (c) 2011 Adrian Sai-wah Tam
  * Copyright (c) 2015 ResiliNets, ITTC, University of Kansas
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Original Author: Adrian Sai-wah Tam <adrian.sw.tam@gmail.com>
  * Documentation, test cases: Truc Anh N. Nguyen   <annguyen@ittc.ku.edu>
@@ -52,17 +41,11 @@ TcpOptionSack::GetTypeId()
     return tid;
 }
 
-TypeId
-TcpOptionSack::GetInstanceTypeId() const
-{
-    return GetTypeId();
-}
-
 void
 TcpOptionSack::Print(std::ostream& os) const
 {
     os << "blocks: " << GetNumSackBlocks() << ",";
-    for (SackList::const_iterator it = m_sackList.begin(); it != m_sackList.end(); ++it)
+    for (auto it = m_sackList.begin(); it != m_sackList.end(); ++it)
     {
         os << "[" << it->first << "," << it->second << "]";
     }
@@ -82,10 +65,10 @@ TcpOptionSack::Serialize(Buffer::Iterator start) const
     NS_LOG_FUNCTION(this);
     Buffer::Iterator i = start;
     i.WriteU8(GetKind()); // Kind
-    uint8_t length = static_cast<uint8_t>(GetNumSackBlocks() * 8 + 2);
+    auto length = static_cast<uint8_t>(GetNumSackBlocks() * 8 + 2);
     i.WriteU8(length); // Length
 
-    for (SackList::const_iterator it = m_sackList.begin(); it != m_sackList.end(); ++it)
+    for (auto it = m_sackList.begin(); it != m_sackList.end(); ++it)
     {
         SequenceNumber32 leftEdge = it->first;
         SequenceNumber32 rightEdge = it->second;
@@ -112,8 +95,8 @@ TcpOptionSack::Deserialize(Buffer::Iterator start)
     uint8_t sackCount = (size - 2) / 8;
     while (sackCount)
     {
-        SequenceNumber32 leftEdge = SequenceNumber32(i.ReadNtohU32());
-        SequenceNumber32 rightEdge = SequenceNumber32(i.ReadNtohU32());
+        SequenceNumber32 leftEdge(i.ReadNtohU32());
+        SequenceNumber32 rightEdge(i.ReadNtohU32());
         SackBlock s(leftEdge, rightEdge);
         AddSackBlock(s);
         sackCount--;

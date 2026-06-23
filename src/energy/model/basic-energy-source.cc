@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2010 Network Security Lab, University of Washington, Seattle.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Sidharth Nabar <snabar@uw.edu>, He Wu <mdzz@u.washington.edu>
  */
@@ -27,16 +16,18 @@
 
 namespace ns3
 {
+namespace energy
+{
 
 NS_LOG_COMPONENT_DEFINE("BasicEnergySource");
-
 NS_OBJECT_ENSURE_REGISTERED(BasicEnergySource);
 
 TypeId
 BasicEnergySource::GetTypeId()
 {
     static TypeId tid =
-        TypeId("ns3::BasicEnergySource")
+        TypeId("ns3::energy::BasicEnergySource")
+            .AddDeprecatedName("ns3::BasicEnergySource")
             .SetParent<EnergySource>()
             .SetGroupName("Energy")
             .AddConstructor<BasicEnergySource>()
@@ -64,7 +55,7 @@ BasicEnergySource::GetTypeId()
                           MakeDoubleChecker<double>())
             .AddAttribute("PeriodicEnergyUpdateInterval",
                           "Time between two consecutive periodic energy updates.",
-                          TimeValue(Seconds(1.0)),
+                          TimeValue(Seconds(1)),
                           MakeTimeAccessor(&BasicEnergySource::SetEnergyUpdateInterval,
                                            &BasicEnergySource::GetEnergyUpdateInterval),
                           MakeTimeChecker())
@@ -78,7 +69,7 @@ BasicEnergySource::GetTypeId()
 BasicEnergySource::BasicEnergySource()
 {
     NS_LOG_FUNCTION(this);
-    m_lastUpdateTime = Seconds(0.0);
+    m_lastUpdateTime = Seconds(0);
     m_depleted = false;
 }
 
@@ -231,4 +222,5 @@ BasicEnergySource::CalculateRemainingEnergy()
     NS_LOG_DEBUG("BasicEnergySource:Remaining energy = " << m_remainingEnergyJ);
 }
 
+} // namespace energy
 } // namespace ns3

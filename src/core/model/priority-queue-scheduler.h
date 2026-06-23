@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2006 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -29,8 +18,8 @@
 #include <utility>
 
 /**
- * \file
- * \ingroup scheduler
+ * @file
+ * @ingroup scheduler
  * Declaration of ns3::PriorityQueueScheduler class.
  */
 
@@ -38,13 +27,13 @@ namespace ns3
 {
 
 /**
- * \ingroup scheduler
- * \brief a std::priority_queue event scheduler
+ * @ingroup scheduler
+ * @brief a std::priority_queue event scheduler
  *
  * This class implements an event scheduler using
  * `std::priority_queue` on a `std::vector`.
  *
- * \par Time Complexity
+ * @par Time Complexity
  *
  * Operation    | Amortized %Time  | Reason
  * :----------- | :--------------- | :-----
@@ -54,7 +43,7 @@ namespace ns3
  * Remove()     | Linear           | `std::find()` and `std::make_heap()`
  * RemoveNext() | Logarithmic      | `std::pop_heap()`
  *
- * \par Memory Complexity
+ * @par Memory Complexity
  *
  * Category  | Memory                           | Reason
  * :-------- | :------------------------------- | :-----
@@ -67,7 +56,7 @@ class PriorityQueueScheduler : public Scheduler
   public:
     /**
      *  Register this type.
-     *  \return The object TypeId.
+     *  @return The object TypeId.
      */
     static TypeId GetTypeId();
 
@@ -90,21 +79,21 @@ class PriorityQueueScheduler : public Scheduler
      */
     class EventPriorityQueue : public std::priority_queue<Scheduler::Event,
                                                           std::vector<Scheduler::Event>,
-                                                          std::greater<Scheduler::Event>>
+                                                          std::greater<>>
     {
       public:
         /**
-         * \copydoc PriorityQueueScheduler::Remove()
-         * \returns \c true if the event was found, false otherwise.
+         * @copydoc PriorityQueueScheduler::Remove()
+         * @returns \c true if the event was found, false otherwise.
          */
         bool remove(const Scheduler::Event& ev);
 
-    }; // class EventPriorityQueue
+        // end of class EventPriorityQueue
+    };
 
     /** The event queue. */
     EventPriorityQueue m_queue;
-
-}; // class PriorityQueueScheduler
+};
 
 } // namespace ns3
 

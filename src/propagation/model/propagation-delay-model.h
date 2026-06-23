@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2005,2006,2007 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -30,23 +19,23 @@ namespace ns3
 class MobilityModel;
 
 /**
- * \ingroup propagation
+ * @ingroup propagation
  *
- * \brief calculate a propagation delay.
+ * @brief calculate a propagation delay.
  */
 class PropagationDelayModel : public Object
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
     ~PropagationDelayModel() override;
     /**
-     * \param a the source
-     * \param b the destination
-     * \returns the calculated propagation delay
+     * @param a the source
+     * @param b the destination
+     * @returns the calculated propagation delay
      *
      * Calculate the propagation delay between the specified
      * source and destination.
@@ -58,8 +47,8 @@ class PropagationDelayModel : public Object
      * 'stream'.  Return the number of streams (possibly zero) that
      * have been assigned.
      *
-     * \param stream first stream index to use
-     * \return the number of stream indices assigned by this model
+     * @param stream first stream index to use
+     * @return the number of stream indices assigned by this model
      */
     int64_t AssignStreams(int64_t stream);
 
@@ -70,23 +59,23 @@ class PropagationDelayModel : public Object
      * Subclasses must implement this; those not using random variables
      * can return zero.
      *
-     * \param stream first stream index to use
-     * \return the number of stream indices assigned by this model
+     * @param stream first stream index to use
+     * @return the number of stream indices assigned by this model
      */
     virtual int64_t DoAssignStreams(int64_t stream) = 0;
 };
 
 /**
- * \ingroup propagation
+ * @ingroup propagation
  *
- * \brief the propagation delay is random
+ * @brief the propagation delay is random
  */
 class RandomPropagationDelayModel : public PropagationDelayModel
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
 
@@ -103,16 +92,16 @@ class RandomPropagationDelayModel : public PropagationDelayModel
 };
 
 /**
- * \ingroup propagation
+ * @ingroup propagation
  *
- * \brief the propagation speed is constant
+ * @brief the propagation speed is constant
  */
 class ConstantSpeedPropagationDelayModel : public PropagationDelayModel
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
 
@@ -122,11 +111,11 @@ class ConstantSpeedPropagationDelayModel : public PropagationDelayModel
     ConstantSpeedPropagationDelayModel();
     Time GetDelay(Ptr<MobilityModel> a, Ptr<MobilityModel> b) const override;
     /**
-     * \param speed the new speed (m/s)
+     * @param speed the new speed (m/s)
      */
     void SetSpeed(double speed);
     /**
-     * \returns the current propagation speed (m/s).
+     * @returns the current propagation speed (m/s).
      */
     double GetSpeed() const;
 

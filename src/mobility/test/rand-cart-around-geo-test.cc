@@ -1,25 +1,14 @@
 /*
  * Copyright (c) 2014 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Benjamin Cizdziel <ben.cizdziel@gmail.com>
  */
 
-#include <ns3/geographic-positions.h>
-#include <ns3/log.h>
-#include <ns3/test.h>
+#include "ns3/geographic-positions.h"
+#include "ns3/log.h"
+#include "ns3/test.h"
 
 #include <cmath>
 
@@ -56,9 +45,9 @@ const double TOLERANCE = 0.1;
 static const double EARTH_RADIUS = 6371e3;
 
 /**
- * \ingroup mobility-test
+ * @ingroup mobility-test
  *
- * \brief Rand Cart Around Geo Test Case
+ * @brief Rand Cart Around Geo Test Case
  */
 class RandCartAroundGeoTestCase : public TestCase
 {
@@ -66,12 +55,12 @@ class RandCartAroundGeoTestCase : public TestCase
     /**
      * Constructor
      *
-     * \param originLatitude origin latitude
-     * \param originLongitude origin longitude
-     * \param maxAltitude maximum altitude
-     * \param numPoints number of points
-     * \param maxDistFromOrigin maximum distance from origin
-     * \param uniRand random variable
+     * @param originLatitude origin latitude
+     * @param originLongitude origin longitude
+     * @param maxAltitude maximum altitude
+     * @param numPoints number of points
+     * @param maxDistFromOrigin maximum distance from origin
+     * @param uniRand random variable
      */
     RandCartAroundGeoTestCase(double originLatitude,
                               double originLongitude,
@@ -85,10 +74,10 @@ class RandCartAroundGeoTestCase : public TestCase
     void DoRun() override;
     /**
      * name function
-     * \param originLatitude the origin latitude
-     * \param originLongitude the origin longitude
-     * \param maxDistFromOrigin the maximum distance from the origin
-     * \returns the name string
+     * @param originLatitude the origin latitude
+     * @param originLongitude the origin longitude
+     * @param maxDistFromOrigin the maximum distance from the origin
+     * @returns the name string
      */
     static std::string Name(double originLatitude,
                             double originLongitude,
@@ -172,9 +161,9 @@ RandCartAroundGeoTestCase::DoRun()
 }
 
 /**
- * \ingroup mobility-test
+ * @ingroup mobility-test
  *
- * \brief Rand Cart Around Geo Test Suite
+ * @brief Rand Cart Around Geo Test Suite
  */
 class RandCartAroundGeoTestSuite : public TestSuite
 {
@@ -183,7 +172,7 @@ class RandCartAroundGeoTestSuite : public TestSuite
 };
 
 RandCartAroundGeoTestSuite::RandCartAroundGeoTestSuite()
-    : TestSuite("rand-cart-around-geo", UNIT)
+    : TestSuite("rand-cart-around-geo", Type::UNIT)
 {
     NS_LOG_INFO("creating RandCartAroundGeoTestSuite");
     Ptr<UniformRandomVariable> uniRand = CreateObject<UniformRandomVariable>();
@@ -201,14 +190,14 @@ RandCartAroundGeoTestSuite::RandCartAroundGeoTestSuite()
                                                           50, // 50 points generated
                                                           maxDistFromOrigin,
                                                           uniRand),
-                            TestCase::QUICK);
+                            TestCase::Duration::QUICK);
             }
         }
     }
 }
 
 /**
- * \ingroup mobility-test
+ * @ingroup mobility-test
  * Static variable for test initialization
  */
 static RandCartAroundGeoTestSuite g_RandCartAroundGeoTestSuite;

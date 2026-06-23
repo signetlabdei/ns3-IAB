@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2010 Hemanth Narra, Yufei Cheng
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Hemanth Narra <hemanth@ittc.ku.com>
  * Author: Yufei Cheng   <yfcheng@ittc.ku.edu>
@@ -61,7 +50,7 @@ struct DeferredRouteOutputTag : public Tag
     /**
      * Constructor
      *
-     * \param o outgoing interface (OIF)
+     * @param o outgoing interface (OIF)
      */
     DeferredRouteOutputTag(int32_t o = -1)
         : Tag(),
@@ -70,8 +59,8 @@ struct DeferredRouteOutputTag : public Tag
     }
 
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId()
     {
@@ -241,9 +230,7 @@ void
 RoutingProtocol::DoDispose()
 {
     m_ipv4 = nullptr;
-    for (std::map<Ptr<Socket>, Ipv4InterfaceAddress>::iterator iter = m_socketAddresses.begin();
-         iter != m_socketAddresses.end();
-         iter++)
+    for (auto iter = m_socketAddresses.begin(); iter != m_socketAddresses.end(); iter++)
     {
         iter->first->Close();
     }
@@ -304,9 +291,7 @@ RoutingProtocol::RouteOutput(Ptr<Packet> p,
                                  << ", Destination address in Packet: " << dst);
     RoutingTableEntry rt;
     m_routingTable.Purge(removedAddresses);
-    for (std::map<Ipv4Address, RoutingTableEntry>::iterator rmItr = removedAddresses.begin();
-         rmItr != removedAddresses.end();
-         ++rmItr)
+    for (auto rmItr = removedAddresses.begin(); rmItr != removedAddresses.end(); ++rmItr)
     {
         rmItr->second.SetEntriesChanged(true);
         rmItr->second.SetSeqNo(rmItr->second.GetSeqNo() + 1);
@@ -391,10 +376,10 @@ bool
 RoutingProtocol::RouteInput(Ptr<const Packet> p,
                             const Ipv4Header& header,
                             Ptr<const NetDevice> idev,
-                            UnicastForwardCallback ucb,
-                            MulticastForwardCallback mcb,
-                            LocalDeliverCallback lcb,
-                            ErrorCallback ecb)
+                            const UnicastForwardCallback& ucb,
+                            const MulticastForwardCallback& mcb,
+                            const LocalDeliverCallback& lcb,
+                            const ErrorCallback& ecb)
 {
     NS_LOG_FUNCTION(m_mainAddress << " received packet " << p->GetUid() << " from "
                                   << header.GetSource() << " on interface " << idev->GetAddress()
@@ -419,7 +404,7 @@ RoutingProtocol::RouteInput(Ptr<const Packet> p,
     }
 
     // Deferred route request
-    if (EnableBuffering == true && idev == m_lo)
+    if (EnableBuffering && idev == m_lo)
     {
         DeferredRouteOutputTag tag;
         if (p->PeekPacketTag(tag))
@@ -428,9 +413,7 @@ RoutingProtocol::RouteInput(Ptr<const Packet> p,
             return true;
         }
     }
-    for (std::map<Ptr<Socket>, Ipv4InterfaceAddress>::const_iterator j = m_socketAddresses.begin();
-         j != m_socketAddresses.end();
-         ++j)
+    for (auto j = m_socketAddresses.begin(); j != m_socketAddresses.end(); ++j)
     {
         Ipv4InterfaceAddress iface = j->second;
         if (origin == iface.GetLocal())
@@ -439,9 +422,7 @@ RoutingProtocol::RouteInput(Ptr<const Packet> p,
         }
     }
     // LOCAL DELIVARY TO DSDV INTERFACES
-    for (std::map<Ptr<Socket>, Ipv4InterfaceAddress>::const_iterator j = m_socketAddresses.begin();
-         j != m_socketAddresses.end();
-         ++j)
+    for (auto j = m_socketAddresses.begin(); j != m_socketAddresses.end(); ++j)
     {
         Ipv4InterfaceAddress iface = j->second;
         if (m_ipv4->GetInterfaceForAddress(iface.GetLocal()) == iif)
@@ -449,7 +430,7 @@ RoutingProtocol::RouteInput(Ptr<const Packet> p,
             if (dst == iface.GetBroadcast() || dst.IsBroadcast())
             {
                 Ptr<Packet> packet = p->Copy();
-                if (lcb.IsNull() == false)
+                if (!lcb.IsNull())
                 {
                     NS_LOG_LOGIC("Broadcast local delivery to " << iface.GetLocal());
                     lcb(p, header, iif);
@@ -482,7 +463,7 @@ RoutingProtocol::RouteInput(Ptr<const Packet> p,
 
     if (m_ipv4->IsDestinationAddress(dst, iif))
     {
-        if (lcb.IsNull() == false)
+        if (!lcb.IsNull())
         {
             NS_LOG_LOGIC("Unicast local delivery to " << dst);
             lcb(p, header, iif);
@@ -497,7 +478,7 @@ RoutingProtocol::RouteInput(Ptr<const Packet> p,
     }
 
     // Check if input device supports IP forwarding
-    if (m_ipv4->IsForwarding(iif) == false)
+    if (!m_ipv4->IsForwarding(iif))
     {
         NS_LOG_LOGIC("Forwarding disabled for this interface");
         ecb(p, header, Socket::ERROR_NOROUTETOHOST);
@@ -545,7 +526,7 @@ RoutingProtocol::LoopbackRoute(const Ipv4Header& hdr, Ptr<NetDevice> oif) const
     // If RouteOutput() caller specified an outgoing interface, that
     // further constrains the selection of source address
     //
-    std::map<Ptr<Socket>, Ipv4InterfaceAddress>::const_iterator j = m_socketAddresses.begin();
+    auto j = m_socketAddresses.begin();
     if (oif)
     {
         // Iterate to find an address on the oif device
@@ -592,10 +573,7 @@ RoutingProtocol::RecvDsdv(Ptr<Socket> socket)
         packet->RemoveHeader(dsdvHeader);
         NS_LOG_DEBUG("Processing new update for " << dsdvHeader.GetDst());
         /*Verifying if the packets sent by me were returned back to me. If yes, discarding them!*/
-        for (std::map<Ptr<Socket>, Ipv4InterfaceAddress>::const_iterator j =
-                 m_socketAddresses.begin();
-             j != m_socketAddresses.end();
-             ++j)
+        for (auto j = m_socketAddresses.begin(); j != m_socketAddresses.end(); ++j)
         {
             Ipv4InterfaceAddress interface = j->second;
             if (dsdvHeader.GetDst() == interface.GetLocal())
@@ -627,7 +605,7 @@ RoutingProtocol::RecvDsdv(Ptr<Socket> socket)
         EventId event;
         bool permanentTableVerifier =
             m_routingTable.LookupRoute(dsdvHeader.GetDst(), fwdTableEntry);
-        if (permanentTableVerifier == false)
+        if (!permanentTableVerifier)
         {
             if (dsdvHeader.GetDstSeqno() % 2 != 1)
             {
@@ -661,9 +639,7 @@ RoutingProtocol::RecvDsdv(Ptr<Socket> socket)
                 RoutingTableEntry tr;
                 std::map<Ipv4Address, RoutingTableEntry> allRoutes;
                 m_advRoutingTable.GetListOfAllRoutes(allRoutes);
-                for (std::map<Ipv4Address, RoutingTableEntry>::const_iterator i = allRoutes.begin();
-                     i != allRoutes.end();
-                     ++i)
+                for (auto i = allRoutes.begin(); i != allRoutes.end(); ++i)
                 {
                     NS_LOG_DEBUG("ADV table routes are:" << i->second.GetDestination());
                 }
@@ -800,10 +776,7 @@ RoutingProtocol::RecvDsdv(Ptr<Socket> socket)
                     advTableEntry.SetSeqNo(dsdvHeader.GetDstSeqno());
                     advTableEntry.SetEntriesChanged(true);
                     m_advRoutingTable.Update(advTableEntry);
-                    for (std::map<Ipv4Address, RoutingTableEntry>::iterator i =
-                             dstsWithNextHopSrc.begin();
-                         i != dstsWithNextHopSrc.end();
-                         ++i)
+                    for (auto i = dstsWithNextHopSrc.begin(); i != dstsWithNextHopSrc.end(); ++i)
                     {
                         i->second.SetSeqNo(i->second.GetSeqNo() + 1);
                         i->second.SetEntriesChanged(true);
@@ -844,24 +817,20 @@ RoutingProtocol::SendTriggeredUpdate()
     NS_LOG_FUNCTION(m_mainAddress << " is sending a triggered update");
     std::map<Ipv4Address, RoutingTableEntry> allRoutes;
     m_advRoutingTable.GetListOfAllRoutes(allRoutes);
-    for (std::map<Ptr<Socket>, Ipv4InterfaceAddress>::const_iterator j = m_socketAddresses.begin();
-         j != m_socketAddresses.end();
-         ++j)
+    for (auto j = m_socketAddresses.begin(); j != m_socketAddresses.end(); ++j)
     {
         DsdvHeader dsdvHeader;
         Ptr<Socket> socket = j->first;
         Ipv4InterfaceAddress iface = j->second;
         Ptr<Packet> packet = Create<Packet>();
-        for (std::map<Ipv4Address, RoutingTableEntry>::const_iterator i = allRoutes.begin();
-             i != allRoutes.end();
-             ++i)
+        for (auto i = allRoutes.begin(); i != allRoutes.end(); ++i)
         {
             NS_LOG_LOGIC("Destination: " << i->second.GetDestination()
                                          << " SeqNo:" << i->second.GetSeqNo()
                                          << " HopCount:" << i->second.GetHop() + 1);
             RoutingTableEntry temp = i->second;
-            if ((i->second.GetEntriesChanged() == true) &&
-                (!m_advRoutingTable.AnyRunningEvent(temp.GetDestination())))
+            if (i->second.GetEntriesChanged() &&
+                !m_advRoutingTable.AnyRunningEvent(temp.GetDestination()))
             {
                 dsdvHeader.SetDst(i->second.GetDestination());
                 dsdvHeader.SetDstSeqno(i->second.GetSeqNo());
@@ -930,16 +899,12 @@ RoutingProtocol::SendPeriodicUpdate()
         return;
     }
     NS_LOG_FUNCTION(m_mainAddress << " is sending out its periodic update");
-    for (std::map<Ptr<Socket>, Ipv4InterfaceAddress>::const_iterator j = m_socketAddresses.begin();
-         j != m_socketAddresses.end();
-         ++j)
+    for (auto j = m_socketAddresses.begin(); j != m_socketAddresses.end(); ++j)
     {
         Ptr<Socket> socket = j->first;
         Ipv4InterfaceAddress iface = j->second;
         Ptr<Packet> packet = Create<Packet>();
-        for (std::map<Ipv4Address, RoutingTableEntry>::const_iterator i = allRoutes.begin();
-             i != allRoutes.end();
-             ++i)
+        for (auto i = allRoutes.begin(); i != allRoutes.end(); ++i)
         {
             DsdvHeader dsdvHeader;
             if (i->second.GetHop() == 0)
@@ -956,7 +921,7 @@ RoutingProtocol::SendPeriodicUpdate()
             else
             {
                 dsdvHeader.SetDst(i->second.GetDestination());
-                dsdvHeader.SetDstSeqno((i->second.GetSeqNo()));
+                dsdvHeader.SetDstSeqno(i->second.GetSeqNo());
                 dsdvHeader.SetHopCount(i->second.GetHop() + 1);
                 packet->AddHeader(dsdvHeader);
             }
@@ -966,10 +931,7 @@ RoutingProtocol::SendPeriodicUpdate()
                          << ", HopCount:" << dsdvHeader.GetHopCount()
                          << ", LifeTime: " << i->second.GetLifeTime().As(Time::S));
         }
-        for (std::map<Ipv4Address, RoutingTableEntry>::const_iterator rmItr =
-                 removedAddresses.begin();
-             rmItr != removedAddresses.end();
-             ++rmItr)
+        for (auto rmItr = removedAddresses.begin(); rmItr != removedAddresses.end(); ++rmItr)
         {
             DsdvHeader removedHeader;
             removedHeader.SetDst(rmItr->second.GetDestination());
@@ -1143,9 +1105,7 @@ RoutingProtocol::NotifyRemoveAddress(uint32_t i, Ipv4InterfaceAddress address)
 Ptr<Socket>
 RoutingProtocol::FindSocketWithInterfaceAddress(Ipv4InterfaceAddress addr) const
 {
-    for (std::map<Ptr<Socket>, Ipv4InterfaceAddress>::const_iterator j = m_socketAddresses.begin();
-         j != m_socketAddresses.end();
-         ++j)
+    for (auto j = m_socketAddresses.begin(); j != m_socketAddresses.end(); ++j)
     {
         Ptr<Socket> socket = j->first;
         Ipv4InterfaceAddress iface = j->second;
@@ -1181,9 +1141,7 @@ RoutingProtocol::LookForQueuedPackets()
     Ptr<Ipv4Route> route;
     std::map<Ipv4Address, RoutingTableEntry> allRoutes;
     m_routingTable.GetListOfAllRoutes(allRoutes);
-    for (std::map<Ipv4Address, RoutingTableEntry>::const_iterator i = allRoutes.begin();
-         i != allRoutes.end();
-         ++i)
+    for (auto i = allRoutes.begin(); i != allRoutes.end(); ++i)
     {
         RoutingTableEntry rt;
         rt = i->second;
@@ -1192,20 +1150,20 @@ RoutingProtocol::LookForQueuedPackets()
             if (rt.GetHop() == 1)
             {
                 route = rt.GetRoute();
+                NS_ASSERT(route);
                 NS_LOG_LOGIC("A route exists from " << route->GetSource()
                                                     << " to neighboring destination "
                                                     << route->GetDestination());
-                NS_ASSERT(route);
             }
             else
             {
                 RoutingTableEntry newrt;
                 m_routingTable.LookupRoute(rt.GetNextHop(), newrt);
                 route = newrt.GetRoute();
+                NS_ASSERT(route);
                 NS_LOG_LOGIC("A route exists from " << route->GetSource() << " to destination "
                                                     << route->GetDestination() << " via "
                                                     << rt.GetNextHop());
-                NS_ASSERT(route);
             }
             SendPacketFromQueue(rt.GetDestination(), route);
         }
@@ -1255,7 +1213,7 @@ RoutingProtocol::GetSettlingTime(Ipv4Address address)
     m_routingTable.LookupRoute(address, mainrt);
     if (EnableWST)
     {
-        if (mainrt.GetSettlingTime() == Seconds(0))
+        if (mainrt.GetSettlingTime().IsZero())
         {
             return Seconds(0);
         }
@@ -1282,13 +1240,11 @@ RoutingProtocol::MergeTriggerPeriodicUpdates()
     m_advRoutingTable.GetListOfAllRoutes(allRoutes);
     if (!allRoutes.empty())
     {
-        for (std::map<Ipv4Address, RoutingTableEntry>::const_iterator i = allRoutes.begin();
-             i != allRoutes.end();
-             ++i)
+        for (auto i = allRoutes.begin(); i != allRoutes.end(); ++i)
         {
             RoutingTableEntry advEntry = i->second;
-            if ((advEntry.GetEntriesChanged() == true) &&
-                (!m_advRoutingTable.AnyRunningEvent(advEntry.GetDestination())))
+            if (advEntry.GetEntriesChanged() &&
+                !m_advRoutingTable.AnyRunningEvent(advEntry.GetDestination()))
             {
                 if (!(advEntry.GetSeqNo() % 2))
                 {

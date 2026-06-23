@@ -1,37 +1,22 @@
 /*
  * Copyright (c) 2021 Universita' degli Studi di Napoli Federico II
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Stefano Avallone <stavallo@unina.it>
  */
 
-#include <ns3/double.h>
-#include <ns3/enum.h>
-#include <ns3/log.h>
-#include <ns3/object.h>
-#include <ns3/ptr.h>
-#include <ns3/string.h>
-#include <ns3/test.h>
-#include <ns3/tuple.h>
-#include <ns3/uinteger.h>
+#include "ns3/double.h"
+#include "ns3/enum.h"
+#include "ns3/log.h"
+#include "ns3/object.h"
+#include "ns3/ptr.h"
+#include "ns3/string.h"
+#include "ns3/test.h"
+#include "ns3/tuple.h"
+#include "ns3/uinteger.h"
 
-#include <algorithm>
-#include <iterator>
-#include <sstream>
 #include <tuple>
-#include <utility>
 
 using namespace ns3;
 
@@ -55,37 +40,38 @@ class TupleObject : public Object
     ~TupleObject() override;
 
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
 
     // NOTE EnumValue::Get() return an int, so the tuple element type must be an int
     // in place of the enum type
-    using Tuple1Value = TupleValue<StringValue, StringValue, EnumValue>; //!< Tuple1 attribute value
-    using Tuple1 = Tuple1Value::result_type;                             //!< tuple of values
+    using Tuple1Value =
+        TupleValue<StringValue, StringValue, EnumValue<TupleTestEnum>>; //!< Tuple1 attribute value
+    using Tuple1 = Tuple1Value::result_type;                            //!< tuple of values
     using Tuple1Pack = Tuple1Value::value_type; //!< tuple of attribute values
 
     using Tuple2 = std::tuple<double, uint16_t, std::string>; //!< Tuple2 typedef
 
     /**
      * Set tuple1
-     * \param tuple tuple value
+     * @param tuple tuple value
      */
     void SetTuple1(const Tuple1& tuple);
     /**
      * Get tuple1
-     * \return tuple1
+     * @return tuple1
      */
     Tuple1 GetTuple1() const;
     /**
      * Set tuple2
-     * \param tuple tuple value
+     * @param tuple tuple value
      */
     void SetTuple2(const Tuple2& tuple);
     /**
      * Get tuple2
-     * \return tuple2
+     * @return tuple2
      */
     Tuple2 GetTuple2() const;
 
@@ -207,7 +193,7 @@ TupleValueTestCase::DoRun()
             TupleObject::Tuple1{"Norwegian", "Wood", TupleObject::VALUE2}));
     NS_TEST_ASSERT_MSG_EQ(ret1, true, "Setting valid values to tuple 1 failed");
 
-    TupleValue<StringValue, StringValue, EnumValue> tupleValue1;
+    TupleValue<StringValue, StringValue, EnumValue<TupleObject::TupleTestEnum>> tupleValue1;
     ret1 = tupleObject->GetAttributeFailSafe("StringStringEnumTuple", tupleValue1);
     NS_TEST_ASSERT_MSG_EQ(ret1, true, "Getting values for tuple 1 failed");
 
@@ -320,9 +306,9 @@ class TupleValueTestSuite : public TestSuite
 };
 
 TupleValueTestSuite::TupleValueTestSuite()
-    : TestSuite("tuple-value-test-suite", UNIT)
+    : TestSuite("tuple-value-test-suite", Type::UNIT)
 {
-    AddTestCase(new TupleValueTestCase(), TestCase::QUICK);
+    AddTestCase(new TupleValueTestCase(), TestCase::Duration::QUICK);
 }
 
 static TupleValueTestSuite g_tupleValueTestSuite; //!< Static variable for test initialization

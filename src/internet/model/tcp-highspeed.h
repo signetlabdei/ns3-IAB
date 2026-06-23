@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2014 Natale Patriciello, <natale.patriciello@gmail.com>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  */
 
@@ -27,9 +16,9 @@ namespace ns3
 class TcpSocketState;
 
 /**
- * \ingroup congestionOps
+ * @ingroup congestionOps
  *
- * \brief An implementation of TCP HighSpeed
+ * @brief An implementation of TCP HighSpeed
  *
  * TCP HighSpeed is designed for high-capacity channels or, in general, for
  * TCP connections with large congestion windows.
@@ -50,8 +39,8 @@ class TcpHighSpeed : public TcpNewReno
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
 
@@ -61,8 +50,8 @@ class TcpHighSpeed : public TcpNewReno
     TcpHighSpeed();
 
     /**
-     * \brief Copy constructor
-     * \param sock the object to copy
+     * @brief Copy constructor
+     * @param sock the object to copy
      */
     TcpHighSpeed(const TcpHighSpeed& sock);
     ~TcpHighSpeed() override;
@@ -74,20 +63,20 @@ class TcpHighSpeed : public TcpNewReno
     Ptr<TcpCongestionOps> Fork() override;
 
     /**
-     * \brief Lookup table for the coefficient a (from RFC 3649)
+     * @brief Lookup table for the coefficient a (from RFC 3649)
      *
-     * \param w Window value (in packets)
+     * @param w Window value (in packets)
      *
-     * \return the coefficient a
+     * @return the coefficient a
      */
     static uint32_t TableLookupA(uint32_t w);
 
     /**
-     * \brief Lookup table for the coefficient b (from RFC 3649)
+     * @brief Lookup table for the coefficient b (from RFC 3649)
      *
-     * \param w Window value (in packets)
+     * @param w Window value (in packets)
      *
-     * \return the coefficient b
+     * @return the coefficient b
      */
     static double TableLookupB(uint32_t w);
 

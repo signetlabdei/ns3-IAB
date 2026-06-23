@@ -65,7 +65,7 @@ LteTestPathlossDlSchedCallback (LtePathlossModelSystemTestCase *testcase, std::s
   testcase->DlScheduling (frameNo, subframeNo, rnti, mcsTb1, sizeTb1, mcsTb2, sizeTb2);
 }
 
-LtePathlossModelTestSuite::LtePathlossModelTestSuite () : TestSuite ("lte-pathloss-model", SYSTEM)
+LtePathlossModelTestSuite::LtePathlossModelTestSuite () : TestSuite ("lte-pathloss-model", TestSuite::Type::SYSTEM)
 {
   // LogLevel logLevel = (LogLevel)(LOG_PREFIX_FUNC | LOG_PREFIX_TIME | LOG_LEVEL_ALL);
   // LogComponentEnable ("LteHelper", logLevel);
@@ -135,7 +135,7 @@ LtePathlossModelTestSuite::LtePathlossModelTestSuite () : TestSuite ("lte-pathlo
       name << " snr= " << sinrDb << " dB, "
            << " mcs= " << snrEfficiencyMcs[i].mcsIndex;
       AddTestCase (new LtePathlossModelSystemTestCase (name.str (), sinrDb, dist[i], mcs),
-                   TestCase::QUICK);
+                   TestCase::Duration::QUICK);
     }
 }
 

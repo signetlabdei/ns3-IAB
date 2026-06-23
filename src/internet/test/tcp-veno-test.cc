@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2016 ResiliNets, ITTC, University of Kansas
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Truc Anh N. Nguyen <annguyen@ittc.ku.edu>
  *
@@ -34,22 +23,22 @@ using namespace ns3;
 NS_LOG_COMPONENT_DEFINE("TcpVenoTestSuite");
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief Testing the additive increase and multiplicative decrease of TcpVeno
+ * @brief Testing the additive increase and multiplicative decrease of TcpVeno
  */
 class TcpVenoTest : public TestCase
 {
   public:
     /**
-     * \brief Constructor.
-     * \param cWnd Congestion window.
-     * \param segmentSize Segment size.
-     * \param ssThresh Slow Start Threshold.
-     * \param rtt The RTT.
-     * \param segmentsAcked Number of segments acked.
-     * \param numRtt Number of RTTs (i.e., rounds) in the test.
-     * \param name Test description.
+     * @brief Constructor.
+     * @param cWnd Congestion window.
+     * @param segmentSize Segment size.
+     * @param ssThresh Slow Start Threshold.
+     * @param rtt The RTT.
+     * @param segmentsAcked Number of segments acked.
+     * @param numRtt Number of RTTs (i.e., rounds) in the test.
+     * @param name Test description.
      */
     TcpVenoTest(uint32_t cWnd,
                 uint32_t segmentSize,
@@ -63,43 +52,43 @@ class TcpVenoTest : public TestCase
     void DoRun() override;
 
     /**
-     * \brief TCP Veno additive increase formula.
-     * \param state The congestion control state.
-     * \param diff The difference between actual and expected throughput.
-     * \param beta TCP Veno beta param.
+     * @brief TCP Veno additive increase formula.
+     * @param state The congestion control state.
+     * @param diff The difference between actual and expected throughput.
+     * @param beta TCP Veno beta param.
      */
     void AdditiveIncrease(Ptr<TcpSocketState> state, uint32_t diff, UintegerValue beta);
 
     /**
-     * \brief TCP Veno multiplicative decrease formula.
-     * \param diff The difference between actual and expected throughput.
-     * \param beta TCP Veno beta param.
-     * \param bytesInFlight Bytes in flight.
-     * \returns The calculated SsThresh.
+     * @brief TCP Veno multiplicative decrease formula.
+     * @param diff The difference between actual and expected throughput.
+     * @param beta TCP Veno beta param.
+     * @param bytesInFlight Bytes in flight.
+     * @returns The calculated SsThresh.
      */
     uint32_t MultiplicativeDecrease(uint32_t diff,
                                     const UintegerValue& beta,
                                     uint32_t bytesInFlight) const;
 
     /**
-     * \brief Mimics the NewReno IncreaseWindow algorithm.
-     * \param state TCP socket state.
-     * \param segmentsAcked Number of segments acked.
+     * @brief Mimics the NewReno IncreaseWindow algorithm.
+     * @param state TCP socket state.
+     * @param segmentsAcked Number of segments acked.
      */
     void NewReno_IncreaseWindow(Ptr<TcpSocketState> state, uint32_t segmentsAcked);
 
     /**
-     * \brief Mimics the NewReno SlowStart algorithm.
-     * \param state TCP socket state.
-     * \param segmentsAcked Number of segments acked.
-     * \returns The number of segments that could be sent.
+     * @brief Mimics the NewReno SlowStart algorithm.
+     * @param state TCP socket state.
+     * @param segmentsAcked Number of segments acked.
+     * @returns The number of segments that could be sent.
      */
     uint32_t NewReno_SlowStart(Ptr<TcpSocketState> state, uint32_t segmentsAcked);
 
     /**
-     * \brief Mimics the NewReno Congestion Avoidance algorithm.
-     * \param state TCP socket state.
-     * \param segmentsAcked Number of segments acked.
+     * @brief Mimics the NewReno Congestion Avoidance algorithm.
+     * @param state TCP socket state.
+     * @param segmentsAcked Number of segments acked.
      */
     void NewReno_CongestionAvoidance(Ptr<TcpSocketState> state, uint32_t segmentsAcked);
 
@@ -298,15 +287,15 @@ TcpVenoTest::NewReno_CongestionAvoidance(Ptr<TcpSocketState> state, uint32_t seg
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief TCP Veno TestSuite
+ * @brief TCP Veno TestSuite
  */
 class TcpVenoTestSuite : public TestSuite
 {
   public:
     TcpVenoTestSuite()
-        : TestSuite("tcp-veno-test", UNIT)
+        : TestSuite("tcp-veno-test", Type::UNIT)
     {
         AddTestCase(new TcpVenoTest(38 * 1446,
                                     1446,
@@ -315,7 +304,7 @@ class TcpVenoTestSuite : public TestSuite
                                     1,
                                     1,
                                     "Veno test on cWnd in slow start and non-congestive loss"),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
         AddTestCase(new TcpVenoTest(30 * 536,
                                     536,
                                     20 * 536,
@@ -323,7 +312,7 @@ class TcpVenoTestSuite : public TestSuite
                                     1,
                                     1,
                                     "Veno test on cWnd with diff < beta"),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
         AddTestCase(new TcpVenoTest(60 * 536,
                                     536,
                                     40 * 536,
@@ -331,7 +320,7 @@ class TcpVenoTestSuite : public TestSuite
                                     1,
                                     3,
                                     "Veno increment test on cWnd with diff > beta"),
-                    TestCase::QUICK);
+                    TestCase::Duration::QUICK);
     }
 };
 

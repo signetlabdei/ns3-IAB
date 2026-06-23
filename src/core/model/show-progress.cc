@@ -1,26 +1,15 @@
 /*
  * Copyright (c) 2017 Lawrence Livermore National Laboratory
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Gustavo Carneiro <gjc@inescporto.pt>
  * Author: Peter D. Barnes, Jr. <pdbarnes@llnl.gov>
  */
 
 /**
- * \file
- * \ingroup core
+ * @file
+ * @ingroup core
  * ns3::ShowProgress implementation.
  */
 
@@ -81,8 +70,7 @@ ShowProgress::SetInterval(const Time interval)
     }
     Simulator::Cancel(m_event);
     Start();
-
-} // ShowProgress::SetInterval
+}
 
 void
 ShowProgress::SetTimePrinter(TimePrinter lp)
@@ -110,8 +98,7 @@ ShowProgress::ScheduleCheckProgress()
     NS_LOG_FUNCTION(this);
     m_event = Simulator::Schedule(m_vtime, &ShowProgress::CheckProgress, this);
     m_timer.Start();
-
-} // ShowProgress::ScheduleCheckProgress
+}
 
 void
 ShowProgress::GiveFeedback(uint64_t nEvents, int64x64_t ratio, int64x64_t speed)
@@ -142,8 +129,7 @@ ShowProgress::GiveFeedback(uint64_t nEvents, int64x64_t ratio, int64x64_t speed)
     // Restore stream state
     m_os->precision(precision);
     m_os->flags(flags);
-
-} // ShowProgress::GiveFeedback
+}
 
 void
 ShowProgress::CheckProgress()
@@ -153,7 +139,7 @@ ShowProgress::CheckProgress()
     NS_LOG_FUNCTION(this << m_elapsed);
 
     // Don't do anything unless the elapsed time is positive.
-    if (m_elapsed <= Time(0))
+    if (m_elapsed.IsNegative())
     {
         m_vtime = m_vtime * MAXGAIN;
         ++m_repCount;
@@ -172,7 +158,7 @@ ShowProgress::CheckProgress()
     uint64_t events = Simulator::GetEventCount();
     uint64_t nEvents = events - m_eventCount;
     /**
-     * \internal Update algorithm
+     * @internal Update algorithm
      *
      * We steer \c m_vtime to obtain updates approximately every
      * \c m_interval in wall clock time.  To smooth things out a little
@@ -187,7 +173,7 @@ ShowProgress::CheckProgress()
      *
      * Graphically, the windows in ratio value and the corresponding
      * updates to \c m_vtime are sketched in this figure:
-     * \verbatim
+     * @verbatim
                         ^
                         |
                 ratio   |   vtime update
@@ -226,7 +212,7 @@ ShowProgress::CheckProgress()
      * half the ratio.  This reduces "hunting" for a stable update
      * period.
      *
-     * \todo Evaluate if simple exponential averaging would be
+     * @todo Evaluate if simple exponential averaging would be
      * more effective, simpler.
      */
     if (ratio > HYSTERESIS)
@@ -266,15 +252,14 @@ ShowProgress::CheckProgress()
 
     // And do it again
     ScheduleCheckProgress();
-
-} // ShowProgress::CheckProgress
+}
 
 void
 ShowProgress::Start()
 {
     m_stamp.Stamp();
     (*m_os) << "Start wall clock: " << m_stamp.ToString() << std::endl;
-} // ShowProgress::Start
+}
 
 void
 ShowProgress::Stop()
@@ -282,6 +267,6 @@ ShowProgress::Stop()
     m_stamp.Stamp();
     (*m_os) << "End wall clock:  " << m_stamp.ToString()
             << "\nElapsed wall clock: " << m_stamp.GetInterval() << "s" << std::endl;
-} // ShowProgress::Stop
+}
 
 } // namespace ns3

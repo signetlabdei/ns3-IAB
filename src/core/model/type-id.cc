@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2008 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -23,14 +12,12 @@
 #include "singleton.h"
 #include "trace-source-accessor.h"
 
-#include <iomanip>
 #include <map>
-#include <sstream>
 #include <vector>
 
 /**
- * \file
- * \ingroup object
+ * @file
+ * @ingroup object
  * ns3::TypeId and ns3::IidManager implementations.
  */
 
@@ -47,13 +34,13 @@ NS_LOG_COMPONENT_DEFINE("TypeId");
 // to find g_log
 
 /**
- * \ingroup object
- * \brief TypeId information manager
+ * @ingroup object
+ * @brief TypeId information manager
  *
  * Information records are stored in a vector.  Name and hash lookup
  * are performed by maps to the vector index.
  *
- * \internal
+ * @internal
  * <b>Hash Chaining</b>
  *
  * We require all types to produce distinct hashes. What if we encounter
@@ -80,96 +67,109 @@ class IidManager : public Singleton<IidManager>
   public:
     /**
      * Create a new unique type id.
-     * \param [in] name The name of this type id.
-     * \returns The id.
+     * @param [in] name The name of this type id.
+     * @returns The id.
      */
     uint16_t AllocateUid(std::string name);
     /**
+     * Add a deprecated name for the type id.  Use of this name raises
+     * a runtime warning, and only one deprecated name is supported.
+     * @param [in] uid The id.
+     * @param [in] name The deprecated name.
+     */
+    void AddDeprecatedName(uint16_t uid, const std::string& name);
+    /**
      * Set the parent of a type id.
-     * \param [in] uid The id.
-     * \param [in] parent The id of the parent.
+     * @param [in] uid The id.
+     * @param [in] parent The id of the parent.
      */
     void SetParent(uint16_t uid, uint16_t parent);
     /**
      * Set the group name of a type id.
-     * \param [in] uid The id.
-     * \param [in] groupName The group name.
+     * @param [in] uid The id.
+     * @param [in] groupName The group name.
      */
     void SetGroupName(uint16_t uid, std::string groupName);
     /**
      * Set the size of the object class referred to by this id.
-     * \param [in] uid The id.
-     * \param [in] size The object size.
+     * @param [in] uid The id.
+     * @param [in] size The object size.
      */
     void SetSize(uint16_t uid, std::size_t size);
     /**
      * Add a constructor Callback to this type id.
-     * \param [in] uid The id.
-     * \param [in] callback The Callback for the constructor.
+     * @param [in] uid The id.
+     * @param [in] callback The Callback for the constructor.
      */
     void AddConstructor(uint16_t uid, Callback<ObjectBase*> callback);
     /**
      * Mark this type id to be excluded from documentation.
-     * \param [in] uid The id.
+     * @param [in] uid The id.
      */
     void HideFromDocumentation(uint16_t uid);
     /**
      * Get a type id by name.
-     * \param [in] name The type id to find.
-     * \returns The type id.  A type id of 0 means \pname{name} wasn't found.
+     * @param [in] name The type id to find.
+     * @returns The type id.  A type id of 0 means \pname{name} wasn't found.
      */
     uint16_t GetUid(std::string name) const;
     /**
      * Get a type id by hash value.
-     * \param [in] hash The type id to find.
-     * \returns The type id.  A type id of 0 means \pname{hash} wasn't found.
+     * @param [in] hash The type id to find.
+     * @returns The type id.  A type id of 0 means \pname{hash} wasn't found.
      */
     uint16_t GetUid(TypeId::hash_t hash) const;
     /**
      * Get the name of a type id.
-     * \param [in] uid The id.
-     * \returns The name of the type id.
+     * @param [in] uid The id.
+     * @returns The name of the type id.
      */
     std::string GetName(uint16_t uid) const;
     /**
+     * Get the deprecated name of a type id.
+     * @param [in] uid The id.
+     * @returns The name of the type id.
+     */
+    std::string GetDeprecatedName(uint16_t uid) const;
+    /**
      * Get the hash of a type id.
-     * \param [in] uid The id.
-     * \returns The hash of the type id.
+     * @param [in] uid The id.
+     * @returns The hash of the type id.
      */
     TypeId::hash_t GetHash(uint16_t uid) const;
     /**
      * Get the parent of a type id.
-     * \param [in] uid The id.
-     * \returns The parent type id of the type id.
+     * @param [in] uid The id.
+     * @returns The parent type id of the type id.
      */
     uint16_t GetParent(uint16_t uid) const;
     /**
      * Get the group name of a type id.
-     * \param [in] uid The id.
-     * \returns The group name of the type id.
+     * @param [in] uid The id.
+     * @returns The group name of the type id.
      */
     std::string GetGroupName(uint16_t uid) const;
     /**
      * Get the size of a type id.
-     * \param [in] uid The id.
-     * \returns The size of the type id.
+     * @param [in] uid The id.
+     * @returns The size of the type id.
      */
     std::size_t GetSize(uint16_t uid) const;
     /**
      * Get the constructor Callback of a type id.
-     * \param [in] uid The id.
-     * \returns The constructor Callback of the type id.
+     * @param [in] uid The id.
+     * @returns The constructor Callback of the type id.
      */
     Callback<ObjectBase*> GetConstructor(uint16_t uid) const;
     /**
      * Check if a type id has a constructor Callback.
-     * \param [in] uid The id.
-     * \returns \c true if the type id has a constructor Callback.
+     * @param [in] uid The id.
+     * @returns \c true if the type id has a constructor Callback.
      */
     bool HasConstructor(uint16_t uid) const;
     /**
      * Get the total number of type ids.
-     * \returns The total number.
+     * @returns The total number.
      */
     uint16_t GetRegisteredN() const;
     /**
@@ -178,25 +178,25 @@ class IidManager : public Singleton<IidManager>
      * The type id value 0 indicates not registered, so there is an offset
      * of 1 between the index and the type id value.  This function converts
      * from an index to the type id value.
-     * \param [in] i The index.
-     * \returns The type id.
+     * @param [in] i The index.
+     * @returns The type id.
      */
     uint16_t GetRegistered(uint16_t i) const;
     /**
      * Record a new attribute in a type id.
-     * \param [in] uid The id.
-     * \param [in] name The name of the new attribute
-     * \param [in] help Some help text which describes the purpose of this
+     * @param [in] uid The id.
+     * @param [in] name The name of the new attribute
+     * @param [in] help Some help text which describes the purpose of this
      *             attribute.
-     * \param [in] flags Flags which describe how this attribute can be
+     * @param [in] flags Flags which describe how this attribute can be
      *             read and/or written.
-     * \param [in] initialValue The initial value for this attribute.
-     * \param [in] accessor An instance of the associated AttributeAccessor
+     * @param [in] initialValue The initial value for this attribute.
+     * @param [in] accessor An instance of the associated AttributeAccessor
      *             subclass.
-     * \param [in] checker An instance of the associated AttributeChecker
+     * @param [in] checker An instance of the associated AttributeChecker
      *             subclass.
-     * \param [in] supportLevel The support/deprecation status for this attribute.
-     * \param [in] supportMsg Upgrade hint if this attribute is no longer supported.
+     * @param [in] supportLevel The support/deprecation status for this attribute.
+     * @param [in] supportMsg Upgrade hint if this attribute is no longer supported.
      */
     void AddAttribute(uint16_t uid,
                       std::string name,
@@ -205,90 +205,90 @@ class IidManager : public Singleton<IidManager>
                       Ptr<const AttributeValue> initialValue,
                       Ptr<const AttributeAccessor> accessor,
                       Ptr<const AttributeChecker> checker,
-                      TypeId::SupportLevel supportLevel = TypeId::SUPPORTED,
+                      TypeId::SupportLevel supportLevel = TypeId::SupportLevel::SUPPORTED,
                       const std::string& supportMsg = "");
     /**
      * Set the initial value of an Attribute.
-     * \param [in] uid The id.
-     * \param [in] i The attribute to manipulate
-     * \param [in] initialValue The new initial value to use for this attribute.
+     * @param [in] uid The id.
+     * @param [in] i The attribute to manipulate
+     * @param [in] initialValue The new initial value to use for this attribute.
      */
     void SetAttributeInitialValue(uint16_t uid,
                                   std::size_t i,
                                   Ptr<const AttributeValue> initialValue);
     /**
      * Get the number of attributes.
-     * \param [in] uid The id.
-     * \returns The number of attributes associated to this TypeId
+     * @param [in] uid The id.
+     * @returns The number of attributes associated to this TypeId
      */
     std::size_t GetAttributeN(uint16_t uid) const;
     /**
      * Get Attribute information by index.
-     * \param [in] uid The id.
-     * \param [in] i Index into attribute array
-     * \returns The information associated to attribute whose index is \pname{i}.
+     * @param [in] uid The id.
+     * @param [in] i Index into attribute array
+     * @returns The information associated to attribute whose index is \pname{i}.
      */
-    struct TypeId::AttributeInformation GetAttribute(uint16_t uid, std::size_t i) const;
+    TypeId::AttributeInformation GetAttribute(uint16_t uid, std::size_t i) const;
     /**
      * Record a new TraceSource.
-     * \param [in] uid The id.
-     * \param [in] name The name of the new trace source
-     * \param [in] help Some help text which describes the purpose of this
+     * @param [in] uid The id.
+     * @param [in] name The name of the new trace source
+     * @param [in] help Some help text which describes the purpose of this
      *             trace source.
-     * \param [in] accessor A pointer to a TraceSourceAccessor which can be
+     * @param [in] accessor A pointer to a TraceSourceAccessor which can be
      *             used to connect/disconnect sinks to this trace source.
-     * \param [in] callback Fully qualified typedef name for the callback
+     * @param [in] callback Fully qualified typedef name for the callback
      *             signature.  Generally this should begin with the
      *             "ns3::" namespace qualifier.
-     * \param [in] supportLevel The support/deprecation status for this attribute.
-     * \param [in] supportMsg Upgrade hint if this attribute is no longer supported.
+     * @param [in] supportLevel The support/deprecation status for this attribute.
+     * @param [in] supportMsg Upgrade hint if this attribute is no longer supported.
      */
     void AddTraceSource(uint16_t uid,
                         std::string name,
                         std::string help,
                         Ptr<const TraceSourceAccessor> accessor,
                         std::string callback,
-                        TypeId::SupportLevel supportLevel = TypeId::SUPPORTED,
+                        TypeId::SupportLevel supportLevel = TypeId::SupportLevel::SUPPORTED,
                         const std::string& supportMsg = "");
     /**
      * Get the number of Trace sources.
-     * \param [in] uid The id.
-     * \returns The number of trace sources defined in this TypeId.
+     * @param [in] uid The id.
+     * @returns The number of trace sources defined in this TypeId.
      */
     std::size_t GetTraceSourceN(uint16_t uid) const;
     /**
      * Get the trace source by index.
-     * \param [in] uid The id.
-     * \param [in] i Index into trace source array.
-     * \returns Detailed information about the requested trace source.
+     * @param [in] uid The id.
+     * @param [in] i Index into trace source array.
+     * @returns Detailed information about the requested trace source.
      */
-    struct TypeId::TraceSourceInformation GetTraceSource(uint16_t uid, std::size_t i) const;
+    TypeId::TraceSourceInformation GetTraceSource(uint16_t uid, std::size_t i) const;
     /**
      * Check if this TypeId should not be listed in documentation.
-     * \param [in] uid The id.
-     * \returns \c true if this TypeId should be hidden from the user.
+     * @param [in] uid The id.
+     * @returns \c true if this TypeId should be hidden from the user.
      */
     bool MustHideFromDocumentation(uint16_t uid) const;
 
   private:
     /**
      * Check if a type id has a given TraceSource.
-     * \param [in] uid The id.
-     * \param [in] name The TraceSource name.
-     * \returns \c true if \pname{uid} has the TraceSource \pname{name}.
+     * @param [in] uid The id.
+     * @param [in] name The TraceSource name.
+     * @returns \c true if \pname{uid} has the TraceSource \pname{name}.
      */
     bool HasTraceSource(uint16_t uid, std::string name);
     /**
      * Check if a type id has a given Attribute.
-     * \param [in] uid The id.
-     * \param [in] name The Attribute name.
-     * \returns \c true if \pname{uid} has the Attribute \pname{name}.
+     * @param [in] uid The id.
+     * @param [in] name The Attribute name.
+     * @returns \c true if \pname{uid} has the Attribute \pname{name}.
      */
     bool HasAttribute(uint16_t uid, std::string name);
     /**
      * Hashing function.
-     * \param [in] name The type id name.
-     * \returns The hashed value of \pname{name}.
+     * @param [in] name The type id name.
+     * @returns The hashed value of \pname{name}.
      */
     static TypeId::hash_t Hasher(const std::string name);
 
@@ -297,6 +297,8 @@ class IidManager : public Singleton<IidManager>
     {
         /** The type id name. */
         std::string name;
+        /** A deprecated type id name. */
+        std::string deprecatedName;
         /** The type id hash value. */
         TypeId::hash_t hash;
         /** The parent type id. */
@@ -312,26 +314,27 @@ class IidManager : public Singleton<IidManager>
         /** \c true if this type should be omitted from documentation. */
         bool mustHideFromDocumentation;
         /** The container of Attributes. */
-        std::vector<struct TypeId::AttributeInformation> attributes;
+        std::vector<TypeId::AttributeInformation> attributes;
         /** The container of TraceSources. */
-        std::vector<struct TypeId::TraceSourceInformation> traceSources;
+        std::vector<TypeId::TraceSourceInformation> traceSources;
         /** Support level/deprecation. */
         TypeId::SupportLevel supportLevel;
         /** Support message. */
         std::string supportMsg;
     };
+
     /** Iterator type. */
-    typedef std::vector<struct IidInformation>::const_iterator Iterator;
+    typedef std::vector<IidInformation>::const_iterator Iterator;
 
     /**
      * Retrieve the information record for a type.
-     * \param [in] uid The id.
-     * \returns The information record.
+     * @param [in] uid The id.
+     * @returns The information record.
      */
-    struct IidManager::IidInformation* LookupInformation(uint16_t uid) const;
+    IidManager::IidInformation* LookupInformation(uint16_t uid) const;
 
     /** The container of all type id records. */
-    std::vector<struct IidInformation> m_information;
+    std::vector<IidInformation> m_information;
 
     /** Type of the by-name index. */
     typedef std::map<std::string, uint16_t> namemap_t;
@@ -365,14 +368,14 @@ IidManager::Hasher(const std::string name)
 }
 
 /**
- * \ingroup object
- * \internal
+ * @ingroup object
+ * @internal
  * IidManager shorthand for use in NS_LOG
  */
 #define IID "IidManager"
 /**
- * \ingroup object
- * \internal
+ * @ingroup object
+ * @internal
  * IidManager shorthand for use in NS_LOG
  */
 #define IIDL IID << ": "
@@ -382,7 +385,8 @@ IidManager::AllocateUid(std::string name)
 {
     NS_LOG_FUNCTION(IID << name);
     // Type names are definitive: equal names are equal types
-    NS_ASSERT_MSG(m_namemap.count(name) == 0, "Trying to allocate twice the same uid: " << name);
+    NS_ABORT_MSG_UNLESS(m_namemap.count(name) == 0,
+                        "Trying to allocate twice the same uid: " << name);
 
     TypeId::hash_t hash = Hasher(name) & (~HashChainFlag);
     if (m_hashmap.count(hash) == 1)
@@ -413,7 +417,7 @@ IidManager::AllocateUid(std::string name)
         // into ns3.  -- Peter Barnes, LLNL
 
         // Alphabetize the two types, so it's deterministic
-        struct IidInformation* hinfo = LookupInformation(GetUid(hash));
+        IidInformation* hinfo = LookupInformation(GetUid(hash));
         if (name > hinfo->name)
         { // new type gets chained
             NS_LOG_LOGIC(IIDL << "New TypeId '" << name << "' getting chained.");
@@ -425,7 +429,7 @@ IidManager::AllocateUid(std::string name)
             uint16_t oldUid = GetUid(hinfo->hash);
             m_hashmap.erase(m_hashmap.find(hinfo->hash));
             hinfo->hash = hash | HashChainFlag;
-            m_hashmap.insert(std::make_pair(hinfo->hash, oldUid));
+            m_hashmap.insert({hinfo->hash, oldUid});
             // leave new hash unchained
         }
     }
@@ -438,26 +442,40 @@ IidManager::AllocateUid(std::string name)
     information.size = (std::size_t)(-1);
     information.hasConstructor = false;
     information.mustHideFromDocumentation = false;
-    information.supportLevel = TypeId::SUPPORTED;
+    information.supportLevel = TypeId::SupportLevel::SUPPORTED;
     m_information.push_back(information);
     std::size_t tuid = m_information.size();
     NS_ASSERT(tuid <= 0xffff);
-    uint16_t uid = static_cast<uint16_t>(tuid);
+    auto uid = static_cast<uint16_t>(tuid);
 
     // Add to both maps:
-    m_namemap.insert(std::make_pair(name, uid));
-    m_hashmap.insert(std::make_pair(hash, uid));
+    m_namemap.insert({name, uid});
+    m_hashmap.insert({hash, uid});
     NS_LOG_LOGIC(IIDL << uid);
     return uid;
 }
 
-struct IidManager::IidInformation*
+IidManager::IidInformation*
 IidManager::LookupInformation(uint16_t uid) const
 {
     NS_LOG_FUNCTION(IID << uid);
-    NS_ASSERT(uid <= m_information.size() && uid != 0);
+    NS_ASSERT_MSG(uid <= m_information.size() && uid != 0,
+                  "The uid " << uid << " for this TypeId is invalid");
     NS_LOG_LOGIC(IIDL << m_information[uid - 1].name);
-    return const_cast<struct IidInformation*>(&m_information[uid - 1]);
+    return const_cast<IidInformation*>(&m_information[uid - 1]);
+}
+
+void
+IidManager::AddDeprecatedName(uint16_t uid, const std::string& name)
+{
+    NS_LOG_FUNCTION(IID << uid << name);
+    IidInformation* info = LookupInformation(uid);
+    NS_ASSERT_MSG(info->deprecatedName.empty(),
+                  "Deprecated name already added: " << info->deprecatedName);
+    const auto [it, success] = m_namemap.insert({name, uid});
+    NS_ASSERT_MSG(success,
+                  "Deprecated name " << name << " insertion failed (possibly a duplicate?)");
+    info->deprecatedName = name;
 }
 
 void
@@ -465,7 +483,7 @@ IidManager::SetParent(uint16_t uid, uint16_t parent)
 {
     NS_LOG_FUNCTION(IID << uid << parent);
     NS_ASSERT(parent <= m_information.size());
-    struct IidInformation* information = LookupInformation(uid);
+    IidInformation* information = LookupInformation(uid);
     information->parent = parent;
 }
 
@@ -473,7 +491,7 @@ void
 IidManager::SetGroupName(uint16_t uid, std::string groupName)
 {
     NS_LOG_FUNCTION(IID << uid << groupName);
-    struct IidInformation* information = LookupInformation(uid);
+    IidInformation* information = LookupInformation(uid);
     information->groupName = groupName;
 }
 
@@ -481,7 +499,7 @@ void
 IidManager::SetSize(uint16_t uid, std::size_t size)
 {
     NS_LOG_FUNCTION(IID << uid << size);
-    struct IidInformation* information = LookupInformation(uid);
+    IidInformation* information = LookupInformation(uid);
     information->size = size;
 }
 
@@ -489,7 +507,7 @@ void
 IidManager::HideFromDocumentation(uint16_t uid)
 {
     NS_LOG_FUNCTION(IID << uid);
-    struct IidInformation* information = LookupInformation(uid);
+    IidInformation* information = LookupInformation(uid);
     information->mustHideFromDocumentation = true;
 }
 
@@ -497,7 +515,7 @@ void
 IidManager::AddConstructor(uint16_t uid, Callback<ObjectBase*> callback)
 {
     NS_LOG_FUNCTION(IID << uid << &callback);
-    struct IidInformation* information = LookupInformation(uid);
+    IidInformation* information = LookupInformation(uid);
     if (information->hasConstructor)
     {
         NS_FATAL_ERROR(information->name << " already has a constructor.");
@@ -511,7 +529,7 @@ IidManager::GetUid(std::string name) const
 {
     NS_LOG_FUNCTION(IID << name);
     uint16_t uid = 0;
-    namemap_t::const_iterator it = m_namemap.find(name);
+    auto it = m_namemap.find(name);
     if (it != m_namemap.end())
     {
         uid = it->second;
@@ -524,7 +542,7 @@ uint16_t
 IidManager::GetUid(TypeId::hash_t hash) const
 {
     NS_LOG_FUNCTION(IID << hash);
-    hashmap_t::const_iterator it = m_hashmap.find(hash);
+    auto it = m_hashmap.find(hash);
     uint16_t uid = 0;
     if (it != m_hashmap.end())
     {
@@ -538,16 +556,25 @@ std::string
 IidManager::GetName(uint16_t uid) const
 {
     NS_LOG_FUNCTION(IID << uid);
-    struct IidInformation* information = LookupInformation(uid);
+    IidInformation* information = LookupInformation(uid);
     NS_LOG_LOGIC(IIDL << information->name);
     return information->name;
+}
+
+std::string
+IidManager::GetDeprecatedName(uint16_t uid) const
+{
+    NS_LOG_FUNCTION(IID << uid);
+    IidInformation* information = LookupInformation(uid);
+    NS_LOG_LOGIC(IIDL << information->deprecatedName);
+    return information->deprecatedName;
 }
 
 TypeId::hash_t
 IidManager::GetHash(uint16_t uid) const
 {
     NS_LOG_FUNCTION(IID << uid);
-    struct IidInformation* information = LookupInformation(uid);
+    IidInformation* information = LookupInformation(uid);
     TypeId::hash_t hash = information->hash;
     NS_LOG_LOGIC(IIDL << hash);
     return hash;
@@ -557,7 +584,7 @@ uint16_t
 IidManager::GetParent(uint16_t uid) const
 {
     NS_LOG_FUNCTION(IID << uid);
-    struct IidInformation* information = LookupInformation(uid);
+    IidInformation* information = LookupInformation(uid);
     uint16_t pid = information->parent;
     NS_LOG_LOGIC(IIDL << pid);
     return pid;
@@ -567,7 +594,7 @@ std::string
 IidManager::GetGroupName(uint16_t uid) const
 {
     NS_LOG_FUNCTION(IID << uid);
-    struct IidInformation* information = LookupInformation(uid);
+    IidInformation* information = LookupInformation(uid);
     NS_LOG_LOGIC(IIDL << information->groupName);
     return information->groupName;
 }
@@ -576,7 +603,7 @@ std::size_t
 IidManager::GetSize(uint16_t uid) const
 {
     NS_LOG_FUNCTION(IID << uid);
-    struct IidInformation* information = LookupInformation(uid);
+    IidInformation* information = LookupInformation(uid);
     std::size_t size = information->size;
     NS_LOG_LOGIC(IIDL << size);
     return size;
@@ -586,7 +613,7 @@ Callback<ObjectBase*>
 IidManager::GetConstructor(uint16_t uid) const
 {
     NS_LOG_FUNCTION(IID << uid);
-    struct IidInformation* information = LookupInformation(uid);
+    IidInformation* information = LookupInformation(uid);
     if (!information->hasConstructor)
     {
         NS_FATAL_ERROR("Requested constructor for " << information->name
@@ -599,7 +626,7 @@ bool
 IidManager::HasConstructor(uint16_t uid) const
 {
     NS_LOG_FUNCTION(IID << uid);
-    struct IidInformation* information = LookupInformation(uid);
+    IidInformation* information = LookupInformation(uid);
     bool hasC = information->hasConstructor;
     NS_LOG_LOGIC(IIDL << hasC);
     return hasC;
@@ -623,13 +650,10 @@ bool
 IidManager::HasAttribute(uint16_t uid, std::string name)
 {
     NS_LOG_FUNCTION(IID << uid << name);
-    struct IidInformation* information = LookupInformation(uid);
+    IidInformation* information = LookupInformation(uid);
     while (true)
     {
-        for (std::vector<struct TypeId::AttributeInformation>::const_iterator i =
-                 information->attributes.begin();
-             i != information->attributes.end();
-             ++i)
+        for (auto i = information->attributes.begin(); i != information->attributes.end(); ++i)
         {
             if (i->name == name)
             {
@@ -637,7 +661,7 @@ IidManager::HasAttribute(uint16_t uid, std::string name)
                 return true;
             }
         }
-        struct IidInformation* parent = LookupInformation(information->parent);
+        IidInformation* parent = LookupInformation(information->parent);
         if (parent == information)
         {
             // top of inheritance tree
@@ -664,7 +688,7 @@ IidManager::AddAttribute(uint16_t uid,
 {
     NS_LOG_FUNCTION(IID << uid << name << help << flags << initialValue << accessor << checker
                         << supportLevel << supportMsg);
-    struct IidInformation* information = LookupInformation(uid);
+    IidInformation* information = LookupInformation(uid);
     if (name.find(' ') != std::string::npos)
     {
         NS_FATAL_ERROR("Attribute name \"" << name << "\" may not contain spaces ' ', "
@@ -676,7 +700,7 @@ IidManager::AddAttribute(uint16_t uid,
         NS_FATAL_ERROR("Attribute \"" << name << "\" already registered on tid=\""
                                       << information->name << "\"");
     }
-    struct TypeId::AttributeInformation info;
+    TypeId::AttributeInformation info;
     info.name = name;
     info.help = help;
     info.flags = flags;
@@ -696,7 +720,7 @@ IidManager::SetAttributeInitialValue(uint16_t uid,
                                      Ptr<const AttributeValue> initialValue)
 {
     NS_LOG_FUNCTION(IID << uid << i << initialValue);
-    struct IidInformation* information = LookupInformation(uid);
+    IidInformation* information = LookupInformation(uid);
     NS_ASSERT(i < information->attributes.size());
     information->attributes[i].initialValue = initialValue;
 }
@@ -705,17 +729,17 @@ std::size_t
 IidManager::GetAttributeN(uint16_t uid) const
 {
     NS_LOG_FUNCTION(IID << uid);
-    struct IidInformation* information = LookupInformation(uid);
+    IidInformation* information = LookupInformation(uid);
     std::size_t size = information->attributes.size();
     NS_LOG_LOGIC(IIDL << size);
     return size;
 }
 
-struct TypeId::AttributeInformation
+TypeId::AttributeInformation
 IidManager::GetAttribute(uint16_t uid, std::size_t i) const
 {
     NS_LOG_FUNCTION(IID << uid << i);
-    struct IidInformation* information = LookupInformation(uid);
+    IidInformation* information = LookupInformation(uid);
     NS_ASSERT(i < information->attributes.size());
     NS_LOG_LOGIC(IIDL << information->name);
     return information->attributes[i];
@@ -725,13 +749,10 @@ bool
 IidManager::HasTraceSource(uint16_t uid, std::string name)
 {
     NS_LOG_FUNCTION(IID << uid << name);
-    struct IidInformation* information = LookupInformation(uid);
+    IidInformation* information = LookupInformation(uid);
     while (true)
     {
-        for (std::vector<struct TypeId::TraceSourceInformation>::const_iterator i =
-                 information->traceSources.begin();
-             i != information->traceSources.end();
-             ++i)
+        for (auto i = information->traceSources.begin(); i != information->traceSources.end(); ++i)
         {
             if (i->name == name)
             {
@@ -739,7 +760,7 @@ IidManager::HasTraceSource(uint16_t uid, std::string name)
                 return true;
             }
         }
-        struct IidInformation* parent = LookupInformation(information->parent);
+        IidInformation* parent = LookupInformation(information->parent);
         if (parent == information)
         {
             // top of inheritance tree
@@ -764,13 +785,13 @@ IidManager::AddTraceSource(uint16_t uid,
 {
     NS_LOG_FUNCTION(IID << uid << name << help << accessor << callback << supportLevel
                         << supportMsg);
-    struct IidInformation* information = LookupInformation(uid);
+    IidInformation* information = LookupInformation(uid);
     if (HasTraceSource(uid, name))
     {
         NS_FATAL_ERROR("Trace source \"" << name << "\" already registered on tid=\""
                                          << information->name << "\"");
     }
-    struct TypeId::TraceSourceInformation source;
+    TypeId::TraceSourceInformation source;
     source.name = name;
     source.help = help;
     source.accessor = accessor;
@@ -785,17 +806,17 @@ std::size_t
 IidManager::GetTraceSourceN(uint16_t uid) const
 {
     NS_LOG_FUNCTION(IID << uid);
-    struct IidInformation* information = LookupInformation(uid);
+    IidInformation* information = LookupInformation(uid);
     std::size_t size = information->traceSources.size();
     NS_LOG_LOGIC(IIDL << size);
     return size;
 }
 
-struct TypeId::TraceSourceInformation
+TypeId::TraceSourceInformation
 IidManager::GetTraceSource(uint16_t uid, std::size_t i) const
 {
     NS_LOG_FUNCTION(IID << uid << i);
-    struct IidInformation* information = LookupInformation(uid);
+    IidInformation* information = LookupInformation(uid);
     NS_ASSERT(i < information->traceSources.size());
     NS_LOG_LOGIC(IIDL << information->name);
     return information->traceSources[i];
@@ -805,7 +826,7 @@ bool
 IidManager::MustHideFromDocumentation(uint16_t uid) const
 {
     NS_LOG_FUNCTION(IID << uid);
-    struct IidInformation* information = LookupInformation(uid);
+    IidInformation* information = LookupInformation(uid);
     bool hide = information->mustHideFromDocumentation;
     NS_LOG_LOGIC(IIDL << hide);
     return hide;
@@ -836,11 +857,26 @@ TypeId::TypeId(uint16_t tid)
 }
 
 TypeId
+TypeId::AddDeprecatedName(const std::string& name)
+{
+    NS_LOG_FUNCTION(this << name);
+    IidManager::Get()->AddDeprecatedName(m_tid, name);
+    NS_LOG_INFO("Set deprecated name " << name << " for TypeId "
+                                       << IidManager::Get()->GetName(m_tid));
+    return *this;
+}
+
+TypeId
 TypeId::LookupByName(std::string name)
 {
     NS_LOG_FUNCTION(name);
     uint16_t uid = IidManager::Get()->GetUid(name);
-    NS_ASSERT_MSG(uid != 0, "Assert in TypeId::LookupByName: " << name << " not found");
+    NS_ASSERT_MSG(uid, "Assert in TypeId::LookupByName: " << name << " not found");
+    if (IidManager::Get()->GetDeprecatedName(uid) == name)
+    {
+        std::cerr << "Deprecation warning for name " << name << "; use "
+                  << IidManager::Get()->GetName(uid) << " instead" << std::endl;
+    }
     return TypeId(uid);
 }
 
@@ -854,6 +890,11 @@ TypeId::LookupByNameFailSafe(std::string name, TypeId* tid)
         return false;
     }
     *tid = TypeId(uid);
+    if (IidManager::Get()->GetDeprecatedName(uid) == name)
+    {
+        std::cerr << "Deprecation warning for name " << name << "; use "
+                  << IidManager::Get()->GetName(uid) << " instead" << std::endl;
+    }
     return true;
 }
 
@@ -893,41 +934,64 @@ TypeId::GetRegistered(uint16_t i)
     return TypeId(IidManager::Get()->GetRegistered(i));
 }
 
-bool
-TypeId::LookupAttributeByName(std::string name, struct TypeId::AttributeInformation* info) const
+std::tuple<bool, TypeId, TypeId::AttributeInformation>
+TypeId::FindAttribute(const TypeId& tid, const std::string& name)
 {
-    NS_LOG_FUNCTION(this << name << info);
-    TypeId tid;
-    TypeId nextTid = *this;
-    do
+    TypeId currentTid = tid;
+    TypeId parentTid;
+    while (true)
     {
-        tid = nextTid;
-        for (std::size_t i = 0; i < tid.GetAttributeN(); i++)
+        for (std::size_t i = 0; i < currentTid.GetAttributeN(); ++i)
         {
-            struct TypeId::AttributeInformation tmp = tid.GetAttribute(i);
-            if (tmp.name == name)
+            const AttributeInformation& attributeInfo = currentTid.GetAttribute(i);
+            if (attributeInfo.name == name)
             {
-                if (tmp.supportLevel == TypeId::SUPPORTED)
-                {
-                    *info = tmp;
-                    return true;
-                }
-                else if (tmp.supportLevel == TypeId::DEPRECATED)
-                {
-                    std::cerr << "Attribute '" << name << "' is deprecated: " << tmp.supportMsg
-                              << std::endl;
-                    *info = tmp;
-                    return true;
-                }
-                else if (tmp.supportLevel == TypeId::OBSOLETE)
-                {
-                    NS_FATAL_ERROR("Attribute '" << name << "' is obsolete, with no fallback: "
-                                                 << tmp.supportMsg);
-                }
+                return {true, currentTid, attributeInfo};
             }
         }
-        nextTid = tid.GetParent();
-    } while (nextTid != tid);
+
+        parentTid = currentTid.GetParent();
+
+        if (parentTid == currentTid)
+        {
+            break;
+        }
+
+        currentTid = parentTid;
+    }
+    return {false, TypeId(), AttributeInformation()};
+}
+
+bool
+TypeId::LookupAttributeByName(std::string name,
+                              TypeId::AttributeInformation* info,
+                              bool permissive) const
+{
+    NS_LOG_FUNCTION(this << name << info);
+    auto [found, tid, attribute] = FindAttribute(*this, name);
+    if (found)
+    {
+        if (attribute.supportLevel == SupportLevel::SUPPORTED)
+        {
+            *info = attribute;
+            return true;
+        }
+        else if (attribute.supportLevel == SupportLevel::DEPRECATED)
+        {
+            if (!permissive)
+            {
+                std::cerr << "Attribute '" << name << "' is deprecated: " << attribute.supportMsg
+                          << std::endl;
+            }
+            *info = attribute;
+            return true;
+        }
+        else if (attribute.supportLevel == SupportLevel::OBSOLETE)
+        {
+            NS_FATAL_ERROR("Attribute '"
+                           << name << "' is obsolete, with no fallback: " << attribute.supportMsg);
+        }
+    }
     return false;
 }
 
@@ -1108,7 +1172,7 @@ TypeId::GetAttributeN() const
     return n;
 }
 
-struct TypeId::AttributeInformation
+TypeId::AttributeInformation
 TypeId::GetAttribute(std::size_t i) const
 {
     NS_LOG_FUNCTION(this << i);
@@ -1119,7 +1183,7 @@ std::string
 TypeId::GetAttributeFullName(std::size_t i) const
 {
     NS_LOG_FUNCTION(this << i);
-    struct TypeId::AttributeInformation info = GetAttribute(i);
+    TypeId::AttributeInformation info = GetAttribute(i);
     return GetName() + "::" + info.name;
 }
 
@@ -1130,7 +1194,7 @@ TypeId::GetTraceSourceN() const
     return IidManager::Get()->GetTraceSourceN(m_tid);
 }
 
-struct TypeId::TraceSourceInformation
+TypeId::TraceSourceInformation
 TypeId::GetTraceSource(std::size_t i) const
 {
     NS_LOG_FUNCTION(this << i);
@@ -1160,12 +1224,12 @@ TypeId::HideFromDocumentation()
 }
 
 Ptr<const TraceSourceAccessor>
-TypeId::LookupTraceSourceByName(std::string name, struct TraceSourceInformation* info) const
+TypeId::LookupTraceSourceByName(std::string name, TraceSourceInformation* info) const
 {
     NS_LOG_FUNCTION(this << name);
     TypeId tid;
     TypeId nextTid = *this;
-    struct TypeId::TraceSourceInformation tmp;
+    TypeId::TraceSourceInformation tmp;
     do
     {
         tid = nextTid;
@@ -1174,19 +1238,19 @@ TypeId::LookupTraceSourceByName(std::string name, struct TraceSourceInformation*
             tmp = tid.GetTraceSource(i);
             if (tmp.name == name)
             {
-                if (tmp.supportLevel == TypeId::SUPPORTED)
+                if (tmp.supportLevel == SupportLevel::SUPPORTED)
                 {
                     *info = tmp;
                     return tmp.accessor;
                 }
-                else if (tmp.supportLevel == TypeId::DEPRECATED)
+                else if (tmp.supportLevel == SupportLevel::DEPRECATED)
                 {
                     std::cerr << "TraceSource '" << name << "' is deprecated: " << tmp.supportMsg
                               << std::endl;
                     *info = tmp;
                     return tmp.accessor;
                 }
-                else if (tmp.supportLevel == TypeId::OBSOLETE)
+                else if (tmp.supportLevel == SupportLevel::OBSOLETE)
                 {
                     NS_FATAL_ERROR("TraceSource '" << name << "' is obsolete, with no fallback: "
                                                    << tmp.supportMsg);
@@ -1220,10 +1284,10 @@ TypeId::SetUid(uint16_t uid)
 }
 
 /**
- * \brief Insertion operator for TypeId
- * \param [in] os the output stream
- * \param [in] tid the TypeId
- * \returns the updated output stream.
+ * @brief Insertion operator for TypeId
+ * @param [in] os the output stream
+ * @param [in] tid the TypeId
+ * @returns the updated output stream.
  */
 std::ostream&
 operator<<(std::ostream& os, TypeId tid)
@@ -1233,10 +1297,10 @@ operator<<(std::ostream& os, TypeId tid)
 }
 
 /**
- * \brief Extraction operator for TypeId
- * \param [in] is the input stream
- * \param [out] tid the TypeId value
- * \returns the updated input stream.
+ * @brief Extraction operator for TypeId
+ * @param [in] is the input stream
+ * @param [out] tid the TypeId value
+ * @returns the updated input stream.
  */
 std::istream&
 operator>>(std::istream& is, TypeId& tid)
@@ -1249,6 +1313,21 @@ operator>>(std::istream& is, TypeId& tid)
         is.setstate(std::ios_base::badbit);
     }
     return is;
+}
+
+std::ostream&
+operator<<(std::ostream& os, TypeId::SupportLevel level)
+{
+    switch (level)
+    {
+    case TypeId::SupportLevel::SUPPORTED:
+        return os << "SUPPORTED";
+    case TypeId::SupportLevel::DEPRECATED:
+        return os << "DEPRECATED";
+    case TypeId::SupportLevel::OBSOLETE:
+        return os << "OBSOLETE";
+    };
+    return os << "UNKNOWN(" << static_cast<uint32_t>(level) << ")";
 }
 
 ATTRIBUTE_HELPER_CPP(TypeId);

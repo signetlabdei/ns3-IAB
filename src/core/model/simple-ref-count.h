@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2007 Georgia Tech Research Corporation, INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: George Riley <riley@ece.gatech.edu>
  *          Gustavo Carneiro <gjcarneiro@gmail.com>,
@@ -28,8 +17,8 @@
 #include <stdint.h>
 
 /**
- * \file
- * \ingroup ptr
+ * @file
+ * @ingroup ptr
  * ns3::SimpleRefCount declaration and template implementation.
  */
 
@@ -37,22 +26,25 @@ namespace ns3
 {
 
 /**
- * \ingroup ptr
- * \brief Empty class, used as a default parent class for SimpleRefCount
+ * @ingroup ptr
+ * @brief Empty class, used as a default parent class for SimpleRefCount
+ *
+ * Inheritance graph was not generated because of its size.
+ * @hideinheritancegraph
  */
 class Empty
 {
 };
 
 /**
- * \ingroup ptr
- * \brief A template-based reference counting class
+ * @ingroup ptr
+ * @brief A template-based reference counting class
  *
  * This template can be used to give reference-counting powers
  * to a class. This template does not require this class to
  * have a virtual destructor or a specific (or any) parent class.
  *
- * \note If you are moving to this template from the RefCountBase class,
+ * @note If you are moving to this template from the RefCountBase class,
  * you need to be careful to mark appropriately your destructor virtual
  * if needed. i.e., if your class has subclasses, _do_ mark your destructor
  * virtual.
@@ -61,20 +53,23 @@ class Empty
  * This template takes 3 arguments but only the first argument is
  * mandatory:
  *
- * \tparam T \explicit The typename of the subclass which derives
+ * @tparam T \explicit The typename of the subclass which derives
  *      from this template class. Yes, this is weird but it's a
  *      common C++ template pattern whose name is CRTP (Curiously
  *      Recursive Template Pattern)
- * \tparam PARENT \explicit The typename of the parent of this template.
+ * @tparam PARENT \explicit The typename of the parent of this template.
  *      By default, this typename is "'ns3::Empty'" which is an empty
  *      class: compilers which implement the EBCO optimization (empty
  *      base class optimization) will make this a no-op
- * \tparam DELETER \explicit The typename of a class which implements
+ * @tparam DELETER \explicit The typename of a class which implements
  *      a public static method named 'Delete'. This method will be called
  *      whenever the SimpleRefCount template detects that no references
  *      to the object it manages exist anymore.
  *
  * Interesting users of this class include ns3::Object as well as ns3::Packet.
+ *
+ * Inheritance graph was not generated because of its size.
+ * @hideinheritancegraph
  */
 template <typename T, typename PARENT = Empty, typename DELETER = DefaultDeleter<T>>
 class SimpleRefCount : public PARENT
@@ -88,7 +83,7 @@ class SimpleRefCount : public PARENT
 
     /**
      * Copy constructor
-     * \param [in] o The object to copy into this one.
+     * @param [in] o The object to copy into this one.
      */
     SimpleRefCount(const SimpleRefCount& o [[maybe_unused]])
         : m_count(1)
@@ -97,8 +92,8 @@ class SimpleRefCount : public PARENT
 
     /**
      * Assignment operator
-     * \param [in] o The object to copy
-     * \returns The copy of \pname{o}
+     * @param [in] o The object to copy
+     * @returns The copy of \pname{o}
      */
     SimpleRefCount& operator=(const SimpleRefCount& o [[maybe_unused]])
     {
@@ -136,7 +131,7 @@ class SimpleRefCount : public PARENT
      * Get the reference count of the object.
      * Normally not needed; for language bindings.
      *
-     * \return The reference count.
+     * @return The reference count.
      */
     inline uint32_t GetReferenceCount() const
     {
@@ -147,7 +142,7 @@ class SimpleRefCount : public PARENT
     /**
      * The reference count.
      *
-     * \internal
+     * @internal
      * Note we make this mutable so that the const methods can still
      * change it.
      */

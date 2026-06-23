@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2006 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -27,10 +16,10 @@
 #include "ns3/system-wall-clock-ms.h"
 
 #include <algorithm>
+#include <cstdlib> // for exit ()
 #include <iostream>
 #include <limits>
 #include <sstream>
-#include <stdlib.h> // for exit ()
 #include <string>
 
 using namespace ns3;
@@ -46,13 +35,13 @@ class BenchHeader : public Header
      * deserialization was correct.  If Deserialize() has not yet been
      * called on the header, will return false.
      *
-     * \returns true if success, false if failed or if deserialization not tried
+     * @returns true if success, false if failed or if deserialization not tried
      */
     bool IsOk() const;
 
     /**
      * Register this type.
-     * \return The TypeId.
+     * @return The TypeId.
      */
     static TypeId GetTypeId();
     TypeId GetInstanceTypeId() const override;
@@ -64,7 +53,7 @@ class BenchHeader : public Header
   private:
     /**
      * Get type name function
-     * \returns the type name string
+     * @returns the type name string
      */
     static std::string GetTypeName();
     bool m_ok; ///< variable to track whether deserialization succeeded
@@ -154,7 +143,7 @@ class BenchTag : public Tag
   public:
     /**
      * Get the bench tag name.
-     * \return the name.
+     * @return the name.
      */
     static std::string GetName()
     {
@@ -165,7 +154,7 @@ class BenchTag : public Tag
 
     /**
      * Register this type.
-     * \return The TypeId.
+     * @return The TypeId.
      */
     static TypeId GetTypeId()
     {

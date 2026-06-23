@@ -1,18 +1,7 @@
 /*
  *  Copyright (c) 2009 INRIA, UDCAST
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Amine Ismail <amine.ismail@sophia.inria.fr>
  *                      <amine.ismail@udcast.com>
@@ -30,10 +19,6 @@ namespace ns3
 NS_LOG_COMPONENT_DEFINE("PacketLossCounter");
 
 PacketLossCounter::PacketLossCounter(uint8_t bitmapSize)
-    : m_lost(0),
-      m_bitMapSize(0),
-      m_lastMaxSeqNum(0),
-      m_receiveBitMap(nullptr)
 {
     NS_LOG_FUNCTION(this << bitmapSize);
     SetBitMapSize(bitmapSize);
@@ -113,14 +98,14 @@ PacketLossCounter::NotifyReceived(uint32_t seqNum)
     NS_LOG_FUNCTION(this << seqNum);
     for (uint32_t i = m_lastMaxSeqNum + 1; i <= seqNum; i++)
     {
-        if (GetBit(i) != 1)
+        if (!GetBit(i))
         {
             NS_LOG_INFO("Packet lost: " << i - (m_bitMapSize * 8));
             m_lost++;
         }
-        SetBit(i, 0);
+        SetBit(i, false);
     }
-    SetBit(seqNum, 1);
+    SetBit(seqNum, true);
     if (seqNum > m_lastMaxSeqNum)
     {
         m_lastMaxSeqNum = seqNum;

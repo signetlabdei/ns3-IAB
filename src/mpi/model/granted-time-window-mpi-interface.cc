@@ -1,23 +1,12 @@
 /*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: George Riley <riley@ece.gatech.edu>
  */
 
 /**
- * \file
- * \ingroup mpi
+ * @file
+ * @ingroup mpi
  * Implementation of classes ns3::SentBuffer and ns3::GrantedTimeWindowMpiInterface.
  */
 
@@ -52,7 +41,7 @@ NS_OBJECT_ENSURE_REGISTERED(GrantedTimeWindowMpiInterface);
 SentBuffer::SentBuffer()
 {
     m_buffer = nullptr;
-    m_request = nullptr;
+    m_request = MPI_REQUEST_NULL;
 }
 
 SentBuffer::~SentBuffer()
@@ -90,7 +79,6 @@ MPI_Request* GrantedTimeWindowMpiInterface::g_requests;
 char** GrantedTimeWindowMpiInterface::g_pRxBuffers;
 MPI_Comm GrantedTimeWindowMpiInterface::g_communicator = MPI_COMM_WORLD;
 bool GrantedTimeWindowMpiInterface::g_freeCommunicator = false;
-;
 
 TypeId
 GrantedTimeWindowMpiInterface::GetTypeId()
@@ -219,16 +207,16 @@ GrantedTimeWindowMpiInterface::SendPacket(Ptr<Packet> p,
 
     SentBuffer sendBuf;
     g_pendingTx.push_back(sendBuf);
-    std::list<SentBuffer>::reverse_iterator i = g_pendingTx.rbegin(); // Points to the last element
+    auto i = g_pendingTx.rbegin(); // Points to the last element
 
     uint32_t serializedSize = p->GetSerializedSize();
-    uint8_t* buffer = new uint8_t[serializedSize + 16];
+    auto buffer = new uint8_t[serializedSize + 16];
     i->SetBuffer(buffer);
     // Add the time, dest node and dest device
     uint64_t t = rxTime.GetInteger();
-    uint64_t* pTime = reinterpret_cast<uint64_t*>(buffer);
+    auto pTime = reinterpret_cast<uint64_t*>(buffer);
     *pTime++ = t;
-    uint32_t* pData = reinterpret_cast<uint32_t*>(pTime);
+    auto pData = reinterpret_cast<uint32_t*>(pTime);
     *pData++ = node;
     *pData++ = dev;
     // Serialize the packet
@@ -270,9 +258,9 @@ GrantedTimeWindowMpiInterface::ReceiveMessages()
         g_rxCount++; // Count this receive
 
         // Get the meta data first
-        uint64_t* pTime = reinterpret_cast<uint64_t*>(g_pRxBuffers[index]);
+        auto pTime = reinterpret_cast<uint64_t*>(g_pRxBuffers[index]);
         uint64_t time = *pTime++;
-        uint32_t* pData = reinterpret_cast<uint32_t*>(pTime);
+        auto pData = reinterpret_cast<uint32_t*>(pTime);
         uint32_t node = *pData++;
         uint32_t dev = *pData++;
 
@@ -321,14 +309,14 @@ GrantedTimeWindowMpiInterface::TestSendComplete()
 {
     NS_LOG_FUNCTION_NOARGS();
 
-    std::list<SentBuffer>::iterator i = g_pendingTx.begin();
+    auto i = g_pendingTx.begin();
     while (i != g_pendingTx.end())
     {
         MPI_Status status;
         int flag = 0;
         MPI_Test(i->GetRequest(), &flag, &status);
-        std::list<SentBuffer>::iterator current = i; // Save current for erasing
-        i++;                                         // Advance to next
+        auto current = i; // Save current for erasing
+        i++;              // Advance to next
         if (flag)
         { // This message is complete
             g_pendingTx.erase(current);

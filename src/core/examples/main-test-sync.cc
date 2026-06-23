@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2008 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #include "ns3/command-line.h"
@@ -29,9 +18,9 @@
 #include <thread> // sleep_for
 
 /**
- * \file
- * \ingroup core-examples
- * \ingroup scheduler
+ * @file
+ * @ingroup core-examples
+ * @ingroup scheduler
  * An example of scheduling events in a background thread.
  *
  * See \ref ns3::SimulatorImpl::ScheduleWithContext
@@ -98,7 +87,7 @@ FakeNetDevice::Doit3()
         // Exercise the realtime relative now path
         //
         Simulator::ScheduleWithContext(Simulator::NO_CONTEXT,
-                                       Seconds(0.0),
+                                       Seconds(0),
                                        MakeEvent(&inserted_function));
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
@@ -123,7 +112,7 @@ test()
     //
     // Make sure ScheduleNow works when the system isn't running
     //
-    Simulator::ScheduleWithContext(0xffffffff, Seconds(0.0), MakeEvent(&first_function));
+    Simulator::ScheduleWithContext(0xffffffff, Seconds(0), MakeEvent(&first_function));
 
     //
     // drive the progression of m_currentTs at a ten millisecond rate from the main thread
@@ -135,7 +124,7 @@ test()
 
     std::thread st3 = std::thread(&FakeNetDevice::Doit3, &fnd);
 
-    Simulator::Stop(Seconds(15.0));
+    Simulator::Stop(Seconds(15));
     Simulator::Run();
 
     if (st3.joinable())

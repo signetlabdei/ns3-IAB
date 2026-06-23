@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2008-2009 Strasbourg University
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: David Gross <gdavid.devel@gmail.com>
  *         Sebastien Vincent <vincent@clarinet.u-strasbg.fr>
@@ -41,17 +30,17 @@ using namespace ns3;
 NS_LOG_COMPONENT_DEFINE("SimpleRoutingPing6Example");
 
 /**
- * \class StackHelper
- * \brief Helper to set or get some IPv6 information about nodes.
+ * @class StackHelper
+ * @brief Helper to set or get some IPv6 information about nodes.
  */
 class StackHelper
 {
   public:
     /**
-     * \brief Add an address to a IPv6 node.
-     * \param n node
-     * \param interface interface index
-     * \param address IPv6 address to add
+     * @brief Add an address to a IPv6 node.
+     * @param n node
+     * @param interface interface index
+     * @param address IPv6 address to add
      */
     inline void AddAddress(Ptr<Node>& n, uint32_t interface, Ipv6Address address)
     {
@@ -60,8 +49,8 @@ class StackHelper
     }
 
     /**
-     * \brief Print the routing table.
-     * \param n the node
+     * @brief Print the routing table.
+     * @param n the node
      */
     inline void PrintRoutingTable(Ptr<Node>& n)
     {
@@ -147,8 +136,8 @@ main(int argc, char** argv)
     ping.SetAttribute("Count", UintegerValue(maxPacketCount));
     ping.SetAttribute("Size", UintegerValue(packetSize));
     ApplicationContainer apps = ping.Install(net1.Get(0));
-    apps.Start(Seconds(2.0));
-    apps.Stop(Seconds(20.0));
+    apps.Start(Seconds(2));
+    apps.Stop(Seconds(20));
 
     AsciiTraceHelper ascii;
     csma.EnableAsciiAll(ascii.CreateFileStream("simple-routing-ping6.tr"));

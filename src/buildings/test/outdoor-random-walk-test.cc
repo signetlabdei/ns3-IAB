@@ -2,18 +2,7 @@
  * Copyright (c) 2019 SIGNET Lab, Department of Information Engineering,
  * University of Padova
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #include "ns3/abort.h"
@@ -21,6 +10,7 @@
 #include "ns3/building.h"
 #include "ns3/config.h"
 #include "ns3/double.h"
+#include "ns3/enum.h"
 #include "ns3/log.h"
 #include "ns3/mobility-helper.h"
 #include "ns3/pointer.h"
@@ -33,8 +23,7 @@ using namespace ns3;
 NS_LOG_COMPONENT_DEFINE("OutdoorRandomWalkTest");
 
 /**
- * \ingroup building-test
- * \ingroup tests
+ * @ingroup building-test
  *
  * Test case for the class OutdoorRandomWalkTestCase. It checks if the
  * positions visited by the user are outside buildings
@@ -50,7 +39,7 @@ class OutdoorRandomWalkTestCase : public TestCase
 
     /**
      * Check that the position is the expected one
-     * \param model Mobility model
+     * @param model Mobility model
      */
     void CheckPositionOutdoor(Ptr<RandomWalk2dOutdoorMobilityModel> model);
 
@@ -82,6 +71,10 @@ OutdoorRandomWalkTestCase::CheckPositionOutdoor(Ptr<RandomWalk2dOutdoorMobilityM
 void
 OutdoorRandomWalkTestCase::DoRun()
 {
+    // Samples to test and time steps
+    constexpr double TEST_STEP_S = 10; // s
+    constexpr int MAX_CHECKS = 1000;
+
     // create a grid of buildings
     double buildingSizeX = 100; // m
     double buildingSizeY = 50;  // m
@@ -121,7 +114,11 @@ OutdoorRandomWalkTestCase::DoRun()
     mobility.SetMobilityModel(
         "ns3::RandomWalk2dOutdoorMobilityModel",
         "Bounds",
-        RectangleValue(Rectangle(-streetWidth, maxAxisX, -streetWidth, maxAxisY)));
+        RectangleValue(Rectangle(-streetWidth, maxAxisX, -streetWidth, maxAxisY)),
+        "Mode",
+        EnumValue(RandomWalk2dOutdoorMobilityModel::MODE_TIME),
+        "Time",
+        TimeValue(Seconds(TEST_STEP_S * MAX_CHECKS)));
     // create an OutdoorPositionAllocator and set its boundaries to match those of the mobility
     // model
     Ptr<OutdoorPositionAllocator> position = CreateObject<OutdoorPositionAllocator>();
@@ -139,25 +136,22 @@ OutdoorRandomWalkTestCase::DoRun()
 
     auto mobilityModel = nodes.Get(0)->GetObject<RandomWalk2dOutdoorMobilityModel>();
 
-    // get maxChecks positions, check if they are outdoors
-    double testStep = 10; // s
-    int maxChecks = 1000;
-    for (int i = 0; i < maxChecks; ++i)
+    // get MAX_CHECKS positions, check if they are outdoors
+    for (int i = 0; i < MAX_CHECKS; i++)
     {
-        Simulator::Schedule(Seconds(i * testStep),
+        Simulator::Schedule(Seconds(i * TEST_STEP_S),
                             &OutdoorRandomWalkTestCase::CheckPositionOutdoor,
                             this,
                             mobilityModel);
     }
 
-    Simulator::Stop(Seconds(maxChecks * testStep + 1));
+    Simulator::Stop(Seconds(MAX_CHECKS * TEST_STEP_S + 1));
     Simulator::Run();
     Simulator::Destroy();
 }
 
 /**
- * \ingroup building-test
- * \ingroup tests
+ * @ingroup building-test
  *
  * Test suite for the buildings channel condition model
  */
@@ -168,9 +162,9 @@ class OutdoorRandomWalkTestSuite : public TestSuite
 };
 
 OutdoorRandomWalkTestSuite::OutdoorRandomWalkTestSuite()
-    : TestSuite("outdoor-random-walk-model", UNIT)
+    : TestSuite("outdoor-random-walk-model", Type::UNIT)
 {
-    AddTestCase(new OutdoorRandomWalkTestCase, TestCase::QUICK);
+    AddTestCase(new OutdoorRandomWalkTestCase, TestCase::Duration::QUICK);
 }
 
 /// Static variable for test initialization

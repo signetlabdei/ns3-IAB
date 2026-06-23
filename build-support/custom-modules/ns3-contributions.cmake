@@ -1,17 +1,6 @@
 # Copyright (c) 2017-2021 Universidade de Brasília
 #
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of the GNU General Public License version 2 as published by the Free
-# Software Foundation;
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
-# details.
-#
-# You should have received a copy of the GNU General Public License along with
-# this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-# Place, Suite 330, Boston, MA  02111-1307 USA
+# SPDX-License-Identifier: GPL-2.0-only
 #
 # Author: Gabriel Ferreira <gabrielcarvfer@gmail.com>
 
@@ -26,9 +15,15 @@ macro(process_contribution contribution_list)
   # Add contribution folders to be built
   foreach(contribname ${contribution_list})
     set(folder "contrib/${contribname}")
+    set(external_folder "../ns-3-external-contrib/${contribname}")
     if(EXISTS ${PROJECT_SOURCE_DIR}/${folder}/CMakeLists.txt)
       message(STATUS "Processing ${folder}")
       add_subdirectory(${folder})
+    elseif(EXISTS ${PROJECT_SOURCE_DIR}/${external_folder}/CMakeLists.txt)
+      message(STATUS "Processing ${external_folder}")
+      add_subdirectory(
+        ${external_folder} ${PROJECT_BINARY_DIR}/contrib/${contribname}
+      )
     else()
       message(${HIGHLIGHTED_STATUS}
               "Skipping ${folder} : it does not contain a CMakeLists.txt file"

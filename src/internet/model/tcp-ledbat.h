@@ -1,20 +1,10 @@
 /*
  * Copyright (c) 2016 NITK Surathkal
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Ankit Deepak <adadeepak8@gmail.com>
+ * Modified by: S B L Prateek <sblprateek@gmail.com>
  *
  */
 
@@ -31,16 +21,16 @@ namespace ns3
 class TcpSocketState;
 
 /**
- * \ingroup congestionOps
+ * @ingroup congestionOps
  *
- * \brief An implementation of LEDBAT
+ * @brief An implementation of LEDBAT
  */
 
 class TcpLedbat : public TcpNewReno
 {
   private:
     /**
-     * \brief The slowstart types
+     * @brief The slowstart types
      */
     enum SlowStartType
     {
@@ -49,7 +39,7 @@ class TcpLedbat : public TcpNewReno
     };
 
     /**
-     * \brief The state of LEDBAT. If LEDBAT is not in VALID_OWD state, it falls to
+     * @brief The state of LEDBAT. If LEDBAT is not in VALID_OWD state, it falls to
      *        default congestion ops.
      */
     enum State : uint32_t
@@ -60,8 +50,8 @@ class TcpLedbat : public TcpNewReno
 
   public:
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
 
@@ -71,29 +61,29 @@ class TcpLedbat : public TcpNewReno
     TcpLedbat();
 
     /**
-     * \brief Copy constructor
-     * \param sock the object to copy
+     * @brief Copy constructor
+     * @param sock the object to copy
      */
     TcpLedbat(const TcpLedbat& sock);
 
     /**
-     * \brief Destructor
+     * @brief Destructor
      */
     ~TcpLedbat() override;
 
     /**
-     * \brief Get the name of the TCP flavour
+     * @brief Get the name of the TCP flavour
      *
-     * \return The name of the TCP
+     * @return The name of the TCP
      */
     std::string GetName() const override;
 
     /**
-     * \brief Get information from the acked packet
+     * @brief Get information from the acked packet
      *
-     * \param tcb internal congestion state
-     * \param segmentsAcked count of segments ACKed
-     * \param rtt The estimated rtt
+     * @param tcb internal congestion state
+     * @param segmentsAcked count of segments ACKed
+     * @param rtt The estimated rtt
      */
     void PktsAcked(Ptr<TcpSocketState> tcb, uint32_t segmentsAcked, const Time& rtt) override;
 
@@ -101,85 +91,85 @@ class TcpLedbat : public TcpNewReno
     Ptr<TcpCongestionOps> Fork() override;
 
     /**
-     * \brief Adjust cwnd following LEDBAT algorithm
+     * @brief Adjust cwnd following LEDBAT algorithm
      *
-     * \param tcb internal congestion state
-     * \param segmentsAcked count of segments ACKed
+     * @param tcb internal congestion state
+     * @param segmentsAcked count of segments ACKed
      */
     void IncreaseWindow(Ptr<TcpSocketState> tcb, uint32_t segmentsAcked) override;
 
     /**
-     * \brief Change the Slow Start Capability
+     * @brief Change the Slow Start Capability
      *
-     * \param doSS Slow Start Option
+     * @param doSS Slow Start Option
      */
     void SetDoSs(SlowStartType doSS);
 
   protected:
     /**
-     * \brief Reduce Congestion
+     * @brief Reduce Congestion
      *
-     * \param tcb internal congestion state
-     * \param segmentsAcked count of segments ACKed
+     * @param tcb internal congestion state
+     * @param segmentsAcked count of segments ACKed
      */
     void CongestionAvoidance(Ptr<TcpSocketState> tcb, uint32_t segmentsAcked) override;
 
   private:
     /**
-     *\brief Buffer structure to store delays
+     * @brief Buffer structure to store delays
      */
     struct OwdCircBuf
     {
         std::vector<uint32_t> buffer; //!< Vector to store the delay
-        uint32_t min;                 //!< The index of minimum value
+        size_t min;                   //!< The index of minimum value
     };
 
     /**
-     * \brief Initialise a new buffer
+     * @brief Initialise a new buffer
      *
-     * \param buffer The buffer to be initialised
+     * @param buffer The buffer to be initialised
      */
-    void InitCircBuf(struct OwdCircBuf& buffer);
+    void InitCircBuf(OwdCircBuf& buffer);
 
     /// Filter function used by LEDBAT for current delay
-    typedef uint32_t (*FilterFunction)(struct OwdCircBuf&);
+    typedef uint32_t (*FilterFunction)(OwdCircBuf&);
 
     /**
-     * \brief Return the minimum delay of the buffer
+     * @brief Return the minimum delay of the buffer
      *
-     * \param b The buffer
-     * \return The minimum delay
+     * @param b The buffer
+     * @return The minimum delay
      */
-    static uint32_t MinCircBuf(struct OwdCircBuf& b);
+    static uint32_t MinCircBuf(OwdCircBuf& b);
 
     /**
-     * \brief Return the value of current delay
+     * @brief Return the value of current delay
      *
-     * \param filter The filter function
-     * \return The current delay
+     * @param filter The filter function
+     * @return The current delay
      */
     uint32_t CurrentDelay(FilterFunction filter);
 
     /**
-     * \brief Return the value of base delay
+     * @brief Return the value of base delay
      *
-     * \return The base delay
+     * @return The base delay
      */
     uint32_t BaseDelay();
 
     /**
-     * \brief Add new delay to the buffers
+     * @brief Add new delay to the buffers
      *
-     * \param cb The buffer
-     * \param owd The new delay
-     * \param maxlen The maximum permitted length
+     * @param cb The buffer
+     * @param owd The new delay
+     * @param maxlen The maximum permitted length
      */
-    void AddDelay(struct OwdCircBuf& cb, uint32_t owd, uint32_t maxlen);
+    void AddDelay(OwdCircBuf& cb, uint32_t owd, uint32_t maxlen);
 
     /**
-     * \brief Update the base delay buffer
+     * @brief Update the base delay buffer
      *
-     * \param owd The delay
+     * @param owd The delay
      */
     void UpdateBaseDelay(uint32_t owd);
 
@@ -188,12 +178,13 @@ class TcpLedbat : public TcpNewReno
     SlowStartType m_doSs;      //!< Permissible Slow Start State
     uint32_t m_baseHistoLen;   //!< Length of base delay history buffer
     uint32_t m_noiseFilterLen; //!< Length of current delay buffer
-    uint64_t m_lastRollover;   //!< Timestamp of last added delay
-    int32_t m_sndCwndCnt;      //!< The congestion window addition parameter
+    Time m_lastRollover;       //!< Timestamp of last added delay
+    double m_sndCwndCnt;       //!< The congestion window addition parameter
     OwdCircBuf m_baseHistory;  //!< Buffer to store the base delay
     OwdCircBuf m_noiseFilter;  //!< Buffer to store the current delay
     uint32_t m_flag;           //!< LEDBAT Flag
     uint32_t m_minCwnd;        //!< Minimum cWnd value mentioned in RFC 6817
+    double m_allowedIncrease;  //!< ALLOWED INCREASE value mentioned in RFC 6817
 };
 
 } // namespace ns3

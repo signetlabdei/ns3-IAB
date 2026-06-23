@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Leonard Tracy <lentracy@gmail.com>
  */
@@ -116,7 +105,7 @@ UanTxModeFactory::~UanTxModeFactory()
 bool
 UanTxModeFactory::NameUsed(std::string name)
 {
-    std::map<uint32_t, UanTxModeItem>::iterator it = m_modes.begin();
+    auto it = m_modes.begin();
 
     for (; it != m_modes.end(); it++)
     {
@@ -176,7 +165,7 @@ UanTxModeFactory::GetModeItem(uint32_t uid)
 UanTxModeFactory::UanTxModeItem&
 UanTxModeFactory::GetModeItem(std::string name)
 {
-    std::map<uint32_t, UanTxModeItem>::iterator it = m_modes.begin();
+    auto it = m_modes.begin();
     for (; it != m_modes.end(); it++)
     {
         if ((*it).second.m_name == name)
@@ -237,7 +226,7 @@ UanModesList::DeleteMode(uint32_t modeNum)
 {
     NS_ASSERT(modeNum < m_modes.size());
 
-    std::vector<UanTxMode>::iterator it = m_modes.begin();
+    auto it = m_modes.begin();
     for (uint32_t i = 0; i < modeNum; i++)
     {
         it++;
@@ -273,7 +262,7 @@ operator<<(std::ostream& os, const UanModesList& ml)
 std::istream&
 operator>>(std::istream& is, UanModesList& ml)
 {
-    char c;
+    char c = '\0';
 
     int numModes;
 
@@ -281,17 +270,29 @@ operator>>(std::istream& is, UanModesList& ml)
     if (c != '|')
     {
         is.setstate(std::ios_base::failbit);
+        return is;
     }
     ml.m_modes.clear();
     ml.m_modes.resize(numModes);
 
-    for (int i = 0; i < numModes && !is.eof(); i++)
+    if (numModes == 0 && is.peek() == std::istream::traits_type::eof())
+    {
+        return is;
+    }
+
+    int i;
+    for (i = 0; is.peek() != std::istream::traits_type::eof() && i < numModes; i++)
     {
         is >> ml.m_modes[i] >> c;
         if (c != '|')
         {
             is.setstate(std::ios_base::failbit);
+            return is;
         }
+    }
+    if (i < numModes)
+    {
+        is.setstate(std::ios_base::failbit);
     }
 
     return is;

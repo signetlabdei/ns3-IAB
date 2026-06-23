@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2012 Lawrence Livermore National Laboratory
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Peter D. Barnes, Jr. <pdbarnes@llnl.gov>
  */
@@ -25,9 +14,9 @@
 #include <cstring> // memcpy
 
 /**
- * \file
- * \ingroup hash
- * \brief ns3::Hash::Implementation, ns3::Hash::Function::Hash32 and
+ * @file
+ * @ingroup hash
+ * @brief ns3::Hash::Implementation, ns3::Hash::Function::Hash32 and
  * ns3::Hash::Function::Hash64 declarations.
  */
 
@@ -35,16 +24,16 @@ namespace ns3
 {
 
 /**
- * \ingroup hash
+ * @ingroup hash
  * Hash function implementations
  */
 namespace Hash
 {
 
 /**
- *  \ingroup hash
+ * @ingroup hash
  *
- *  \brief Hash function implementation base class.
+ * @brief Hash function implementation base class.
  */
 class Implementation : public SimpleRefCount<Implementation>
 {
@@ -59,9 +48,9 @@ class Implementation : public SimpleRefCount<Implementation>
      * you can hash successive buffers.  The final return value
      * will be the cumulative hash across all calls.
      *
-     * \param [in] buffer Pointer to the beginning of the buffer.
-     * \param [in] size Length of the buffer, in bytes.
-     * \return 32-bit hash of the buffer.
+     * @param [in] buffer Pointer to the beginning of the buffer.
+     * @param [in] size Length of the buffer, in bytes.
+     * @return 32-bit hash of the buffer.
      */
     virtual uint32_t GetHash32(const char* buffer, const std::size_t size) = 0;
     /**
@@ -76,9 +65,9 @@ class Implementation : public SimpleRefCount<Implementation>
      * you can hash successive buffers.  The final return value
      * will be the cumulative hash across all calls.
      *
-     * \param [in] buffer Pointer to the beginning of the buffer.
-     * \param [in] size Length of the buffer, in bytes.
-     * \return 64-bit hash of the buffer.
+     * @param [in] buffer Pointer to the beginning of the buffer.
+     * @param [in] size Length of the buffer, in bytes.
+     * @return 64-bit hash of the buffer.
      */
     virtual uint64_t GetHash64(const char* buffer, const std::size_t size);
     /**
@@ -99,7 +88,9 @@ class Implementation : public SimpleRefCount<Implementation>
     virtual ~Implementation()
     {
     }
-}; // Hashfunction
+
+    // end of class Hash::Implementation
+};
 
 /*--------------------------------------
  *  Hash function implementation
@@ -108,9 +99,9 @@ class Implementation : public SimpleRefCount<Implementation>
 
 /**
  *
- * \ingroup hash
+ * @ingroup hash
  *
- * \brief Function pointer signatures for basic hash functions.
+ * @brief Function pointer signatures for basic hash functions.
  *
  * See Hash::Function::Hash32 or Hash::Function::Hash64
  * @{
@@ -121,16 +112,16 @@ typedef uint64_t (*Hash64Function_ptr)(const char*, const std::size_t);
 /**@}*/
 
 /**
- * \ingroup hash
+ * @ingroup hash
  * Hash functions.
  */
 namespace Function
 {
 
 /**
- * \ingroup hash
+ * @ingroup hash
  *
- * \brief Template for creating a Hash::Implementation from
+ * @brief Template for creating a Hash::Implementation from
  * a 32-bit hash function.
  */
 class Hash32 : public Implementation
@@ -139,7 +130,7 @@ class Hash32 : public Implementation
     /**
      * Constructor from a 32-bit hash function pointer.
      *
-     * \param [in] hp Function pointer to a 32-bit hash function.
+     * @param [in] hp Function pointer to a 32-bit hash function.
      */
     Hash32(Hash32Function_ptr hp)
         : m_fp(hp)
@@ -157,12 +148,14 @@ class Hash32 : public Implementation
 
   private:
     Hash32Function_ptr m_fp; /**< The hash function. */
-};                           // Hash32
+
+    // end of class Hash::Function::Hash32
+};
 
 /**
- * \ingroup hash
+ * @ingroup hash
  *
- * \brief Template for creating a Hash::Implementation from
+ * @brief Template for creating a Hash::Implementation from
  * a 64-bit hash function.
  */
 class Hash64 : public Implementation
@@ -171,7 +164,7 @@ class Hash64 : public Implementation
     /**
      * Constructor from a 64-bit hash function pointer.
      *
-     * \param [in] hp Function pointer to a 64-bit hash function.
+     * @param [in] hp Function pointer to a 64-bit hash function.
      */
     Hash64(Hash64Function_ptr hp)
         : m_fp(hp)
@@ -198,7 +191,9 @@ class Hash64 : public Implementation
 
   private:
     Hash64Function_ptr m_fp; /**< The hash function. */
-};                           // Hash64<Hash64Function_ptr>
+
+    // end of class Hash::Function::Hash64
+};
 
 } // namespace Function
 

@@ -1,31 +1,30 @@
-/* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
 /*
  * Copyright (c) 2022
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Sharan Naribole <sharan.naribole@gmail.com>
  */
 
 #include "eht-operation.h"
 
-#include <ns3/assert.h>
+#include "ns3/assert.h"
 
 #include <algorithm>
 
 namespace ns3
 {
+
+void
+EhtOperation::Print(std::ostream& os) const
+{
+    os << "EHT Operation=[";
+    if (m_opInfo.has_value())
+    {
+        os << "Channel Width: " << +m_opInfo->control.channelWidth;
+    }
+    os << "]";
+}
 
 void
 EhtOperation::EhtOpParams::Serialize(Buffer::Iterator& start) const
@@ -49,10 +48,10 @@ EhtOperation::EhtOpParams::Deserialize(Buffer::Iterator start)
 
 /**
  * set the max Tx/Rx NSS for input MCS index range
- * \param vec vector of max NSS per MCS
- * \param maxNss max NSS for input MCS range
- * \param mcsStart MCS index start
- * \param mcsEnd MCS index end
+ * @param vec vector of max NSS per MCS
+ * @param maxNss max NSS for input MCS range
+ * @param mcsStart MCS index start
+ * @param mcsEnd MCS index end
  */
 void
 SetMaxNss(std::vector<uint8_t>& vec, uint8_t maxNss, uint8_t mcsStart, uint8_t mcsEnd)
@@ -68,10 +67,10 @@ SetMaxNss(std::vector<uint8_t>& vec, uint8_t maxNss, uint8_t mcsStart, uint8_t m
 
 /**
  * Get the max Tx/Rx NSS for input MCS index range
- * \param vec vector of max NSS per MCS
- * \param mcsStart MCS index start
- * \param mcsEnd MCS index end
- * \return max Rx NSS
+ * @param vec vector of max NSS per MCS
+ * @param mcsStart MCS index start
+ * @param mcsEnd MCS index end
+ * @return max Rx NSS
  */
 uint32_t
 GetMaxNss(const std::vector<uint8_t>& vec, uint8_t mcsStart, uint8_t mcsEnd)
@@ -96,13 +95,13 @@ EhtOperation::EhtBasicMcsNssSet::Serialize(Buffer::Iterator& start) const
                    (GetMaxNss(maxRxNss, 8, 9) << 8) | (GetMaxNss(maxTxNss, 8, 9) << 12) |
                    (GetMaxNss(maxRxNss, 10, 11) << 16) | (GetMaxNss(maxTxNss, 10, 11) << 20) |
                    (GetMaxNss(maxRxNss, 12, 13) << 24) | (GetMaxNss(maxTxNss, 12, 13) << 28);
-    start.WriteHtolsbU32(val);
+    start.WriteU32(val);
 }
 
 uint16_t
 EhtOperation::EhtBasicMcsNssSet::Deserialize(Buffer::Iterator start)
 {
-    auto subfield = start.ReadLsbtohU32();
+    auto subfield = start.ReadU32();
     auto rxNssMcs0_7 = subfield & 0xf; // Max Rx NSS MCS 0-7
     SetMaxNss(maxRxNss, rxNssMcs0_7, 0, 7);
     auto txNssMcs0_7 = (subfield >> 4) & 0xf; // Max Tx NSS MCS 0-7
@@ -260,34 +259,4 @@ EhtOperation::DeserializeInformationField(Buffer::Iterator start, uint16_t lengt
                                              << +count << ")");
     return length;
 }
-
-std::ostream&
-operator<<(std::ostream& os, const EhtOperation& ehtOperation)
-{
-    os << +ehtOperation.m_params.opInfoPresent << "|"
-       << +ehtOperation.m_params.disabledSubchBmPresent << "|"
-       << +ehtOperation.m_params.defaultPeDur << "|" << +ehtOperation.m_params.grpBuIndLimit << "|"
-       << +ehtOperation.m_params.grpBuExp << "|[";
-    for (const auto& maxRxNss : ehtOperation.m_mcsNssSet.maxRxNss)
-    {
-        os << +maxRxNss << "|";
-    }
-    os << "]|[";
-    for (const auto& maxTxNss : ehtOperation.m_mcsNssSet.maxTxNss)
-    {
-        os << +maxTxNss << "|";
-    }
-    os << "]";
-    if (ehtOperation.m_opInfo.has_value())
-    {
-        os << "|" << +ehtOperation.m_opInfo->control.channelWidth << "|"
-           << +ehtOperation.m_opInfo->ccfs0 << "|" << +ehtOperation.m_opInfo->ccfs1;
-        if (ehtOperation.m_opInfo->disabledSubchBm.has_value())
-        {
-            os << "|" << ehtOperation.m_opInfo->disabledSubchBm.value();
-        }
-    }
-    return os;
-}
-
 } // namespace ns3

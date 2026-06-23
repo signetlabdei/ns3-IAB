@@ -1,25 +1,15 @@
 /*
  * Copyright (c) 2012 Andrew McGregor
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Codel, the COntrolled DELay Queueing discipline
  * Based on ns2 simulation code presented by Kathie Nichols
  *
  * This port based on linux kernel code by
- * Authors: Dave Täht <d@taht.net>
- *          Eric Dumazet <edumazet@google.com>
+ * Authors:
+ *   Dave Täht <d@taht.net>
+ *   Eric Dumazet <edumazet@google.com>
  *
  * Ported to ns-3 by: Andrew McGregor <andrewmcgr@gmail.com>
  */
@@ -41,9 +31,9 @@ NS_LOG_COMPONENT_DEFINE("CoDelQueueDisc");
 /**
  * Performs a reciprocal divide, similar to the
  * Linux kernel reciprocal_divide function
- * \param A numerator
- * \param R reciprocal of the denominator B
- * \return the value of A/B
+ * @param A numerator
+ * @param R reciprocal of the denominator B
+ * @return the value of A/B
  */
 /* borrowed from the linux kernel */
 static inline uint32_t
@@ -56,7 +46,7 @@ ReciprocalDivide(uint32_t A, uint32_t R)
 
 /**
  * Returns the current time translated in CoDel time representation
- * \return the current time
+ * @return the current time
  */
 static uint32_t
 CoDelGetTime()

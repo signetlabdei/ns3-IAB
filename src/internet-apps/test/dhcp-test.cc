@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2017 NITK Surathkal
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Ankit Deepak <adadeepak8@gmail.com>
  *          Deepti Rajagopal <deeptir96@gmail.com>
@@ -32,15 +21,15 @@
 using namespace ns3;
 
 /**
- * \ingroup dhcp
- * \defgroup dhcp-test DHCP module tests
+ * @ingroup dhcp
+ * @defgroup dhcp-test DHCP module tests
  */
 
 /**
- * \ingroup dhcp-test
- * \ingroup tests
+ * @ingroup dhcp-test
+ * @ingroup tests
  *
- * \brief DHCP basic tests
+ * @brief DHCP basic tests
  */
 class DhcpTestCase : public TestCase
 {
@@ -49,8 +38,8 @@ class DhcpTestCase : public TestCase
     ~DhcpTestCase() override;
     /**
      * Triggered by an address lease on a client.
-     * \param context The test name.
-     * \param newAddress The leased address.
+     * @param context The test name.
+     * @param newAddress The leased address.
      */
     void LeaseObtained(std::string context, const Ipv4Address& newAddress);
 
@@ -108,8 +97,8 @@ DhcpTestCase::DoRun()
                                                                       Ipv4Address("172.30.0.10"),
                                                                       Ipv4Address("172.30.0.15"),
                                                                       Ipv4Address("172.30.0.17"));
-    dhcpServerApp.Start(Seconds(0.0));
-    dhcpServerApp.Stop(Seconds(20.0));
+    dhcpServerApp.Start(Seconds(0));
+    dhcpServerApp.Stop(Seconds(20));
 
     DynamicCast<DhcpServer>(dhcpServerApp.Get(0))
         ->AddStaticDhcpEntry(devNet.Get(3)->GetAddress(), Ipv4Address("172.30.0.14"));
@@ -120,8 +109,8 @@ DhcpTestCase::DoRun()
     dhcpClientNetDevs.Add(devNet.Get(3));
 
     ApplicationContainer dhcpClientApps = dhcpHelper.InstallDhcpClient(dhcpClientNetDevs);
-    dhcpClientApps.Start(Seconds(1.0));
-    dhcpClientApps.Stop(Seconds(20.0));
+    dhcpClientApps.Start(Seconds(1));
+    dhcpClientApps.Stop(Seconds(20));
 
     dhcpClientApps.Get(0)->TraceConnect("NewLease",
                                         "0",
@@ -133,7 +122,7 @@ DhcpTestCase::DoRun()
                                         "2",
                                         MakeCallback(&DhcpTestCase::LeaseObtained, this));
 
-    Simulator::Stop(Seconds(21.0));
+    Simulator::Stop(Seconds(21));
 
     Simulator::Run();
 
@@ -156,10 +145,10 @@ DhcpTestCase::DoRun()
 }
 
 /**
- * \ingroup dhcp-test
- * \ingroup tests
+ * @ingroup dhcp-test
+ * @ingroup tests
  *
- * \brief DHCP TestSuite
+ * @brief DHCP TestSuite
  */
 class DhcpTestSuite : public TestSuite
 {
@@ -168,9 +157,9 @@ class DhcpTestSuite : public TestSuite
 };
 
 DhcpTestSuite::DhcpTestSuite()
-    : TestSuite("dhcp", UNIT)
+    : TestSuite("dhcp", Type::UNIT)
 {
-    AddTestCase(new DhcpTestCase, TestCase::QUICK);
+    AddTestCase(new DhcpTestCase, TestCase::Duration::QUICK);
 }
 
 static DhcpTestSuite dhcpTestSuite; //!< Static variable for test initialization

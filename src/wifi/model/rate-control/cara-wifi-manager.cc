@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2004,2005,2006 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Federico Maguolo <maguolof@dei.unipd.it>
  */
@@ -22,15 +11,13 @@
 #include "ns3/log.h"
 #include "ns3/wifi-tx-vector.h"
 
-#define Min(a, b) ((a < b) ? a : b)
-
 namespace ns3
 {
 
 NS_LOG_COMPONENT_DEFINE("CaraWifiManager");
 
 /**
- * \brief hold per-remote-station state for CARA Wifi manager.
+ * @brief hold per-remote-station state for CARA Wifi manager.
  *
  * This struct extends from WifiRemoteStation struct to hold additional
  * information required by the CARA Wifi manager
@@ -115,7 +102,7 @@ WifiRemoteStation*
 CaraWifiManager::DoCreateStation() const
 {
     NS_LOG_FUNCTION(this);
-    CaraWifiRemoteStation* station = new CaraWifiRemoteStation();
+    auto station = new CaraWifiRemoteStation();
     station->m_rate = 0;
     station->m_success = 0;
     station->m_failed = 0;
@@ -133,7 +120,7 @@ void
 CaraWifiManager::DoReportDataFailed(WifiRemoteStation* st)
 {
     NS_LOG_FUNCTION(this << st);
-    CaraWifiRemoteStation* station = static_cast<CaraWifiRemoteStation*>(st);
+    auto station = static_cast<CaraWifiRemoteStation*>(st);
     station->m_timer++;
     station->m_failed++;
     station->m_success = 0;
@@ -169,17 +156,17 @@ CaraWifiManager::DoReportDataOk(WifiRemoteStation* st,
                                 double ackSnr,
                                 WifiMode ackMode,
                                 double dataSnr,
-                                uint16_t dataChannelWidth,
+                                MHz_u dataChannelWidth,
                                 uint8_t dataNss)
 {
     NS_LOG_FUNCTION(this << st << ackSnr << ackMode << dataSnr << dataChannelWidth << +dataNss);
-    CaraWifiRemoteStation* station = static_cast<CaraWifiRemoteStation*>(st);
+    auto station = static_cast<CaraWifiRemoteStation*>(st);
     station->m_timer++;
     station->m_success++;
     station->m_failed = 0;
     NS_LOG_DEBUG("self=" << station << " data ok success=" << station->m_success
                          << ", timer=" << station->m_timer);
-    if ((station->m_success == m_successThreshold || station->m_timer >= m_timerTimeout))
+    if (station->m_success == m_successThreshold || station->m_timer >= m_timerTimeout)
     {
         if (station->m_rate < GetNSupported(station) - 1)
         {
@@ -204,14 +191,14 @@ CaraWifiManager::DoReportFinalDataFailed(WifiRemoteStation* st)
 }
 
 WifiTxVector
-CaraWifiManager::DoGetDataTxVector(WifiRemoteStation* st, uint16_t allowedWidth)
+CaraWifiManager::DoGetDataTxVector(WifiRemoteStation* st, MHz_u allowedWidth)
 {
     NS_LOG_FUNCTION(this << st << allowedWidth);
-    CaraWifiRemoteStation* station = static_cast<CaraWifiRemoteStation*>(st);
-    uint16_t channelWidth = GetChannelWidth(station);
-    if (channelWidth > 20 && channelWidth != 22)
+    auto station = static_cast<CaraWifiRemoteStation*>(st);
+    auto channelWidth = GetChannelWidth(station);
+    if (channelWidth > MHz_u{20} && channelWidth != MHz_u{22})
     {
-        channelWidth = 20;
+        channelWidth = MHz_u{20};
     }
     WifiMode mode = GetSupported(station, station->m_rate);
     uint64_t rate = mode.GetDataRate(channelWidth);
@@ -224,7 +211,7 @@ CaraWifiManager::DoGetDataTxVector(WifiRemoteStation* st, uint16_t allowedWidth)
         mode,
         GetDefaultTxPowerLevel(),
         GetPreambleForTransmission(mode.GetModulationClass(), GetShortPreambleEnabled()),
-        800,
+        NanoSeconds(800),
         1,
         1,
         0,
@@ -236,16 +223,16 @@ WifiTxVector
 CaraWifiManager::DoGetRtsTxVector(WifiRemoteStation* st)
 {
     NS_LOG_FUNCTION(this << st);
-    CaraWifiRemoteStation* station = static_cast<CaraWifiRemoteStation*>(st);
-    /// \todo we could/should implement the Arf algorithm for
+    auto station = static_cast<CaraWifiRemoteStation*>(st);
+    /// @todo we could/should implement the Arf algorithm for
     /// RTS only by picking a single rate within the BasicRateSet.
-    uint16_t channelWidth = GetChannelWidth(station);
-    if (channelWidth > 20 && channelWidth != 22)
+    auto channelWidth = GetChannelWidth(station);
+    if (channelWidth > MHz_u{20} && channelWidth != MHz_u{22})
     {
-        channelWidth = 20;
+        channelWidth = MHz_u{20};
     }
     WifiMode mode;
-    if (GetUseNonErpProtection() == false)
+    if (!GetUseNonErpProtection())
     {
         mode = GetSupported(station, 0);
     }
@@ -257,7 +244,7 @@ CaraWifiManager::DoGetRtsTxVector(WifiRemoteStation* st)
         mode,
         GetDefaultTxPowerLevel(),
         GetPreambleForTransmission(mode.GetModulationClass(), GetShortPreambleEnabled()),
-        800,
+        NanoSeconds(800),
         1,
         1,
         0,
@@ -269,7 +256,7 @@ bool
 CaraWifiManager::DoNeedRts(WifiRemoteStation* st, uint32_t size, bool normally)
 {
     NS_LOG_FUNCTION(this << st << size << normally);
-    CaraWifiRemoteStation* station = static_cast<CaraWifiRemoteStation*>(st);
+    auto station = static_cast<CaraWifiRemoteStation*>(st);
     return normally || station->m_failed >= m_probeThreshold;
 }
 

@@ -1,18 +1,7 @@
 /*
  * Copyright 2007 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #include "udp-echo-server.h"
@@ -43,18 +32,15 @@ UdpEchoServer::GetTypeId()
 {
     static TypeId tid =
         TypeId("ns3::UdpEchoServer")
-            .SetParent<Application>()
+            .SetParent<SinkApplication>()
             .SetGroupName("Applications")
             .AddConstructor<UdpEchoServer>()
-            .AddAttribute("Port",
-                          "Port on which we listen for incoming packets.",
-                          UintegerValue(9),
-                          MakeUintegerAccessor(&UdpEchoServer::m_port),
-                          MakeUintegerChecker<uint16_t>())
-            .AddTraceSource("Rx",
-                            "A packet has been received",
-                            MakeTraceSourceAccessor(&UdpEchoServer::m_rxTrace),
-                            "ns3::Packet::TracedCallback")
+            .AddAttribute("Tos",
+                          "The Type of Service used to send IPv4 packets. "
+                          "All 8 bits of the TOS byte are set (including ECN bits).",
+                          UintegerValue(0),
+                          MakeUintegerAccessor(&UdpEchoServer::m_tos),
+                          MakeUintegerChecker<uint8_t>())
             .AddTraceSource("RxWithAddresses",
                             "A packet has been received",
                             MakeTraceSourceAccessor(&UdpEchoServer::m_rxTraceWithAddresses),
@@ -63,95 +49,68 @@ UdpEchoServer::GetTypeId()
 }
 
 UdpEchoServer::UdpEchoServer()
+    : SinkApplication(DEFAULT_PORT)
 {
     NS_LOG_FUNCTION(this);
+    m_protocolTid = TypeId::LookupByName("ns3::UdpSocketFactory");
 }
 
 UdpEchoServer::~UdpEchoServer()
 {
     NS_LOG_FUNCTION(this);
-    m_socket = nullptr;
-    m_socket6 = nullptr;
 }
 
 void
-UdpEchoServer::DoDispose()
-{
-    NS_LOG_FUNCTION(this);
-    Application::DoDispose();
-}
-
-void
-UdpEchoServer::StartApplication()
+UdpEchoServer::DoStartApplication()
 {
     NS_LOG_FUNCTION(this);
 
-    if (!m_socket)
+    auto local = m_local;
+    if (local.IsInvalid())
     {
-        TypeId tid = TypeId::LookupByName("ns3::UdpSocketFactory");
-        m_socket = Socket::CreateSocket(GetNode(), tid);
-        InetSocketAddress local = InetSocketAddress(Ipv4Address::GetAny(), m_port);
-        if (m_socket->Bind(local) == -1)
+        local = InetSocketAddress(Ipv4Address::GetAny(), m_port);
+    }
+    if (m_socket->Bind(local) == -1)
+    {
+        NS_FATAL_ERROR("Failed to bind socket");
+    }
+    if (addressUtils::IsMulticast(m_local))
+    {
+        Ptr<UdpSocket> udpSocket = DynamicCast<UdpSocket>(m_socket);
+        if (udpSocket)
         {
-            NS_FATAL_ERROR("Failed to bind socket");
+            // equivalent to setsockopt (MCAST_JOIN_GROUP)
+            udpSocket->MulticastJoinGroup(0, m_local);
         }
-        if (addressUtils::IsMulticast(m_local))
+        else
         {
-            Ptr<UdpSocket> udpSocket = DynamicCast<UdpSocket>(m_socket);
-            if (udpSocket)
-            {
-                // equivalent to setsockopt (MCAST_JOIN_GROUP)
-                udpSocket->MulticastJoinGroup(0, m_local);
-            }
-            else
-            {
-                NS_FATAL_ERROR("Error: Failed to join multicast group");
-            }
+            NS_FATAL_ERROR("Error: Failed to join multicast group");
         }
     }
+    m_socket->SetIpTos(m_tos); // Affects only IPv4 sockets.
+    m_socket->SetRecvCallback(MakeCallback(&UdpEchoServer::HandleRead, this));
 
-    if (!m_socket6)
+    if (m_local.IsInvalid())
     {
-        TypeId tid = TypeId::LookupByName("ns3::UdpSocketFactory");
-        m_socket6 = Socket::CreateSocket(GetNode(), tid);
-        Inet6SocketAddress local6 = Inet6SocketAddress(Ipv6Address::GetAny(), m_port);
-        if (m_socket6->Bind(local6) == -1)
+        auto local = Inet6SocketAddress(Ipv6Address::GetAny(), m_port);
+        if (m_socket6->Bind(local) == -1)
         {
             NS_FATAL_ERROR("Failed to bind socket");
         }
-        if (addressUtils::IsMulticast(local6))
+        if (addressUtils::IsMulticast(local))
         {
             Ptr<UdpSocket> udpSocket = DynamicCast<UdpSocket>(m_socket6);
             if (udpSocket)
             {
                 // equivalent to setsockopt (MCAST_JOIN_GROUP)
-                udpSocket->MulticastJoinGroup(0, local6);
+                udpSocket->MulticastJoinGroup(0, local);
             }
             else
             {
                 NS_FATAL_ERROR("Error: Failed to join multicast group");
             }
         }
-    }
-
-    m_socket->SetRecvCallback(MakeCallback(&UdpEchoServer::HandleRead, this));
-    m_socket6->SetRecvCallback(MakeCallback(&UdpEchoServer::HandleRead, this));
-}
-
-void
-UdpEchoServer::StopApplication()
-{
-    NS_LOG_FUNCTION(this);
-
-    if (m_socket)
-    {
-        m_socket->Close();
-        m_socket->SetRecvCallback(MakeNullCallback<void, Ptr<Socket>>());
-    }
-    if (m_socket6)
-    {
-        m_socket6->Close();
-        m_socket6->SetRecvCallback(MakeNullCallback<void, Ptr<Socket>>());
+        m_socket6->SetRecvCallback(MakeCallback(&UdpEchoServer::HandleRead, this));
     }
 }
 
@@ -160,13 +119,13 @@ UdpEchoServer::HandleRead(Ptr<Socket> socket)
 {
     NS_LOG_FUNCTION(this << socket);
 
-    Ptr<Packet> packet;
     Address from;
-    Address localAddress;
-    while ((packet = socket->RecvFrom(from)))
+    while (auto packet = socket->RecvFrom(from))
     {
+        Address localAddress;
         socket->GetSockName(localAddress);
-        m_rxTrace(packet);
+        m_rxTraceWithoutAddress(packet);
+        m_rxTrace(packet, from);
         m_rxTraceWithAddresses(packet, from, localAddress);
         if (InetSocketAddress::IsMatchingType(from))
         {

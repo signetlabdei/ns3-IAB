@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2014 Natale Patriciello, <natale.patriciello@gmail.com>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  */
 
@@ -64,7 +53,7 @@ TcpHighSpeed::Fork()
 }
 
 /**
- * \brief Congestion avoidance of TcpHighSpeed
+ * @brief Congestion avoidance of TcpHighSpeed
  *
  * As implementation choice, we increment cWnd only by MSS, when the right
  * number of ACK has been received. At this point, the important question is:
@@ -92,8 +81,8 @@ TcpHighSpeed::Fork()
  * acked. More weight, less ACK are necessary to increment cWnd, which is
  * exactly the Highspeed principle.
  *
- * \param tcb internal congestion state
- * \param segmentsAcked count of segments acked
+ * @param tcb internal congestion state
+ * @param segmentsAcked count of segments acked
  */
 void
 TcpHighSpeed::CongestionAvoidance(Ptr<TcpSocketState> tcb, uint32_t segmentsAcked)
@@ -130,12 +119,12 @@ TcpHighSpeed::GetName() const
 }
 
 /**
- * \brief Get slow start threshold following HighSpeed principles
+ * @brief Get slow start threshold following HighSpeed principles
  *
- * \param tcb internal congestion state
- * \param bytesInFlight Bytes in flight
+ * @param tcb internal congestion state
+ * @param bytesInFlight Bytes in flight
  *
- * \return the slow start threshold value
+ * @return the slow start threshold value
  */
 uint32_t
 TcpHighSpeed::GetSsThresh(Ptr<const TcpSocketState> tcb, uint32_t bytesInFlight)
@@ -447,15 +436,14 @@ TcpHighSpeed::TableLookupA(uint32_t w)
     {
         return 73;
     }
-    else
-    {
-        return 73;
-    }
+
+    return 73;
 }
 
 double
 TcpHighSpeed::TableLookupB(uint32_t w)
 {
+    // NOLINTBEGIN(bugprone-branch-clone)
     if (w <= 38)
     {
         return 0.50;
@@ -752,6 +740,7 @@ TcpHighSpeed::TableLookupB(uint32_t w)
     {
         return 0.09;
     }
+    // NOLINTEND(bugprone-branch-clone)
 }
 
 } // namespace ns3

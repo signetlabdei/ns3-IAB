@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2013 Lawrence Livermore National Laboratory
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Peter D. Barnes, Jr. <pdbarnes@llnl.gov>
  */
@@ -24,9 +13,9 @@
 #include <string>
 
 /**
- * \file
- * \ingroup core-examples
- * \ingroup commandline
+ * @file
+ * @ingroup core-examples
+ * @ingroup commandline
  * Example program illustrating use of ns3::CommandLine.
  */
 
@@ -45,8 +34,8 @@ std::string g_cbArg = "cbArg default";
  * Function to illustrate command line arguments handled by a
  * Callback function.
  *
- * \param [in] val New value for \pname{g_cbArg}.
- * \returns \c true.
+ * @param [in] val New value for \pname{g_cbArg}.
+ * @returns \c true.
  */
 bool
 SetCbArg(const std::string& val)
@@ -61,9 +50,9 @@ SetCbArg(const std::string& val)
  * Print a row containing the name, the default
  * and the final values of an argument.
  *
- * \param [in] label The argument label.
- * \param [in] defaultValue The default value of the argument.
- * \param [in] finalValue The final value of the argument.
+ * @param [in] label The argument label.
+ * @param [in] defaultValue The default value of the argument.
+ * @param [in] finalValue The final value of the argument.
  *
  */
 #define DefaultFinal(label, defaultValue, finalValue)                                              \
@@ -101,7 +90,7 @@ main(int argc, char* argv[])
     const TypeId tid = TypeId::LookupByName(attrClass);
     std::string attrDef;
     {
-        struct TypeId::AttributeInformation info;
+        TypeId::AttributeInformation info;
         tid.LookupAttributeByName(attrName, &info);
         attrDef = info.originalInitialValue->SerializeToString(info.checker);
     }
@@ -144,7 +133,7 @@ main(int argc, char* argv[])
     // Look up new default value for attribute
     std::string antiArg;
     {
-        struct TypeId::AttributeInformation info;
+        TypeId::AttributeInformation info;
         tid.LookupAttributeByName(attrName, &info);
         antiArg = info.initialValue->SerializeToString(info.checker);
     }

@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2015 NITK Surathkal
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mohit P. Tahiliani <tahiliani@nitk.edu.in>
  *
@@ -30,15 +19,15 @@
 using namespace ns3;
 
 /**
- * \ingroup traffic-control
- * \ingroup tests
- * \defgroup traffic-control-test traffic-control module tests
+ * @ingroup traffic-control
+ * @ingroup tests
+ * @defgroup traffic-control-test traffic-control module tests
  */
 
 /**
- * \ingroup traffic-control-test
+ * @ingroup traffic-control-test
  *
- * \brief Ared Queue Disc Test Item
+ * @brief Ared Queue Disc Test Item
  */
 class AredQueueDiscTestItem : public QueueDiscItem
 {
@@ -46,8 +35,8 @@ class AredQueueDiscTestItem : public QueueDiscItem
     /**
      * Constructor
      *
-     * \param p packet
-     * \param addr address
+     * @param p packet
+     * @param addr address
      */
     AredQueueDiscTestItem(Ptr<Packet> p, const Address& addr);
     ~AredQueueDiscTestItem() override;
@@ -82,9 +71,9 @@ AredQueueDiscTestItem::Mark()
 }
 
 /**
- * \ingroup traffic-control-test
+ * @ingroup traffic-control-test
  *
- * \brief Ared Queue Disc Test Case
+ * @brief Ared Queue Disc Test Case
  */
 class AredQueueDiscTestCase : public TestCase
 {
@@ -95,21 +84,21 @@ class AredQueueDiscTestCase : public TestCase
   private:
     /**
      * Enqueue function
-     * \param queue the queue disc
-     * \param size the size
-     * \param nPkt the number of packets
+     * @param queue the queue disc
+     * @param size the size
+     * @param nPkt the number of packets
      */
     void Enqueue(Ptr<RedQueueDisc> queue, uint32_t size, uint32_t nPkt);
     /**
      * Enqueue with delay function
-     * \param queue the queue disc
-     * \param size the size
-     * \param nPkt the number of packets
+     * @param queue the queue disc
+     * @param size the size
+     * @param nPkt the number of packets
      */
     void EnqueueWithDelay(Ptr<RedQueueDisc> queue, uint32_t size, uint32_t nPkt);
     /**
      * Run ARED queue disc test function
-     * \param mode the test mode
+     * @param mode the test mode
      */
     void RunAredDiscTest(QueueSizeUnit mode);
 };
@@ -127,7 +116,6 @@ AredQueueDiscTestCase::RunAredDiscTest(QueueSizeUnit mode)
     double minTh = 70;
     double maxTh = 150;
     uint32_t qSize = 300;
-    Address dest;
 
     // test 1: Verify automatic setting of QW. [QW = 0.0 with default LinkBandwidth]
     Ptr<RedQueueDisc> queue = CreateObject<RedQueueDisc>();
@@ -389,11 +377,10 @@ AredQueueDiscTestCase::Enqueue(Ptr<RedQueueDisc> queue, uint32_t size, uint32_t 
 void
 AredQueueDiscTestCase::EnqueueWithDelay(Ptr<RedQueueDisc> queue, uint32_t size, uint32_t nPkt)
 {
-    Address dest;
     double delay = 0.01; // enqueue packets with delay to allow m_curMaxP to adapt
     for (uint32_t i = 0; i < nPkt; i++)
     {
-        Simulator::Schedule(Time(Seconds((i + 1) * delay)),
+        Simulator::Schedule(Seconds((i + 1) * delay),
                             &AredQueueDiscTestCase::Enqueue,
                             this,
                             queue,
@@ -411,16 +398,16 @@ AredQueueDiscTestCase::DoRun()
 }
 
 /**
- * \ingroup traffic-control-test
+ * @ingroup traffic-control-test
  *
- * \brief Ared Queue Disc Test Suite
+ * @brief Ared Queue Disc Test Suite
  */
 static class AredQueueDiscTestSuite : public TestSuite
 {
   public:
     AredQueueDiscTestSuite()
-        : TestSuite("adaptive-red-queue-disc", UNIT)
+        : TestSuite("adaptive-red-queue-disc", Type::UNIT)
     {
-        AddTestCase(new AredQueueDiscTestCase(), TestCase::QUICK);
+        AddTestCase(new AredQueueDiscTestCase(), TestCase::Duration::QUICK);
     }
 } g_aredQueueDiscTestSuite; ///< the test suite

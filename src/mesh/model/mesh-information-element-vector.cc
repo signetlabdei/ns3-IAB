@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 IITP RAS
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Pavel Boyko <boyko@iitp.ru>
  */
@@ -41,18 +30,24 @@ namespace ns3
 NS_OBJECT_ENSURE_REGISTERED(MeshInformationElementVector);
 
 MeshInformationElementVector::MeshInformationElementVector()
+    : m_maxSize(1500)
 {
 }
 
 MeshInformationElementVector::~MeshInformationElementVector()
 {
+    for (auto i = m_elements.begin(); i != m_elements.end(); i++)
+    {
+        *i = nullptr;
+    }
+    m_elements.clear();
 }
 
 TypeId
 MeshInformationElementVector::GetTypeId()
 {
     static TypeId tid = TypeId("ns3::MeshInformationElementVector")
-                            .SetParent<WifiInformationElementVector>()
+                            .SetParent<Header>()
                             .SetGroupName("Mesh")
                             .AddConstructor<MeshInformationElementVector>();
     return tid;
@@ -62,6 +57,44 @@ TypeId
 MeshInformationElementVector::GetInstanceTypeId() const
 {
     return GetTypeId();
+}
+
+uint32_t
+MeshInformationElementVector::GetSerializedSize() const
+{
+    return GetSize();
+}
+
+void
+MeshInformationElementVector::Serialize(Buffer::Iterator start) const
+{
+    for (auto i = m_elements.begin(); i != m_elements.end(); i++)
+    {
+        start = (*i)->Serialize(start);
+    }
+}
+
+uint32_t
+MeshInformationElementVector::Deserialize(Buffer::Iterator start)
+{
+    NS_FATAL_ERROR("This variant should not be called on a variable-sized header");
+    return 0;
+}
+
+uint32_t
+MeshInformationElementVector::Deserialize(Buffer::Iterator start, Buffer::Iterator end)
+{
+    uint32_t size = start.GetDistanceFrom(end);
+    uint32_t remaining = size;
+    while (remaining > 0)
+    {
+        uint32_t deserialized = DeserializeSingleIe(start);
+        start.Next(deserialized);
+        NS_ASSERT(deserialized <= remaining);
+        remaining -= deserialized;
+    }
+    NS_ASSERT_MSG(remaining == 0, "Error in deserialization");
+    return size;
 }
 
 uint32_t
@@ -105,7 +138,8 @@ MeshInformationElementVector::DeserializeSingleIe(Buffer::Iterator start)
         newElement = Create<dot11s::IePeeringProtocol>();
         break;
     default:
-        return WifiInformationElementVector::DeserializeSingleIe(i);
+        NS_FATAL_ERROR("Information element " << +id << " is not implemented");
+        return 0;
     }
     if (GetSize() + length > m_maxSize)
     {
@@ -114,6 +148,91 @@ MeshInformationElementVector::DeserializeSingleIe(Buffer::Iterator start)
     i = newElement->Deserialize(i);
     m_elements.push_back(newElement);
     return i.GetDistanceFrom(start);
+}
+
+void
+MeshInformationElementVector::Print(std::ostream& os) const
+{
+    for (auto i = m_elements.begin(); i != m_elements.end(); i++)
+    {
+        os << "(";
+        (*i)->Print(os);
+        os << ")";
+    }
+}
+
+MeshInformationElementVector::Iterator
+MeshInformationElementVector::Begin()
+{
+    return m_elements.begin();
+}
+
+MeshInformationElementVector::Iterator
+MeshInformationElementVector::End()
+{
+    return m_elements.end();
+}
+
+bool
+MeshInformationElementVector::AddInformationElement(Ptr<WifiInformationElement> element)
+{
+    if (element->GetSerializedSize() + GetSize() > m_maxSize)
+    {
+        return false;
+    }
+    m_elements.push_back(element);
+    return true;
+}
+
+Ptr<WifiInformationElement>
+MeshInformationElementVector::FindFirst(WifiInformationElementId id) const
+{
+    for (auto i = m_elements.begin(); i != m_elements.end(); i++)
+    {
+        if ((*i)->ElementId() == id)
+        {
+            return *i;
+        }
+    }
+    return nullptr;
+}
+
+uint32_t
+MeshInformationElementVector::GetSize() const
+{
+    uint32_t size = 0;
+    for (auto i = m_elements.begin(); i != m_elements.end(); i++)
+    {
+        size += (*i)->GetSerializedSize();
+    }
+    return size;
+}
+
+bool
+MeshInformationElementVector::operator==(const MeshInformationElementVector& a) const
+{
+    if (m_elements.size() != a.m_elements.size())
+    {
+        NS_ASSERT(false);
+        return false;
+    }
+    // In principle we could bypass some of the faffing about (and speed
+    // the comparison) by simply serialising each IE vector into a
+    // buffer and memcmp'ing the two.
+    //
+    // I'm leaving it like this, however, so that there is the option of
+    // having individual Information Elements implement slightly more
+    // flexible equality operators.
+    auto j = a.m_elements.begin();
+    for (auto i = m_elements.begin(); i != m_elements.end(); i++, j++)
+    {
+        if (!(*(*i) == *(*j)))
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 } // namespace ns3

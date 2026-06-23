@@ -1,5 +1,6 @@
 set(base_examples
     bonnmotion-ns2-example
+    constant-mobility-example
     main-random-topology
     main-random-walk
     ns2-mobility-trace
@@ -40,3 +41,18 @@ build_lib_example(
   LIBRARIES_TO_LINK ${libnetwork}
                     ${libmobility}
 )
+
+if(propagation
+   IN_LIST
+   ns3-all-enabled-modules
+)
+  build_lib_example(
+    NAME leo-satellite-example
+    SOURCE_FILES leo-satellite-example.cc
+    LIBRARIES_TO_LINK
+      ${libcore}
+      ${libmobility}
+      ${libantenna}
+      ${libpropagation}
+  )
+endif()

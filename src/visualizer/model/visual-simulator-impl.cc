@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2010 Gustavo Carneiro
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Gustavo Carneiro <gjcarneiro@gmail.com> <gjc@inescporto.pt>
  */
@@ -23,6 +12,7 @@
 #include "ns3/default-simulator-impl.h"
 #include "ns3/log.h"
 #include "ns3/packet-metadata.h"
+#include "ns3/system-path.h"
 
 namespace ns3
 {
@@ -35,7 +25,7 @@ namespace
 {
 /**
  * Get an object factory configured to the default simulator implementation
- * \return an object factory.
+ * @return an object factory.
  */
 ObjectFactory
 GetDefaultSimulatorImplFactory()
@@ -117,20 +107,25 @@ VisualSimulatorImpl::IsFinished() const
 void
 VisualSimulatorImpl::Run()
 {
+    std::stringstream ss;
+    // If not a python script, where we can easily get argv, then inject program path as argv0
+    if (SystemPath::FindSelf().find("python") == std::string::npos)
+    {
+        ss << "import sys\n"
+           << "sys.argv = ['" << SystemPath::FindSelf() << "']\n";
+    }
+    ss << "import visualizer\n"
+       << "visualizer.start()\n";
     if (!Py_IsInitialized())
     {
-        const wchar_t* argv[] = {L"python", nullptr};
         Py_Initialize();
-        PySys_SetArgv(1, (wchar_t**)argv);
-        PyRun_SimpleString("import visualizer\n"
-                           "visualizer.start();\n");
+        PyRun_SimpleString(ss.str().data());
     }
     else
     {
         PyGILState_STATE __py_gil_state = PyGILState_Ensure();
 
-        PyRun_SimpleString("import visualizer\n"
-                           "visualizer.start();\n");
+        PyRun_SimpleString(ss.str().data());
 
         PyGILState_Release(__py_gil_state);
     }
@@ -142,10 +137,17 @@ VisualSimulatorImpl::Stop()
     m_simulator->Stop();
 }
 
-void
+EventId
 VisualSimulatorImpl::Stop(const Time& delay)
 {
-    m_simulator->Stop(delay);
+    m_stopTime = delay;
+    return m_simulator->Stop(delay);
+}
+
+Time
+VisualSimulatorImpl::GetStopTime()
+{
+    return m_stopTime;
 }
 
 //

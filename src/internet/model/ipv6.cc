@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2007 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -47,7 +36,14 @@ Ipv6::GetTypeId()
                           "If disabled, every interface will have its MTU set to 1280 bytes.",
                           BooleanValue(true),
                           MakeBooleanAccessor(&Ipv6::SetMtuDiscover, &Ipv6::GetMtuDiscover),
-                          MakeBooleanChecker());
+                          MakeBooleanChecker())
+            .AddAttribute(
+                "StrongEndSystemModel",
+                "Reject packets for an address not configured on the interface they're "
+                "coming from (RFC1122, section 3.3.4.2).",
+                BooleanValue(true),
+                MakeBooleanAccessor(&Ipv6::SetStrongEndSystemModel, &Ipv6::GetStrongEndSystemModel),
+                MakeBooleanChecker());
     return tid;
 }
 

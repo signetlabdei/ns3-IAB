@@ -1,40 +1,30 @@
 /*
  * Copyright (c) 2011 The Boeing Company
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author:  Tom Henderson <thomas.r.henderson@boeing.com>
  */
-#include <ns3/log.h>
-#include <ns3/lr-wpan-mac-header.h>
-#include <ns3/lr-wpan-mac-trailer.h>
-#include <ns3/mac16-address.h>
-#include <ns3/mac64-address.h>
-#include <ns3/packet.h>
-#include <ns3/test.h>
+#include "ns3/log.h"
+#include "ns3/lr-wpan-mac-header.h"
+#include "ns3/lr-wpan-mac-trailer.h"
+#include "ns3/mac16-address.h"
+#include "ns3/mac64-address.h"
+#include "ns3/packet.h"
+#include "ns3/test.h"
 
 #include <vector>
 
 using namespace ns3;
+using namespace ns3::lrwpan;
 
 NS_LOG_COMPONENT_DEFINE("lr-wpan-packet-test");
 
 /**
- * \ingroup lr-wpan-test
- * \ingroup tests
+ * @ingroup lr-wpan-test
+ * @ingroup tests
  *
- * \brief LrWpan header and trailer Test
+ * @brief LrWpan header and trailer Test
  */
 class LrWpanPacketTestCase : public TestCase
 {
@@ -108,10 +98,10 @@ LrWpanPacketTestCase::DoRun()
 }
 
 /**
- * \ingroup lr-wpan-test
- * \ingroup tests
+ * @ingroup lr-wpan-test
+ * @ingroup tests
  *
- * \brief LrWpan header and trailer TestSuite
+ * @brief LrWpan header and trailer TestSuite
  */
 class LrWpanPacketTestSuite : public TestSuite
 {
@@ -120,9 +110,9 @@ class LrWpanPacketTestSuite : public TestSuite
 };
 
 LrWpanPacketTestSuite::LrWpanPacketTestSuite()
-    : TestSuite("lr-wpan-packet", UNIT)
+    : TestSuite("lr-wpan-packet", Type::UNIT)
 {
-    AddTestCase(new LrWpanPacketTestCase, TestCase::QUICK);
+    AddTestCase(new LrWpanPacketTestCase, TestCase::Duration::QUICK);
 }
 
 static LrWpanPacketTestSuite g_lrWpanPacketTestSuite; //!< Static variable for test initialization

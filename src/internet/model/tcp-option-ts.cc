@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2011 Adrian Sai-wah Tam
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Adrian Sai-wah Tam <adrian.sw.tam@gmail.com>
  */
@@ -47,12 +36,6 @@ TcpOptionTS::GetTypeId()
                             .SetGroupName("Internet")
                             .AddConstructor<TcpOptionTS>();
     return tid;
-}
-
-TypeId
-TcpOptionTS::GetInstanceTypeId() const
-{
-    return GetTypeId();
 }
 
 void
@@ -146,7 +129,7 @@ TcpOptionTS::ElapsedTimeFromTsValue(uint32_t echoTime)
     uint64_t now64 = (uint64_t)Simulator::Now().GetMilliSeconds();
     uint32_t now32 = now64 & 0xFFFFFFFF;
 
-    Time ret = Seconds(0.0);
+    Time ret;
     if (now32 > echoTime)
     {
         ret = MilliSeconds(now32 - echoTime);

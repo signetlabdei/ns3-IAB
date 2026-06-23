@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2008 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -38,26 +27,26 @@ class Ipv4RoutingHelper;
 class Ipv6RoutingHelper;
 
 /**
- * \defgroup internet Internet
+ * @defgroup internet Internet
  *
  * This section documents the API of the ns-3 internet module. For a generic functional description,
  * please refer to the ns-3 manual.
  */
 
 /**
- * \ingroup internet
- * \defgroup ipv4Helpers IPv4 Helper classes
+ * @ingroup internet
+ * @defgroup ipv4Helpers IPv4 Helper classes
  */
 
 /**
- * \ingroup internet
- * \defgroup ipv6Helpers IPv6 Helper classes
+ * @ingroup internet
+ * @defgroup ipv6Helpers IPv6 Helper classes
  */
 
 /**
- * \ingroup internet
+ * @ingroup internet
  *
- * \brief aggregate IP/TCP/UDP functionality to existing Nodes.
+ * @brief aggregate IP/TCP/UDP functionality to existing Nodes.
  *
  * This helper enables pcap and ascii tracing of events in the internet stack
  * associated with a node.  This is substantially similar to the tracing
@@ -96,7 +85,7 @@ class InternetStackHelper : public PcapHelperForIpv4,
      * and global routing by default. The static routing protocol
      * (ns3::Ipv4StaticRouting) and the global routing protocol are
      * stored in an ns3::Ipv4ListRouting protocol with priorities 0, and -10
-     * by default. If you wish to use different priorites and different
+     * by default. If you wish to use different priorities and different
      * routing protocols, you need to use an adhoc ns3::Ipv4RoutingHelper,
      * such as ns3::OlsrHelper
      */
@@ -108,15 +97,15 @@ class InternetStackHelper : public PcapHelperForIpv4,
     ~InternetStackHelper() override;
 
     /**
-     * \brief Copy constructor
-     * \param o Object to copy from.
+     * @brief Copy constructor
+     * @param o Object to copy from.
      */
     InternetStackHelper(const InternetStackHelper& o);
 
     /**
-     * \brief Copy constructor
-     * \param o Object to copy from.
-     * \returns A copy of the InternetStackHelper.
+     * @brief Copy constructor
+     * @param o Object to copy from.
+     * @returns A copy of the InternetStackHelper.
      */
     InternetStackHelper& operator=(const InternetStackHelper& o);
 
@@ -126,7 +115,7 @@ class InternetStackHelper : public PcapHelperForIpv4,
     void Reset();
 
     /**
-     * \param routing a new routing helper
+     * @param routing a new routing helper
      *
      * Set the routing helper to use during Install. The routing
      * helper is really an object factory which is used to create
@@ -137,36 +126,35 @@ class InternetStackHelper : public PcapHelperForIpv4,
     void SetRoutingHelper(const Ipv4RoutingHelper& routing);
 
     /**
-     * \brief Set IPv6 routing helper.
-     * \param routing IPv6 routing helper
+     * @brief Set IPv6 routing helper.
+     * @param routing IPv6 routing helper
      */
     void SetRoutingHelper(const Ipv6RoutingHelper& routing);
 
     /**
      * Aggregate implementations of the ns3::Ipv4, ns3::Ipv6, ns3::Udp, and ns3::Tcp classes
-     * onto the provided node.  This method will assert if called on a node that
-     * already has an Ipv4 object aggregated to it.
+     * onto the provided node.  This method will do nothing if the stacks are already installed,
+     * and will not overwrite existing stacks parameters.
      *
-     * \param nodeName The name of the node on which to install the stack.
+     * @param nodeName The name of the node on which to install the stack.
      */
     void Install(std::string nodeName) const;
 
     /**
      * Aggregate implementations of the ns3::Ipv4, ns3::Ipv6, ns3::Udp, and ns3::Tcp classes
-     * onto the provided node.  This method will assert if called on a node that
-     * already has an Ipv4 object aggregated to it.
+     * onto the provided node.  This method will do nothing if the stacks are already installed,
+     * and will not overwrite existing stacks parameters.
      *
-     * \param node The node on which to install the stack.
+     * @param node The node on which to install the stack.
      */
     void Install(Ptr<Node> node) const;
 
     /**
      * For each node in the input container, aggregate implementations of the
-     * ns3::Ipv4, ns3::Ipv6, ns3::Udp, and, ns3::Tcp classes.  The program will assert
-     * if this method is called on a container with a node that already has
-     * an Ipv4 object aggregated to it.
+     * ns3::Ipv4, ns3::Ipv6, ns3::Udp, and, ns3::Tcp classes.  This method will do nothing if the
+     * stacks are already installed, and will not overwrite existing stacks parameters.
      *
-     * \param c NodeContainer that holds the set of nodes on which to install the
+     * @param c NodeContainer that holds the set of nodes on which to install the
      * new stacks.
      */
     void Install(NodeContainer c) const;
@@ -177,39 +165,26 @@ class InternetStackHelper : public PcapHelperForIpv4,
     void InstallAll() const;
 
     /**
-     * \brief set the Tcp stack which will not need any other parameter.
-     *
-     * This function sets up the tcp stack to the given TypeId. It should not be
-     * used for NSC stack setup because the nsc stack needs the Library attribute
-     * to be setup, please use instead the version that requires an attribute
-     * and a value. If you choose to use this function anyways to set nsc stack
-     * the default value for the linux library will be used: "liblinux2.6.26.so".
-     *
-     * \param tid the type id, typically it is set to  "ns3::TcpL4Protocol"
-     */
-    void SetTcp(std::string tid);
-
-    /**
-     * \brief Enable/disable IPv4 stack install.
-     * \param enable enable state
+     * @brief Enable/disable IPv4 stack install.
+     * @param enable enable state
      */
     void SetIpv4StackInstall(bool enable);
 
     /**
-     * \brief Enable/disable IPv6 stack install.
-     * \param enable enable state
+     * @brief Enable/disable IPv6 stack install.
+     * @param enable enable state
      */
     void SetIpv6StackInstall(bool enable);
 
     /**
-     * \brief Enable/disable IPv4 ARP Jitter.
-     * \param enable enable state
+     * @brief Enable/disable IPv4 ARP Jitter.
+     * @param enable enable state
      */
     void SetIpv4ArpJitter(bool enable);
 
     /**
-     * \brief Enable/disable IPv6 NS and RS Jitter.
-     * \param enable enable state
+     * @brief Enable/disable IPv6 NS and RS Jitter.
+     * @param enable enable state
      */
     void SetIpv6NsRsJitter(bool enable);
 
@@ -219,10 +194,10 @@ class InternetStackHelper : public PcapHelperForIpv4,
      * have been assigned.  The Install() method should have previously been
      * called by the user.
      *
-     * \param stream first stream index to use
-     * \param c NodeContainer of the set of nodes for which the internet models
+     * @param stream first stream index to use
+     * @param c NodeContainer of the set of nodes for which the internet models
      *          should be modified to use a fixed stream
-     * \return the number of stream indices assigned by this helper
+     * @return the number of stream indices assigned by this helper
      */
     int64_t AssignStreams(NodeContainer c, int64_t stream);
 
@@ -286,77 +261,73 @@ class InternetStackHelper : public PcapHelperForIpv4,
                                  bool explicitFilename) override;
 
     /**
-     * \brief Initialize the helper to its default values
+     * @brief Initialize the helper to its default values
      */
     void Initialize();
 
     /**
-     * \brief TCP objects factory
-     */
-    ObjectFactory m_tcpFactory;
-
-    /**
-     * \brief IPv4 routing helper.
+     * @brief IPv4 routing helper.
      */
     const Ipv4RoutingHelper* m_routing;
 
     /**
-     * \brief IPv6 routing helper.
+     * @brief IPv6 routing helper.
      */
     const Ipv6RoutingHelper* m_routingv6;
 
     /**
-     * \brief create an object from its TypeId and aggregates it to the node
-     * \param node the node
-     * \param typeId the object TypeId
+     * @brief create an object from its TypeId and aggregates it to the node. Does nothing if
+     * an object of the same type is already aggregated to the node.
+     * @param node the node
+     * @param typeId the object TypeId
      */
     static void CreateAndAggregateObjectFromTypeId(Ptr<Node> node, const std::string typeId);
 
     /**
-     * \brief checks if there is an hook to a Pcap wrapper
-     * \param ipv4 pointer to the IPv4 object
-     * \returns true if a hook is found
+     * @brief checks if there is an hook to a Pcap wrapper
+     * @param ipv4 pointer to the IPv4 object
+     * @returns true if a hook is found
      */
     bool PcapHooked(Ptr<Ipv4> ipv4);
 
     /**
-     * \brief checks if there is an hook to an ascii output stream
-     * \param ipv4 pointer to the IPv4 object
-     * \returns true if a hook is found
+     * @brief checks if there is an hook to an ascii output stream
+     * @param ipv4 pointer to the IPv4 object
+     * @returns true if a hook is found
      */
     bool AsciiHooked(Ptr<Ipv4> ipv4);
 
     /**
-     * \brief checks if there is an hook to a Pcap wrapper
-     * \param ipv6 pointer to the IPv6 object
-     * \returns true if a hook is found
+     * @brief checks if there is an hook to a Pcap wrapper
+     * @param ipv6 pointer to the IPv6 object
+     * @returns true if a hook is found
      */
     bool PcapHooked(Ptr<Ipv6> ipv6);
 
     /**
-     * \brief checks if there is an hook to an ascii output stream
-     * \param ipv6 pointer to the IPv6 object
-     * \returns true if a hook is found
+     * @brief checks if there is an hook to an ascii output stream
+     * @param ipv6 pointer to the IPv6 object
+     * @returns true if a hook is found
      */
     bool AsciiHooked(Ptr<Ipv6> ipv6);
 
     /**
-     * \brief IPv4 install state (enabled/disabled) ?
+     * @brief IPv4 install state (enabled/disabled) ?
      */
     bool m_ipv4Enabled;
 
     /**
-     * \brief IPv6 install state (enabled/disabled) ?
+     * @brief IPv6 install state (enabled/disabled) ?
      */
     bool m_ipv6Enabled;
 
     /**
-     * \brief IPv4 ARP Jitter state (enabled/disabled) ?
+     * @brief IPv4 ARP Jitter state (enabled/disabled) ?
      */
     bool m_ipv4ArpJitterEnabled;
 
     /**
-     * \brief IPv6 IPv6 NS and RS Jitter state (enabled/disabled) ?
+     * @brief IPv6 IPv6 NS and RS Jitter state (enabled/disabled) ?
      */
     bool m_ipv6NsRsJitterEnabled;
 };

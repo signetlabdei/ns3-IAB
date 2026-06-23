@@ -1,16 +1,5 @@
 /*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 // Default network topology includes some number of AP nodes specified by
@@ -92,7 +81,7 @@ main(int argc, char* argv[])
 
     backboneDevices = csma.Install(backboneNodes);
 
-    double wifiX = 0.0;
+    meter_u wifiX = 0.0;
 
     YansWifiPhyHelper wifiPhy;
     wifiPhy.SetPcapDataLinkType(WifiPhyHelper::DLT_IEEE802_11_RADIO);
@@ -192,7 +181,7 @@ main(int argc, char* argv[])
     onoff.SetConstantRate(DataRate("500kb/s"));
     ApplicationContainer apps = onoff.Install(staNodes[0].Get(0));
     apps.Start(Seconds(0.5));
-    apps.Stop(Seconds(3.0));
+    apps.Stop(Seconds(3));
 
     wifiPhy.EnablePcap("wifi-wired-bridging", apDevices[0]);
     wifiPhy.EnablePcap("wifi-wired-bridging", apDevices[1]);
@@ -203,7 +192,7 @@ main(int argc, char* argv[])
         MobilityHelper::EnableAsciiAll(ascii.CreateFileStream("wifi-wired-bridging.mob"));
     }
 
-    Simulator::Stop(Seconds(5.0));
+    Simulator::Stop(Seconds(5));
     Simulator::Run();
     Simulator::Destroy();
 

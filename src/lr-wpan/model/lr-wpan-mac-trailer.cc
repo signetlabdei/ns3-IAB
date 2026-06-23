@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2011 The Boeing Company
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author:
  *  kwong yin <kwong-sang.yin@boeing.com>
@@ -21,9 +10,11 @@
  */
 #include "lr-wpan-mac-trailer.h"
 
-#include <ns3/packet.h>
+#include "ns3/packet.h"
 
 namespace ns3
+{
+namespace lrwpan
 {
 
 NS_OBJECT_ENSURE_REGISTERED(LrWpanMacTrailer);
@@ -40,7 +31,8 @@ LrWpanMacTrailer::LrWpanMacTrailer()
 TypeId
 LrWpanMacTrailer::GetTypeId()
 {
-    static TypeId tid = TypeId("ns3::LrWpanMacTrailer")
+    static TypeId tid = TypeId("ns3::lrwpan::LrWpanMacTrailer")
+                            .AddDeprecatedName("ns3::LrWpanMacTrailer")
                             .SetParent<Trailer>()
                             .SetGroupName("LrWpan")
                             .AddConstructor<LrWpanMacTrailer>();
@@ -93,7 +85,7 @@ LrWpanMacTrailer::SetFcs(Ptr<const Packet> p)
     if (m_calcFcs)
     {
         uint16_t size = p->GetSize();
-        uint8_t* serial_packet = new uint8_t[size];
+        auto serial_packet = new uint8_t[size];
 
         p->CopyData(serial_packet, size);
 
@@ -115,7 +107,7 @@ LrWpanMacTrailer::CheckFcs(Ptr<const Packet> p)
     {
         uint16_t checkFcs;
         uint16_t size = p->GetSize();
-        uint8_t* serial_packet = new uint8_t[size];
+        auto serial_packet = new uint8_t[size];
 
         p->CopyData(serial_packet, size);
 
@@ -159,4 +151,5 @@ LrWpanMacTrailer::GenerateCrc16(uint8_t* data, int length)
     return accumulator;
 }
 
+} // namespace lrwpan
 } // namespace ns3

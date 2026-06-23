@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2018 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  */
 
@@ -49,12 +38,11 @@ HeConfiguration::GetTypeId()
                           MakeTimeAccessor(&HeConfiguration::GetGuardInterval,
                                            &HeConfiguration::SetGuardInterval),
                           MakeTimeChecker(NanoSeconds(800), NanoSeconds(3200)))
-            .AddAttribute(
-                "BssColor",
-                "The BSS color",
-                UintegerValue(0),
-                MakeUintegerAccessor(&HeConfiguration::GetBssColor, &HeConfiguration::SetBssColor),
-                MakeUintegerChecker<uint8_t>())
+            .AddAttribute("BssColor",
+                          "The BSS color",
+                          UintegerValue(0),
+                          MakeUintegerAccessor(&HeConfiguration::m_bssColor),
+                          MakeUintegerChecker<uint8_t>())
             .AddAttribute("MaxTbPpduDelay",
                           "If positive, the value of this attribute specifies the maximum "
                           "delay with which a TB PPDU can be received after the reception of "
@@ -63,15 +51,8 @@ HeConfiguration::GetTypeId()
                           "is anyway capped at the duration of the training fields in the PPDU. "
                           "This attribute is only valid for APs.",
                           TimeValue(Seconds(0)),
-                          MakeTimeAccessor(&HeConfiguration::GetMaxTbPpduDelay,
-                                           &HeConfiguration::SetMaxTbPpduDelay),
+                          MakeTimeAccessor(&HeConfiguration::m_maxTbPpduDelay),
                           MakeTimeChecker(Seconds(0)))
-            .AddAttribute("MpduBufferSize",
-                          "The MPDU buffer size for receiving A-MPDUs",
-                          UintegerValue(64),
-                          MakeUintegerAccessor(&HeConfiguration::GetMpduBufferSize,
-                                               &HeConfiguration::SetMpduBufferSize),
-                          MakeUintegerChecker<uint16_t>(64, 256))
             .AddAttribute("MuBeAifsn",
                           "AIFSN used by BE EDCA when the MU EDCA Timer is running. "
                           "It must be either zero (EDCA disabled) or a value from 2 to 15.",
@@ -187,8 +168,8 @@ void
 HeConfiguration::SetGuardInterval(Time guardInterval)
 {
     NS_LOG_FUNCTION(this << guardInterval);
-    NS_ASSERT(guardInterval == NanoSeconds(800) || guardInterval == NanoSeconds(1600) ||
-              guardInterval == NanoSeconds(3200));
+    [[maybe_unused]] const auto gi = guardInterval.GetNanoSeconds();
+    NS_ASSERT((gi == 800) || (gi == 1600) || (gi == 3200));
     m_guardInterval = guardInterval;
 }
 
@@ -221,19 +202,6 @@ void
 HeConfiguration::SetMaxTbPpduDelay(Time maxTbPpduDelay)
 {
     m_maxTbPpduDelay = maxTbPpduDelay;
-}
-
-void
-HeConfiguration::SetMpduBufferSize(uint16_t size)
-{
-    NS_LOG_FUNCTION(this << size);
-    m_mpduBufferSize = size;
-}
-
-uint16_t
-HeConfiguration::GetMpduBufferSize() const
-{
-    return m_mpduBufferSize;
 }
 
 } // namespace ns3

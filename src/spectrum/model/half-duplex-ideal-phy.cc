@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 CTTC
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Nicola Baldo <nbaldo@cttc.es>
  */
@@ -22,13 +11,13 @@
 #include "half-duplex-ideal-phy-signal-parameters.h"
 #include "spectrum-error-model.h"
 
-#include <ns3/antenna-model.h>
-#include <ns3/callback.h>
-#include <ns3/log.h>
-#include <ns3/object-factory.h>
-#include <ns3/packet-burst.h>
-#include <ns3/simulator.h>
-#include <ns3/trace-source-accessor.h>
+#include "ns3/antenna-model.h"
+#include "ns3/callback.h"
+#include "ns3/log.h"
+#include "ns3/object-factory.h"
+#include "ns3/packet-burst.h"
+#include "ns3/simulator.h"
+#include "ns3/trace-source-accessor.h"
 
 #include <cmath>
 
@@ -72,10 +61,10 @@ HalfDuplexIdealPhy::DoDispose()
 }
 
 /**
- * \brief Output stream operator
- * \param os output stream
- * \param s the state to print
- * \return an output stream
+ * @brief Output stream operator
+ * @param os output stream
+ * @param s the state to print
+ * @return an output stream
  */
 std::ostream&
 operator<<(std::ostream& os, HalfDuplexIdealPhy::State s)
@@ -302,9 +291,7 @@ HalfDuplexIdealPhy::StartTx(Ptr<Packet> p)
     break;
 
     case TX:
-
         return true;
-        break;
     }
     return false;
 }
@@ -350,7 +337,6 @@ HalfDuplexIdealPhy::StartRx(Ptr<SpectrumSignalParameters> spectrumParams)
         {
         case TX:
             // the PHY will not notice this incoming signal
-            break;
 
         case RX:
             // we should check if we should re-sync on a new incoming signal and discard the old one

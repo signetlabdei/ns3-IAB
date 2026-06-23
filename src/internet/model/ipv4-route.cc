@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  */
 
@@ -151,8 +140,7 @@ Ipv4MulticastRoute::SetOutputTtl(uint32_t oif, uint32_t ttl)
     if (ttl >= MAX_TTL)
     {
         // This TTL value effectively disables the interface
-        std::map<uint32_t, uint32_t>::iterator iter;
-        iter = m_ttls.find(oif);
+        auto iter = m_ttls.find(oif);
         if (iter != m_ttls.end())
         {
             m_ttls.erase(iter);
@@ -168,7 +156,7 @@ std::map<uint32_t, uint32_t>
 Ipv4MulticastRoute::GetOutputTtlMap() const
 {
     NS_LOG_FUNCTION(this);
-    return (m_ttls);
+    return m_ttls;
 }
 
 } // namespace ns3

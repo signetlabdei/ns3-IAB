@@ -37,6 +37,7 @@
 #include "ns3/mmwave-iab-net-device.h"
 #include "ns3/isotropic-antenna-model.h"
 #include "ns3/three-gpp-antenna-model.h"
+#include "ns3/two-ray-propagation-loss-model.h"
 #include <sstream>
 #include <string>
 
@@ -140,7 +141,7 @@ RxSinkHeader (Ptr<OutputStreamWrapper> stream, Ptr<const Packet> packet, const A
               const Address &to, const SeqTsSizeHeader &header)
 {
   *stream->GetStream () << "Rx " << Simulator::Now ().GetNanoSeconds () << " "
-                        << packet->GetSize () << " "
+                        << packet->GetSize () + header.GetSerializedSize () << " "
                         << InetSocketAddress::ConvertFrom (to).GetPort () << " "
                         << InetSocketAddress::ConvertFrom (from).GetPort () << " "
                         << (Simulator::Now () - header.GetTs ()).GetNanoSeconds () << "\n";
@@ -225,7 +226,7 @@ main (int argc, char *argv[])
 	Config::SetDefault("ns3::MmWaveHelper::UseMultiplePrimaryCarriers", BooleanValue (true));
 
   Config::SetDefault ("ns3::MmWavePhyMacCommon::Numerology",
-                      EnumValue(3));
+                      StringValue("NrNumerology3"));
   Config::SetDefault ("ns3::MmWaveFlexTtiMacScheduler::SlotsFormat",
                       StringValue(slotFormat));
   Config::SetDefault ("ns3::MmWaveFlexTtiMacScheduler::NumSymReservedDlCtrl",
@@ -233,7 +234,7 @@ main (int argc, char *argv[])
   Config::SetDefault ("ns3::MmWaveFlexTtiMacScheduler::NumSymReservedUlCtrl",
                       UintegerValue (numSymResvUlCtrl));
 
-  // Enable additional APP-level headers to retrieve delay
+  // Enable SeqTsSizeHeader for delay measurement in both sender and receiver
   Config::SetDefault ("ns3::UdpClient::EnableSeqTsSizeHeader", BooleanValue (true));
   Config::SetDefault ("ns3::PacketSink::EnableSeqTsSizeHeader", BooleanValue (true));
 
@@ -247,7 +248,7 @@ main (int argc, char *argv[])
   Ptr<MmWaveHelper> mmwaveHelper = CreateObject<MmWaveHelper> ();
 
   Config::SetDefault ("ns3::TwoRayPropagationLossModel::RainRate", DoubleValue (rainRate));
-  Config::SetDefault("ns3::TwoRayPropagationLossModel::Frequency", DoubleValue (fc0));
+  Config::SetDefault ("ns3::TwoRayPropagationLossModel::Frequency", DoubleValue (fc0));
   mmwaveHelper->SetPathlossModelType ("ns3::TwoRayPropagationLossModel");
   mmwaveHelper->SetChannelConditionModelType ("ns3::AlwaysLosChannelConditionModel");
 

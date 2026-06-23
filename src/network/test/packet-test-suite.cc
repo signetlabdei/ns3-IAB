@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2005,2006 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -36,12 +25,12 @@ namespace
 {
 
 /**
- * \ingroup network-test
- * \ingroup tests
+ * @ingroup network-test
+ * @ingroup tests
  *
- * \brief Base class for Test tags
+ * @brief Base class for Test tags
  *
- * \note Class internal to packet-test-suite.cc
+ * @note Class internal to packet-test-suite.cc
  */
 class ATestTagBase : public Tag
 {
@@ -53,7 +42,7 @@ class ATestTagBase : public Tag
     }
 
     /// Constructor
-    /// \param data Tag data
+    /// @param data Tag data
     ATestTagBase(uint8_t data)
         : m_error(false),
           m_data(data)
@@ -62,7 +51,7 @@ class ATestTagBase : public Tag
 
     /**
      * Register this type.
-     * \return The TypeId.
+     * @return The TypeId.
      */
     static TypeId GetTypeId()
     {
@@ -74,7 +63,7 @@ class ATestTagBase : public Tag
     }
 
     /// Get the tag data.
-    /// \return the tag data.
+    /// @return the tag data.
     int GetData() const
     {
         int result = (int)m_data;
@@ -86,12 +75,12 @@ class ATestTagBase : public Tag
 };
 
 /**
- * \ingroup network-test
- * \ingroup tests
+ * @ingroup network-test
+ * @ingroup tests
  *
- * \brief Template class for Test tags
+ * @brief Template class for Test tags
  *
- * \note Class internal to packet-test-suite.cc
+ * @note Class internal to packet-test-suite.cc
  */
 template <int N>
 class ATestTag : public ATestTagBase
@@ -99,7 +88,7 @@ class ATestTag : public ATestTagBase
   public:
     /**
      * Register this type.
-     * \return The TypeId.
+     * @return The TypeId.
      */
     static TypeId GetTypeId()
     {
@@ -156,7 +145,7 @@ class ATestTag : public ATestTagBase
     }
 
     /// Constructor
-    /// \param data Tag data
+    /// @param data Tag data
     ATestTag(uint8_t data)
         : ATestTagBase(data)
     {
@@ -168,14 +157,14 @@ class ATestTag : public ATestTagBase
 #define LARGE_TAG_BUFFER_SIZE 64
 
 /**
- * \ingroup network-test
- * \ingroup tests
+ * @ingroup network-test
+ * @ingroup tests
  *
- * \brief Template class for Large Test tags
+ * @brief Template class for Large Test tags
  *
- * \see Bug 2221: Expanding packet tag maximum size
+ * @see Bug 2221: Expanding packet tag maximum size
  *
- * \note Class internal to packet-test-suite.cc
+ * @note Class internal to packet-test-suite.cc
  */
 class ALargeTestTag : public Tag
 {
@@ -191,7 +180,7 @@ class ALargeTestTag : public Tag
 
     /**
      * Register this type.
-     * \return The TypeId.
+     * @return The TypeId.
      */
     static TypeId GetTypeId()
     {
@@ -243,12 +232,12 @@ class ALargeTestTag : public Tag
 };
 
 /**
- * \ingroup network-test
- * \ingroup tests
+ * @ingroup network-test
+ * @ingroup tests
  *
- * \brief Base class for Test headers
+ * @brief Base class for Test headers
  *
- * \note Class internal to packet-test-suite.cc
+ * @note Class internal to packet-test-suite.cc
  */
 class ATestHeaderBase : public Header
 {
@@ -261,7 +250,7 @@ class ATestHeaderBase : public Header
 
     /**
      * Register this type.
-     * \return The TypeId.
+     * @return The TypeId.
      */
     static TypeId GetTypeId()
     {
@@ -278,12 +267,12 @@ class ATestHeaderBase : public Header
 };
 
 /**
- * \ingroup network-test
- * \ingroup tests
+ * @ingroup network-test
+ * @ingroup tests
  *
- * \brief Template class for Test headers
+ * @brief Template class for Test headers
  *
- * \note Class internal to packet-test-suite.cc
+ * @note Class internal to packet-test-suite.cc
  */
 template <int N>
 class ATestHeader : public ATestHeaderBase
@@ -291,7 +280,7 @@ class ATestHeader : public ATestHeaderBase
   public:
     /**
      * Register this type.
-     * \return The TypeId.
+     * @return The TypeId.
      */
     static TypeId GetTypeId()
     {
@@ -347,12 +336,12 @@ class ATestHeader : public ATestHeaderBase
 };
 
 /**
- * \ingroup network-test
- * \ingroup tests
+ * @ingroup network-test
+ * @ingroup tests
  *
- * \brief Base class for Test trailers
+ * @brief Base class for Test trailers
  *
- * \note Class internal to packet-test-suite.cc
+ * @note Class internal to packet-test-suite.cc
  */
 class ATestTrailerBase : public Trailer
 {
@@ -365,7 +354,7 @@ class ATestTrailerBase : public Trailer
 
     /**
      * Register this type.
-     * \return The TypeId.
+     * @return The TypeId.
      */
     static TypeId GetTypeId()
     {
@@ -382,12 +371,12 @@ class ATestTrailerBase : public Trailer
 };
 
 /**
- * \ingroup network-test
- * \ingroup tests
+ * @ingroup network-test
+ * @ingroup tests
  *
- * \brief Template class for Test trailers
+ * @brief Template class for Test trailers
  *
- * \note Class internal to packet-test-suite.cc
+ * @note Class internal to packet-test-suite.cc
  */
 template <int N>
 class ATestTrailer : public ATestTrailerBase
@@ -395,7 +384,7 @@ class ATestTrailer : public ATestTrailerBase
   public:
     /**
      * Register this type.
-     * \return The TypeId.
+     * @return The TypeId.
      */
     static TypeId GetTypeId()
     {
@@ -453,20 +442,20 @@ class ATestTrailer : public ATestTrailerBase
 };
 
 /**
- * \ingroup network-test
- * \ingroup tests
+ * @ingroup network-test
+ * @ingroup tests
  *
- * \brief Struct to hold the expected data in the packet
+ * @brief Struct to hold the expected data in the packet
  *
- * \note Class internal to packet-test-suite.cc
+ * @note Class internal to packet-test-suite.cc
  */
 struct Expected
 {
     /**
      * Constructor
-     * \param n_ Number of elements
-     * \param start_ Start
-     * \param end_ End
+     * @param n_ Number of elements
+     * @param start_ Start
+     * @param end_ End
      */
     Expected(uint32_t n_, uint32_t start_, uint32_t end_)
         : n(n_),
@@ -478,10 +467,10 @@ struct Expected
 
     /**
      * Constructor
-     * \param n_ Number of elements
-     * \param start_ Start
-     * \param end_ End
-     * \param data_ Data stored in tag
+     * @param n_ Number of elements
+     * @param start_ Start
+     * @param end_ End
+     * @param data_ Data stored in tag
      */
     Expected(uint32_t n_, uint32_t start_, uint32_t end_, uint8_t data_)
         : n(n_),
@@ -512,8 +501,8 @@ struct Expected
 #define CHECK_DATA(p, n, ...) DoCheckData(p, n, __VA_ARGS__)
 
 /**
- * \ingroup network-test
- * \ingroup tests
+ * @ingroup network-test
+ * @ingroup tests
  *
  * Packet unit tests.
  */
@@ -526,16 +515,16 @@ class PacketTest : public TestCase
   private:
     /**
      * Checks the packet
-     * \param p The packet
-     * \param n The number of variable arguments
-     * \param ... The variable arguments
+     * @param p The packet
+     * @param n The number of variable arguments
+     * @param ... The variable arguments
      */
     void DoCheck(Ptr<const Packet> p, uint32_t n, ...);
     /**
      * Checks the packet and its data
-     * \param p The packet
-     * \param n The number of variable arguments
-     * \param ... The variable arguments
+     * @param p The packet
+     * @param n The number of variable arguments
+     * @param ... The variable arguments
      */
     void DoCheckData(Ptr<const Packet> p, uint32_t n, ...);
 };
@@ -548,7 +537,7 @@ PacketTest::PacketTest()
 void
 PacketTest::DoCheck(Ptr<const Packet> p, uint32_t n, ...)
 {
-    std::vector<struct Expected> expected;
+    std::vector<Expected> expected;
     va_list ap;
     va_start(ap, n);
     for (uint32_t k = 0; k < n; ++k)
@@ -585,7 +574,7 @@ PacketTest::DoCheck(Ptr<const Packet> p, uint32_t n, ...)
 void
 PacketTest::DoCheckData(Ptr<const Packet> p, uint32_t n, ...)
 {
-    std::vector<struct Expected> expected;
+    std::vector<Expected> expected;
     va_list ap;
     va_start(ap, n);
     for (uint32_t k = 0; k < n; ++k)
@@ -632,7 +621,7 @@ PacketTest::DoRun()
 
     NS_TEST_EXPECT_MSG_EQ(packet->GetSize(), 11, "trivial");
 
-    uint8_t* buf = new uint8_t[packet->GetSize()];
+    auto buf = new uint8_t[packet->GetSize()];
     packet->CopyData(buf, packet->GetSize());
 
     std::string msg = std::string(reinterpret_cast<const char*>(buf), packet->GetSize());
@@ -653,7 +642,7 @@ PacketTest::DoRun()
 
     {
         Packet c0 = *copy;
-        Packet c1 = *copy;
+        Packet c1 = *copy; // NOLINT(performance-unnecessary-copy-initialization)
         c0 = c1;
         CHECK(&c0, 1, E(1, 0, 1000));
         CHECK(&c1, 1, E(1, 0, 1000));
@@ -811,7 +800,7 @@ PacketTest::DoRun()
         p1->AddPacketTag(c1);
 
         uint32_t serializedSize = p1->GetSerializedSize();
-        uint8_t* buffer = new uint8_t[serializedSize + 16];
+        auto buffer = new uint8_t[serializedSize + 16];
         p1->Serialize(buffer, serializedSize);
 
         Ptr<Packet> p2 = Create<Packet>(buffer, serializedSize, true);
@@ -846,7 +835,7 @@ PacketTest::DoRun()
         CHECK(p1, 3, E(10, 0, 1000), E(11, 0, 1000), E(12, 0, 1000));
 
         uint32_t serializedSize = p1->GetSerializedSize();
-        uint8_t* buffer = new uint8_t[serializedSize];
+        auto buffer = new uint8_t[serializedSize];
         p1->Serialize(buffer, serializedSize);
 
         Ptr<Packet> p2 = Create<Packet>(buffer, serializedSize, true);
@@ -861,7 +850,7 @@ PacketTest::DoRun()
     }
 
     {
-        /// \internal
+        /// @internal
         /// See \bugid{572}
         Ptr<Packet> tmp = Create<Packet>(1000);
         tmp->AddByteTag(ATestTag<20>());
@@ -959,8 +948,8 @@ PacketTest::DoRun()
 }
 
 /**
- * \ingroup network-test
- * \ingroup tests
+ * @ingroup network-test
+ * @ingroup tests
  *
  * Packet Tag list unit tests.
  */
@@ -974,33 +963,33 @@ class PacketTagListTest : public TestCase
     void DoRun() override;
     /**
      * Checks against a reference PacketTagList
-     * \param ref Reference
-     * \param t List to test
-     * \param msg Message
-     * \param miss Expected miss/hit
+     * @param ref Reference
+     * @param t List to test
+     * @param msg Message
+     * @param miss Expected miss/hit
      */
     void CheckRef(const PacketTagList& ref, ATestTagBase& t, const char* msg, bool miss = false);
     /**
      * Checks against a reference PacketTagList
-     * \param ref Reference
-     * \param msg Message
-     * \param miss Expected miss/hit
+     * @param ref Reference
+     * @param msg Message
+     * @param miss Expected miss/hit
      */
     void CheckRefList(const PacketTagList& ref, const char* msg, int miss = 0);
 
     /**
      * Prints the remove time
-     * \param ref Reference.
-     * \param t List to test.
-     * \param msg Message - prints on cout if msg is not null.
-     * \return the ticks to remove the tags.
+     * @param ref Reference.
+     * @param t List to test.
+     * @param msg Message - prints on cout if msg is not null.
+     * @return the ticks to remove the tags.
      */
     int RemoveTime(const PacketTagList& ref, ATestTagBase& t, const char* msg = nullptr);
 
     /**
      * Prints the remove time
-     * \param verbose prints on cout if verbose is true.
-     * \return the ticks to remove the tags.
+     * @param verbose prints on cout if verbose is true.
+     * @return the ticks to remove the tags.
      */
     int AddRemoveTime(const bool verbose = false);
 };
@@ -1110,75 +1099,82 @@ PacketTagListTest::DoRun()
     ref.Add(t6);       // pre-merge
     ref.Add(t7);       // first
 
-    { // Peek
+    // Peek
+    {
         std::cout << GetName() << "check Peek (missing tag) returns false" << std::endl;
         ATestTag<10> t10;
         NS_TEST_EXPECT_MSG_EQ(ref.Peek(t10), false, "missing tag");
     }
 
-    { // Copy ctor, assignment
+    // Copy ctor, assignment
+    {
         std::cout << GetName() << "check copy and assignment" << std::endl;
         {
+            // Test copy constructor
+            // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
             PacketTagList ptl(ref);
             CheckRefList(ref, "copy ctor orig");
             CheckRefList(ptl, "copy ctor copy");
         }
         {
+            // Test copy constructor
+            // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
             PacketTagList ptl = ref;
             CheckRefList(ref, "assignment orig");
             CheckRefList(ptl, "assignment copy");
         }
     }
 
-    {// Removal
+    // Removal
+    {
 #define RemoveCheck(n)                                                                             \
-    {                                                                                              \
-        PacketTagList p##n = ref;                                                                  \
-        p##n.Remove(t##n);                                                                         \
-        CheckRefList(ref, "remove " #n " orig");                                                   \
-        CheckRefList(p##n, "remove " #n " copy", n);                                               \
+    PacketTagList p##n = ref;                                                                      \
+    p##n.Remove(t##n);                                                                             \
+    CheckRefList(ref, "remove " #n " orig");                                                       \
+    CheckRefList(p##n, "remove " #n " copy", n);
+
+        // Remove single tags from list
+        {
+            std::cout << GetName() << "check removal of each tag" << std::endl;
+            RemoveCheck(1);
+            RemoveCheck(2);
+            RemoveCheck(3);
+            RemoveCheck(4);
+            RemoveCheck(5);
+            RemoveCheck(6);
+            RemoveCheck(7);
+        }
+
+        // Remove in the presence of a merge
+        {
+            std::cout << GetName() << "check removal doesn't disturb merge " << std::endl;
+            PacketTagList ptl = ref;
+            ptl.Remove(t7);
+            ptl.Remove(t6);
+            ptl.Remove(t5);
+
+            PacketTagList mrg = ptl; // merged list
+            ATestTag<8> m5(1);
+            mrg.Add(m5); // ptl and mrg differ
+            ptl.Add(t5);
+            ptl.Add(t6);
+            ptl.Add(t7);
+
+            CheckRefList(ref, "post merge, orig");
+            CheckRefList(ptl, "post merge, long chain");
+            const char* msg = "post merge, short chain";
+            CheckRef(mrg, t1, msg, false);
+            CheckRef(mrg, t2, msg, false);
+            CheckRef(mrg, t3, msg, false);
+            CheckRef(mrg, t4, msg, false);
+            CheckRef(mrg, m5, msg, false);
+        }
+#undef RemoveCheck
     }
 
-     {// Remove single tags from list
-      std::cout << GetName() << "check removal of each tag" << std::endl;
-    RemoveCheck(1);
-    RemoveCheck(2);
-    RemoveCheck(3);
-    RemoveCheck(4);
-    RemoveCheck(5);
-    RemoveCheck(6);
-    RemoveCheck(7);
-}
-
-{ // Remove in the presence of a merge
-    std::cout << GetName() << "check removal doesn't disturb merge " << std::endl;
-    PacketTagList ptl = ref;
-    ptl.Remove(t7);
-    ptl.Remove(t6);
-    ptl.Remove(t5);
-
-    PacketTagList mrg = ptl; // merged list
-    ATestTag<8> m5(1);
-    mrg.Add(m5); // ptl and mrg differ
-    ptl.Add(t5);
-    ptl.Add(t6);
-    ptl.Add(t7);
-
-    CheckRefList(ref, "post merge, orig");
-    CheckRefList(ptl, "post merge, long chain");
-    const char* msg = "post merge, short chain";
-    CheckRef(mrg, t1, msg, false);
-    CheckRef(mrg, t2, msg, false);
-    CheckRef(mrg, t3, msg, false);
-    CheckRef(mrg, t4, msg, false);
-    CheckRef(mrg, m5, msg, false);
-}
-#undef RemoveCheck
-} // Removal
-
-{ // Replace
-
-    std::cout << GetName() << "check replacing each tag" << std::endl;
+    // Replace
+    {
+        std::cout << GetName() << "check replacing each tag" << std::endl;
 
 #define ReplaceCheck(n)                                                                            \
     t##n.m_data = 2;                                                                               \
@@ -1189,82 +1185,83 @@ PacketTagListTest::DoRun()
         CheckRef(p##n, t##n, "replace " #n " copy");                                               \
     }
 
-    ReplaceCheck(1);
-    ReplaceCheck(2);
-    ReplaceCheck(3);
-    ReplaceCheck(4);
-    ReplaceCheck(5);
-    ReplaceCheck(6);
-    ReplaceCheck(7);
-}
+        ReplaceCheck(1);
+        ReplaceCheck(2);
+        ReplaceCheck(3);
+        ReplaceCheck(4);
+        ReplaceCheck(5);
+        ReplaceCheck(6);
+        ReplaceCheck(7);
+    }
 
-{ // Timing
-    std::cout << GetName() << "add+remove timing" << std::endl;
-    int flm = std::numeric_limits<int>::max();
-    const int nIterations = 100;
-    for (int i = 0; i < nIterations; ++i)
+    // Timing
     {
-        int now = AddRemoveTime();
-        if (now < flm)
+        std::cout << GetName() << "add+remove timing" << std::endl;
+        int flm = std::numeric_limits<int>::max();
+        const int nIterations = 100;
+        for (int i = 0; i < nIterations; ++i)
         {
-            flm = now;
+            int now = AddRemoveTime();
+            if (now < flm)
+            {
+                flm = now;
+            }
+        }
+        std::cout << GetName() << "min add+remove time: " << std::setw(8) << flm << " ticks"
+                  << std::endl;
+
+        std::cout << GetName() << "remove timing" << std::endl;
+        // tags numbered from 1, so add one for (unused) entry at 0
+        std::vector<int> rmn(TAG_LAST + 1, std::numeric_limits<int>::max());
+        for (int i = 0; i < nIterations; ++i)
+        {
+            for (int j = 1; j <= TAG_LAST; ++j)
+            {
+                int now = 0;
+                switch (j)
+                {
+                case 7:
+                    now = RemoveTime(ref, t7);
+                    break;
+                case 6:
+                    now = RemoveTime(ref, t6);
+                    break;
+                case 5:
+                    now = RemoveTime(ref, t5);
+                    break;
+                case 4:
+                    now = RemoveTime(ref, t4);
+                    break;
+                case 3:
+                    now = RemoveTime(ref, t3);
+                    break;
+                case 2:
+                    now = RemoveTime(ref, t2);
+                    break;
+                case 1:
+                    now = RemoveTime(ref, t1);
+                    break;
+                }
+
+                if (now < rmn[j])
+                {
+                    rmn[j] = now;
+                }
+            }
+        }
+        for (int j = TAG_LAST; j > 0; --j)
+        {
+            std::cout << GetName() << "min remove time: t" << j << ": " << std::setw(8) << rmn[j]
+                      << " ticks" << std::endl;
         }
     }
-    std::cout << GetName() << "min add+remove time: " << std::setw(8) << flm << " ticks"
-              << std::endl;
-
-    std::cout << GetName() << "remove timing" << std::endl;
-    // tags numbered from 1, so add one for (unused) entry at 0
-    std::vector<int> rmn(TAG_LAST + 1, std::numeric_limits<int>::max());
-    for (int i = 0; i < nIterations; ++i)
-    {
-        for (int j = 1; j <= TAG_LAST; ++j)
-        {
-            int now = 0;
-            switch (j)
-            {
-            case 7:
-                now = RemoveTime(ref, t7);
-                break;
-            case 6:
-                now = RemoveTime(ref, t6);
-                break;
-            case 5:
-                now = RemoveTime(ref, t5);
-                break;
-            case 4:
-                now = RemoveTime(ref, t4);
-                break;
-            case 3:
-                now = RemoveTime(ref, t3);
-                break;
-            case 2:
-                now = RemoveTime(ref, t2);
-                break;
-            case 1:
-                now = RemoveTime(ref, t1);
-                break;
-            } // switch
-
-            if (now < rmn[j])
-            {
-                rmn[j] = now;
-            }
-        } // for tag j
-    }     // for iteration i
-    for (int j = TAG_LAST; j > 0; --j)
-    {
-        std::cout << GetName() << "min remove time: t" << j << ": " << std::setw(8) << rmn[j]
-                  << " ticks" << std::endl;
-    }
-} // Timing
 }
 
 /**
- * \ingroup network-test
- * \ingroup tests
+ * @ingroup network-test
+ * @ingroup tests
  *
- * \brief Packet TestSuite
+ * @brief Packet TestSuite
  */
 class PacketTestSuite : public TestSuite
 {
@@ -1273,10 +1270,10 @@ class PacketTestSuite : public TestSuite
 };
 
 PacketTestSuite::PacketTestSuite()
-    : TestSuite("packet", UNIT)
+    : TestSuite("packet", Type::UNIT)
 {
-    AddTestCase(new PacketTest, TestCase::QUICK);
-    AddTestCase(new PacketTagListTest, TestCase::QUICK);
+    AddTestCase(new PacketTest, TestCase::Duration::QUICK);
+    AddTestCase(new PacketTagListTest, TestCase::Duration::QUICK);
 }
 
 static PacketTestSuite g_packetTestSuite; //!< Static variable for test initialization

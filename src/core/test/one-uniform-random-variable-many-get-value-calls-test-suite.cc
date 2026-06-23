@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2012 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mitch Watrous (watrous@u.washington.edu)
  */
@@ -22,13 +11,11 @@
 #include "ns3/random-variable-stream.h"
 #include "ns3/test.h"
 
-#include <vector>
-
 /**
- * \file
- * \ingroup core-tests
- * \ingroup randomvariable
- * \ingroup randomvariable-tests
+ * @file
+ * @ingroup core-tests
+ * @ingroup randomvariable
+ * @ingroup rng-tests
  * Test for one uniform random variable stream.
  */
 
@@ -39,15 +26,13 @@ namespace tests
 {
 
 /**
- * \ingroup randomvariable-tests
+ * @ingroup rng-tests
  * Test case for one uniform distribution random variable stream generator
  */
 class OneUniformRandomVariableManyGetValueCallsTestCase : public TestCase
 {
   public:
-    /** Constructor. */
     OneUniformRandomVariableManyGetValueCallsTestCase();
-    /** Destructor. */
     ~OneUniformRandomVariableManyGetValueCallsTestCase() override;
 
   private:
@@ -89,25 +74,24 @@ OneUniformRandomVariableManyGetValueCallsTestCase::DoRun()
 }
 
 /**
- * \ingroup randomvariable-tests
+ * @ingroup rng-tests
  * Test suite for one uniform distribution random variable stream generator
  */
 class OneUniformRandomVariableManyGetValueCallsTestSuite : public TestSuite
 {
   public:
-    /** Constructor. */
     OneUniformRandomVariableManyGetValueCallsTestSuite();
 };
 
 OneUniformRandomVariableManyGetValueCallsTestSuite::
     OneUniformRandomVariableManyGetValueCallsTestSuite()
-    : TestSuite("one-uniform-random-variable-many-get-value-calls", PERFORMANCE)
+    : TestSuite("one-uniform-random-variable-many-get-value-calls", Type::PERFORMANCE)
 {
     AddTestCase(new OneUniformRandomVariableManyGetValueCallsTestCase);
 }
 
 /**
- * \ingroup randomvariable-tests
+ * @ingroup rng-tests
  * OneUniformRandomVariableManyGetValueCallsTestSuite instance variable.
  */
 static OneUniformRandomVariableManyGetValueCallsTestSuite

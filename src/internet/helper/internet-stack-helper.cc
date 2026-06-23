@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2008 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  * Author: Faker Moatamri <faker.moatamri@sophia.inria.fr>
@@ -20,22 +9,24 @@
 
 #include "internet-stack-helper.h"
 
+#include "ipv4-global-routing-helper.h"
+#include "ipv4-list-routing-helper.h"
+#include "ipv4-static-routing-helper.h"
+#include "ipv6-global-routing-helper.h"
+#include "ipv6-list-routing-helper.h"
+#include "ipv6-static-routing-helper.h"
+
 #include "ns3/arp-l3-protocol.h"
 #include "ns3/assert.h"
 #include "ns3/callback.h"
 #include "ns3/config.h"
-#include "ns3/core-config.h"
 #include "ns3/global-router-interface.h"
+#include "ns3/global-routing.h"
 #include "ns3/icmpv6-l4-protocol.h"
-#include "ns3/ipv4-global-routing-helper.h"
-#include "ns3/ipv4-global-routing.h"
-#include "ns3/ipv4-list-routing-helper.h"
-#include "ns3/ipv4-static-routing-helper.h"
 #include "ns3/ipv4.h"
 #include "ns3/ipv6-extension-demux.h"
 #include "ns3/ipv6-extension-header.h"
 #include "ns3/ipv6-extension.h"
-#include "ns3/ipv6-static-routing-helper.h"
 #include "ns3/ipv6.h"
 #include "ns3/log.h"
 #include "ns3/names.h"
@@ -129,15 +120,18 @@ InternetStackHelper::InternetStackHelper()
 void
 InternetStackHelper::Initialize()
 {
-    SetTcp("ns3::TcpL4Protocol");
     Ipv4StaticRoutingHelper staticRouting;
     Ipv4GlobalRoutingHelper globalRouting;
     Ipv4ListRoutingHelper listRouting;
-    Ipv6StaticRoutingHelper staticRoutingv6;
+    Ipv6StaticRoutingHelper staticRouting6;
+    Ipv6GlobalRoutingHelper globalRouting6;
+    Ipv6ListRoutingHelper listRouting6;
     listRouting.Add(staticRouting, 0);
     listRouting.Add(globalRouting, -10);
     SetRoutingHelper(listRouting);
-    SetRoutingHelper(staticRoutingv6);
+    listRouting6.Add(staticRouting6, 0);
+    listRouting6.Add(globalRouting6, -10);
+    SetRoutingHelper(listRouting6);
 }
 
 InternetStackHelper::~InternetStackHelper()
@@ -152,7 +146,6 @@ InternetStackHelper::InternetStackHelper(const InternetStackHelper& o)
     m_routingv6 = o.m_routingv6->Copy();
     m_ipv4Enabled = o.m_ipv4Enabled;
     m_ipv6Enabled = o.m_ipv6Enabled;
-    m_tcpFactory = o.m_tcpFactory;
     m_ipv4ArpJitterEnabled = o.m_ipv4ArpJitterEnabled;
     m_ipv6NsRsJitterEnabled = o.m_ipv6NsRsJitterEnabled;
 }
@@ -225,13 +218,13 @@ int64_t
 InternetStackHelper::AssignStreams(NodeContainer c, int64_t stream)
 {
     int64_t currentStream = stream;
-    for (NodeContainer::Iterator i = c.Begin(); i != c.End(); ++i)
+    for (auto i = c.Begin(); i != c.End(); ++i)
     {
         Ptr<Node> node = *i;
-        Ptr<GlobalRouter> router = node->GetObject<GlobalRouter>();
-        if (router)
+        Ptr<GlobalRouter<Ipv4Manager>> routerv4 = node->GetObject<GlobalRouter<Ipv4Manager>>();
+        if (routerv4)
         {
-            Ptr<Ipv4GlobalRouting> gr = router->GetRoutingProtocol();
+            Ptr<Ipv4GlobalRouting> gr = routerv4->GetRoutingProtocol();
             if (gr)
             {
                 currentStream += gr->AssignStreams(currentStream);
@@ -242,7 +235,12 @@ InternetStackHelper::AssignStreams(NodeContainer c, int64_t stream)
         {
             Ptr<Ipv6Extension> fe = demux->GetExtension(Ipv6ExtensionFragment::EXT_NUMBER);
             NS_ASSERT(fe); // should always exist in the demux
-            currentStream += fe->AssignStreams(currentStream);
+            currentStream += demux->AssignStreams(currentStream);
+        }
+        Ptr<Ipv6ExtensionRoutingDemux> demuxRouter = node->GetObject<Ipv6ExtensionRoutingDemux>();
+        if (demuxRouter)
+        {
+            currentStream += demuxRouter->AssignStreams(currentStream);
         }
         Ptr<Ipv4> ipv4 = node->GetObject<Ipv4>();
         if (ipv4)
@@ -263,19 +261,29 @@ InternetStackHelper::AssignStreams(NodeContainer c, int64_t stream)
             }
         }
     }
+    // The below is intentionally left out of the above loop, to avoid some stream
+    // assignment perturbations on existing programs due to adding IPv6 global routing.
+    // Future extensions of this method should also copy this approach.
+    for (auto i = c.Begin(); i != c.End(); ++i)
+    {
+        Ptr<Node> node = *i;
+        Ptr<GlobalRouter<Ipv6Manager>> routerv6 = node->GetObject<GlobalRouter<Ipv6Manager>>();
+        if (routerv6)
+        {
+            Ptr<GlobalRouting<Ipv6RoutingProtocol>> gr = routerv6->GetRoutingProtocol();
+            if (gr)
+            {
+                currentStream += gr->AssignStreams(currentStream);
+            }
+        }
+    }
     return (currentStream - stream);
-}
-
-void
-InternetStackHelper::SetTcp(const std::string tid)
-{
-    m_tcpFactory.SetTypeId(tid);
 }
 
 void
 InternetStackHelper::Install(NodeContainer c) const
 {
-    for (NodeContainer::Iterator i = c.Begin(); i != c.End(); ++i)
+    for (auto i = c.Begin(); i != c.End(); ++i)
     {
         Install(*i);
     }
@@ -290,6 +298,12 @@ InternetStackHelper::InstallAll() const
 void
 InternetStackHelper::CreateAndAggregateObjectFromTypeId(Ptr<Node> node, const std::string typeId)
 {
+    TypeId tid = TypeId::LookupByName(typeId);
+    if (node->GetObject<Object>(tid))
+    {
+        return;
+    }
+
     ObjectFactory factory;
     factory.SetTypeId(typeId);
     Ptr<Object> protocol = factory.Create<Object>();
@@ -301,42 +315,33 @@ InternetStackHelper::Install(Ptr<Node> node) const
 {
     if (m_ipv4Enabled)
     {
-        if (node->GetObject<Ipv4>())
-        {
-            NS_FATAL_ERROR("InternetStackHelper::Install (): Aggregating "
-                           "an InternetStack to a node with an existing Ipv4 object");
-            return;
-        }
-
+        /* IPv4 stack */
         CreateAndAggregateObjectFromTypeId(node, "ns3::ArpL3Protocol");
         CreateAndAggregateObjectFromTypeId(node, "ns3::Ipv4L3Protocol");
         CreateAndAggregateObjectFromTypeId(node, "ns3::Icmpv4L4Protocol");
-        if (m_ipv4ArpJitterEnabled == false)
+        if (!m_ipv4ArpJitterEnabled)
         {
             Ptr<ArpL3Protocol> arp = node->GetObject<ArpL3Protocol>();
             NS_ASSERT(arp);
             arp->SetAttribute("RequestJitter",
                               StringValue("ns3::ConstantRandomVariable[Constant=0.0]"));
         }
+
         // Set routing
         Ptr<Ipv4> ipv4 = node->GetObject<Ipv4>();
-        Ptr<Ipv4RoutingProtocol> ipv4Routing = m_routing->Create(node);
-        ipv4->SetRoutingProtocol(ipv4Routing);
+        if (!ipv4->GetRoutingProtocol())
+        {
+            Ptr<Ipv4RoutingProtocol> ipv4Routing = m_routing->Create(node);
+            ipv4->SetRoutingProtocol(ipv4Routing);
+        }
     }
 
     if (m_ipv6Enabled)
     {
         /* IPv6 stack */
-        if (node->GetObject<Ipv6>())
-        {
-            NS_FATAL_ERROR("InternetStackHelper::Install (): Aggregating "
-                           "an InternetStack to a node with an existing Ipv6 object");
-            return;
-        }
-
         CreateAndAggregateObjectFromTypeId(node, "ns3::Ipv6L3Protocol");
         CreateAndAggregateObjectFromTypeId(node, "ns3::Icmpv6L4Protocol");
-        if (m_ipv6NsRsJitterEnabled == false)
+        if (!m_ipv6NsRsJitterEnabled)
         {
             Ptr<Icmpv6L4Protocol> icmpv6l4 = node->GetObject<Icmpv6L4Protocol>();
             NS_ASSERT(icmpv6l4);
@@ -345,9 +350,11 @@ InternetStackHelper::Install(Ptr<Node> node) const
         }
         // Set routing
         Ptr<Ipv6> ipv6 = node->GetObject<Ipv6>();
-        Ptr<Ipv6RoutingProtocol> ipv6Routing = m_routingv6->Create(node);
-        ipv6->SetRoutingProtocol(ipv6Routing);
-
+        if (!ipv6->GetRoutingProtocol())
+        {
+            Ptr<Ipv6RoutingProtocol> ipv6Routing = m_routingv6->Create(node);
+            ipv6->SetRoutingProtocol(ipv6Routing);
+        }
         /* register IPv6 extensions and options */
         ipv6->RegisterExtensions();
         ipv6->RegisterOptions();
@@ -357,9 +364,12 @@ InternetStackHelper::Install(Ptr<Node> node) const
     {
         CreateAndAggregateObjectFromTypeId(node, "ns3::TrafficControlLayer");
         CreateAndAggregateObjectFromTypeId(node, "ns3::UdpL4Protocol");
-        node->AggregateObject(m_tcpFactory.Create<Object>());
-        Ptr<PacketSocketFactory> factory = CreateObject<PacketSocketFactory>();
-        node->AggregateObject(factory);
+        CreateAndAggregateObjectFromTypeId(node, "ns3::TcpL4Protocol");
+        if (!node->GetObject<PacketSocketFactory>())
+        {
+            Ptr<PacketSocketFactory> factory = CreateObject<PacketSocketFactory>();
+            node->AggregateObject(factory);
+        }
     }
 
     if (m_ipv4Enabled)
@@ -380,10 +390,10 @@ InternetStackHelper::Install(std::string nodeName) const
 }
 
 /**
- * \brief Sync function for IPv4 packet - Pcap output
- * \param p smart pointer to the packet
- * \param ipv4 smart pointer to the node's IPv4 stack
- * \param interface incoming interface
+ * @brief Sync function for IPv4 packet - Pcap output
+ * @param p smart pointer to the packet
+ * @param ipv4 smart pointer to the node's IPv4 stack
+ * @param interface incoming interface
  */
 static void
 Ipv4L3ProtocolRxTxSink(Ptr<const Packet> p, Ptr<Ipv4> ipv4, uint32_t interface)
@@ -410,11 +420,11 @@ Ipv4L3ProtocolRxTxSink(Ptr<const Packet> p, Ptr<Ipv4> ipv4, uint32_t interface)
 bool
 InternetStackHelper::PcapHooked(Ptr<Ipv4> ipv4)
 {
-    for (InterfaceFileMapIpv4::const_iterator i = g_interfaceFileMapIpv4.begin();
-         i != g_interfaceFileMapIpv4.end();
-         ++i)
+    auto id = ipv4->GetObject<Node>()->GetId();
+
+    for (auto i = g_interfaceFileMapIpv4.begin(); i != g_interfaceFileMapIpv4.end(); ++i)
     {
-        if ((*i).first.first == ipv4->GetObject<Node>()->GetId())
+        if ((*i).first.first == id)
         {
             return true;
         }
@@ -486,10 +496,10 @@ InternetStackHelper::EnablePcapIpv4Internal(std::string prefix,
 }
 
 /**
- * \brief Sync function for IPv6 packet - Pcap output
- * \param p smart pointer to the packet
- * \param ipv6 smart pointer to the node's IPv6 stack
- * \param interface incoming interface
+ * @brief Sync function for IPv6 packet - Pcap output
+ * @param p smart pointer to the packet
+ * @param ipv6 smart pointer to the node's IPv6 stack
+ * @param interface incoming interface
  */
 static void
 Ipv6L3ProtocolRxTxSink(Ptr<const Packet> p, Ptr<Ipv6> ipv6, uint32_t interface)
@@ -516,11 +526,11 @@ Ipv6L3ProtocolRxTxSink(Ptr<const Packet> p, Ptr<Ipv6> ipv6, uint32_t interface)
 bool
 InternetStackHelper::PcapHooked(Ptr<Ipv6> ipv6)
 {
-    for (InterfaceFileMapIpv6::const_iterator i = g_interfaceFileMapIpv6.begin();
-         i != g_interfaceFileMapIpv6.end();
-         ++i)
+    auto id = ipv6->GetObject<Node>()->GetId();
+
+    for (auto i = g_interfaceFileMapIpv6.begin(); i != g_interfaceFileMapIpv6.end(); ++i)
     {
-        if ((*i).first.first == ipv6->GetObject<Node>()->GetId())
+        if ((*i).first.first == id)
         {
             return true;
         }
@@ -592,13 +602,13 @@ InternetStackHelper::EnablePcapIpv6Internal(std::string prefix,
 }
 
 /**
- * \brief Sync function for IPv4 dropped packet - Ascii output
- * \param stream the output stream
- * \param header IPv4 header
- * \param packet smart pointer to the packet
- * \param reason the reason for the dropping
- * \param ipv4 smart pointer to the node's IPv4 stack
- * \param interface incoming interface
+ * @brief Sync function for IPv4 dropped packet - Ascii output
+ * @param stream the output stream
+ * @param header IPv4 header
+ * @param packet smart pointer to the packet
+ * @param reason the reason for the dropping
+ * @param ipv4 smart pointer to the node's IPv4 stack
+ * @param interface incoming interface
  */
 static void
 Ipv4L3ProtocolDropSinkWithoutContext(Ptr<OutputStreamWrapper> stream,
@@ -627,11 +637,11 @@ Ipv4L3ProtocolDropSinkWithoutContext(Ptr<OutputStreamWrapper> stream,
 }
 
 /**
- * \brief Sync function for IPv4 transmitted packet - Ascii output
- * \param stream the output stream
- * \param packet smart pointer to the packet
- * \param ipv4 smart pointer to the node's IPv4 stack
- * \param interface incoming interface
+ * @brief Sync function for IPv4 transmitted packet - Ascii output
+ * @param stream the output stream
+ * @param packet smart pointer to the packet
+ * @param ipv4 smart pointer to the node's IPv4 stack
+ * @param interface incoming interface
  */
 static void
 Ipv4L3ProtocolTxSinkWithoutContext(Ptr<OutputStreamWrapper> stream,
@@ -650,11 +660,11 @@ Ipv4L3ProtocolTxSinkWithoutContext(Ptr<OutputStreamWrapper> stream,
 }
 
 /**
- * \brief Sync function for IPv4 received packet - Ascii output
- * \param stream the output stream
- * \param packet smart pointer to the packet
- * \param ipv4 smart pointer to the node's IPv4 stack
- * \param interface incoming interface
+ * @brief Sync function for IPv4 received packet - Ascii output
+ * @param stream the output stream
+ * @param packet smart pointer to the packet
+ * @param ipv4 smart pointer to the node's IPv4 stack
+ * @param interface incoming interface
  */
 static void
 Ipv4L3ProtocolRxSinkWithoutContext(Ptr<OutputStreamWrapper> stream,
@@ -673,14 +683,14 @@ Ipv4L3ProtocolRxSinkWithoutContext(Ptr<OutputStreamWrapper> stream,
 }
 
 /**
- * \brief Sync function for IPv4 dropped packet - Ascii output
- * \param stream the output stream
- * \param context the context
- * \param header IPv4 header
- * \param packet smart pointer to the packet
- * \param reason the reason for the dropping
- * \param ipv4 smart pointer to the node's IPv4 stack
- * \param interface incoming interface
+ * @brief Sync function for IPv4 dropped packet - Ascii output
+ * @param stream the output stream
+ * @param context the context
+ * @param header IPv4 header
+ * @param packet smart pointer to the packet
+ * @param reason the reason for the dropping
+ * @param ipv4 smart pointer to the node's IPv4 stack
+ * @param interface incoming interface
  */
 static void
 Ipv4L3ProtocolDropSinkWithContext(Ptr<OutputStreamWrapper> stream,
@@ -716,12 +726,12 @@ Ipv4L3ProtocolDropSinkWithContext(Ptr<OutputStreamWrapper> stream,
 }
 
 /**
- * \brief Sync function for IPv4 transmitted packet - Ascii output
- * \param stream the output stream
- * \param context the context
- * \param packet smart pointer to the packet
- * \param ipv4 smart pointer to the node's IPv4 stack
- * \param interface incoming interface
+ * @brief Sync function for IPv4 transmitted packet - Ascii output
+ * @param stream the output stream
+ * @param context the context
+ * @param packet smart pointer to the packet
+ * @param ipv4 smart pointer to the node's IPv4 stack
+ * @param interface incoming interface
  */
 static void
 Ipv4L3ProtocolTxSinkWithContext(Ptr<OutputStreamWrapper> stream,
@@ -747,12 +757,12 @@ Ipv4L3ProtocolTxSinkWithContext(Ptr<OutputStreamWrapper> stream,
 }
 
 /**
- * \brief Sync function for IPv4 received packet - Ascii output
- * \param stream the output stream
- * \param context the context
- * \param packet smart pointer to the packet
- * \param ipv4 smart pointer to the node's IPv4 stack
- * \param interface incoming interface
+ * @brief Sync function for IPv4 received packet - Ascii output
+ * @param stream the output stream
+ * @param context the context
+ * @param packet smart pointer to the packet
+ * @param ipv4 smart pointer to the node's IPv4 stack
+ * @param interface incoming interface
  */
 static void
 Ipv4L3ProtocolRxSinkWithContext(Ptr<OutputStreamWrapper> stream,
@@ -780,11 +790,11 @@ Ipv4L3ProtocolRxSinkWithContext(Ptr<OutputStreamWrapper> stream,
 bool
 InternetStackHelper::AsciiHooked(Ptr<Ipv4> ipv4)
 {
-    for (InterfaceStreamMapIpv4::const_iterator i = g_interfaceStreamMapIpv4.begin();
-         i != g_interfaceStreamMapIpv4.end();
-         ++i)
+    auto id = ipv4->GetObject<Node>()->GetId();
+
+    for (auto i = g_interfaceStreamMapIpv4.begin(); i != g_interfaceStreamMapIpv4.end(); ++i)
     {
-        if ((*i).first.first == ipv4->GetObject<Node>()->GetId())
+        if ((*i).first.first == id)
         {
             return true;
         }
@@ -936,13 +946,13 @@ InternetStackHelper::EnableAsciiIpv4Internal(Ptr<OutputStreamWrapper> stream,
 }
 
 /**
- * \brief Sync function for IPv6 dropped packet - Ascii output
- * \param stream the output stream
- * \param header IPv6 header
- * \param packet smart pointer to the packet
- * \param reason the reason for the dropping
- * \param ipv6 smart pointer to the node's IPv6 stack
- * \param interface incoming interface
+ * @brief Sync function for IPv6 dropped packet - Ascii output
+ * @param stream the output stream
+ * @param header IPv6 header
+ * @param packet smart pointer to the packet
+ * @param reason the reason for the dropping
+ * @param ipv6 smart pointer to the node's IPv6 stack
+ * @param interface incoming interface
  */
 static void
 Ipv6L3ProtocolDropSinkWithoutContext(Ptr<OutputStreamWrapper> stream,
@@ -971,11 +981,11 @@ Ipv6L3ProtocolDropSinkWithoutContext(Ptr<OutputStreamWrapper> stream,
 }
 
 /**
- * \brief Sync function for IPv6 transmitted packet - Ascii output
- * \param stream the output stream
- * \param packet smart pointer to the packet
- * \param ipv6 smart pointer to the node's IPv6 stack
- * \param interface incoming interface
+ * @brief Sync function for IPv6 transmitted packet - Ascii output
+ * @param stream the output stream
+ * @param packet smart pointer to the packet
+ * @param ipv6 smart pointer to the node's IPv6 stack
+ * @param interface incoming interface
  */
 static void
 Ipv6L3ProtocolTxSinkWithoutContext(Ptr<OutputStreamWrapper> stream,
@@ -994,11 +1004,11 @@ Ipv6L3ProtocolTxSinkWithoutContext(Ptr<OutputStreamWrapper> stream,
 }
 
 /**
- * \brief Sync function for IPv6 received packet - Ascii output
- * \param stream the output stream
- * \param packet smart pointer to the packet
- * \param ipv6 smart pointer to the node's IPv6 stack
- * \param interface incoming interface
+ * @brief Sync function for IPv6 received packet - Ascii output
+ * @param stream the output stream
+ * @param packet smart pointer to the packet
+ * @param ipv6 smart pointer to the node's IPv6 stack
+ * @param interface incoming interface
  */
 static void
 Ipv6L3ProtocolRxSinkWithoutContext(Ptr<OutputStreamWrapper> stream,
@@ -1017,14 +1027,14 @@ Ipv6L3ProtocolRxSinkWithoutContext(Ptr<OutputStreamWrapper> stream,
 }
 
 /**
- * \brief Sync function for IPv6 dropped packet - Ascii output
- * \param stream the output stream
- * \param context the context
- * \param header IPv6 header
- * \param packet smart pointer to the packet
- * \param reason the reason for the dropping
- * \param ipv6 smart pointer to the node's IPv6 stack
- * \param interface incoming interface
+ * @brief Sync function for IPv6 dropped packet - Ascii output
+ * @param stream the output stream
+ * @param context the context
+ * @param header IPv6 header
+ * @param packet smart pointer to the packet
+ * @param reason the reason for the dropping
+ * @param ipv6 smart pointer to the node's IPv6 stack
+ * @param interface incoming interface
  */
 static void
 Ipv6L3ProtocolDropSinkWithContext(Ptr<OutputStreamWrapper> stream,
@@ -1060,12 +1070,12 @@ Ipv6L3ProtocolDropSinkWithContext(Ptr<OutputStreamWrapper> stream,
 }
 
 /**
- * \brief Sync function for IPv6 transmitted packet - Ascii output
- * \param stream the output stream
- * \param context the context
- * \param packet smart pointer to the packet
- * \param ipv6 smart pointer to the node's IPv6 stack
- * \param interface incoming interface
+ * @brief Sync function for IPv6 transmitted packet - Ascii output
+ * @param stream the output stream
+ * @param context the context
+ * @param packet smart pointer to the packet
+ * @param ipv6 smart pointer to the node's IPv6 stack
+ * @param interface incoming interface
  */
 static void
 Ipv6L3ProtocolTxSinkWithContext(Ptr<OutputStreamWrapper> stream,
@@ -1091,12 +1101,12 @@ Ipv6L3ProtocolTxSinkWithContext(Ptr<OutputStreamWrapper> stream,
 }
 
 /**
- * \brief Sync function for IPv6 received packet - Ascii output
- * \param stream the output stream
- * \param context the context
- * \param packet smart pointer to the packet
- * \param ipv6 smart pointer to the node's IPv6 stack
- * \param interface incoming interface
+ * @brief Sync function for IPv6 received packet - Ascii output
+ * @param stream the output stream
+ * @param context the context
+ * @param packet smart pointer to the packet
+ * @param ipv6 smart pointer to the node's IPv6 stack
+ * @param interface incoming interface
  */
 static void
 Ipv6L3ProtocolRxSinkWithContext(Ptr<OutputStreamWrapper> stream,
@@ -1124,11 +1134,11 @@ Ipv6L3ProtocolRxSinkWithContext(Ptr<OutputStreamWrapper> stream,
 bool
 InternetStackHelper::AsciiHooked(Ptr<Ipv6> ipv6)
 {
-    for (InterfaceStreamMapIpv6::const_iterator i = g_interfaceStreamMapIpv6.begin();
-         i != g_interfaceStreamMapIpv6.end();
-         ++i)
+    auto id = ipv6->GetObject<Node>()->GetId();
+
+    for (auto i = g_interfaceStreamMapIpv6.begin(); i != g_interfaceStreamMapIpv6.end(); ++i)
     {
-        if ((*i).first.first == ipv6->GetObject<Node>()->GetId())
+        if ((*i).first.first == id)
         {
             return true;
         }

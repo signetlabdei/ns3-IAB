@@ -1,10 +1,11 @@
 set(base_examples
     lr-wpan-data
-    lr-wpan-mlme
+    lr-wpan-beacon-mode
     lr-wpan-packet-print
     lr-wpan-phy-test
     lr-wpan-ed-scan
     lr-wpan-active-scan
+    lr-wpan-orphan-scan
 )
 
 foreach(

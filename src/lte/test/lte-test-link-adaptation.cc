@@ -55,7 +55,7 @@ LteTestDlSchedulingCallback (LteLinkAdaptationTestCase *testcase, std::string pa
  */
 
 LteLinkAdaptationTestSuite::LteLinkAdaptationTestSuite ()
-    : TestSuite ("lte-link-adaptation", SYSTEM)
+    : TestSuite ("lte-link-adaptation", TestSuite::Type::SYSTEM)
 {
   NS_LOG_INFO ("Creating LteLinkAdaptionTestSuite");
 
@@ -102,7 +102,7 @@ LteLinkAdaptationTestSuite::LteLinkAdaptationTestSuite ()
            << " mcs= " << snrEfficiencyMcs[i].mcsIndex;
       AddTestCase (new LteLinkAdaptationTestCase (name.str (), snrEfficiencyMcs[i].snrDb, lossDb,
                                                   snrEfficiencyMcs[i].mcsIndex),
-                   TestCase::QUICK);
+                   TestCase::Duration::QUICK);
     }
 }
 

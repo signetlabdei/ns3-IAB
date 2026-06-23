@@ -124,7 +124,24 @@ EpcMme::DoInitialUeMessage (uint64_t mmeUeS1Id, uint16_t enbUeS1Id, uint64_t ims
   NS_LOG_FUNCTION (this << mmeUeS1Id << enbUeS1Id << imsi << gci);
   std::map<uint64_t, Ptr<UeInfo>>::iterator it = m_ueInfoMap.find (imsi);
   NS_ASSERT_MSG (it != m_ueInfoMap.end (), "could not find any UE with IMSI " << imsi);
+
+  // Guard against duplicate session setup caused by RACH retries (T300 timeout).
+  // If cellId is already set, a CreateSessionRequest for this IMSI has already been
+  // dispatched and the bearer setup chain is in progress or complete.  Firing it a
+  // second time would send duplicate bearerIds to the RRC (because bearersToBeActivated
+  // is never cleared), causing an NS_ASSERT_MSG mismatch in UeManager::SetupDataRadioBearer
+  // and, for IAB nodes, a duplicate AddPairRlcMap call.
+  if (it->second->cellId != 0)
+    {
+      NS_LOG_WARN ("EpcMme::DoInitialUeMessage: IMSI " << imsi
+                   << " already has an active session (cellId=" << it->second->cellId
+                   << "). Ignoring duplicate InitialUeMessage from cell " << gci
+                   << " (likely a RACH retry after T300 timeout).");
+      return;
+    }
+
   it->second->cellId = gci;
+  it->second->enbUeS1Id = enbUeS1Id;
   EpcS11SapSgw::CreateSessionRequestMessage msg;
   msg.imsi = imsi;
   msg.uli.gci = gci;

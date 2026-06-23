@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2007 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -34,88 +23,57 @@ NS_LOG_COMPONENT_DEFINE("Mac64Address");
 
 ATTRIBUTE_HELPER_CPP(Mac64Address);
 
-#define ASCII_a (0x41)
-#define ASCII_z (0x5a)
-#define ASCII_A (0x61)
-#define ASCII_Z (0x7a)
-#define ASCII_COLON (0x3a)
-#define ASCII_ZERO (0x30)
-
-/**
- * Converts a char to lower case.
- * \param c the char
- * \returns the lower case
- */
-static char
-AsciiToLowCase(char c)
-{
-    NS_LOG_FUNCTION(c);
-    if (c >= ASCII_a && c <= ASCII_z)
-    {
-        return c;
-    }
-    else if (c >= ASCII_A && c <= ASCII_Z)
-    {
-        return c + (ASCII_a - ASCII_A);
-    }
-    else
-    {
-        return c;
-    }
-}
-
 uint64_t Mac64Address::m_allocationIndex = 0;
-
-Mac64Address::Mac64Address()
-{
-    NS_LOG_FUNCTION(this);
-    std::memset(m_address, 0, 8);
-}
 
 Mac64Address::Mac64Address(const char* str)
 {
     NS_LOG_FUNCTION(this << str);
-    int i = 0;
-    while (*str != 0 && i < 8)
-    {
-        uint8_t byte = 0;
-        while (*str != ASCII_COLON && *str != 0)
-        {
-            byte <<= 4;
-            char low = AsciiToLowCase(*str);
-            if (low >= ASCII_a)
-            {
-                byte |= low - ASCII_a + 10;
-            }
-            else
-            {
-                byte |= low - ASCII_ZERO;
-            }
-            str++;
-        }
-        m_address[i] = byte;
-        i++;
-        if (*str == 0)
-        {
-            break;
-        }
-        str++;
-    }
-    NS_ASSERT(i == 8);
+    NS_ASSERT_MSG(strlen(str) <= 23, "Mac64Address: illegal string (too long) " << str);
+
+    unsigned int bytes[8];
+    int charsRead = 0;
+
+    int i = sscanf(str,
+                   "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x%n",
+                   bytes,
+                   bytes + 1,
+                   bytes + 2,
+                   bytes + 3,
+                   bytes + 4,
+                   bytes + 5,
+                   bytes + 6,
+                   bytes + 7,
+                   &charsRead);
+    NS_ASSERT_MSG(i == 8 && !str[charsRead], "Mac64Address: illegal string " << str);
+
+    std::copy(std::begin(bytes), std::end(bytes), std::begin(m_address));
+}
+
+Mac64Address::Mac64Address(uint64_t addr)
+{
+    NS_LOG_FUNCTION(this);
+    m_address[7] = addr & 0xFF;
+    m_address[6] = (addr >> 8) & 0xFF;
+    m_address[5] = (addr >> 16) & 0xFF;
+    m_address[4] = (addr >> 24) & 0xFF;
+    m_address[3] = (addr >> 32) & 0xFF;
+    m_address[2] = (addr >> 40) & 0xFF;
+    m_address[1] = (addr >> 48) & 0xFF;
+    m_address[0] = (addr >> 56) & 0xFF;
 }
 
 void
 Mac64Address::CopyFrom(const uint8_t buffer[8])
 {
     NS_LOG_FUNCTION(this << &buffer);
-    std::memcpy(m_address, buffer, 8);
+    std::copy(buffer, buffer + 8, m_address.begin());
 }
 
 void
 Mac64Address::CopyTo(uint8_t buffer[8]) const
 {
     NS_LOG_FUNCTION(this << &buffer);
-    std::memcpy(buffer, m_address, 8);
+    std::copy(m_address.begin(), m_address.end(), buffer);
 }
 
 bool
@@ -125,7 +83,8 @@ Mac64Address::IsMatchingType(const Address& address)
     return address.CheckCompatible(GetType(), 8);
 }
 
-Mac64Address::operator Address() const
+Mac64Address::
+operator Address() const
 {
     return ConvertTo();
 }
@@ -136,7 +95,7 @@ Mac64Address::ConvertFrom(const Address& address)
     NS_LOG_FUNCTION(address);
     NS_ASSERT(address.CheckCompatible(GetType(), 8));
     Mac64Address retval;
-    address.CopyTo(retval.m_address);
+    address.CopyTo(retval.m_address.data());
     return retval;
 }
 
@@ -144,7 +103,24 @@ Address
 Mac64Address::ConvertTo() const
 {
     NS_LOG_FUNCTION(this);
-    return Address(GetType(), m_address, 8);
+    return Address(GetType(), m_address.data(), 8);
+}
+
+uint64_t
+Mac64Address::ConvertToInt() const
+{
+    uint64_t shift = 0xFF;
+    uint64_t addr = static_cast<uint64_t>(m_address[7]) & (shift);
+    addr |= (static_cast<uint64_t>(m_address[6]) << 8) & (shift << 8);
+    addr |= (static_cast<uint64_t>(m_address[5]) << 16) & (shift << 16);
+    addr |= (static_cast<uint64_t>(m_address[4]) << 24) & (shift << 24);
+
+    addr |= (static_cast<uint64_t>(m_address[3]) << 32) & (shift << 32);
+    addr |= (static_cast<uint64_t>(m_address[2]) << 40) & (shift << 40);
+    addr |= (static_cast<uint64_t>(m_address[1]) << 48) & (shift << 48);
+    addr |= (static_cast<uint64_t>(m_address[0]) << 56) & (shift << 56);
+
+    return addr;
 }
 
 Mac64Address
@@ -181,26 +157,29 @@ uint8_t
 Mac64Address::GetType()
 {
     NS_LOG_FUNCTION_NOARGS();
-    static uint8_t type = Address::Register();
+    static uint8_t type = Address::Register("MacAddress", 8);
     return type;
 }
 
 std::ostream&
 operator<<(std::ostream& os, const Mac64Address& address)
 {
-    uint8_t ad[8];
-    address.CopyTo(ad);
-
+    std::ios_base::fmtflags ff = os.flags();
     os.setf(std::ios::hex, std::ios::basefield);
-    os.fill('0');
-    for (uint8_t i = 0; i < 7; i++)
-    {
-        os << std::setw(2) << (uint32_t)ad[i] << ":";
-    }
-    // Final byte not suffixed by ":"
-    os << std::setw(2) << (uint32_t)ad[7];
-    os.setf(std::ios::dec, std::ios::basefield);
-    os.fill(' ');
+    auto fill = os.fill('0');
+
+    os << std::setw(2) << static_cast<uint32_t>(address.m_address[0]) << ":";
+    os << std::setw(2) << static_cast<uint32_t>(address.m_address[1]) << ":";
+    os << std::setw(2) << static_cast<uint32_t>(address.m_address[2]) << ":";
+    os << std::setw(2) << static_cast<uint32_t>(address.m_address[3]) << ":";
+    os << std::setw(2) << static_cast<uint32_t>(address.m_address[4]) << ":";
+    os << std::setw(2) << static_cast<uint32_t>(address.m_address[5]) << ":";
+    os << std::setw(2) << static_cast<uint32_t>(address.m_address[6]) << ":";
+    os << std::setw(2) << static_cast<uint32_t>(address.m_address[7]);
+
+    os.flags(ff); // Restore stream flags
+    os.fill(fill);
+
     return os;
 }
 

@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2012 Lawrence Livermore National Laboratory
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Peter D. Barnes, Jr. <pdbarnes@llnl.gov>
  */
@@ -23,9 +12,9 @@
 #include "hash-function.h"
 
 /**
- * \file
- * \ingroup hash
- * \brief ns3::Hash::Function::Murmur3 declaration.
+ * @file
+ * @ingroup hash
+ * @brief ns3::Hash::Function::Murmur3 declaration.
  */
 
 namespace ns3
@@ -38,9 +27,9 @@ namespace Function
 {
 
 /**
- *  \ingroup hash
+ *  @ingroup hash
  *
- *  \brief Murmur3 hash function implementation
+ *  @brief Murmur3 hash function implementation
  *
  *  Adapted from http://code.google.com/p/smhasher/
  *
@@ -69,9 +58,9 @@ class Murmur3 : public Implementation
      * you can hash successive buffers.  The final return value
      * will be the cumulative hash across all calls.
      *
-     * \param [in] buffer pointer to the beginning of the buffer
-     * \param [in] size length of the buffer, in bytes
-     * \return 32-bit hash of the buffer
+     * @param [in] buffer pointer to the beginning of the buffer
+     * @param [in] size length of the buffer, in bytes
+     * @return 32-bit hash of the buffer
      */
     uint32_t GetHash32(const char* buffer, const std::size_t size) override;
     /**
@@ -84,9 +73,9 @@ class Murmur3 : public Implementation
      * you can hash successive buffers.  The final return value
      * will be the cumulative hash across all calls.
      *
-     * \param [in] buffer pointer to the beginning of the buffer
-     * \param [in] size length of the buffer, in bytes
-     * \return 64-bit hash of the buffer
+     * @param [in] buffer pointer to the beginning of the buffer
+     * @param [in] size length of the buffer, in bytes
+     * @return 64-bit hash of the buffer
      */
     uint64_t GetHash64(const char* buffer, const std::size_t size) override;
     /**
@@ -101,10 +90,7 @@ class Murmur3 : public Implementation
      * This has to be a constant for all MPI ranks to generate
      * the same hash from the same string.
      */
-    enum Seed
-    {
-        SEED = 0x8BADF00D // Ate bad food
-    };
+    static constexpr auto SEED{0x8BADF00D}; // Ate bad food
 
     /**
      * Cache last hash value, and total bytes hashed (needed to finalize),
@@ -121,7 +107,8 @@ class Murmur3 : public Implementation
     std::size_t m_size64;
     /**@}*/
 
-}; // class Murmur3
+    // end of class Murmur3
+};
 
 } // namespace Function
 

@@ -1,18 +1,7 @@
 //
 // Copyright (c) 2006 Georgia Tech Research Corporation
 //
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License version 2 as
-// published by the Free Software Foundation;
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+// SPDX-License-Identifier: GPL-2.0-only
 //
 // Author: Rajib Bhattacharjea<raj.b@gatech.edu>
 //
@@ -50,7 +39,7 @@ RttEstimator::GetTypeId()
                             .SetGroupName("Internet")
                             .AddAttribute("InitialEstimation",
                                           "Initial RTT estimate",
-                                          TimeValue(Seconds(1.0)),
+                                          TimeValue(Seconds(1)),
                                           MakeTimeAccessor(&RttEstimator::m_initialEstimatedRtt),
                                           MakeTimeChecker());
     return tid;
@@ -74,12 +63,13 @@ RttEstimator::RttEstimator()
     : m_nSamples(0)
 {
     NS_LOG_FUNCTION(this);
+}
 
-    // We need attributes initialized here, not later, so use the
-    // ConstructSelf() technique documented in the manual
-    ObjectBase::ConstructSelf(AttributeConstructionList());
+void
+RttEstimator::NotifyConstructionCompleted()
+{
+    NS_LOG_FUNCTION(this);
     m_estimatedRtt = m_initialEstimatedRtt;
-    m_estimatedVariation = Time(0);
     NS_LOG_DEBUG("Initialize m_estimatedRtt to " << m_estimatedRtt.GetSeconds() << " sec.");
 }
 
@@ -96,12 +86,6 @@ RttEstimator::RttEstimator(const RttEstimator& c)
 RttEstimator::~RttEstimator()
 {
     NS_LOG_FUNCTION(this);
-}
-
-TypeId
-RttEstimator::GetInstanceTypeId() const
-{
-    return GetTypeId();
 }
 
 void
@@ -158,12 +142,6 @@ RttMeanDeviation::RttMeanDeviation(const RttMeanDeviation& c)
       m_beta(c.m_beta)
 {
     NS_LOG_FUNCTION(this);
-}
-
-TypeId
-RttMeanDeviation::GetInstanceTypeId() const
-{
-    return GetTypeId();
 }
 
 uint32_t

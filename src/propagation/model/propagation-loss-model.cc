@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2005,2006,2007 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  * Contributions: Timo Bingmann <timo.bingmann@student.kit.edu>
@@ -26,6 +15,7 @@
 #include "ns3/double.h"
 #include "ns3/log.h"
 #include "ns3/mobility-model.h"
+#include "ns3/node.h"
 #include "ns3/pointer.h"
 #include "ns3/string.h"
 
@@ -161,9 +151,10 @@ FriisPropagationLossModel::GetTypeId()
                                    &FriisPropagationLossModel::GetFrequency),
                 MakeDoubleChecker<double>())
             .AddAttribute("SystemLoss",
-                          "The system loss",
+                          "The system loss (linear factor >= 1, not in dB)",
                           DoubleValue(1.0),
-                          MakeDoubleAccessor(&FriisPropagationLossModel::m_systemLoss),
+                          MakeDoubleAccessor(&FriisPropagationLossModel::SetSystemLoss,
+                                             &FriisPropagationLossModel::GetSystemLoss),
                           MakeDoubleChecker<double>())
             .AddAttribute("MinLoss",
                           "The minimum value (dB) of the total loss, used at short ranges.",
@@ -181,6 +172,7 @@ FriisPropagationLossModel::FriisPropagationLossModel()
 void
 FriisPropagationLossModel::SetSystemLoss(double systemLoss)
 {
+    NS_ABORT_MSG_UNLESS(systemLoss >= 1, "System loss less than 1 corresponds to gain");
     m_systemLoss = systemLoss;
 }
 
@@ -214,20 +206,6 @@ double
 FriisPropagationLossModel::GetFrequency() const
 {
     return m_frequency;
-}
-
-double
-FriisPropagationLossModel::DbmToW(double dbm) const
-{
-    double mw = std::pow(10.0, dbm / 10.0);
-    return mw / 1000.0;
-}
-
-double
-FriisPropagationLossModel::DbmFromW(double w) const
-{
-    double dbm = std::log10(w * 1000.0) * 10.0;
-    return dbm;
 }
 
 double
@@ -308,9 +286,10 @@ TwoRayGroundPropagationLossModel::GetTypeId()
                                    &TwoRayGroundPropagationLossModel::GetFrequency),
                 MakeDoubleChecker<double>())
             .AddAttribute("SystemLoss",
-                          "The system loss",
+                          "The system loss (linear factor >= 1, not in dB)",
                           DoubleValue(1.0),
-                          MakeDoubleAccessor(&TwoRayGroundPropagationLossModel::m_systemLoss),
+                          MakeDoubleAccessor(&TwoRayGroundPropagationLossModel::SetSystemLoss,
+                                             &TwoRayGroundPropagationLossModel::GetSystemLoss),
                           MakeDoubleChecker<double>())
             .AddAttribute(
                 "MinDistance",
@@ -334,6 +313,7 @@ TwoRayGroundPropagationLossModel::TwoRayGroundPropagationLossModel()
 void
 TwoRayGroundPropagationLossModel::SetSystemLoss(double systemLoss)
 {
+    NS_ABORT_MSG_UNLESS(systemLoss >= 1, "System loss less than 1 corresponds to gain");
     m_systemLoss = systemLoss;
 }
 
@@ -373,20 +353,6 @@ double
 TwoRayGroundPropagationLossModel::GetFrequency() const
 {
     return m_frequency;
-}
-
-double
-TwoRayGroundPropagationLossModel::DbmToW(double dbm) const
-{
-    double mw = std::pow(10.0, dbm / 10.0);
-    return mw / 1000.0;
-}
-
-double
-TwoRayGroundPropagationLossModel::DbmFromW(double w) const
-{
-    double dbm = std::log10(w * 1000.0) * 10.0;
-    return dbm;
 }
 
 double
@@ -530,6 +496,8 @@ LogDistancePropagationLossModel::DoCalcRxPower(double txPowerDbm,
     double distance = a->GetDistanceFrom(b);
     if (distance <= m_referenceDistance)
     {
+        NS_LOG_DEBUG("distance=" << distance << "m, reference-attenuation=" << -m_referenceLoss
+                                 << "dB, no further attenuation");
         return txPowerDbm - m_referenceLoss;
     }
     /**
@@ -747,7 +715,7 @@ NakagamiPropagationLossModel::DoCalcRxPower(double txPowerDbm,
 
     // switch between Erlang- and Gamma distributions: this is only for
     // speed. (Gamma is equal to Erlang for any positive integer m.)
-    unsigned int int_m = static_cast<unsigned int>(std::floor(m));
+    auto int_m = static_cast<unsigned int>(std::floor(m));
 
     if (int_m == m)
     {
@@ -868,8 +836,9 @@ MatrixPropagationLossModel::SetLoss(Ptr<MobilityModel> ma,
 {
     NS_ASSERT(ma && mb);
 
-    MobilityPair p = std::make_pair(ma, mb);
-    std::map<MobilityPair, double>::iterator i = m_loss.find(p);
+    uint64_t p = ((uint64_t)ma->GetObject<Node>()->GetId()) << 32 |
+                 ((uint64_t)mb->GetObject<Node>()->GetId());
+    auto i = m_loss.find(p);
 
     if (i == m_loss.end())
     {
@@ -891,7 +860,9 @@ MatrixPropagationLossModel::DoCalcRxPower(double txPowerDbm,
                                           Ptr<MobilityModel> a,
                                           Ptr<MobilityModel> b) const
 {
-    std::map<MobilityPair, double>::const_iterator i = m_loss.find(std::make_pair(a, b));
+    uint64_t p =
+        ((uint64_t)a->GetObject<Node>()->GetId()) << 32 | ((uint64_t)b->GetObject<Node>()->GetId());
+    auto i = m_loss.find(p);
 
     if (i != m_loss.end())
     {

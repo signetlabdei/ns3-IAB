@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2004,2005,2006 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -22,15 +11,13 @@
 #include "ns3/log.h"
 #include "ns3/wifi-tx-vector.h"
 
-#define Min(a, b) ((a < b) ? a : b)
-
 namespace ns3
 {
 
 NS_LOG_COMPONENT_DEFINE("ArfWifiManager");
 
 /**
- * \brief hold per-remote-station state for ARF Wifi manager.
+ * @brief hold per-remote-station state for ARF Wifi manager.
  *
  * This struct extends from WifiRemoteStation struct to hold additional
  * information required by the ARF Wifi manager
@@ -107,7 +94,7 @@ WifiRemoteStation*
 ArfWifiManager::DoCreateStation() const
 {
     NS_LOG_FUNCTION(this);
-    ArfWifiRemoteStation* station = new ArfWifiRemoteStation();
+    auto station = new ArfWifiRemoteStation();
 
     station->m_successThreshold = m_successThreshold;
     station->m_timerTimeout = m_timerThreshold;
@@ -135,13 +122,13 @@ ArfWifiManager::DoReportRtsFailed(WifiRemoteStation* station)
  * The fundamental reason for this is that there is a backoff between each data
  * transmission, be it an initial transmission or a retransmission.
  *
- * \param st the station that we failed to send Data
+ * @param st the station that we failed to send Data
  */
 void
 ArfWifiManager::DoReportDataFailed(WifiRemoteStation* st)
 {
     NS_LOG_FUNCTION(this << st);
-    ArfWifiRemoteStation* station = static_cast<ArfWifiRemoteStation*>(st);
+    auto station = static_cast<ArfWifiRemoteStation*>(st);
     station->m_timer++;
     station->m_failed++;
     station->m_success = 0;
@@ -198,11 +185,11 @@ ArfWifiManager::DoReportDataOk(WifiRemoteStation* st,
                                double ackSnr,
                                WifiMode ackMode,
                                double dataSnr,
-                               uint16_t dataChannelWidth,
+                               MHz_u dataChannelWidth,
                                uint8_t dataNss)
 {
     NS_LOG_FUNCTION(this << st << ackSnr << ackMode << dataSnr << dataChannelWidth << +dataNss);
-    ArfWifiRemoteStation* station = static_cast<ArfWifiRemoteStation*>(st);
+    auto station = static_cast<ArfWifiRemoteStation*>(st);
     station->m_timer++;
     station->m_success++;
     station->m_failed = 0;
@@ -233,14 +220,14 @@ ArfWifiManager::DoReportFinalDataFailed(WifiRemoteStation* station)
 }
 
 WifiTxVector
-ArfWifiManager::DoGetDataTxVector(WifiRemoteStation* st, uint16_t allowedWidth)
+ArfWifiManager::DoGetDataTxVector(WifiRemoteStation* st, MHz_u allowedWidth)
 {
     NS_LOG_FUNCTION(this << st << allowedWidth);
-    ArfWifiRemoteStation* station = static_cast<ArfWifiRemoteStation*>(st);
-    uint16_t channelWidth = GetChannelWidth(station);
-    if (channelWidth > 20 && channelWidth != 22)
+    auto station = static_cast<ArfWifiRemoteStation*>(st);
+    auto channelWidth = GetChannelWidth(station);
+    if (channelWidth > MHz_u{20} && channelWidth != MHz_u{22})
     {
-        channelWidth = 20;
+        channelWidth = MHz_u{20};
     }
     WifiMode mode = GetSupported(station, station->m_rate);
     uint64_t rate = mode.GetDataRate(channelWidth);
@@ -253,7 +240,7 @@ ArfWifiManager::DoGetDataTxVector(WifiRemoteStation* st, uint16_t allowedWidth)
         mode,
         GetDefaultTxPowerLevel(),
         GetPreambleForTransmission(mode.GetModulationClass(), GetShortPreambleEnabled()),
-        800,
+        NanoSeconds(800),
         1,
         1,
         0,
@@ -265,16 +252,16 @@ WifiTxVector
 ArfWifiManager::DoGetRtsTxVector(WifiRemoteStation* st)
 {
     NS_LOG_FUNCTION(this << st);
-    /// \todo we could/should implement the ARF algorithm for
+    /// @todo we could/should implement the ARF algorithm for
     /// RTS only by picking a single rate within the BasicRateSet.
-    ArfWifiRemoteStation* station = static_cast<ArfWifiRemoteStation*>(st);
-    uint16_t channelWidth = GetChannelWidth(station);
-    if (channelWidth > 20 && channelWidth != 22)
+    auto station = static_cast<ArfWifiRemoteStation*>(st);
+    auto channelWidth = GetChannelWidth(station);
+    if (channelWidth > MHz_u{20} && channelWidth != MHz_u{22})
     {
-        channelWidth = 20;
+        channelWidth = MHz_u{20};
     }
     WifiMode mode;
-    if (GetUseNonErpProtection() == false)
+    if (!GetUseNonErpProtection())
     {
         mode = GetSupported(station, 0);
     }
@@ -286,7 +273,7 @@ ArfWifiManager::DoGetRtsTxVector(WifiRemoteStation* st)
         mode,
         GetDefaultTxPowerLevel(),
         GetPreambleForTransmission(mode.GetModulationClass(), GetShortPreambleEnabled()),
-        800,
+        NanoSeconds(800),
         1,
         1,
         0,

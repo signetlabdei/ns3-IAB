@@ -1,21 +1,13 @@
 /*
  * Copyright (c) 2009 IITP RAS
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Kirill Andreev  <andreev@iitp.ru>
  */
+
+#ifndef HWMP_SIMPLEST_REGRESSION_H
+#define HWMP_SIMPLEST_REGRESSION_H
 
 #include "ns3/ipv4-interface-container.h"
 #include "ns3/node-container.h"
@@ -26,12 +18,12 @@
 using namespace ns3;
 
 /**
- * \ingroup dot11s-test
+ * @ingroup dot11s-test
  *
- * \brief Peering Management & HWM Protocol regression test
+ * @brief Peering Management & HWM Protocol regression test
  * Initiate scenario with 2 stations. Procedure of opening peer link
  * is the following:
- * \verbatim
+ * @verbatim
  *           server       client
  * <-----------|----------->   Broadcast frame
  *             |----------->|  Unicast frame
@@ -63,7 +55,7 @@ using namespace ns3;
  *             |<-----------|             Data
  *             |----------->|             Data
  *             |............|
- * \endverbatim
+ * @endverbatim
  * At 10 seconds stations become unreachable, so UDP client tries to
  * close peer link due to TX-fail, and UDP server tries to close peer link
  * due to beacon loss
@@ -79,7 +71,7 @@ class HwmpSimplestRegressionTest : public TestCase
     void CheckResults();
 
   private:
-    /// \internal It is important to have pointers here
+    /// @internal It is important to have pointers here
     NodeContainer* m_nodes;
     /// Simulation time
     Time m_time;
@@ -104,25 +96,27 @@ class HwmpSimplestRegressionTest : public TestCase
 
     /**
      * Send data
-     * \param socket the sending socket
+     * @param socket the sending socket
      */
     void SendData(Ptr<Socket> socket);
 
     /**
-     * \brief Handle a packet reception.
+     * @brief Handle a packet reception.
      *
      * This function is called by lower layers.
      *
-     * \param socket the socket the packet was received to.
+     * @param socket the socket the packet was received to.
      */
     void HandleReadServer(Ptr<Socket> socket);
 
     /**
-     * \brief Handle a packet reception.
+     * @brief Handle a packet reception.
      *
      * This function is called by lower layers.
      *
-     * \param socket the socket the packet was received to.
+     * @param socket the socket the packet was received to.
      */
     void HandleReadClient(Ptr<Socket> socket);
 };
+
+#endif // HWMP_SIMPLEST_REGRESSION_H

@@ -2,18 +2,7 @@
  * Copyright (c) 2017 Kungliga Tekniska Högskolan
  *               2017 Universita' degli Studi di Napoli Federico II
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Surya Seetharaman <suryaseetharaman.9@gmail.com>
  *          Stefano Avallone <stavallo@unina.it>
@@ -36,9 +25,9 @@
 using namespace ns3;
 
 /**
- * \ingroup traffic-control-test
+ * @ingroup traffic-control-test
  *
- * \brief Tbf Queue Disc Test Item
+ * @brief Tbf Queue Disc Test Item
  */
 class TbfQueueDiscTestItem : public QueueDiscItem
 {
@@ -46,8 +35,8 @@ class TbfQueueDiscTestItem : public QueueDiscItem
     /**
      * Constructor
      *
-     * \param p the packet
-     * \param addr the address
+     * @param p the packet
+     * @param addr the address
      */
     TbfQueueDiscTestItem(Ptr<Packet> p, const Address& addr);
     ~TbfQueueDiscTestItem() override;
@@ -82,9 +71,9 @@ TbfQueueDiscTestItem::Mark()
 }
 
 /**
- * \ingroup traffic-control-test
+ * @ingroup traffic-control-test
  *
- * \brief Tbf Queue Disc Test Case
+ * @brief Tbf Queue Disc Test Case
  */
 class TbfQueueDiscTestCase : public TestCase
 {
@@ -95,23 +84,23 @@ class TbfQueueDiscTestCase : public TestCase
   private:
     /**
      * Enqueue function
-     * \param queue the queue disc into which enqueue needs to be done
-     * \param dest the destination address
-     * \param size the size of the packet in bytes to be enqueued
+     * @param queue the queue disc into which enqueue needs to be done
+     * @param dest the destination address
+     * @param size the size of the packet in bytes to be enqueued
      */
     void Enqueue(Ptr<TbfQueueDisc> queue, Address dest, uint32_t size);
     /**
      * DequeueAndCheck function to check if a packet is blocked or not after dequeuing and verify
      * against expected result
-     * \param queue the queue disc on which DequeueAndCheck needs to be done
-     * \param flag the boolean value against which the return value of dequeue ()
+     * @param queue the queue disc on which DequeueAndCheck needs to be done
+     * @param flag the boolean value against which the return value of dequeue ()
      * has to be compared with
-     * \param printStatement the string to be printed in the NS_TEST_EXPECT_MSG_EQ
+     * @param printStatement the string to be printed in the NS_TEST_EXPECT_MSG_EQ
      */
     void DequeueAndCheck(Ptr<TbfQueueDisc> queue, bool flag, std::string printStatement);
     /**
      * Run TBF test function
-     * \param mode the mode
+     * @param mode the mode
      */
     void RunTbfTest(QueueSizeUnit mode);
 };
@@ -294,7 +283,7 @@ TbfQueueDiscTestCase::RunTbfTest(QueueSizeUnit mode)
     double delay = 0.09;
     for (uint32_t i = 1; i <= nPkt; i++)
     {
-        Simulator::Schedule(Time(Seconds((i + 1) * delay)),
+        Simulator::Schedule(Seconds((i + 1) * delay),
                             &TbfQueueDiscTestCase::Enqueue,
                             this,
                             queue,
@@ -304,7 +293,7 @@ TbfQueueDiscTestCase::RunTbfTest(QueueSizeUnit mode)
     delay = 0.1;
     for (uint32_t i = 1; i <= nPkt; i++)
     {
-        Simulator::Schedule(Time(Seconds((i + 1) * delay)),
+        Simulator::Schedule(Seconds((i + 1) * delay),
                             &TbfQueueDiscTestCase::DequeueAndCheck,
                             this,
                             queue,
@@ -372,7 +361,7 @@ TbfQueueDiscTestCase::RunTbfTest(QueueSizeUnit mode)
     delay = 0.09;
     for (uint32_t i = 1; i <= nPkt; i++)
     {
-        Simulator::Schedule(Time(Seconds((i + 1) * delay)),
+        Simulator::Schedule(Seconds((i + 1) * delay),
                             &TbfQueueDiscTestCase::Enqueue,
                             this,
                             queue,
@@ -384,7 +373,7 @@ TbfQueueDiscTestCase::RunTbfTest(QueueSizeUnit mode)
     {
         if (i == 10)
         {
-            Simulator::Schedule(Time(Seconds((i + 1) * delay)),
+            Simulator::Schedule(Seconds((i + 1) * delay),
                                 &TbfQueueDiscTestCase::DequeueAndCheck,
                                 this,
                                 queue,
@@ -393,7 +382,7 @@ TbfQueueDiscTestCase::RunTbfTest(QueueSizeUnit mode)
         }
         else
         {
-            Simulator::Schedule(Time(Seconds((i + 1) * delay)),
+            Simulator::Schedule(Seconds((i + 1) * delay),
                                 &TbfQueueDiscTestCase::DequeueAndCheck,
                                 this,
                                 queue,
@@ -468,7 +457,7 @@ TbfQueueDiscTestCase::RunTbfTest(QueueSizeUnit mode)
     delay = 0.04;
     for (uint32_t i = 1; i <= nPkt; i++)
     {
-        Simulator::Schedule(Time(Seconds((i + 1) * delay)),
+        Simulator::Schedule(Seconds((i + 1) * delay),
                             &TbfQueueDiscTestCase::Enqueue,
                             this,
                             queue,
@@ -538,16 +527,16 @@ TbfQueueDiscTestCase::DoRun()
 }
 
 /**
- * \ingroup traffic-control-test
+ * @ingroup traffic-control-test
  *
- * \brief Tbf Queue Disc Test Suite
+ * @brief Tbf Queue Disc Test Suite
  */
 static class TbfQueueDiscTestSuite : public TestSuite
 {
   public:
     TbfQueueDiscTestSuite()
-        : TestSuite("tbf-queue-disc", UNIT)
+        : TestSuite("tbf-queue-disc", Type::UNIT)
     {
-        AddTestCase(new TbfQueueDiscTestCase(), TestCase::QUICK);
+        AddTestCase(new TbfQueueDiscTestCase(), TestCase::Duration::QUICK);
     }
 } g_tbfQueueTestSuite; ///< the test suite

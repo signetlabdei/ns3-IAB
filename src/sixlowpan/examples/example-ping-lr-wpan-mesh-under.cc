@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2019 Universita' di Firenze, Italy
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Tommaso Pecorella <tommaso.pecorella@unifi.it>
  */
@@ -78,6 +67,8 @@ main(int argc, char** argv)
     mobility.Install(wsnNodes);
 
     LrWpanHelper lrWpanHelper;
+    lrWpanHelper.SetPropagationDelayModel("ns3::ConstantSpeedPropagationDelayModel");
+    lrWpanHelper.AddPropagationLossModel("ns3::LogDistancePropagationLossModel");
     // Add and install the LrWpanNetDevice for each node
     NetDeviceContainer lrwpanDevices = lrWpanHelper.Install(wsnNodes);
 
@@ -125,8 +116,8 @@ main(int argc, char** argv)
     ping.SetAttribute("Size", UintegerValue(packetSize));
     ApplicationContainer apps = ping.Install(wsnNodes.Get(nWsnNodes - 1));
 
-    apps.Start(Seconds(2.0));
-    apps.Stop(Seconds(20.0));
+    apps.Start(Seconds(2));
+    apps.Stop(Seconds(20));
 
     AsciiTraceHelper ascii;
     lrWpanHelper.EnableAsciiAll(ascii.CreateFileStream("Ping-6LoW-lr-wpan-meshunder-lr-wpan.tr"));

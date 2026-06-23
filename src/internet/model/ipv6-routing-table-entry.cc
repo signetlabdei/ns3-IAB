@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2007-2009 Strasbourg University
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Sebastien Vincent <vincent@clarinet.u-strasbg.fr>
  */
@@ -121,11 +110,7 @@ Ipv6RoutingTableEntry::~Ipv6RoutingTableEntry()
 bool
 Ipv6RoutingTableEntry::IsHost() const
 {
-    if (m_destNetworkPrefix == Ipv6Prefix::GetOnes())
-    {
-        return true;
-    }
-    return false;
+    return m_destNetworkPrefix == Ipv6Prefix::GetOnes();
 }
 
 Ipv6Address
@@ -155,11 +140,7 @@ Ipv6RoutingTableEntry::IsNetwork() const
 bool
 Ipv6RoutingTableEntry::IsDefault() const
 {
-    if (m_dest == Ipv6Address::GetZero())
-    {
-        return true;
-    }
-    return false;
+    return m_dest == Ipv6Address::GetZero();
 }
 
 Ipv6Address
@@ -177,11 +158,7 @@ Ipv6RoutingTableEntry::GetDestNetworkPrefix() const
 bool
 Ipv6RoutingTableEntry::IsGateway() const
 {
-    if (m_gateway == Ipv6Address::GetZero())
-    {
-        return false;
-    }
-    return true;
+    return m_gateway != Ipv6Address::GetZero();
 }
 
 Ipv6Address
@@ -284,6 +261,13 @@ operator<<(std::ostream& os, const Ipv6RoutingTableEntry& route)
         NS_ASSERT(false);
     }
     return os;
+}
+
+bool
+operator==(const Ipv6RoutingTableEntry a, const Ipv6RoutingTableEntry b)
+{
+    return (a.GetDest() == b.GetDest() && a.GetDestNetworkPrefix() == b.GetDestNetworkPrefix() &&
+            a.GetGateway() == b.GetGateway() && a.GetInterface() == b.GetInterface());
 }
 
 Ipv6MulticastRoutingTableEntry::Ipv6MulticastRoutingTableEntry()

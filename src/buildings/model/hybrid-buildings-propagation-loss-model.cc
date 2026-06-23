@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2011 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Marco Miozzo <marco.miozzo@cttc.es>
  *         Nicola Baldo <nbaldo@cttc.es>
@@ -21,9 +10,11 @@
 
 #include "hybrid-buildings-propagation-loss-model.h"
 
+#include "itu-r-1238-propagation-loss-model.h"
+#include "mobility-building-info.h"
+
 #include "ns3/double.h"
 #include "ns3/enum.h"
-#include "ns3/itu-r-1238-propagation-loss-model.h"
 #include "ns3/itu-r-1411-los-propagation-loss-model.h"
 #include "ns3/itu-r-1411-nlos-over-rooftop-propagation-loss-model.h"
 #include "ns3/kun-2600-mhz-propagation-loss-model.h"
@@ -31,7 +22,6 @@
 #include "ns3/mobility-model.h"
 #include "ns3/okumura-hata-propagation-loss-model.h"
 #include "ns3/pointer.h"
-#include <ns3/mobility-building-info.h>
 
 #include <cmath>
 
@@ -82,7 +72,8 @@ HybridBuildingsPropagationLossModel::GetTypeId()
             .AddAttribute("Environment",
                           "Environment Scenario",
                           EnumValue(UrbanEnvironment),
-                          MakeEnumAccessor(&HybridBuildingsPropagationLossModel::SetEnvironment),
+                          MakeEnumAccessor<EnvironmentType>(
+                              &HybridBuildingsPropagationLossModel::SetEnvironment),
                           MakeEnumChecker(UrbanEnvironment,
                                           "Urban",
                                           SubUrbanEnvironment,
@@ -94,7 +85,7 @@ HybridBuildingsPropagationLossModel::GetTypeId()
                 "CitySize",
                 "Dimension of the city",
                 EnumValue(LargeCity),
-                MakeEnumAccessor(&HybridBuildingsPropagationLossModel::SetCitySize),
+                MakeEnumAccessor<CitySize>(&HybridBuildingsPropagationLossModel::SetCitySize),
                 MakeEnumChecker(SmallCity, "Small", MediumCity, "Medium", LargeCity, "Large"))
 
             .AddAttribute(
@@ -208,7 +199,7 @@ HybridBuildingsPropagationLossModel::GetLoss(Ptr<MobilityModel> a, Ptr<MobilityM
                 loss = ItuR1411(a, b) + ExternalWallLoss(b1) + HeightLoss(b1);
                 NS_LOG_INFO(this << " 0-I (<1000) ITUR1411 + BEL : " << loss);
             }
-        } // end b1->isIndoor ()
+        }
     }
     else
     {
@@ -251,8 +242,8 @@ HybridBuildingsPropagationLossModel::GetLoss(Ptr<MobilityModel> a, Ptr<MobilityM
                 loss = ItuR1411(a, b) + ExternalWallLoss(a1) + HeightLoss(a1);
                 NS_LOG_INFO(this << " I-O (<1000)  ITUR1411 + BEL + HG: " << loss);
             }
-        } // end if (isBIndoor)
-    }     // end if (!isAIndoor)
+        }
+    }
 
     loss = std::max(loss, 0.0);
 
@@ -277,11 +268,11 @@ HybridBuildingsPropagationLossModel::ItuR1411(Ptr<MobilityModel> a, Ptr<Mobility
 {
     if (a->GetDistanceFrom(b) < m_itu1411NlosThreshold)
     {
-        return (m_ituR1411Los->GetLoss(a, b));
+        return m_ituR1411Los->GetLoss(a, b);
     }
     else
     {
-        return (m_ituR1411NlosOverRooftop->GetLoss(a, b));
+        return m_ituR1411NlosOverRooftop->GetLoss(a, b);
     }
 }
 

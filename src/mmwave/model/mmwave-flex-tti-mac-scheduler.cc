@@ -834,9 +834,9 @@ MmWaveFlexTtiMacScheduler::DoSchedTriggerReq (
     }
   }
   
-  uint8_t symDlAvail = m_resvDl;
-  uint8_t symUlIdx = symDlIdx + m_resvDl + m_resvSwitch;
-  uint8_t resvUl = symAvail - symDlAvail - m_resvSwitch;
+  uint8_t symDlAvail = (uint8_t)std::max(0, std::min((int)m_resvDl, symAvail));
+  uint8_t symUlIdx = symDlIdx + symDlAvail + m_resvSwitch;
+  uint8_t resvUl = (uint8_t)std::max(0, symAvail - (int)symDlAvail - (int)m_resvSwitch);
   uint8_t symUlAvail = resvUl;
 
   // Add TTI for DL control at the beginning of the slot

@@ -1,19 +1,11 @@
 /*
- *  This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Moatamri Faker <faker.moatamri@sophia.inria.fr>
  */
+
+#ifndef MODEL_TYPEID_CREATOR_H
+#define MODEL_TYPEID_CREATOR_H
 
 #include "attribute-default-iterator.h"
 
@@ -32,13 +24,13 @@ enum
 };
 
 /**
- * \ingroup configstore
- * \brief A class used in the implementation of the GtkConfigStore
+ * @ingroup configstore
+ * @brief A class used in the implementation of the GtkConfigStore
  */
 struct ModelTypeid
 {
     /**
-     * \brief Whether the node represents an attribute or TypeId
+     * @brief Whether the node represents an attribute or TypeId
      */
     enum
     {
@@ -59,45 +51,45 @@ struct ModelTypeid
 };
 
 /**
- * \ingroup configstore
- * \brief ModelTypeIdCreator class
+ * @ingroup configstore
+ * @brief ModelTypeIdCreator class
  */
 class ModelTypeidCreator : public AttributeDefaultIterator
 {
   public:
     ModelTypeidCreator();
     /**
-     * \brief This method will iterate on typeIds having default attributes and create a model
+     * @brief This method will iterate on typeIds having default attributes and create a model
      * for them, this model will be used by the view.
      *
-     * \param treestore the GtkTreeStore.
+     * @param treestore the GtkTreeStore.
      */
     void Build(GtkTreeStore* treestore);
 
   private:
     /**
-     * \brief This method will add a ModelTypeid to the GtkTreeIterator
-     * \param tid TypeId
-     * \param name attribute name
-     * \param defaultValue default value
-     * \param index index of the attribute in the specified Typeid
+     * @brief This method will add a ModelTypeid to the GtkTreeIterator
+     * @param tid TypeId
+     * @param name attribute name
+     * @param defaultValue default value
+     * @param index index of the attribute in the specified Typeid
      */
     void VisitAttribute(TypeId tid,
                         std::string name,
                         std::string defaultValue,
                         uint32_t index) override;
     /**
-     * \brief Add a node for the new TypeId object
-     * \param name TypeId name
+     * @brief Add a node for the new TypeId object
+     * @param name TypeId name
      */
     void StartVisitTypeId(std::string name) override;
     /**
-     * \brief Remove the last gtk tree iterator
+     * @brief Remove the last gtk tree iterator
      */
     void EndVisitTypeId() override;
     /**
-     * \brief Adds a treestore iterator to m_treestore model
-     * \param node the node to be added
+     * @brief Adds a treestore iterator to m_treestore model
+     * @param node the node to be added
      */
     void Add(ModelTypeid* node);
     /**
@@ -110,3 +102,5 @@ class ModelTypeidCreator : public AttributeDefaultIterator
     std::vector<GtkTreeIter*> m_iters;
 };
 } // namespace ns3
+
+#endif // MODEL_TYPEID_CREATOR_H

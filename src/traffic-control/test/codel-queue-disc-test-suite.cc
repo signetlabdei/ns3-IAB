@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2014 ResiliNets, ITTC, University of Kansas
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Truc Anh N Nguyen <trucanh524@gmail.com>
  * Modified by:   Pasquale Imputato <p.imputato@gmail.com>
@@ -57,9 +46,9 @@ _reciprocal_scale(uint32_t val, uint32_t ep_ro)
 // End Linux borrow
 
 /**
- * \ingroup traffic-control-test
+ * @ingroup traffic-control-test
  *
- * \brief Codel Queue Disc Test Item
+ * @brief Codel Queue Disc Test Item
  */
 class CodelQueueDiscTestItem : public QueueDiscItem
 {
@@ -67,9 +56,9 @@ class CodelQueueDiscTestItem : public QueueDiscItem
     /**
      * Constructor
      *
-     * \param p packet
-     * \param addr address
-     * \param ecnCapable ECN capable
+     * @param p packet
+     * @param addr address
+     * @param ecnCapable ECN capable
      */
     CodelQueueDiscTestItem(Ptr<Packet> p, const Address& addr, bool ecnCapable);
     ~CodelQueueDiscTestItem() override;
@@ -104,17 +93,13 @@ CodelQueueDiscTestItem::AddHeader()
 bool
 CodelQueueDiscTestItem::Mark()
 {
-    if (m_ecnCapablePacket)
-    {
-        return true;
-    }
-    return false;
+    return m_ecnCapablePacket;
 }
 
 /**
- * \ingroup traffic-control-test
+ * @ingroup traffic-control-test
  *
- * \brief Test 1: simple enqueue/dequeue with no drops
+ * @brief Test 1: simple enqueue/dequeue with no drops
  */
 class CoDelQueueDiscBasicEnqueueDequeue : public TestCase
 {
@@ -122,7 +107,7 @@ class CoDelQueueDiscBasicEnqueueDequeue : public TestCase
     /**
      * Constructor
      *
-     * \param mode the mode
+     * @param mode the mode
      */
     CoDelQueueDiscBasicEnqueueDequeue(QueueSizeUnit mode);
     void DoRun() override;
@@ -274,9 +259,9 @@ CoDelQueueDiscBasicEnqueueDequeue::DoRun()
 }
 
 /**
- * \ingroup traffic-control-test
+ * @ingroup traffic-control-test
  *
- * \brief Test 2: enqueue with drops due to queue overflow
+ * @brief Test 2: enqueue with drops due to queue overflow
  */
 class CoDelQueueDiscBasicOverflow : public TestCase
 {
@@ -284,7 +269,7 @@ class CoDelQueueDiscBasicOverflow : public TestCase
     /**
      * Constructor
      *
-     * \param mode the mode
+     * @param mode the mode
      */
     CoDelQueueDiscBasicOverflow(QueueSizeUnit mode);
     void DoRun() override;
@@ -292,9 +277,9 @@ class CoDelQueueDiscBasicOverflow : public TestCase
   private:
     /**
      * Enqueue function
-     * \param queue the queue disc
-     * \param size the size
-     * \param nPkt the number of packets
+     * @param queue the queue disc
+     * @param size the size
+     * @param nPkt the number of packets
      */
     void Enqueue(Ptr<CoDelQueueDisc> queue, uint32_t size, uint32_t nPkt);
     QueueSizeUnit m_mode; ///< mode
@@ -365,9 +350,9 @@ CoDelQueueDiscBasicOverflow::Enqueue(Ptr<CoDelQueueDisc> queue, uint32_t size, u
 }
 
 /**
- * \ingroup traffic-control-test
+ * @ingroup traffic-control-test
  *
- * \brief Test 3: NewtonStep unit test - test against explicit port of Linux implementation
+ * @brief Test 3: NewtonStep unit test - test against explicit port of Linux implementation
  */
 class CoDelQueueDiscNewtonStepTest : public TestCase
 {
@@ -393,7 +378,7 @@ CoDelQueueDiscNewtonStepTest::DoRun()
     {
         for (uint32_t count = 1; count < 0xff; count *= 2)
         {
-            result = queue->NewtonStep(recInvSqrt, count);
+            result = CoDelQueueDisc::NewtonStep(recInvSqrt, count);
             // Test that ns-3 value is exactly the same as the Linux value
             NS_TEST_ASSERT_MSG_EQ(_codel_Newton_step(recInvSqrt, count),
                                   result,
@@ -403,9 +388,9 @@ CoDelQueueDiscNewtonStepTest::DoRun()
 }
 
 /**
- * \ingroup traffic-control-test
+ * @ingroup traffic-control-test
  *
- * \brief Test 4: ControlLaw unit test - test against explicit port of Linux implementation
+ * @brief Test 4: ControlLaw unit test - test against explicit port of Linux implementation
  */
 class CoDelQueueDiscControlLawTest : public TestCase
 {
@@ -414,10 +399,10 @@ class CoDelQueueDiscControlLawTest : public TestCase
     void DoRun() override;
     /**
      * Codel control law function
-     * \param t
-     * \param interval
-     * \param recInvSqrt
-     * \returns the codel control law
+     * @param t
+     * @param interval
+     * @param recInvSqrt
+     * @returns the codel control law
      */
     uint32_t _codel_control_law(uint32_t t, uint32_t interval, uint32_t recInvSqrt);
 };
@@ -451,7 +436,7 @@ CoDelQueueDiscControlLawTest::DoRun()
         for (uint16_t recInvSqrt = 0xff; recInvSqrt > 0; recInvSqrt /= 2)
         {
             codelTimeVal = queue->Time2CoDel(timeVal);
-            uint32_t ns3Result = queue->ControlLaw(codelTimeVal, interval, recInvSqrt);
+            uint32_t ns3Result = CoDelQueueDisc::ControlLaw(codelTimeVal, interval, recInvSqrt);
             uint32_t linuxResult = _codel_control_law(codelTimeVal, interval, recInvSqrt);
             NS_TEST_ASSERT_MSG_EQ(ns3Result,
                                   linuxResult,
@@ -461,9 +446,9 @@ CoDelQueueDiscControlLawTest::DoRun()
 }
 
 /**
- * \ingroup traffic-control-test
+ * @ingroup traffic-control-test
  *
- * \brief Test 5: enqueue/dequeue with drops according to CoDel algorithm
+ * @brief Test 5: enqueue/dequeue with drops according to CoDel algorithm
  */
 class CoDelQueueDiscBasicDrop : public TestCase
 {
@@ -471,7 +456,7 @@ class CoDelQueueDiscBasicDrop : public TestCase
     /**
      * Constructor
      *
-     * \param mode the mode
+     * @param mode the mode
      */
     CoDelQueueDiscBasicDrop(QueueSizeUnit mode);
     void DoRun() override;
@@ -479,20 +464,20 @@ class CoDelQueueDiscBasicDrop : public TestCase
   private:
     /**
      * Enqueue function
-     * \param queue the queue disc
-     * \param size the size
-     * \param nPkt the number of packets
+     * @param queue the queue disc
+     * @param size the size
+     * @param nPkt the number of packets
      */
     void Enqueue(Ptr<CoDelQueueDisc> queue, uint32_t size, uint32_t nPkt);
     /** Dequeue function
-     * \param queue the queue disc
-     * \param modeSize the mode size
+     * @param queue the queue disc
+     * @param modeSize the mode size
      */
     void Dequeue(Ptr<CoDelQueueDisc> queue, uint32_t modeSize);
     /**
      * Drop next tracer function
-     * \param oldVal the old value
-     * \param newVal the new value
+     * @param oldVal the old value
+     * @param newVal the new value
      */
     void DropNextTracer(uint32_t oldVal, uint32_t newVal);
     QueueSizeUnit m_mode;     ///< mode
@@ -673,9 +658,9 @@ CoDelQueueDiscBasicDrop::Dequeue(Ptr<CoDelQueueDisc> queue, uint32_t modeSize)
 }
 
 /**
- * \ingroup traffic-control-test
+ * @ingroup traffic-control-test
  *
- * \brief Test 6: enqueue/dequeue with marks according to CoDel algorithm
+ * @brief Test 6: enqueue/dequeue with marks according to CoDel algorithm
  */
 class CoDelQueueDiscBasicMark : public TestCase
 {
@@ -683,7 +668,7 @@ class CoDelQueueDiscBasicMark : public TestCase
     /**
      * Constructor
      *
-     * \param mode the mode
+     * @param mode the mode
      */
     CoDelQueueDiscBasicMark(QueueSizeUnit mode);
     void DoRun() override;
@@ -691,22 +676,22 @@ class CoDelQueueDiscBasicMark : public TestCase
   private:
     /**
      * Enqueue function
-     * \param queue the queue disc
-     * \param size the size
-     * \param nPkt the number of packets
-     * \param ecnCapable ECN capable traffic
+     * @param queue the queue disc
+     * @param size the size
+     * @param nPkt the number of packets
+     * @param ecnCapable ECN capable traffic
      */
     void Enqueue(Ptr<CoDelQueueDisc> queue, uint32_t size, uint32_t nPkt, bool ecnCapable);
     /** Dequeue function
-     * \param queue the queue disc
-     * \param modeSize the mode size
-     * \param testCase the test case number
+     * @param queue the queue disc
+     * @param modeSize the mode size
+     * @param testCase the test case number
      */
     void Dequeue(Ptr<CoDelQueueDisc> queue, uint32_t modeSize, uint32_t testCase);
     /**
      * Drop next tracer function
-     * \param oldVal the old value
-     * \param newVal the new value
+     * @param oldVal the old value
+     * @param newVal the new value
      */
     void DropNextTracer(uint32_t oldVal, uint32_t newVal);
     QueueSizeUnit m_mode;             ///< mode
@@ -1325,31 +1310,35 @@ CoDelQueueDiscBasicMark::Dequeue(Ptr<CoDelQueueDisc> queue, uint32_t modeSize, u
 }
 
 /**
- * \ingroup traffic-control-test
+ * @ingroup traffic-control-test
  *
- * \brief CoDel Queue Disc Test Suite
+ * @brief CoDel Queue Disc Test Suite
  */
 static class CoDelQueueDiscTestSuite : public TestSuite
 {
   public:
     CoDelQueueDiscTestSuite()
-        : TestSuite("codel-queue-disc", UNIT)
+        : TestSuite("codel-queue-disc", Type::UNIT)
     {
         // Test 1: simple enqueue/dequeue with no drops
-        AddTestCase(new CoDelQueueDiscBasicEnqueueDequeue(QueueSizeUnit::PACKETS), TestCase::QUICK);
-        AddTestCase(new CoDelQueueDiscBasicEnqueueDequeue(QueueSizeUnit::BYTES), TestCase::QUICK);
+        AddTestCase(new CoDelQueueDiscBasicEnqueueDequeue(QueueSizeUnit::PACKETS),
+                    TestCase::Duration::QUICK);
+        AddTestCase(new CoDelQueueDiscBasicEnqueueDequeue(QueueSizeUnit::BYTES),
+                    TestCase::Duration::QUICK);
         // Test 2: enqueue with drops due to queue overflow
-        AddTestCase(new CoDelQueueDiscBasicOverflow(QueueSizeUnit::PACKETS), TestCase::QUICK);
-        AddTestCase(new CoDelQueueDiscBasicOverflow(QueueSizeUnit::BYTES), TestCase::QUICK);
+        AddTestCase(new CoDelQueueDiscBasicOverflow(QueueSizeUnit::PACKETS),
+                    TestCase::Duration::QUICK);
+        AddTestCase(new CoDelQueueDiscBasicOverflow(QueueSizeUnit::BYTES),
+                    TestCase::Duration::QUICK);
         // Test 3: test NewtonStep() against explicit port of Linux implementation
-        AddTestCase(new CoDelQueueDiscNewtonStepTest(), TestCase::QUICK);
+        AddTestCase(new CoDelQueueDiscNewtonStepTest(), TestCase::Duration::QUICK);
         // Test 4: test ControlLaw() against explicit port of Linux implementation
-        AddTestCase(new CoDelQueueDiscControlLawTest(), TestCase::QUICK);
+        AddTestCase(new CoDelQueueDiscControlLawTest(), TestCase::Duration::QUICK);
         // Test 5: enqueue/dequeue with drops according to CoDel algorithm
-        AddTestCase(new CoDelQueueDiscBasicDrop(QueueSizeUnit::PACKETS), TestCase::QUICK);
-        AddTestCase(new CoDelQueueDiscBasicDrop(QueueSizeUnit::BYTES), TestCase::QUICK);
+        AddTestCase(new CoDelQueueDiscBasicDrop(QueueSizeUnit::PACKETS), TestCase::Duration::QUICK);
+        AddTestCase(new CoDelQueueDiscBasicDrop(QueueSizeUnit::BYTES), TestCase::Duration::QUICK);
         // Test 6: enqueue/dequeue with marks according to CoDel algorithm
-        AddTestCase(new CoDelQueueDiscBasicMark(QueueSizeUnit::PACKETS), TestCase::QUICK);
-        AddTestCase(new CoDelQueueDiscBasicMark(QueueSizeUnit::BYTES), TestCase::QUICK);
+        AddTestCase(new CoDelQueueDiscBasicMark(QueueSizeUnit::PACKETS), TestCase::Duration::QUICK);
+        AddTestCase(new CoDelQueueDiscBasicMark(QueueSizeUnit::BYTES), TestCase::Duration::QUICK);
     }
 } g_coDelQueueTestSuite; ///< the test suite

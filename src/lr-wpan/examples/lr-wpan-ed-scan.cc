@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2022 Tokushima University, Japan.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author:  Alberto Gallegos Ramonet <alramonet@is.tokushima-u.ac.jp>
  */
@@ -39,24 +28,25 @@
  * ED range: 0 - 255
  */
 
-#include <ns3/constant-position-mobility-model.h>
-#include <ns3/core-module.h>
-#include <ns3/log.h>
-#include <ns3/lr-wpan-module.h>
-#include <ns3/packet.h>
-#include <ns3/propagation-delay-model.h>
-#include <ns3/propagation-loss-model.h>
-#include <ns3/simulator.h>
-#include <ns3/single-model-spectrum-channel.h>
+#include "ns3/constant-position-mobility-model.h"
+#include "ns3/core-module.h"
+#include "ns3/log.h"
+#include "ns3/lr-wpan-module.h"
+#include "ns3/packet.h"
+#include "ns3/propagation-delay-model.h"
+#include "ns3/propagation-loss-model.h"
+#include "ns3/simulator.h"
+#include "ns3/single-model-spectrum-channel.h"
 
 #include <iostream>
 
 using namespace ns3;
+using namespace ns3::lrwpan;
 
 static void
 ScanConfirm(MlmeScanConfirmParams params)
 {
-    if (params.m_status == MLMESCAN_SUCCESS && params.m_scanType == MLMESCAN_ED)
+    if (params.m_status == MacStatus::SUCCESS && params.m_scanType == MLMESCAN_ED)
     {
         std::cout << Simulator::Now().As(Time::S) << "| Scan status SUCCESSFUL\n";
         std::cout << "Results for Energy Scan:"
@@ -132,7 +122,7 @@ main(int argc, char* argv[])
     params.m_sfrmOrd = 3;
     params.m_logCh = 12;
     Simulator::ScheduleWithContext(1,
-                                   Seconds(2.0),
+                                   Seconds(2),
                                    &LrWpanMac::MlmeStartRequest,
                                    dev0->GetMac(),
                                    params);
@@ -145,7 +135,7 @@ main(int argc, char* argv[])
     params2.m_sfrmOrd = 3;
     params2.m_logCh = 14;
     Simulator::ScheduleWithContext(1,
-                                   Seconds(2.0),
+                                   Seconds(2),
                                    &LrWpanMac::MlmeStartRequest,
                                    dev2->GetMac(),
                                    params2);
@@ -162,7 +152,7 @@ main(int argc, char* argv[])
     scanParams.m_scanDuration = 14;
     scanParams.m_scanType = MLMESCAN_ED;
     Simulator::ScheduleWithContext(1,
-                                   Seconds(2.0),
+                                   Seconds(2),
                                    &LrWpanMac::MlmeScanRequest,
                                    dev1->GetMac(),
                                    scanParams);

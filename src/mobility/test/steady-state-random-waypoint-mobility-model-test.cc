@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 IITP RAS
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Denis Fakhriev <fakhriev@iitp.ru>
  */
@@ -29,15 +18,15 @@
 using namespace ns3;
 
 /**
- * \ingroup mobility-test
+ * @ingroup mobility-test
  *
- * \brief Steady State Random Waypoint Test
+ * @brief Steady State Random Waypoint Test
  */
 class SteadyStateRandomWaypointTest : public TestCase
 {
   public:
     SteadyStateRandomWaypointTest()
-        : TestCase("Check steady-state rwp mobility model velocity and position distributions")
+        : TestCase("Check steady-state rwp mobility model speed and position distributions")
     {
     }
 
@@ -89,7 +78,7 @@ SteadyStateRandomWaypointTest::DoRun()
         model->AssignStreams(100 * (i + 1));
         // Add this mobility model to the stack.
         mobilityStack.push_back(model);
-        Simulator::Schedule(Seconds(0.0), &Object::Initialize, model);
+        Simulator::Schedule(Seconds(0), &Object::Initialize, model);
     }
 
     Simulator::Schedule(Seconds(0.001), &SteadyStateRandomWaypointTest::DistribCompare, this);
@@ -102,20 +91,17 @@ SteadyStateRandomWaypointTest::DoRun()
 void
 SteadyStateRandomWaypointTest::DistribCompare()
 {
-    double velocity;
+    double speed;
     double sum_x = 0;
     double sum_y = 0;
     double sum_v = 0;
-    std::vector<Ptr<MobilityModel>>::iterator i;
-    Ptr<MobilityModel> model;
-    for (i = mobilityStack.begin(); i != mobilityStack.end(); ++i)
+    for (auto i = mobilityStack.begin(); i != mobilityStack.end(); ++i)
     {
-        model = (*i);
-        velocity =
-            std::sqrt(std::pow(model->GetVelocity().x, 2) + std::pow(model->GetVelocity().y, 2));
+        auto model = (*i);
+        speed = model->GetVelocity().GetLength();
         sum_x += model->GetPosition().x;
         sum_y += model->GetPosition().y;
-        sum_v += velocity;
+        sum_v += speed;
     }
     double mean_x = sum_x / count;
     double mean_y = sum_y / count;
@@ -123,22 +109,21 @@ SteadyStateRandomWaypointTest::DistribCompare()
 
     NS_TEST_EXPECT_MSG_EQ_TOL(mean_x, 500, 25.0, "Got unexpected x-position mean value");
     NS_TEST_EXPECT_MSG_EQ_TOL(mean_y, 300, 15.0, "Got unexpected y-position mean value");
-    NS_TEST_EXPECT_MSG_EQ_TOL(mean_v, 2.6, 0.13, "Got unexpected velocity mean value");
+    NS_TEST_EXPECT_MSG_EQ_TOL(mean_v, 2.6, 0.13, "Got unexpected speed mean value");
 
     sum_x = 0;
     sum_y = 0;
     sum_v = 0;
     double tmp;
-    for (i = mobilityStack.begin(); i != mobilityStack.end(); ++i)
+    for (auto i = mobilityStack.begin(); i != mobilityStack.end(); ++i)
     {
-        model = (*i);
-        velocity =
-            std::sqrt(std::pow(model->GetVelocity().x, 2) + std::pow(model->GetVelocity().y, 2));
+        auto model = (*i);
+        speed = model->GetVelocity().GetLength();
         tmp = model->GetPosition().x - mean_x;
         sum_x += tmp * tmp;
         tmp = model->GetPosition().y - mean_y;
         sum_y += tmp * tmp;
-        tmp = velocity - mean_v;
+        tmp = speed - mean_v;
         sum_v += tmp * tmp;
     }
     double dev_x = std::sqrt(sum_x / (count - 1));
@@ -147,19 +132,19 @@ SteadyStateRandomWaypointTest::DistribCompare()
 
     NS_TEST_EXPECT_MSG_EQ_TOL(dev_x, 230, 10.0, "Got unexpected x-position standard deviation");
     NS_TEST_EXPECT_MSG_EQ_TOL(dev_y, 140, 7.0, "Got unexpected y-position standard deviation");
-    NS_TEST_EXPECT_MSG_EQ_TOL(dev_v, 4.4, 0.22, "Got unexpected velocity standard deviation");
+    NS_TEST_EXPECT_MSG_EQ_TOL(dev_v, 4.4, 0.22, "Got unexpected speed standard deviation");
 }
 
 /**
- * \ingroup mobility-test
+ * @ingroup mobility-test
  *
- * \brief Steady State Random Waypoint Test Suite
+ * @brief Steady State Random Waypoint Test Suite
  */
 struct SteadyStateRandomWaypointTestSuite : public TestSuite
 {
     SteadyStateRandomWaypointTestSuite()
-        : TestSuite("steady-state-rwp-mobility-model", UNIT)
+        : TestSuite("steady-state-rwp-mobility-model", Type::UNIT)
     {
-        AddTestCase(new SteadyStateRandomWaypointTest, TestCase::QUICK);
+        AddTestCase(new SteadyStateRandomWaypointTest, TestCase::Duration::QUICK);
     }
 } g_steadyStateRandomWaypointTestSuite; ///< the test suite

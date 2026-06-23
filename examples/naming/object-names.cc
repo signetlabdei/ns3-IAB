@@ -1,16 +1,5 @@
 /*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 // Network topology
@@ -38,8 +27,8 @@ uint32_t bytesReceived = 0;
 /**
  * Function called when a packet is received.
  *
- * \param context The context.
- * \param packet The received packet.
+ * @param context The context.
+ * @param packet The received packet.
  */
 void
 RxEvent(std::string context, Ptr<const Packet> packet)
@@ -153,8 +142,8 @@ main(int argc, char* argv[])
     // directly.
     //
     ApplicationContainer apps = server.Install("/Names/server");
-    apps.Start(Seconds(1.0));
-    apps.Stop(Seconds(10.0));
+    apps.Start(Seconds(1));
+    apps.Stop(Seconds(10));
 
     uint32_t packetSize = 1024;
     uint32_t maxPacketCount = 1;
@@ -168,8 +157,8 @@ main(int argc, char* argv[])
     // directly.
     //
     apps = client.Install("/Names/client");
-    apps.Start(Seconds(2.0));
-    apps.Stop(Seconds(10.0));
+    apps.Start(Seconds(2));
+    apps.Stop(Seconds(10));
 
     //
     // Use the Config system to connect a trace source using the object name
@@ -214,10 +203,10 @@ main(int argc, char* argv[])
         outputValidated = false;
     }
 
-    if (outputValidated == false)
+    if (!outputValidated)
     {
         std::cerr << "Program internal checking failed; returning with error" << std::endl;
-        return (1);
+        return 1;
     }
 
     return 0;

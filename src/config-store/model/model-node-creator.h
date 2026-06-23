@@ -1,20 +1,12 @@
 /*
- *  This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Faker Moatamri <faker.moatamri@sophia.inria.fr>
  *          Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
+
+#ifndef MODEL_NODE_CREATOR_H
+#define MODEL_NODE_CREATOR_H
 
 #include "attribute-iterator.h"
 
@@ -30,13 +22,13 @@ enum
 };
 
 /**
- * \ingroup configstore
- * \brief A class used in the implementation of the GtkConfigStore
+ * @ingroup configstore
+ * @brief A class used in the implementation of the GtkConfigStore
  */
 struct ModelNode
 {
     /**
-     * \brief node type structure
+     * @brief node type structure
      */
     enum
     {
@@ -58,8 +50,8 @@ struct ModelNode
 };
 
 /**
- * \ingroup configstore
- * \brief ModelCreator class
+ * @ingroup configstore
+ * @brief ModelCreator class
  *
  */
 class ModelCreator : public AttributeIterator
@@ -69,7 +61,7 @@ class ModelCreator : public AttributeIterator
 
     /**
      * Allocate attribute tree
-     * \param treestore GtkTreeStore *
+     * @param treestore GtkTreeStore *
      */
     void Build(GtkTreeStore* treestore);
 
@@ -91,7 +83,7 @@ class ModelCreator : public AttributeIterator
     void DoEndVisitArrayItem() override;
     /**
      * Add item to attribute tree
-     * \param node The model node
+     * @param node The model node
      */
     void Add(ModelNode* node);
     /// Remove current tree item
@@ -101,3 +93,5 @@ class ModelCreator : public AttributeIterator
     std::vector<GtkTreeIter*> m_iters; ///< attribute tree item
 };
 } // namespace ns3
+
+#endif // MODEL_NODE_CREATOR_H

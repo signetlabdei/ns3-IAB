@@ -2,18 +2,7 @@
  * Copyright (c) 2019 SIGNET Lab, Department of Information Engineering,
  * University of Padova
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #include "ns3/abort.h"
@@ -35,7 +24,7 @@ using namespace ns3;
 NS_LOG_COMPONENT_DEFINE("ThreeGppPropagationLossModelsTest");
 
 /**
- * \ingroup propagation-tests
+ * @ingroup propagation-tests
  *
  * Test case for the class ThreeGppRmaPropagationLossModel.
  * It computes the pathloss between two nodes and compares it with the value
@@ -167,10 +156,8 @@ ThreeGppRmaPropagationLossModelTestCase::DoRun()
         CreateObject<ThreeGppRmaPropagationLossModel>();
     lossModel->SetAttribute("ShadowingEnabled", BooleanValue(false)); // disable the shadow fading
 
-    for (std::size_t i = 0; i < m_testVectors.GetN(); i++)
+    for (const auto& testVector : m_testVectors)
     {
-        TestVector testVector = m_testVectors.Get(i);
-
         Vector posBs = Vector(0.0, 0.0, 35.0);
         Vector posUt = Vector(testVector.m_distance, 0.0, 1.5);
 
@@ -198,7 +185,7 @@ ThreeGppRmaPropagationLossModelTestCase::DoRun()
 }
 
 /**
- * \ingroup propagation-tests
+ * @ingroup propagation-tests
  *
  * Test case for the class ThreeGppUmaPropagationLossModel.
  * It computes the pathloss between two nodes and compares it with the value
@@ -361,7 +348,7 @@ ThreeGppUmaPropagationLossModelTestCase::DoRun()
 }
 
 /**
- * \ingroup propagation-tests
+ * @ingroup propagation-tests
  *
  * Test case for the class ThreeGppUmiStreetCanyonPropagationLossModel.
  * It computes the pathloss between two nodes and compares it with the value
@@ -518,7 +505,7 @@ ThreeGppUmiPropagationLossModelTestCase::DoRun()
 }
 
 /**
- * \ingroup propagation-tests
+ * @ingroup propagation-tests
  *
  * Test case for the class ThreeGppIndoorOfficePropagationLossModel.
  * It computes the pathloss between two nodes and compares it with the value
@@ -682,7 +669,7 @@ ThreeGppIndoorOfficePropagationLossModelTestCase::DoRun()
 }
 
 /**
- * \ingroup propagation-tests
+ * @ingroup propagation-tests
  *
  * Test case for the class ThreeGppV2vUrbanPropagationLossModel.
  * It computes the pathloss between two nodes and compares it with the value
@@ -841,7 +828,7 @@ ThreeGppV2vUrbanPropagationLossModelTestCase::DoRun()
 }
 
 /**
- * \ingroup propagation-tests
+ * @ingroup propagation-tests
  *
  * Test case for the class ThreeGppV2vHighwayPropagationLossModel.
  * It computes the pathloss between two nodes and compares it with the value
@@ -1000,7 +987,7 @@ ThreeGppV2vHighwayPropagationLossModelTestCase::DoRun()
 }
 
 /**
- * \ingroup propagation-tests
+ * @ingroup propagation-tests
  *
  * Test to check if the shadowing fading is correctly computed
  */
@@ -1015,32 +1002,34 @@ class ThreeGppShadowingTestCase : public TestCase
 
     /**
      * Run the experiment
-     * \param testNum the index of the experiment
-     * \param propagationLossModelType the type id of the propagation loss model
+     * @param testNum the index of the experiment
+     * @param propagationLossModelType the type id of the propagation loss model
      *        to be used
-     * \param hBs the BS height in meters
-     * \param hUt the UT height in meters
-     * \param distance the initial distance between the BS and the UT
-     * \param shadowingEnabled true if shadowging must be enabled
+     * @param hBs the BS height in meters
+     * @param hUt the UT height in meters
+     * @param distance the initial distance between the BS and the UT
+     * @param shadowingEnabled true if shadowing must be enabled
+     * @param frequency channel frequency
      */
     void RunTest(uint16_t testNum,
                  std::string propagationLossModelType,
                  double hBs,
                  double hUt,
                  double distance,
-                 bool shadowingEnabled);
+                 bool shadowingEnabled,
+                 double frequency);
 
     /**
      * Compute the propagation loss
-     * \param a the first mobility model
-     * \param b the second mobility model
-     * \param testNum the index of the experiment
+     * @param a the first mobility model
+     * @param b the second mobility model
+     * @param testNum the index of the experiment
      */
-    void EvaluateLoss(Ptr<MobilityModel> a, Ptr<MobilityModel> b, uint8_t testNum);
+    void EvaluateLoss(Ptr<MobilityModel> a, Ptr<MobilityModel> b, uint16_t testNum);
 
     /**
      * Change the channel condition model
-     * \param ccm the new ChannelConditionModel
+     * @param ccm the new ChannelConditionModel
      */
     void ChangeChannelCondition(Ptr<ChannelConditionModel> ccm);
 
@@ -1057,6 +1046,7 @@ class ThreeGppShadowingTestCase : public TestCase
                                   //!< case in dB
         double m_shadowingStdNlos; //!< the standard deviation of the shadowing component in the
                                    //!< NLOS case in dB
+        double m_frequency;        //!< channel frequency
     };
 
     TestVectors<TestVector> m_testVectors;         //!< array containing all the test vectors
@@ -1075,7 +1065,9 @@ ThreeGppShadowingTestCase::~ThreeGppShadowingTestCase()
 }
 
 void
-ThreeGppShadowingTestCase::EvaluateLoss(Ptr<MobilityModel> a, Ptr<MobilityModel> b, uint8_t testNum)
+ThreeGppShadowingTestCase::EvaluateLoss(Ptr<MobilityModel> a,
+                                        Ptr<MobilityModel> b,
+                                        uint16_t testNum)
 {
     double loss = m_lossModel->CalcRxPower(0, a, b);
     m_results.at(testNum).push_back(loss);
@@ -1093,7 +1085,8 @@ ThreeGppShadowingTestCase::RunTest(uint16_t testNum,
                                    double hBs,
                                    double hUt,
                                    double distance,
-                                   bool shadowingEnabled)
+                                   bool shadowingEnabled,
+                                   double frequency)
 {
     // Add a new entry for this test in the results map
     m_results[testNum] = std::vector<double>();
@@ -1115,9 +1108,10 @@ ThreeGppShadowingTestCase::RunTest(uint16_t testNum,
     // Create the propagation loss model
     ObjectFactory propagationLossModelFactory = ObjectFactory(propagationLossModelType);
     m_lossModel = propagationLossModelFactory.Create<ThreeGppPropagationLossModel>();
-    m_lossModel->SetAttribute("Frequency", DoubleValue(3.5e9));
+    m_lossModel->SetAttribute("Frequency", DoubleValue(frequency));
     m_lossModel->SetAttribute("ShadowingEnabled",
                               BooleanValue(shadowingEnabled)); // enable the shadow fading
+    m_lossModel->AssignStreams(testNum);
 
     // Set the channel condition to LOS
     Ptr<ChannelConditionModel> losCondModel = CreateObject<AlwaysLosChannelConditionModel>();
@@ -1176,6 +1170,9 @@ ThreeGppShadowingTestCase::DoRun()
     // RMa, UMa, UMi and Indoor-Office.
 
     TestVector testVector;
+
+    // Above 6GHz
+    testVector.m_frequency = 6e9;
     testVector.m_propagationLossModelType = "ns3::ThreeGppRmaPropagationLossModel";
     testVector.m_hBs = 25;
     testVector.m_hUt = 1.6;
@@ -1184,6 +1181,7 @@ ThreeGppShadowingTestCase::DoRun()
     testVector.m_shadowingStdNlos = 8;
     m_testVectors.Add(testVector);
 
+    testVector.m_frequency = 6e9;
     testVector.m_propagationLossModelType = "ns3::ThreeGppRmaPropagationLossModel";
     testVector.m_hBs = 25;
     testVector.m_hUt = 1.6;
@@ -1192,6 +1190,7 @@ ThreeGppShadowingTestCase::DoRun()
     testVector.m_shadowingStdNlos = 8;
     m_testVectors.Add(testVector);
 
+    testVector.m_frequency = 6e9;
     testVector.m_propagationLossModelType = "ns3::ThreeGppUmaPropagationLossModel";
     testVector.m_hBs = 25;
     testVector.m_hUt = 1.6;
@@ -1200,6 +1199,7 @@ ThreeGppShadowingTestCase::DoRun()
     testVector.m_shadowingStdNlos = 6;
     m_testVectors.Add(testVector);
 
+    testVector.m_frequency = 6e9;
     testVector.m_propagationLossModelType = "ns3::ThreeGppUmiStreetCanyonPropagationLossModel";
     testVector.m_hBs = 10;
     testVector.m_hUt = 1.6;
@@ -1208,6 +1208,7 @@ ThreeGppShadowingTestCase::DoRun()
     testVector.m_shadowingStdNlos = 7.82;
     m_testVectors.Add(testVector);
 
+    testVector.m_frequency = 6e9;
     testVector.m_propagationLossModelType = "ns3::ThreeGppIndoorOfficePropagationLossModel";
     testVector.m_hBs = 3;
     testVector.m_hUt = 1;
@@ -1216,6 +1217,7 @@ ThreeGppShadowingTestCase::DoRun()
     testVector.m_shadowingStdNlos = 8.03;
     m_testVectors.Add(testVector);
 
+    testVector.m_frequency = 6e9;
     testVector.m_propagationLossModelType = "ns3::ThreeGppV2vUrbanPropagationLossModel";
     testVector.m_hBs = 1.6;
     testVector.m_hUt = 1.6;
@@ -1224,6 +1226,7 @@ ThreeGppShadowingTestCase::DoRun()
     testVector.m_shadowingStdNlos = 4;
     m_testVectors.Add(testVector);
 
+    testVector.m_frequency = 6e9;
     testVector.m_propagationLossModelType = "ns3::ThreeGppV2vHighwayPropagationLossModel";
     testVector.m_hBs = 1.6;
     testVector.m_hUt = 1.6;
@@ -1232,7 +1235,26 @@ ThreeGppShadowingTestCase::DoRun()
     testVector.m_shadowingStdNlos = 4;
     m_testVectors.Add(testVector);
 
-    uint16_t numSamples = 250;
+    // Sub 6GHz
+    testVector.m_frequency = 3.5e9;
+    testVector.m_propagationLossModelType = "ns3::ThreeGppUmaPropagationLossModel";
+    testVector.m_hBs = 25;
+    testVector.m_hUt = 1.6;
+    testVector.m_distance = 100;
+    testVector.m_shadowingStdLos = 7;
+    testVector.m_shadowingStdNlos = 7;
+    m_testVectors.Add(testVector);
+
+    testVector.m_frequency = 3.5e9;
+    testVector.m_propagationLossModelType = "ns3::ThreeGppUmiStreetCanyonPropagationLossModel";
+    testVector.m_hBs = 10;
+    testVector.m_hUt = 1.6;
+    testVector.m_distance = 100;
+    testVector.m_shadowingStdLos = 7;
+    testVector.m_shadowingStdNlos = 7;
+    m_testVectors.Add(testVector);
+
+    uint16_t numSamples = 400;
 
     for (std::size_t tvIndex = 0; tvIndex < m_testVectors.GetN(); tvIndex++)
     {
@@ -1246,12 +1268,13 @@ ThreeGppShadowingTestCase::DoRun()
                     tv.m_hBs,
                     tv.m_hUt,
                     tv.m_distance,
-                    true);
+                    true,
+                    tv.m_frequency);
         }
 
         // analyze the results
-        std::vector<double> mean_vector; // the vector containing the mean propagation loss for each
-                                         // position (sample mean)
+        std::vector<double> mean_vector; // the vector containing the mean propagation loss for
+                                         // each position (sample mean)
 
         uint16_t numPositions = m_results.at(0).size();
         for (uint16_t k = 0; k < numPositions; k++)
@@ -1272,7 +1295,8 @@ ThreeGppShadowingTestCase::DoRun()
                 tv.m_hBs,
                 tv.m_hUt,
                 tv.m_distance,
-                false);
+                false,
+                tv.m_frequency);
         std::vector<double> true_mean =
             m_results.at(numSamples); // the result of the last test is the true mean
 
@@ -1305,9 +1329,9 @@ ThreeGppShadowingTestCase::DoRun()
 }
 
 /**
- * \ingroup propagation-tests
+ * @ingroup propagation-tests
  *
- * \brief 3GPP Propagation models TestSuite
+ * @brief 3GPP Propagation models TestSuite
  *
  * This TestSuite tests the following models:
  *   - ThreeGppRmaPropagationLossModel
@@ -1325,15 +1349,15 @@ class ThreeGppPropagationLossModelsTestSuite : public TestSuite
 };
 
 ThreeGppPropagationLossModelsTestSuite::ThreeGppPropagationLossModelsTestSuite()
-    : TestSuite("three-gpp-propagation-loss-model", UNIT)
+    : TestSuite("three-gpp-propagation-loss-model", Type::UNIT)
 {
-    AddTestCase(new ThreeGppRmaPropagationLossModelTestCase, TestCase::QUICK);
-    AddTestCase(new ThreeGppUmaPropagationLossModelTestCase, TestCase::QUICK);
-    AddTestCase(new ThreeGppUmiPropagationLossModelTestCase, TestCase::QUICK);
-    AddTestCase(new ThreeGppIndoorOfficePropagationLossModelTestCase, TestCase::QUICK);
-    AddTestCase(new ThreeGppV2vUrbanPropagationLossModelTestCase, TestCase::QUICK);
-    AddTestCase(new ThreeGppV2vHighwayPropagationLossModelTestCase, TestCase::QUICK);
-    AddTestCase(new ThreeGppShadowingTestCase, TestCase::QUICK);
+    AddTestCase(new ThreeGppRmaPropagationLossModelTestCase, TestCase::Duration::QUICK);
+    AddTestCase(new ThreeGppUmaPropagationLossModelTestCase, TestCase::Duration::QUICK);
+    AddTestCase(new ThreeGppUmiPropagationLossModelTestCase, TestCase::Duration::QUICK);
+    AddTestCase(new ThreeGppIndoorOfficePropagationLossModelTestCase, TestCase::Duration::QUICK);
+    AddTestCase(new ThreeGppV2vUrbanPropagationLossModelTestCase, TestCase::Duration::QUICK);
+    AddTestCase(new ThreeGppV2vHighwayPropagationLossModelTestCase, TestCase::Duration::QUICK);
+    AddTestCase(new ThreeGppShadowingTestCase, TestCase::Duration::QUICK);
 }
 
 /// Static variable for test initialization

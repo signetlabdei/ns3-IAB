@@ -2,18 +2,7 @@
  * Copyright (c) 2004 Francisco J. Ros
  * Copyright (c) 2007 INESC Porto
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Francisco J. Ros  <fjrm@dif.um.es>
  *          Gustavo J. A. M. Carneiro <gjc@inescporto.pt>
@@ -25,6 +14,7 @@
 #include "ns3/ipv4-address.h"
 #include "ns3/nstime.h"
 
+#include <iostream>
 #include <set>
 #include <vector>
 
@@ -33,7 +23,53 @@ namespace ns3
 namespace olsr
 {
 
-/// \ingroup olsr
+/**
+ * @ingroup olsr
+ *
+ * Willingness for forwarding packets from other nodes.
+ * The standard defines the following set of values.
+ * Values 0 - 7 are allowed by the standard, but this is not enforced in the code.
+ *
+ * See \RFC{3626} section 18.8
+ */
+enum Willingness : uint8_t
+{
+    NEVER = 0,
+    LOW = 1,
+    DEFAULT = 3, // medium
+    HIGH = 6,
+    ALWAYS = 7,
+};
+
+/**
+ * Stream insertion operator for OLSR willingness.
+ *
+ * @param os Output stream.
+ * @param willingness Willingness.
+ * @return A reference to the output stream.
+ */
+inline std::ostream&
+operator<<(std::ostream& os, Willingness willingness)
+{
+    switch (willingness)
+    {
+    case Willingness::NEVER:
+        return (os << "NEVER");
+    case Willingness::LOW:
+        return (os << "LOW");
+    case Willingness::DEFAULT:
+        return (os << "DEFAULT");
+    case Willingness::HIGH:
+        return (os << "HIGH");
+    case Willingness::ALWAYS:
+        return (os << "ALWAYS");
+    default:
+        return (os << static_cast<uint32_t>(willingness)); // Cast to uint32_t to print correctly
+    }
+    return os;
+}
+
+/// @ingroup olsr
 /// An Interface Association Tuple.
 struct IfaceAssocTuple
 {
@@ -45,13 +81,13 @@ struct IfaceAssocTuple
     Time time;
 };
 
-static inline bool
+inline bool
 operator==(const IfaceAssocTuple& a, const IfaceAssocTuple& b)
 {
     return (a.ifaceAddr == b.ifaceAddr && a.mainAddr == b.mainAddr);
 }
 
-static inline std::ostream&
+inline std::ostream&
 operator<<(std::ostream& os, const IfaceAssocTuple& tuple)
 {
     os << "IfaceAssocTuple(ifaceAddr=" << tuple.ifaceAddr << ", mainAddr=" << tuple.mainAddr
@@ -59,7 +95,7 @@ operator<<(std::ostream& os, const IfaceAssocTuple& tuple)
     return os;
 }
 
-/// \ingroup olsr
+/// @ingroup olsr
 /// A Link Tuple.
 struct LinkTuple
 {
@@ -75,13 +111,13 @@ struct LinkTuple
     Time time;
 };
 
-static inline bool
+inline bool
 operator==(const LinkTuple& a, const LinkTuple& b)
 {
     return (a.localIfaceAddr == b.localIfaceAddr && a.neighborIfaceAddr == b.neighborIfaceAddr);
 }
 
-static inline std::ostream&
+inline std::ostream&
 operator<<(std::ostream& os, const LinkTuple& tuple)
 {
     os << "LinkTuple(localIfaceAddr=" << tuple.localIfaceAddr
@@ -90,7 +126,7 @@ operator<<(std::ostream& os, const LinkTuple& tuple)
     return os;
 }
 
-/// \ingroup olsr
+/// @ingroup olsr
 /// A Neighbor Tuple.
 struct NeighborTuple
 {
@@ -109,26 +145,26 @@ struct NeighborTuple
 
     /// A value between 0 and 7 specifying the node's willingness to carry traffic on behalf of
     /// other nodes.
-    uint8_t willingness;
+    Willingness willingness;
 };
 
-static inline bool
+inline bool
 operator==(const NeighborTuple& a, const NeighborTuple& b)
 {
     return (a.neighborMainAddr == b.neighborMainAddr && a.status == b.status &&
             a.willingness == b.willingness);
 }
 
-static inline std::ostream&
+inline std::ostream&
 operator<<(std::ostream& os, const NeighborTuple& tuple)
 {
     os << "NeighborTuple(neighborMainAddr=" << tuple.neighborMainAddr
        << ", status=" << (tuple.status == NeighborTuple::STATUS_SYM ? "SYM" : "NOT_SYM")
-       << ", willingness=" << (int)tuple.willingness << ")";
+       << ", willingness=" << tuple.willingness << ")";
     return os;
 }
 
-/// \ingroup olsr
+/// @ingroup olsr
 /// A 2-hop Tuple.
 struct TwoHopNeighborTuple
 {
@@ -140,7 +176,7 @@ struct TwoHopNeighborTuple
     Time expirationTime; // previously called 'time_'
 };
 
-static inline std::ostream&
+inline std::ostream&
 operator<<(std::ostream& os, const TwoHopNeighborTuple& tuple)
 {
     os << "TwoHopNeighborTuple(neighborMainAddr=" << tuple.neighborMainAddr
@@ -149,14 +185,14 @@ operator<<(std::ostream& os, const TwoHopNeighborTuple& tuple)
     return os;
 }
 
-static inline bool
+inline bool
 operator==(const TwoHopNeighborTuple& a, const TwoHopNeighborTuple& b)
 {
     return (a.neighborMainAddr == b.neighborMainAddr &&
             a.twoHopNeighborAddr == b.twoHopNeighborAddr);
 }
 
-/// \ingroup olsr
+/// @ingroup olsr
 /// An MPR-Selector Tuple.
 struct MprSelectorTuple
 {
@@ -166,7 +202,7 @@ struct MprSelectorTuple
     Time expirationTime; // previously called 'time_'
 };
 
-static inline bool
+inline bool
 operator==(const MprSelectorTuple& a, const MprSelectorTuple& b)
 {
     return (a.mainAddr == b.mainAddr);
@@ -175,7 +211,7 @@ operator==(const MprSelectorTuple& a, const MprSelectorTuple& b)
 // The type "list of interface addresses"
 // typedef std::vector<nsaddr_t> addr_list_t;
 
-/// \ingroup olsr
+/// @ingroup olsr
 /// A Duplicate Tuple
 struct DuplicateTuple
 {
@@ -191,13 +227,13 @@ struct DuplicateTuple
     Time expirationTime;
 };
 
-static inline bool
+inline bool
 operator==(const DuplicateTuple& a, const DuplicateTuple& b)
 {
     return (a.address == b.address && a.sequenceNumber == b.sequenceNumber);
 }
 
-/// \ingroup olsr
+/// @ingroup olsr
 /// A Topology Tuple
 struct TopologyTuple
 {
@@ -211,14 +247,14 @@ struct TopologyTuple
     Time expirationTime;
 };
 
-static inline bool
+inline bool
 operator==(const TopologyTuple& a, const TopologyTuple& b)
 {
     return (a.destAddr == b.destAddr && a.lastAddr == b.lastAddr &&
             a.sequenceNumber == b.sequenceNumber);
 }
 
-static inline std::ostream&
+inline std::ostream&
 operator<<(std::ostream& os, const TopologyTuple& tuple)
 {
     os << "TopologyTuple(destAddr=" << tuple.destAddr << ", lastAddr=" << tuple.lastAddr
@@ -227,7 +263,7 @@ operator<<(std::ostream& os, const TopologyTuple& tuple)
     return os;
 }
 
-/// \ingroup olsr
+/// @ingroup olsr
 /// Association
 struct Association
 {
@@ -235,20 +271,20 @@ struct Association
     Ipv4Mask netmask;        //!< IPv4 Network mask.
 };
 
-static inline bool
+inline bool
 operator==(const Association& a, const Association& b)
 {
     return (a.networkAddr == b.networkAddr && a.netmask == b.netmask);
 }
 
-static inline std::ostream&
+inline std::ostream&
 operator<<(std::ostream& os, const Association& tuple)
 {
     os << "Association(networkAddr=" << tuple.networkAddr << ", netmask=" << tuple.netmask << ")";
     return os;
 }
 
-/// \ingroup olsr
+/// @ingroup olsr
 /// An Association Tuple
 struct AssociationTuple
 {
@@ -262,14 +298,14 @@ struct AssociationTuple
     Time expirationTime;
 };
 
-static inline bool
+inline bool
 operator==(const AssociationTuple& a, const AssociationTuple& b)
 {
     return (a.gatewayAddr == b.gatewayAddr && a.networkAddr == b.networkAddr &&
             a.netmask == b.netmask);
 }
 
-static inline std::ostream&
+inline std::ostream&
 operator<<(std::ostream& os, const AssociationTuple& tuple)
 {
     os << "AssociationTuple(gatewayAddr=" << tuple.gatewayAddr

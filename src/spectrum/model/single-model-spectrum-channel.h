@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 CTTC
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Nicola Baldo <nbaldo@cttc.es>
  */
@@ -20,17 +9,18 @@
 #ifndef SINGLE_MODEL_SPECTRUM_CHANNEL_H
 #define SINGLE_MODEL_SPECTRUM_CHANNEL_H
 
-#include <ns3/spectrum-channel.h>
-#include <ns3/spectrum-model.h>
-#include <ns3/traced-callback.h>
+#include "spectrum-channel.h"
+#include "spectrum-model.h"
+
+#include "ns3/traced-callback.h"
 
 namespace ns3
 {
 
 /**
- * \ingroup spectrum
+ * @ingroup spectrum
  *
- * \brief SpectrumChannel implementation which handles a single spectrum model
+ * @brief SpectrumChannel implementation which handles a single spectrum model
  *
  * All SpectrumPhy layers attached to this SpectrumChannel
  */
@@ -40,8 +30,8 @@ class SingleModelSpectrumChannel : public SpectrumChannel
     SingleModelSpectrumChannel();
 
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
 
@@ -63,8 +53,8 @@ class SingleModelSpectrumChannel : public SpectrumChannel
     /**
      * Used internally to reschedule transmission after the propagation delay.
      *
-     * \param params
-     * \param receiver
+     * @param params
+     * @param receiver
      */
     void StartRx(Ptr<SpectrumSignalParameters> params, Ptr<SpectrumPhy> receiver);
 

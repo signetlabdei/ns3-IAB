@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Leonard Tracy <lentracy@gmail.com>
  */
@@ -38,7 +27,7 @@ class UanTxMode;
 class Mac8Address;
 
 /**
- * \ingroup uan
+ * @ingroup uan
  *
  * Virtual base class for all UAN MAC protocols.
  */
@@ -49,37 +38,37 @@ class UanMac : public Object
     UanMac();
     /**
      * Register this type.
-     * \return The TypeId.
+     * @return The TypeId.
      */
     static TypeId GetTypeId();
 
     /**
      * Get the MAC Address.
      *
-     * \return MAC Address.
+     * @return MAC Address.
      */
     virtual Address GetAddress();
 
     /**
      * Set the address.
      *
-     * \param addr Mac8Address for this MAC.
+     * @param addr Mac8Address for this MAC.
      */
     virtual void SetAddress(Mac8Address addr);
 
     /**
      * Enqueue packet to be transmitted.
      *
-     * \param pkt Packet to be transmitted.
-     * \param dest Destination address.
-     * \param protocolNumber The type of the packet.
-     * \return True if packet was successfully enqueued.
+     * @param pkt Packet to be transmitted.
+     * @param dest Destination address.
+     * @param protocolNumber The type of the packet.
+     * @return True if packet was successfully enqueued.
      */
     virtual bool Enqueue(Ptr<Packet> pkt, uint16_t protocolNumber, const Address& dest) = 0;
     /**
      * Set the callback to forward packets up to higher layers.
      *
-     * \param cb The callback.
+     * @param cb The callback.
      * \pname{packet} The packet.
      * \pname{address} The source address.
      */
@@ -91,14 +80,14 @@ class UanMac : public Object
      * Some MACs may be designed to work with multiple PHY
      * layers.  Others may only work with one.
      *
-     * \param phy Phy layer to attach to this MAC.
+     * @param phy Phy layer to attach to this MAC.
      */
     virtual void AttachPhy(Ptr<UanPhy> phy) = 0;
 
     /**
      * Get the broadcast address.
      *
-     * \return The broadcast address.
+     * @return The broadcast address.
      */
     virtual Address GetBroadcast() const;
 
@@ -110,28 +99,28 @@ class UanMac : public Object
      * used by this model.  Return the number of streams (possibly zero) that
      * have been assigned.
      *
-     * \param stream First stream index to use.
-     * \return The number of stream indices assigned by this model.
+     * @param stream First stream index to use.
+     * @return The number of stream indices assigned by this model.
      */
     virtual int64_t AssignStreams(int64_t stream) = 0;
 
     /**
      *  TracedCallback signature for packet reception/enqueue/dequeue events.
      *
-     * \param [in] packet The Packet.
-     * \param [in] mode The UanTxMode.
+     * @param [in] packet The Packet.
+     * @param [in] mode The UanTxMode.
      */
     typedef void (*PacketModeTracedCallback)(Ptr<const Packet> packet, UanTxMode mode);
 
     /**
      * Get the Tx mode index (Modulation type).
-     * \return the Tx mode index
+     * @return the Tx mode index
      */
     uint32_t GetTxModeIndex() const;
 
     /**
      * Set the Tx mode index (Modulation type).
-     * \param txModeIndex the Tx mode index
+     * @param txModeIndex the Tx mode index
      */
     void SetTxModeIndex(uint32_t txModeIndex);
 
@@ -140,8 +129,7 @@ class UanMac : public Object
     uint32_t m_txModeIndex;
     /** The MAC address. */
     Mac8Address m_address;
-
-}; // class UanMac
+};
 
 } // namespace ns3
 

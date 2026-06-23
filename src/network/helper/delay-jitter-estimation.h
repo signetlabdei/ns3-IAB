@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2007 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -26,9 +15,9 @@ namespace ns3
 {
 
 /**
- * \ingroup stats
+ * @ingroup stats
  *
- * \brief Quick and dirty delay and jitter estimation,
+ * @brief Quick and dirty delay and jitter estimation,
  * implementing the jitter algorithm originally from
  * \RFC{1889} (RTP), and unchanged in \RFC{3550}
  *
@@ -49,7 +38,7 @@ class DelayJitterEstimation
      * that it does not use any network resources and is not
      * taken into account in transmission delay calculations.
      *
-     * \param packet the packet to send over a wire
+     * @param packet the packet to send over a wire
      */
     static void PrepareTx(Ptr<const Packet> packet);
 
@@ -58,14 +47,14 @@ class DelayJitterEstimation
      * After a call to this method, \ref GetLastDelay and \ref GetLastJitter
      * will return an updated delay and jitter.
      *
-     * \param packet the packet received
+     * @param packet the packet received
      */
     void RecordRx(Ptr<const Packet> packet);
 
     /**
      * Get the Last Delay object.
      *
-     * \return the updated delay.
+     * @return the updated delay.
      */
     Time GetLastDelay() const;
 
@@ -73,7 +62,7 @@ class DelayJitterEstimation
      * The jitter is calculated using the \RFC{1889} (RTP) jitter
      * definition.
      *
-     * \return the updated jitter.
+     * @return the updated jitter.
      */
     uint64_t GetLastJitter() const;
 

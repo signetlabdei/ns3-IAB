@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2016 Universita' di Firenze
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Tommaso Pecorella <tommaso.pecorella@unifi.it>
  */
@@ -45,24 +34,24 @@
 using namespace ns3;
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv4 RIP Test
+ * @brief IPv4 RIP Test
  */
 class Ipv4RipTest : public TestCase
 {
     Ptr<Packet> m_receivedPacket; //!< Received packet
 
     /**
-     * \brief Send data.
-     * \param socket The sending socket.
-     * \param to Destination address.
+     * @brief Send data.
+     * @param socket The sending socket.
+     * @param to Destination address.
      */
     void DoSendData(Ptr<Socket> socket, std::string to);
     /**
-     * \brief Send data.
-     * \param socket The sending socket.
-     * \param to Destination address.
+     * @brief Send data.
+     * @param socket The sending socket.
+     * @param to Destination address.
      */
     void SendData(Ptr<Socket> socket, std::string to);
 
@@ -71,8 +60,8 @@ class Ipv4RipTest : public TestCase
     Ipv4RipTest();
 
     /**
-     * \brief Receive data.
-     * \param socket The receiving socket.
+     * @brief Receive data.
+     * @param socket The receiving socket.
      */
     void ReceivePkt(Ptr<Socket> socket);
 };
@@ -274,24 +263,24 @@ Ipv4RipTest::DoRun()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv4 RIP count to infinity Test
+ * @brief IPv4 RIP count to infinity Test
  */
 class Ipv4RipCountToInfinityTest : public TestCase
 {
     Ptr<Packet> m_receivedPacket; //!< Received packet
 
     /**
-     * \brief Send data.
-     * \param socket The sending socket.
-     * \param to Destination address.
+     * @brief Send data.
+     * @param socket The sending socket.
+     * @param to Destination address.
      */
     void DoSendData(Ptr<Socket> socket, std::string to);
     /**
-     * \brief Send data.
-     * \param socket The sending socket.
-     * \param to Destination address.
+     * @brief Send data.
+     * @param socket The sending socket.
+     * @param to Destination address.
      */
     void SendData(Ptr<Socket> socket, std::string to);
 
@@ -300,8 +289,8 @@ class Ipv4RipCountToInfinityTest : public TestCase
     Ipv4RipCountToInfinityTest();
 
     /**
-     * \brief Receive data.
-     * \param socket The receiving socket.
+     * @brief Receive data.
+     * @param socket The receiving socket.
      */
     void ReceivePkt(Ptr<Socket> socket);
 };
@@ -507,9 +496,9 @@ Ipv4RipCountToInfinityTest::DoRun()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv4 RIP SplitHorizon strategy Test
+ * @brief IPv4 RIP SplitHorizon strategy Test
  */
 class Ipv4RipSplitHorizonStrategyTest : public TestCase
 {
@@ -520,14 +509,14 @@ class Ipv4RipSplitHorizonStrategyTest : public TestCase
     void DoRun() override;
 
     /**
-     * \brief Constructor.
-     * \param strategy The SplitHorizon strategy.
+     * @brief Constructor.
+     * @param strategy The SplitHorizon strategy.
      */
     Ipv4RipSplitHorizonStrategyTest(Rip::SplitHorizonType_e strategy);
 
     /**
-     * \brief Receive data.
-     * \param socket The receiving socket.
+     * @brief Receive data.
+     * @param socket The receiving socket.
      */
     void ReceivePktProbe(Ptr<Socket> socket);
 };
@@ -558,7 +547,7 @@ Ipv4RipSplitHorizonStrategyTest::ReceivePktProbe(Ptr<Socket> socket)
         std::list<RipRte> rtes = hdr.GetRteList();
 
         // validate the RTEs before processing
-        for (std::list<RipRte>::iterator iter = rtes.begin(); iter != rtes.end(); iter++)
+        for (auto iter = rtes.begin(); iter != rtes.end(); iter++)
         {
             if (iter->GetPrefix() == "10.0.1.0")
             {
@@ -695,21 +684,24 @@ Ipv4RipSplitHorizonStrategyTest::DoRun()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv4 RIP TestSuite
+ * @brief IPv4 RIP TestSuite
  */
 class Ipv4RipTestSuite : public TestSuite
 {
   public:
     Ipv4RipTestSuite()
-        : TestSuite("ipv4-rip", UNIT)
+        : TestSuite("ipv4-rip", Type::UNIT)
     {
-        AddTestCase(new Ipv4RipTest, TestCase::QUICK);
-        AddTestCase(new Ipv4RipCountToInfinityTest, TestCase::QUICK);
-        AddTestCase(new Ipv4RipSplitHorizonStrategyTest(Rip::POISON_REVERSE), TestCase::QUICK);
-        AddTestCase(new Ipv4RipSplitHorizonStrategyTest(Rip::SPLIT_HORIZON), TestCase::QUICK);
-        AddTestCase(new Ipv4RipSplitHorizonStrategyTest(Rip::NO_SPLIT_HORIZON), TestCase::QUICK);
+        AddTestCase(new Ipv4RipTest, TestCase::Duration::QUICK);
+        AddTestCase(new Ipv4RipCountToInfinityTest, TestCase::Duration::QUICK);
+        AddTestCase(new Ipv4RipSplitHorizonStrategyTest(Rip::POISON_REVERSE),
+                    TestCase::Duration::QUICK);
+        AddTestCase(new Ipv4RipSplitHorizonStrategyTest(Rip::SPLIT_HORIZON),
+                    TestCase::Duration::QUICK);
+        AddTestCase(new Ipv4RipSplitHorizonStrategyTest(Rip::NO_SPLIT_HORIZON),
+                    TestCase::Duration::QUICK);
     }
 };
 

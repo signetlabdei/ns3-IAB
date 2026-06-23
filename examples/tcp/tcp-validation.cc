@@ -2,34 +2,7 @@
  * Copyright (c) 2019 Cable Television Laboratories, Inc.
  * Copyright (c) 2020 Tom Henderson (adapted for DCTCP testing)
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions, and the following disclaimer,
- *    without modification.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- * 3. The names of the authors may not be used to endorse or promote products
- *    derived from this software without specific prior written permission.
- *
- * Alternatively, provided that this notice is retained in full, this
- * software may be distributed under the terms of the GNU General
- * Public License ("GPL") version 2, in which case the provisions of the
- * GPL apply INSTEAD OF those given above.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * SPDX-License-Identifier: BSD-3-Clause
  */
 
 // This program is designed to observe long-running TCP congestion control
@@ -172,9 +145,9 @@ bool g_validationFailed = false;    //!< True if validation failed.
 /**
  * Trace first congestion window.
  *
- * \param ofStream Output filestream.
- * \param oldCwnd Old value.
- * \param newCwnd new value.
+ * @param ofStream Output filestream.
+ * @param oldCwnd Old value.
+ * @param newCwnd new value.
  */
 void
 TraceFirstCwnd(std::ofstream* ofStream, uint32_t oldCwnd, uint32_t newCwnd)
@@ -217,10 +190,10 @@ TraceFirstCwnd(std::ofstream* ofStream, uint32_t oldCwnd, uint32_t newCwnd)
 /**
  * Trace first TcpDctcp.
  *
- * \param ofStream Output filestream.
- * \param bytesMarked Bytes marked.
- * \param bytesAcked Bytes ACKed.
- * \param alpha Alpha.
+ * @param ofStream Output filestream.
+ * @param bytesMarked Bytes marked.
+ * @param bytesAcked Bytes ACKed.
+ * @param alpha Alpha.
  */
 void
 TraceFirstDctcp(std::ofstream* ofStream, uint32_t bytesMarked, uint32_t bytesAcked, double alpha)
@@ -258,10 +231,10 @@ TraceFirstDctcp(std::ofstream* ofStream, uint32_t bytesMarked, uint32_t bytesAck
             NS_LOG_WARN("now " << Now().As(Time::S) << " alpha " << alpha << " (expected <= 0.1)");
             g_validationFailed = true;
         }
-        if ((now > 7) && ((alpha > 0.09) || (alpha < 0.055)))
+        if ((now > 7) && ((alpha > 0.09) || (alpha < 0.049)))
         {
             NS_LOG_WARN("now " << Now().As(Time::S) << " alpha " << alpha
-                               << " (expected 0.09 <= alpha <= 0.055)");
+                               << " (expected 0.09 <= alpha <= 0.049)");
             g_validationFailed = true;
         }
     }
@@ -270,9 +243,9 @@ TraceFirstDctcp(std::ofstream* ofStream, uint32_t bytesMarked, uint32_t bytesAck
 /**
  * Trace first RTT.
  *
- * \param ofStream Output filestream.
- * \param oldRtt Old value.
- * \param newRtt New value.
+ * @param ofStream Output filestream.
+ * @param oldRtt Old value.
+ * @param newRtt New value.
  */
 void
 TraceFirstRtt(std::ofstream* ofStream, Time oldRtt, Time newRtt)
@@ -287,9 +260,9 @@ TraceFirstRtt(std::ofstream* ofStream, Time oldRtt, Time newRtt)
 /**
  * Trace second congestion window.
  *
- * \param ofStream Output filestream.
- * \param oldCwnd Old value.
- * \param newCwnd new value.
+ * @param ofStream Output filestream.
+ * @param oldCwnd Old value.
+ * @param newCwnd new value.
  */
 void
 TraceSecondCwnd(std::ofstream* ofStream, uint32_t oldCwnd, uint32_t newCwnd)
@@ -306,9 +279,9 @@ TraceSecondCwnd(std::ofstream* ofStream, uint32_t oldCwnd, uint32_t newCwnd)
 /**
  * Trace second RTT.
  *
- * \param ofStream Output filestream.
- * \param oldRtt Old value.
- * \param newRtt New value.
+ * @param ofStream Output filestream.
+ * @param oldRtt Old value.
+ * @param newRtt New value.
  */
 void
 TraceSecondRtt(std::ofstream* ofStream, Time oldRtt, Time newRtt)
@@ -323,10 +296,10 @@ TraceSecondRtt(std::ofstream* ofStream, Time oldRtt, Time newRtt)
 /**
  * Trace second TcpDctcp.
  *
- * \param ofStream Output filestream.
- * \param bytesMarked Bytes marked.
- * \param bytesAcked Bytes ACKed.
- * \param alpha Alpha.
+ * @param ofStream Output filestream.
+ * @param bytesMarked Bytes marked.
+ * @param bytesAcked Bytes ACKed.
+ * @param alpha Alpha.
  */
 void
 TraceSecondDctcp(std::ofstream* ofStream, uint32_t bytesMarked, uint32_t bytesAcked, double alpha)
@@ -340,8 +313,8 @@ TraceSecondDctcp(std::ofstream* ofStream, uint32_t bytesMarked, uint32_t bytesAc
 /**
  * Trace ping RTT.
  *
- * \param ofStream Output filestream.
- * \param rtt RTT value.
+ * @param ofStream Output filestream.
+ * @param rtt RTT value.
  */
 void
 TracePingRtt(std::ofstream* ofStream, uint16_t, Time rtt)
@@ -355,8 +328,8 @@ TracePingRtt(std::ofstream* ofStream, uint16_t, Time rtt)
 /**
  * Trace first Rx.
  *
- * \param packet The packet.
- * \param address The sender address.
+ * @param packet The packet.
+ * @param address The sender address.
  */
 void
 TraceFirstRx(Ptr<const Packet> packet, const Address& address)
@@ -367,8 +340,8 @@ TraceFirstRx(Ptr<const Packet> packet, const Address& address)
 /**
  * Trace second Rx.
  *
- * \param packet The packet.
- * \param address The sender address.
+ * @param packet The packet.
+ * @param address The sender address.
  */
 void
 TraceSecondRx(Ptr<const Packet> packet, const Address& address)
@@ -379,8 +352,8 @@ TraceSecondRx(Ptr<const Packet> packet, const Address& address)
 /**
  * Trace queue drop.
  *
- * \param ofStream Output filestream.
- * \param item The dropped QueueDiscItem.
+ * @param ofStream Output filestream.
+ * @param item The dropped QueueDiscItem.
  */
 void
 TraceQueueDrop(std::ofstream* ofStream, Ptr<const QueueDiscItem> item)
@@ -395,9 +368,9 @@ TraceQueueDrop(std::ofstream* ofStream, Ptr<const QueueDiscItem> item)
 /**
  * Trace queue marks.
  *
- * \param ofStream Output filestream.
- * \param item The marked QueueDiscItem.
- * \param reason The reason.
+ * @param ofStream Output filestream.
+ * @param item The marked QueueDiscItem.
+ * @param reason The reason.
  */
 void
 TraceQueueMark(std::ofstream* ofStream, Ptr<const QueueDiscItem> item, const char* reason)
@@ -412,10 +385,10 @@ TraceQueueMark(std::ofstream* ofStream, Ptr<const QueueDiscItem> item, const cha
 /**
  * Trace queue length.
  *
- * \param ofStream Output filestream.
- * \param queueLinkRate Queue link rate.
- * \param oldVal Old value.
- * \param newVal New value.
+ * @param ofStream Output filestream.
+ * @param queueLinkRate Queue link rate.
+ * @param oldVal Old value.
+ * @param newVal New value.
  */
 void
 TraceQueueLength(std::ofstream* ofStream, DataRate queueLinkRate, uint32_t oldVal, uint32_t newVal)
@@ -432,8 +405,8 @@ TraceQueueLength(std::ofstream* ofStream, DataRate queueLinkRate, uint32_t oldVa
 /**
  * Trace marks frequency.
  *
- * \param ofStream Output filestream.
- * \param marksSamplingInterval The mark sampling interval.
+ * @param ofStream Output filestream.
+ * @param marksSamplingInterval The mark sampling interval.
  */
 void
 TraceMarksFrequency(std::ofstream* ofStream, Time marksSamplingInterval)
@@ -452,8 +425,8 @@ TraceMarksFrequency(std::ofstream* ofStream, Time marksSamplingInterval)
 /**
  * Trace the first throughput.
  *
- * \param ofStream Output filestream.
- * \param throughputInterval The throughput interval.
+ * @param ofStream Output filestream.
+ * @param throughputInterval The throughput interval.
  */
 void
 TraceFirstThroughput(std::ofstream* ofStream, Time throughputInterval)
@@ -502,8 +475,8 @@ TraceFirstThroughput(std::ofstream* ofStream, Time throughputInterval)
 /**
  * Trace the second throughput.
  *
- * \param ofStream Output filestream.
- * \param throughputInterval The throughput interval.
+ * @param ofStream Output filestream.
+ * @param throughputInterval The throughput interval.
  */
 void
 TraceSecondThroughput(std::ofstream* ofStream, Time throughputInterval)
@@ -520,7 +493,7 @@ TraceSecondThroughput(std::ofstream* ofStream, Time throughputInterval)
 /**
  * Schedule trace connection.
  *
- * \param ofStream Output filestream.
+ * @param ofStream Output filestream.
  */
 void
 ScheduleFirstTcpCwndTraceConnection(std::ofstream* ofStream)
@@ -533,7 +506,7 @@ ScheduleFirstTcpCwndTraceConnection(std::ofstream* ofStream)
 /**
  * Schedule trace connection.
  *
- * \param ofStream Output filestream.
+ * @param ofStream Output filestream.
  */
 void
 ScheduleFirstTcpRttTraceConnection(std::ofstream* ofStream)
@@ -545,7 +518,7 @@ ScheduleFirstTcpRttTraceConnection(std::ofstream* ofStream)
 /**
  * Schedule trace connection.
  *
- * \param ofStream Output filestream.
+ * @param ofStream Output filestream.
  */
 void
 ScheduleFirstDctcpTraceConnection(std::ofstream* ofStream)
@@ -558,7 +531,7 @@ ScheduleFirstDctcpTraceConnection(std::ofstream* ofStream)
 /**
  * Schedule trace connection.
  *
- * \param ofStream Output filestream.
+ * @param ofStream Output filestream.
  */
 void
 ScheduleSecondDctcpTraceConnection(std::ofstream* ofStream)
@@ -581,7 +554,7 @@ ScheduleFirstPacketSinkConnection()
 /**
  * Schedule trace connection.
  *
- * \param ofStream Output filestream.
+ * @param ofStream Output filestream.
  */
 void
 ScheduleSecondTcpCwndTraceConnection(std::ofstream* ofStream)
@@ -593,7 +566,7 @@ ScheduleSecondTcpCwndTraceConnection(std::ofstream* ofStream)
 /**
  * Schedule trace connection.
  *
- * \param ofStream Output filestream.
+ * @param ofStream Output filestream.
  */
 void
 ScheduleSecondTcpRttTraceConnection(std::ofstream* ofStream)
@@ -663,6 +636,9 @@ main(int argc, char* argv[])
     Config::SetDefault("ns3::TcpSocket::InitialCwnd", UintegerValue(10));
     Config::SetDefault("ns3::TcpL4Protocol::RecoveryType",
                        TypeIdValue(TcpPrrRecovery::GetTypeId()));
+    // Validation criteria were written for TCP Cubic without Reno-friendly behavior, so disable it
+    // for these tests
+    Config::SetDefault("ns3::TcpCubic::TcpFriendliness", BooleanValue(false));
 
     ////////////////////////////////////////////////////////////
     // command-line argument parsing                          //
@@ -746,7 +722,7 @@ main(int argc, char* argv[])
         firstTcpTypeId = TcpDctcp::GetTypeId();
         Config::SetDefault("ns3::CoDelQueueDisc::CeThreshold", TimeValue(ceThreshold));
         Config::SetDefault("ns3::FqCoDelQueueDisc::CeThreshold", TimeValue(ceThreshold));
-        if (queueUseEcn == false)
+        if (!queueUseEcn)
         {
             std::cout << "Warning: using DCTCP with queue ECN disabled" << std::endl;
         }
@@ -933,7 +909,7 @@ main(int argc, char* argv[])
         proto->SetAttribute("SocketType", TypeIdValue(secondTcpTypeId));
     }
 
-    // InternetStackHelper will install a base TrafficControLayer on the node,
+    // InternetStackHelper will install a base TrafficControlLayer on the node,
     // but the Ipv4AddressHelper below will install the default FqCoDelQueueDisc
     // on all single device nodes.  The below code overrides the configuration
     // that is normally done by the Ipv4AddressHelper::Install() method by

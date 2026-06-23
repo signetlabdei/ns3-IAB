@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2014 Natale Patriciello <natale.patriciello@gmail.com>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  */
 #ifndef TCPHYBLA_H
@@ -28,9 +17,9 @@ namespace ns3
 class TcpSocketState;
 
 /**
- * \ingroup congestionOps
+ * @ingroup congestionOps
  *
- * \brief Implementation of the TCP Hybla algorithm
+ * @brief Implementation of the TCP Hybla algorithm
  *
  * The key idea behind TCP Hybla is to obtain for long RTT connections the same
  * instantaneous transmission rate of a reference TCP connection with lower RTT.
@@ -48,8 +37,8 @@ class TcpHybla : public TcpNewReno
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
 
@@ -59,8 +48,8 @@ class TcpHybla : public TcpNewReno
     TcpHybla();
 
     /**
-     * \brief Copy constructor
-     * \param sock the object to copy
+     * @brief Copy constructor
+     * @param sock the object to copy
      */
     TcpHybla(const TcpHybla& sock);
 
@@ -82,8 +71,8 @@ class TcpHybla : public TcpNewReno
 
   private:
     /**
-     * \brief Recalculate algorithm parameters
-     * \param tcb the socket state.
+     * @brief Recalculate algorithm parameters
+     * @param tcb the socket state.
      */
     void RecalcParam(const Ptr<TcpSocketState>& tcb);
 };

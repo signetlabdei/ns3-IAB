@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2021 Universita' degli Studi di Napoli Federico II
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Stefano Avallone <stavallo@unina.it>
  */
@@ -29,8 +18,8 @@ namespace ns3
 {
 
 /**
- * \brief The MU EDCA Parameter Set
- * \ingroup wifi
+ * @brief The MU EDCA Parameter Set
+ * @ingroup wifi
  *
  * The 802.11ax MU EDCA Parameter Set.
  */
@@ -45,7 +34,7 @@ class MuEdcaParameterSet : public WifiInformationElement
     /**
      * Set the QoS Info field in the MuEdcaParameterSet information element.
      *
-     * \param qosInfo the QoS Info field in the MuEdcaParameterSet information element
+     * @param qosInfo the QoS Info field in the MuEdcaParameterSet information element
      */
     void SetQosInfo(uint8_t qosInfo);
     /**
@@ -53,8 +42,8 @@ class MuEdcaParameterSet : public WifiInformationElement
      * field corresponding to the given AC Index (<i>aci</i>). Note that <i>aifsn</i>
      * can either be zero (EDCA disabled) or in the range from 2 to 15.
      *
-     * \param aci the AC Index
-     * \param aifsn the value for the AIFSN subfield
+     * @param aci the AC Index
+     * @param aifsn the value for the AIFSN subfield
      */
     void SetMuAifsn(uint8_t aci, uint8_t aifsn);
     /**
@@ -62,8 +51,8 @@ class MuEdcaParameterSet : public WifiInformationElement
      * field corresponding to the given AC Index (<i>aci</i>). Note that <i>cwMin</i>
      * must be a power of 2 minus 1 in the range from 0 to 32767.
      *
-     * \param aci the AC Index
-     * \param cwMin the CWmin value encoded by the ECWmin field
+     * @param aci the AC Index
+     * @param cwMin the CWmin value encoded by the ECWmin field
      */
     void SetMuCwMin(uint8_t aci, uint16_t cwMin);
     /**
@@ -71,8 +60,8 @@ class MuEdcaParameterSet : public WifiInformationElement
      * field corresponding to the given AC Index (<i>aci</i>). Note that <i>cwMax</i>
      * must be a power of 2 minus 1 in the range from 0 to 32767.
      *
-     * \param aci the AC Index
-     * \param cwMax the CWmax value encoded by the ECWmax field
+     * @param aci the AC Index
+     * @param cwMax the CWmax value encoded by the ECWmax field
      */
     void SetMuCwMax(uint8_t aci, uint16_t cwMax);
     /**
@@ -83,47 +72,47 @@ class MuEdcaParameterSet : public WifiInformationElement
      * that the MU EDCA Parameter Set element must not be sent and therefore it is
      * only allowed if the MU EDCA Timer is set to 0 for all ACs.
      *
-     * \param aci the AC Index
-     * \param timer the value for the timer encoded by the MU EDCA Timer field
+     * @param aci the AC Index
+     * @param timer the value for the timer encoded by the MU EDCA Timer field
      */
     void SetMuEdcaTimer(uint8_t aci, Time timer);
 
     /**
      * Return the QoS Info field in the MuEdcaParameterSet information element.
      *
-     * \return the QoS Info field in the MuEdcaParameterSet information element
+     * @return the QoS Info field in the MuEdcaParameterSet information element
      */
     uint8_t GetQosInfo() const;
     /**
      * Get the AIFSN subfield of the ACI/AIFSN field in the MU AC Parameter Record
      * field corresponding to the given AC Index (<i>aci</i>).
      *
-     * \param aci the AC Index
-     * \return the value of the AIFSN subfield
+     * @param aci the AC Index
+     * @return the value of the AIFSN subfield
      */
     uint8_t GetMuAifsn(uint8_t aci) const;
     /**
      * Get the CWmin value encoded by the ECWmin subfield of the ECWmin/ECWmax field
      * in the MU AC Parameter Record field corresponding to the given AC Index (<i>aci</i>).
      *
-     * \param aci the AC Index
-     * \return the CWmin value
+     * @param aci the AC Index
+     * @return the CWmin value
      */
     uint16_t GetMuCwMin(uint8_t aci) const;
     /**
      * Get the CWmax value encoded by the ECWmax subfield of the ECWmin/ECWmax field
      * in the MU AC Parameter Record field corresponding to the given AC Index (<i>aci</i>).
      *
-     * \param aci the AC Index
-     * \return the CWmax value
+     * @param aci the AC Index
+     * @return the CWmax value
      */
     uint16_t GetMuCwMax(uint8_t aci) const;
     /**
      * Get the MU EDCA Timer value encoded in the MU AC Parameter Record field corresponding
      * to the given AC Index (<i>aci</i>).
      *
-     * \param aci the AC Index
-     * \return the MU EDCA Timer value
+     * @param aci the AC Index
+     * @return the MU EDCA Timer value
      */
     Time GetMuEdcaTimer(uint8_t aci) const;
 
@@ -131,6 +120,7 @@ class MuEdcaParameterSet : public WifiInformationElement
     uint16_t GetInformationFieldSize() const override;
     void SerializeInformationField(Buffer::Iterator start) const override;
     uint16_t DeserializeInformationField(Buffer::Iterator start, uint16_t length) override;
+    void Print(std::ostream& os) const override;
 
     /**
      * MU AC Parameter Record type

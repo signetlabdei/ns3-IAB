@@ -1,16 +1,5 @@
 /*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #include "mpi-test-fixtures.h"
@@ -29,8 +18,8 @@
 #include <iomanip>
 
 /**
- * \file
- * \ingroup mpi
+ * @file
+ * @ingroup mpi
  *
  * Distributed version of third.cc from the tutorial.
  *
@@ -229,8 +218,8 @@ main(int argc, char* argv[])
         UdpEchoServerHelper echoServer(9);
 
         ApplicationContainer serverApps = echoServer.Install(csmaNodes.Get(nCsma));
-        serverApps.Start(Seconds(1.0));
-        serverApps.Stop(Seconds(10.0));
+        serverApps.Start(Seconds(1));
+        serverApps.Stop(Seconds(10));
 
         if (testing)
         {
@@ -246,12 +235,12 @@ main(int argc, char* argv[])
     {
         UdpEchoClientHelper echoClient(csmaInterfaces.GetAddress(nCsma), 9);
         echoClient.SetAttribute("MaxPackets", UintegerValue(1));
-        echoClient.SetAttribute("Interval", TimeValue(Seconds(1.0)));
+        echoClient.SetAttribute("Interval", TimeValue(Seconds(1)));
         echoClient.SetAttribute("PacketSize", UintegerValue(1024));
 
         ApplicationContainer clientApps = echoClient.Install(wifiStaNodes.Get(nWifi - 1));
-        clientApps.Start(Seconds(2.0));
-        clientApps.Stop(Seconds(10.0));
+        clientApps.Start(Seconds(2));
+        clientApps.Stop(Seconds(10));
 
         if (testing)
         {
@@ -262,9 +251,9 @@ main(int argc, char* argv[])
 
     Ipv4GlobalRoutingHelper::PopulateRoutingTables();
 
-    Simulator::Stop(Seconds(10.0));
+    Simulator::Stop(Seconds(10));
 
-    if (tracing == true)
+    if (tracing)
     {
         // Depending on the system Id (rank), the pcap information
         // traced will be different.  For example, the ethernet pcap

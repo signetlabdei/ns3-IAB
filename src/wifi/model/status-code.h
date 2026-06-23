@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2006 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -44,22 +33,22 @@ class StatusCode
     /**
      * Return whether the status code is success.
      *
-     * \return true if success,
+     * @return true if success,
      *         false otherwise
      */
     bool IsSuccess() const;
 
     /**
-     * \returns the expected size of the status code.
+     * @returns the expected size of the status code.
      *
      * This method should return the number of bytes which are needed to store
      * the status code data by Serialize.
      */
     uint32_t GetSerializedSize() const;
     /**
-     * \param start an iterator which points to where the status code should be written
+     * @param start an iterator which points to where the status code should be written
      *
-     * \return Buffer::Iterator
+     * @return Buffer::Iterator
      *
      * This method is used to store a status code into the byte buffer.
      * The data written is expected to match bit-for-bit the representation of this
@@ -67,9 +56,9 @@ class StatusCode
      */
     Buffer::Iterator Serialize(Buffer::Iterator start) const;
     /**
-     * \param start an iterator which points to where the status code should be read.
+     * @param start an iterator which points to where the status code should be read.
      *
-     * \returns the number of bytes read.
+     * @returns the number of bytes read.
      *
      * This method is used to re-create a status code from the byte buffer.
      * The data read is expected to match bit-for-bit the representation of this
@@ -84,10 +73,10 @@ class StatusCode
 /**
  * Serialize StatusCode to the given ostream.
  *
- * \param os the output stream
- * \param code the StatusCode
+ * @param os the output stream
+ * @param code the StatusCode
  *
- * \return std::ostream
+ * @return std::ostream
  */
 std::ostream& operator<<(std::ostream& os, const StatusCode& code);
 

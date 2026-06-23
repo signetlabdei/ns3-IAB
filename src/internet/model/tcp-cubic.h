@@ -1,32 +1,21 @@
 /*
  * Copyright (c) 2014 Natale Patriciello <natale.patriciello@gmail.com>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  */
 
 #ifndef TCPCUBIC_H
 #define TCPCUBIC_H
 
-#include "ns3/tcp-congestion-ops.h"
-#include "ns3/tcp-socket-base.h"
+#include "tcp-congestion-ops.h"
+#include "tcp-socket-base.h"
 
 namespace ns3
 {
 
 /**
- * \brief The Cubic Congestion Control Algorithm
+ * @brief The Cubic Congestion Control Algorithm
  *
  * TCP Cubic is a protocol that enhances the fairness property
  * of Bic while retaining its scalability and stability. The main feature is
@@ -70,7 +59,7 @@ class TcpCubic : public TcpCongestionOps
 {
   public:
     /**
-     * \brief Values to detect the Slow Start mode of HyStart
+     * @brief Values to detect the Slow Start mode of HyStart
      */
     enum HybridSSDetectionMode
     {
@@ -80,8 +69,8 @@ class TcpCubic : public TcpCongestionOps
     };
 
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
 
@@ -89,7 +78,7 @@ class TcpCubic : public TcpCongestionOps
 
     /**
      * Copy constructor
-     * \param sock Socket to copy
+     * @param sock Socket to copy
      */
     TcpCubic(const TcpCubic& sock);
 
@@ -101,11 +90,13 @@ class TcpCubic : public TcpCongestionOps
                             const TcpSocketState::TcpCongState_t newState) override;
 
     Ptr<TcpCongestionOps> Fork() override;
+    void Init(Ptr<TcpSocketState> tcb) override;
 
   private:
-    bool m_fastConvergence; //!< Enable or disable fast convergence algorithm
-    double m_beta;          //!< Beta for cubic multiplicative increase
-
+    bool m_fastConvergence;                //!< Enable or disable fast convergence algorithm
+    bool m_tcpFriendliness;                //!< Enable or disable TCP-friendliness heuristic
+    double m_beta;                         //!< Beta for cubic multiplicative decrease
+    double m_betaEcn;                      //!< Beta for cubic multiplicative decrease with ABE
     bool m_hystart;                        //!< Enable or disable HyStart algorithm
     HybridSSDetectionMode m_hystartDetect; //!< Detect way for HyStart algorithm
     uint32_t m_hystartLowWindow;           //!< Lower bound cWnd for hybrid slow start (segments)
@@ -134,43 +125,46 @@ class TcpCubic : public TcpCongestionOps
     Time m_cubicDelta;         //!<  Time to wait after recovery before update
     Time m_currRtt;            //!<  Current Rtt
     uint32_t m_sampleCnt;      //!<  Count of samples for HyStart
+    uint32_t m_ackCnt;         //!<  Count the number of ACKed packets
+    uint32_t m_tcpCwnd;        //!<  Estimated tcp cwnd (for Reno-friendliness)
 
   private:
     /**
-     * \brief Reset HyStart parameters
-     * \param tcb Transmission Control Block of the connection
+     * @brief Reset HyStart parameters
+     * @param tcb Transmission Control Block of the connection
      */
     void HystartReset(Ptr<const TcpSocketState> tcb);
 
     /**
-     * \brief Reset Cubic parameters
-     * \param tcb Transmission Control Block of the connection
+     * @brief Reset Cubic parameters
+     * @param tcb Transmission Control Block of the connection
      */
     void CubicReset(Ptr<const TcpSocketState> tcb);
 
     /**
-     * \brief Cubic window update after a new ack received
-     * \param tcb Transmission Control Block of the connection
-     * \returns the congestion window update counter
+     * @brief Cubic window update after a new ack received
+     * @param tcb Transmission Control Block of the connection
+     * @param segmentsAcked Segments acked
+     * @returns the congestion window update counter
      */
-    uint32_t Update(Ptr<TcpSocketState> tcb);
+    uint32_t Update(Ptr<TcpSocketState> tcb, uint32_t segmentsAcked);
 
     /**
-     * \brief Update HyStart parameters
+     * @brief Update HyStart parameters
      *
-     * \param tcb Transmission Control Block of the connection
-     * \param delay Delay for HyStart algorithm
+     * @param tcb Transmission Control Block of the connection
+     * @param delay Delay for HyStart algorithm
      */
     void HystartUpdate(Ptr<TcpSocketState> tcb, const Time& delay);
 
     /**
-     * \brief Clamp time value in a range
+     * @brief Clamp time value in a range
      *
      * The returned value is t, clamped in a range specified
      * by attributes (HystartDelayMin < t < HystartDelayMax)
      *
-     * \param t Time value to clamp
-     * \return t itself if it is in range, otherwise the min or max
+     * @param t Time value to clamp
+     * @return t itself if it is in range, otherwise the min or max
      * value
      */
     Time HystartDelayThresh(const Time& t) const;

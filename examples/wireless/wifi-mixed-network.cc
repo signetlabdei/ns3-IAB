@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2016 Sébastien Deronne
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Sébastien Deronne <sebastien.deronne@gmail.com>
  */
@@ -32,32 +21,39 @@
 #include "ns3/ssid.h"
 #include "ns3/string.h"
 #include "ns3/udp-client-server-helper.h"
+#include "ns3/udp-server.h"
 #include "ns3/wifi-mac.h"
 #include "ns3/wifi-net-device.h"
 #include "ns3/yans-wifi-channel.h"
 #include "ns3/yans-wifi-helper.h"
 
-// This example shows how to configure mixed networks (i.e. mixed b/g and HT/non-HT) and how are
-// performance in several scenarios.
-//
-// The example compares first g only and mixed b/g cases with various configurations depending on
-// the following parameters:
-// - protection mode that is configured on the AP;
-// - whether short PPDU format is supported by the 802.11b station;
-// - whether short slot time is supported by both the 802.11g station and the AP.
-//
-// The example then compares HT only and mixed HT/non-HT cases.
-//
-// The output results show that the presence of an 802.11b station strongly affects 802.11g
-// performance. Protection mechanisms ensure that the NAV value of 802.11b stations is set correctly
-// in case of 802.11g transmissions. In practice, those protection mechanism add a lot of overhead,
-// resulting in reduced performance. CTS-To-Self introduces less overhead than Rts-Cts, but is not
-// heard by hidden stations (and is thus generally only recommended as a protection mechanism for
-// access points). Since short slot time is disabled once an 802.11b station enters the network,
-// benefits from short slot time are only observed in a g only configuration.
-//
-// The user can also select the payload size and can choose either an UDP or a TCP connection.
-// Example: ./ns3 run "wifi-mixed-network --isUdp=1"
+/**
+ * @file
+ * @ingroup wifi
+ *
+ * This example shows how to configure mixed networks (i.e. mixed b/g and HT/non-HT) and how are
+ * performance in several scenarios.
+ *
+ * The example compares first g only and mixed b/g cases with various configurations depending on
+ * the following parameters:
+ * - protection mode that is configured on the AP;
+ * - whether short PPDU format is supported by the 802.11b station;
+ * - whether short slot time is supported by both the 802.11g station and the AP.
+ *
+ * The example then compares HT only and mixed HT/non-HT cases.
+ *
+ * The output results show that the presence of an 802.11b station strongly affects 802.11g
+ * performance. Protection mechanisms ensure that the NAV value of 802.11b stations is set correctly
+ * in case of 802.11g transmissions. In practice, those protection mechanism add a lot of overhead,
+ * resulting in reduced performance. CTS-To-Self introduces less overhead than Rts-Cts, but is not
+ * heard by hidden stations (and is thus generally only recommended as a protection mechanism for
+ * access points). Since short slot time is disabled once an 802.11b station enters the network,
+ * benefits from short slot time are only observed in a g only configuration.
+ *
+ * The user can also select the payload size and can choose either an UDP or a TCP connection.
+ *
+ * Example: `./ns3 run "wifi-mixed-network --isUdp=1"`
+ */
 
 using namespace ns3;
 
@@ -80,17 +76,22 @@ struct Parameters
     bool nHasTraffic;              //!< True if 802.11n stations generate traffic
     bool isUdp;                    //!< True to generate UDP traffic
     uint32_t payloadSize;          //!< Payload size in bytes
-    double simulationTime;         //!< Simulation time in seconds
+    Time simulationTime;           //!< Simulation time
 };
 
+/** Unnamed namespace, to disambiguate class Experiment. */
+namespace
+{
+
+/** Experiment runner, based on Parameters */
 class Experiment
 {
   public:
     Experiment();
     /**
      * Run an experiment with the given parameters
-     * \param params the given parameters
-     * \return the throughput
+     * @param params the given parameters
+     * @return the throughput
      */
     double Run(Parameters params);
 };
@@ -129,7 +130,7 @@ Experiment::Run(Parameters params)
     uint32_t nWifiB = params.nWifiB;
     uint32_t nWifiG = params.nWifiG;
     uint32_t nWifiN = params.nWifiN;
-    double simulationTime = params.simulationTime;
+    auto simulationTime = params.simulationTime;
     uint32_t payloadSize = params.payloadSize;
 
     NodeContainer wifiBStaNodes;
@@ -275,8 +276,8 @@ Experiment::Run(Parameters params)
         uint16_t port = 9;
         UdpServerHelper server(port);
         ApplicationContainer serverApp = server.Install(wifiApNode);
-        serverApp.Start(Seconds(0.0));
-        serverApp.Stop(Seconds(simulationTime + 1));
+        serverApp.Start(Seconds(0));
+        serverApp.Stop(simulationTime + Seconds(1));
 
         UdpClientHelper client(ApInterface.GetAddress(0), port);
         client.SetAttribute("MaxPackets", UintegerValue(4294967295U));
@@ -296,14 +297,14 @@ Experiment::Run(Parameters params)
         {
             clientApps.Add(client.Install(wifiNStaNodes));
         }
-        clientApps.Start(Seconds(1.0));
-        clientApps.Stop(Seconds(simulationTime + 1));
+        clientApps.Start(Seconds(1));
+        clientApps.Stop(simulationTime + Seconds(1));
 
-        Simulator::Stop(Seconds(simulationTime + 1));
+        Simulator::Stop(simulationTime + Seconds(1));
         Simulator::Run();
 
-        uint64_t totalPacketsThrough = DynamicCast<UdpServer>(serverApp.Get(0))->GetReceived();
-        throughput = totalPacketsThrough * payloadSize * 8 / (simulationTime * 1000000.0);
+        double totalPacketsThrough = DynamicCast<UdpServer>(serverApp.Get(0))->GetReceived();
+        throughput = totalPacketsThrough * payloadSize * 8 / simulationTime.GetMicroSeconds();
     }
     else
     {
@@ -312,8 +313,8 @@ Experiment::Run(Parameters params)
         PacketSinkHelper packetSinkHelper("ns3::TcpSocketFactory", localAddress);
 
         ApplicationContainer serverApp = packetSinkHelper.Install(wifiApNode.Get(0));
-        serverApp.Start(Seconds(0.0));
-        serverApp.Stop(Seconds(simulationTime + 1));
+        serverApp.Start(Seconds(0));
+        serverApp.Stop(simulationTime + Seconds(1));
 
         OnOffHelper onoff("ns3::TcpSocketFactory", Ipv4Address::GetAny());
         onoff.SetAttribute("OnTime", StringValue("ns3::ConstantRandomVariable[Constant=1]"));
@@ -337,18 +338,20 @@ Experiment::Run(Parameters params)
         {
             clientApps.Add(onoff.Install(wifiNStaNodes));
         }
-        clientApps.Start(Seconds(1.0));
-        clientApps.Stop(Seconds(simulationTime + 1));
+        clientApps.Start(Seconds(1));
+        clientApps.Stop(simulationTime + Seconds(1));
 
-        Simulator::Stop(Seconds(simulationTime + 1));
+        Simulator::Stop(simulationTime + Seconds(1));
         Simulator::Run();
 
-        uint64_t totalPacketsThrough = DynamicCast<PacketSink>(serverApp.Get(0))->GetTotalRx();
-        throughput += totalPacketsThrough * 8 / (simulationTime * 1000000.0);
+        double totalPacketsThrough = DynamicCast<PacketSink>(serverApp.Get(0))->GetTotalRx();
+        throughput += totalPacketsThrough * 8 / simulationTime.GetMicroSeconds();
     }
     Simulator::Destroy();
     return throughput;
 }
+
+} // unnamed namespace
 
 int
 main(int argc, char* argv[])
@@ -367,14 +370,14 @@ main(int argc, char* argv[])
     params.nWifiN = 0;
     params.nHasTraffic = false;
     params.isUdp = true;
-    params.payloadSize = 1472;  // bytes
-    params.simulationTime = 10; // seconds
+    params.payloadSize = 1472; // bytes
+    params.simulationTime = Seconds(10);
 
-    bool verifyResults = 0; // used for regression
+    bool verifyResults = false; // used for regression
 
     CommandLine cmd(__FILE__);
     cmd.AddValue("payloadSize", "Payload size in bytes", params.payloadSize);
-    cmd.AddValue("simulationTime", "Simulation time in seconds", params.simulationTime);
+    cmd.AddValue("simulationTime", "Simulation time", params.simulationTime);
     cmd.AddValue("isUdp", "UDP if set to 1, TCP otherwise", params.isUdp);
     cmd.AddValue("verifyResults",
                  "Enable/disable results verification at the end of the simulation",

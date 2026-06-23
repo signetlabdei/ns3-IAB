@@ -1,25 +1,14 @@
 /*
  *  Copyright 2013. Lawrence Livermore National Security, LLC.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Steven Smith <smith84@llnl.gov>
  */
 
 /**
- * \file
- * \ingroup mpi
+ * @file
+ * @ingroup mpi
  * Implementation of class ns3::NullMessageSimulatorImpl.
  */
 
@@ -30,16 +19,16 @@
 #include "remote-channel-bundle-manager.h"
 #include "remote-channel-bundle.h"
 
-#include <ns3/assert.h>
-#include <ns3/channel.h>
-#include <ns3/double.h>
-#include <ns3/event-impl.h>
-#include <ns3/log.h>
-#include <ns3/node-container.h>
-#include <ns3/pointer.h>
-#include <ns3/ptr.h>
-#include <ns3/scheduler.h>
-#include <ns3/simulator.h>
+#include "ns3/assert.h"
+#include "ns3/channel.h"
+#include "ns3/double.h"
+#include "ns3/event-impl.h"
+#include "ns3/log.h"
+#include "ns3/node-container.h"
+#include "ns3/pointer.h"
+#include "ns3/ptr.h"
+#include "ns3/scheduler.h"
+#include "ns3/simulator.h"
 
 #include <cmath>
 #include <fstream>
@@ -140,7 +129,7 @@ NullMessageSimulatorImpl::CalculateLookAhead()
     if (MpiInterface::GetSize() > 1)
     {
         NodeContainer c = NodeContainer::GetGlobal();
-        for (NodeContainer::Iterator iter = c.Begin(); iter != c.End(); ++iter)
+        for (auto iter = c.Begin(); iter != c.End(); ++iter)
         {
             if ((*iter)->GetSystemId() != MpiInterface::GetSystemId())
             {
@@ -382,12 +371,12 @@ NullMessageSimulatorImpl::Stop()
     m_stop = true;
 }
 
-void
+EventId
 NullMessageSimulatorImpl::Stop(const Time& delay)
 {
     NS_LOG_FUNCTION(this << delay.GetTimeStep());
 
-    Simulator::Schedule(delay, &Simulator::Stop);
+    return Simulator::Schedule(delay, &Simulator::Stop);
 }
 
 //
@@ -476,7 +465,7 @@ NullMessageSimulatorImpl::Remove(const EventId& id)
     if (id.GetUid() == EventId::UID::DESTROY)
     {
         // destroy events.
-        for (DestroyEvents::iterator i = m_destroyEvents.begin(); i != m_destroyEvents.end(); i++)
+        for (auto i = m_destroyEvents.begin(); i != m_destroyEvents.end(); i++)
         {
             if (*i == id)
             {
@@ -522,8 +511,7 @@ NullMessageSimulatorImpl::IsExpired(const EventId& id) const
             return true;
         }
         // destroy events.
-        for (DestroyEvents::const_iterator i = m_destroyEvents.begin(); i != m_destroyEvents.end();
-             i++)
+        for (auto i = m_destroyEvents.begin(); i != m_destroyEvents.end(); i++)
         {
             if (*i == id)
             {
@@ -532,16 +520,9 @@ NullMessageSimulatorImpl::IsExpired(const EventId& id) const
         }
         return true;
     }
-    if (id.PeekEventImpl() == nullptr || id.GetTs() < m_currentTs ||
-        (id.GetTs() == m_currentTs && id.GetUid() <= m_currentUid) ||
-        id.PeekEventImpl()->IsCancelled())
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return id.PeekEventImpl() == nullptr || id.GetTs() < m_currentTs ||
+           (id.GetTs() == m_currentTs && id.GetUid() <= m_currentUid) ||
+           id.PeekEventImpl()->IsCancelled();
 }
 
 Time

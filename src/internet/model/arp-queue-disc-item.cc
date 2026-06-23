@@ -1,23 +1,14 @@
 /*
  * Copyright (c) 2018 Universita' degli Studi di Napoli Federico II
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #include "arp-queue-disc-item.h"
 
 #include "ns3/log.h"
+
+#include <vector>
 
 namespace ns3
 {
@@ -104,11 +95,11 @@ ArpQueueDiscItem::Hash(uint32_t perturbation) const
 
     /* serialize the addresses and the perturbation in buf */
     uint8_t tmp = 8 + macSrc.GetLength() + macDst.GetLength();
-    uint8_t buf[tmp + 5];
-    ipv4Src.Serialize(buf);
-    ipv4Dst.Serialize(buf + 4);
-    macSrc.CopyTo(buf + 8);
-    macDst.CopyTo(buf + 8 + macSrc.GetLength());
+    std::vector<uint8_t> buf(tmp + 5);
+    ipv4Src.Serialize(buf.data());
+    ipv4Dst.Serialize(buf.data() + 4);
+    macSrc.CopyTo(buf.data() + 8);
+    macDst.CopyTo(buf.data() + 8 + macSrc.GetLength());
     buf[tmp] = type;
     buf[tmp + 1] = (perturbation >> 24) & 0xff;
     buf[tmp + 2] = (perturbation >> 16) & 0xff;
@@ -118,7 +109,7 @@ ArpQueueDiscItem::Hash(uint32_t perturbation) const
     // Linux calculates jhash2 (jenkins hash), we calculate murmur3 because it is
     // already available in ns-3
 
-    uint32_t hash = Hash32((char*)buf, tmp + 5);
+    uint32_t hash = Hash32((char*)buf.data(), tmp + 5);
 
     NS_LOG_DEBUG("Hash value " << hash);
 

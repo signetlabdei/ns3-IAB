@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2008 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -20,11 +9,9 @@
 
 #include "log.h"
 
-#include <sstream>
-
 /**
- * \file
- * \ingroup object
+ * @file
+ * @ingroup object
  * ns3::ObjectFactory class implementation.
  */
 
@@ -55,11 +42,7 @@ ObjectFactory::SetTypeId(std::string tid)
 bool
 ObjectFactory::IsTypeIdSet() const
 {
-    if (m_tid.GetUid() != 0)
-    {
-        return true;
-    }
-    return false;
+    return m_tid.GetUid() != 0;
 }
 
 void
@@ -71,7 +54,7 @@ ObjectFactory::DoSet(const std::string& name, const AttributeValue& value)
         return;
     }
 
-    struct TypeId::AttributeInformation info;
+    TypeId::AttributeInformation info;
     if (!m_tid.LookupAttributeByName(name, &info))
     {
         NS_FATAL_ERROR("Invalid attribute set (" << name << ") on " << m_tid.GetName());
@@ -97,9 +80,12 @@ Ptr<Object>
 ObjectFactory::Create() const
 {
     NS_LOG_FUNCTION(this);
+    NS_ASSERT_MSG(
+        m_tid.GetUid(),
+        "ObjectFactory::Create - can't use an ObjectFactory without setting a TypeId first.");
     Callback<ObjectBase*> cb = m_tid.GetConstructor();
     ObjectBase* base = cb();
-    Object* derived = dynamic_cast<Object*>(base);
+    auto derived = dynamic_cast<Object*>(base);
     NS_ASSERT(derived != nullptr);
     derived->SetTypeId(m_tid);
     derived->Construct(m_parameters);
@@ -112,9 +98,7 @@ operator<<(std::ostream& os, const ObjectFactory& factory)
 {
     os << factory.m_tid.GetName() << "[";
     bool first = true;
-    for (AttributeConstructionList::CIterator i = factory.m_parameters.Begin();
-         i != factory.m_parameters.End();
-         ++i)
+    for (auto i = factory.m_parameters.Begin(); i != factory.m_parameters.End(); ++i)
     {
         os << i->name << "=" << i->value->SerializeToString(i->checker);
         if (first)
@@ -162,7 +146,7 @@ operator>>(std::istream& is, ObjectFactory& factory)
         else
         {
             std::string name = parameters.substr(cur, equal - cur);
-            struct TypeId::AttributeInformation info;
+            TypeId::AttributeInformation info;
             if (!factory.m_tid.LookupAttributeByName(name, &info))
             {
                 is.setstate(std::ios_base::failbit);

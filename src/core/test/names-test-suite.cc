@@ -1,32 +1,21 @@
 /*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #include "ns3/names.h"
 #include "ns3/test.h"
 
 /**
- * \file
- * \ingroup core-tests
- * \ingroup config
- * \ingroup names-tests
+ * @file
+ * @ingroup core-tests
+ * @ingroup config
+ * @ingroup names-tests
  * Object Names test suite.
  */
 
 /**
- * \ingroup core-tests
- * \defgroup names-tests Object Names test suite
+ * @ingroup core-tests
+ * @defgroup names-tests Object Names test suite
  */
 
 namespace ns3
@@ -36,7 +25,7 @@ namespace tests
 {
 
 /**
- * \ingroup names-tests
+ * @ingroup names-tests
  * Simple test object to exercise the Name service.
  */
 class TestObject : public Object
@@ -44,7 +33,7 @@ class TestObject : public Object
   public:
     /**
      * Register this type.
-     * \return The TypeId.
+     * @return The TypeId.
      */
     static TypeId GetTypeId()
     {
@@ -63,7 +52,7 @@ class TestObject : public Object
 };
 
 /**
- * \ingroup names-tests
+ * @ingroup names-tests
  * Alternate test object for the Name service.
  */
 class AlternateTestObject : public Object
@@ -71,7 +60,7 @@ class AlternateTestObject : public Object
   public:
     /**
      * Register this type.
-     * \return The TypeId.
+     * @return The TypeId.
      */
     static TypeId GetTypeId()
     {
@@ -90,7 +79,7 @@ class AlternateTestObject : public Object
 };
 
 /**
- * \ingroup names-tests
+ * @ingroup names-tests
  * Test the Object Name Service can do its most basic job.
  *
  * Add associations between Objects using the lowest level add
@@ -166,7 +155,7 @@ BasicAddTestCase::DoRun()
 }
 
 /**
- * \ingroup names-tests
+ * @ingroup names-tests
  * Test the Object Name Service can correctly use a string context.
  *
  *     Add (std::string context, std::string name, Ptr<Object> object);
@@ -240,7 +229,7 @@ StringContextAddTestCase::DoRun()
 }
 
 /**
- * \ingroup names-tests
+ * @ingroup names-tests
  * Test the Object Name Service can correctly use a
  * fully qualified path to add associations.
  *
@@ -313,7 +302,7 @@ FullyQualifiedAddTestCase::DoRun()
 }
 
 /**
- * \ingroup names-tests
+ * @ingroup names-tests
  * Test the Object Name Service can correctly use a
  * relative path to add associations.
  *
@@ -390,7 +379,7 @@ RelativeAddTestCase::DoRun()
 }
 
 /**
- * \ingroup names-tests
+ * @ingroup names-tests
  * Test the Object Name Service can rename objects.
  *
  *     Rename (Ptr<Object> context, std::string oldname, std::string newname);
@@ -457,7 +446,7 @@ BasicRenameTestCase::DoRun()
 }
 
 /**
- * \ingroup names-tests
+ * @ingroup names-tests
  * Test the Object Name Service can rename objects
  * using a string context.
  *
@@ -523,7 +512,7 @@ StringContextRenameTestCase::DoRun()
 }
 
 /**
- * \ingroup names-tests
+ * @ingroup names-tests
  * Test the Object Name Service can rename objects
  * using a fully qualified path name.
  *
@@ -589,7 +578,7 @@ FullyQualifiedRenameTestCase::DoRun()
 }
 
 /**
- * \ingroup names-tests
+ * @ingroup names-tests
  * Test the Object Name Service can rename objects
  * using a relative path name.
  *
@@ -655,7 +644,7 @@ RelativeRenameTestCase::DoRun()
 }
 
 /**
- * \ingroup names-tests
+ * @ingroup names-tests
  * Test the Object Name Service can look up an object
  * and return its fully qualified path name.
  *
@@ -717,7 +706,7 @@ FindPathTestCase::DoRun()
 }
 
 /**
- * \ingroup names-tests
+ * @ingroup names-tests
  * Test the Object Name Service can find Objects.
  *
  *     Find (Ptr<Object> context, std::string name);
@@ -790,7 +779,7 @@ BasicFindTestCase::DoRun()
 }
 
 /**
- * \ingroup names-tests
+ * @ingroup names-tests
  * Test the Object Name Service can find Objects using
  * a string context.
  *
@@ -864,7 +853,7 @@ StringContextFindTestCase::DoRun()
 }
 
 /**
- * \ingroup names-tests
+ * @ingroup names-tests
  * Test the Object Name Service can find Objects using
  * a fully qualified path name.
  *
@@ -938,7 +927,7 @@ FullyQualifiedFindTestCase::DoRun()
 }
 
 /**
- * \ingroup names-tests
+ * @ingroup names-tests
  * Test the Object Name Service can find Objects using
  * a relative path name.
  *
@@ -1012,7 +1001,7 @@ RelativeFindTestCase::DoRun()
 }
 
 /**
- * \ingroup names-tests
+ * @ingroup names-tests
  * Test the Object Name Service can find Objects using
  * a second type.
  */
@@ -1078,7 +1067,7 @@ AlternateFindTestCase::DoRun()
 }
 
 /**
- * \ingroup names-tests
+ * @ingroup names-tests
  * Names Test Suite
  */
 class NamesTestSuite : public TestSuite
@@ -1108,7 +1097,7 @@ NamesTestSuite::NamesTestSuite()
 }
 
 /**
- * \ingroup names-tests
+ * @ingroup names-tests
  *  NamesTestSuite instance variable.
  */
 static NamesTestSuite g_namesTestSuite;

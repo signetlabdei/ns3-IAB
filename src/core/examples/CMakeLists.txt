@@ -47,14 +47,13 @@ build_lib_example(
   NAME main-test-sync
   SOURCE_FILES main-test-sync.cc
   LIBRARIES_TO_LINK ${libnetwork}
-                    ${CMAKE_THREAD_LIBS_INIT}
 )
 
 build_lib_example(
   NAME empirical-random-variable-example
   SOURCE_FILES empirical-random-variable-example.cc
   LIBRARIES_TO_LINK ${libcore}
-                    ${libflow-monitor}
+                    ${libstats}
 )
 
 build_lib_example(

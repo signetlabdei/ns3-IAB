@@ -1,37 +1,26 @@
 /*
  * Copyright (c) 2009 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
+#include <cstdint>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
-#include <stdint.h>
 #include <string>
 
 namespace ns3
 {
 
 /**
- * \brief Convert a byte buffer to a string containing a hex representation
+ * @brief Convert a byte buffer to a string containing a hex representation
  * of the buffer.  Make the string pretty by adding a colon (':') between
  * the hex.
  *
- * \param buffer The input buffer to be converted.
- * \param len The length of the input buffer.
- * \returns A string containing a hex representation of the data in buffer.
+ * @param buffer The input buffer to be converted.
+ * @param len The length of the input buffer.
+ * @returns A string containing a hex representation of the data in buffer.
  */
 std::string
 BufferToString(uint8_t* buffer, uint32_t len)
@@ -55,13 +44,13 @@ BufferToString(uint8_t* buffer, uint32_t len)
 }
 
 /**
- * \brief Convert string encoded by the inverse function (TapBufferToString)
+ * @brief Convert string encoded by the inverse function (TapBufferToString)
  * back into a byte buffer.
  *
- * \param s The input string.
- * \param buffer The buffer to initialize with the converted bits.
- * \param len The length of the data that is valid in the buffer.
- * \returns True indicates a successful conversion.
+ * @param s The input string.
+ * @param buffer The buffer to initialize with the converted bits.
+ * @param len The length of the data that is valid in the buffer.
+ * @returns True indicates a successful conversion.
  */
 bool
 StringToBuffer(std::string s, uint8_t* buffer, uint32_t* len)

@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2011 Yufei Cheng
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Yufei Cheng   <yfcheng@ittc.ku.edu>
  *
@@ -56,9 +45,7 @@ bool
 DsrMaintainBuffer::Enqueue(DsrMaintainBuffEntry& entry)
 {
     Purge();
-    for (std::vector<DsrMaintainBuffEntry>::const_iterator i = m_maintainBuffer.begin();
-         i != m_maintainBuffer.end();
-         ++i)
+    for (auto i = m_maintainBuffer.begin(); i != m_maintainBuffer.end(); ++i)
     {
         //      NS_LOG_INFO ("nexthop " << i->GetNextHop () << " " << entry.GetNextHop () << " our
         //      add " << i->GetOurAdd () << " " << entry.GetOurAdd ()
@@ -106,9 +93,7 @@ bool
 DsrMaintainBuffer::Dequeue(Ipv4Address nextHop, DsrMaintainBuffEntry& entry)
 {
     Purge();
-    for (std::vector<DsrMaintainBuffEntry>::iterator i = m_maintainBuffer.begin();
-         i != m_maintainBuffer.end();
-         ++i)
+    for (auto i = m_maintainBuffer.begin(); i != m_maintainBuffer.end(); ++i)
     {
         if (i->GetNextHop() == nextHop)
         {
@@ -124,9 +109,7 @@ DsrMaintainBuffer::Dequeue(Ipv4Address nextHop, DsrMaintainBuffEntry& entry)
 bool
 DsrMaintainBuffer::Find(Ipv4Address nextHop)
 {
-    for (std::vector<DsrMaintainBuffEntry>::const_iterator i = m_maintainBuffer.begin();
-         i != m_maintainBuffer.end();
-         ++i)
+    for (auto i = m_maintainBuffer.begin(); i != m_maintainBuffer.end(); ++i)
     {
         if (i->GetNextHop() == nextHop)
         {
@@ -140,9 +123,7 @@ DsrMaintainBuffer::Find(Ipv4Address nextHop)
 bool
 DsrMaintainBuffer::AllEqual(DsrMaintainBuffEntry& entry)
 {
-    for (std::vector<DsrMaintainBuffEntry>::iterator i = m_maintainBuffer.begin();
-         i != m_maintainBuffer.end();
-         ++i)
+    for (auto i = m_maintainBuffer.begin(); i != m_maintainBuffer.end(); ++i)
     {
         //      NS_LOG_DEBUG ("nexthop " << i->GetNextHop () << " " << entry.GetNextHop () << " our
         //      address " << i->GetOurAdd () << " " << entry.GetOurAdd ()
@@ -166,9 +147,7 @@ DsrMaintainBuffer::AllEqual(DsrMaintainBuffEntry& entry)
 bool
 DsrMaintainBuffer::NetworkEqual(DsrMaintainBuffEntry& entry)
 {
-    for (std::vector<DsrMaintainBuffEntry>::iterator i = m_maintainBuffer.begin();
-         i != m_maintainBuffer.end();
-         ++i)
+    for (auto i = m_maintainBuffer.begin(); i != m_maintainBuffer.end(); ++i)
     {
         //      NS_LOG_DEBUG ("nexthop " << i->GetNextHop () << " " << entry.GetNextHop () << " our
         //      address " << i->GetOurAdd () << " " << entry.GetOurAdd ()
@@ -193,9 +172,7 @@ bool
 DsrMaintainBuffer::PromiscEqual(DsrMaintainBuffEntry& entry)
 {
     NS_LOG_DEBUG("The maintenance buffer size " << m_maintainBuffer.size());
-    for (std::vector<DsrMaintainBuffEntry>::iterator i = m_maintainBuffer.begin();
-         i != m_maintainBuffer.end();
-         ++i)
+    for (auto i = m_maintainBuffer.begin(); i != m_maintainBuffer.end(); ++i)
     {
         //      NS_LOG_DEBUG ("src " << i->GetSrc () << " " << entry.GetSrc () << " dst " <<
         //      i->GetDst () << " " << entry.GetDst ()
@@ -220,9 +197,7 @@ bool
 DsrMaintainBuffer::LinkEqual(DsrMaintainBuffEntry& entry)
 {
     NS_LOG_DEBUG("The maintenance buffer size " << m_maintainBuffer.size());
-    for (std::vector<DsrMaintainBuffEntry>::iterator i = m_maintainBuffer.begin();
-         i != m_maintainBuffer.end();
-         ++i)
+    for (auto i = m_maintainBuffer.begin(); i != m_maintainBuffer.end(); ++i)
     {
         //      NS_LOG_DEBUG ("src " << i->GetSrc () << " " << entry.GetSrc () << " dst " <<
         //      i->GetDst () << " " << entry.GetDst ()
@@ -246,14 +221,14 @@ DsrMaintainBuffer::LinkEqual(DsrMaintainBuffEntry& entry)
 struct IsExpired
 {
     /**
-     * \brief comparison operator
-     * \param e maintain buffer entry
-     * \return true if the entry is expired
+     * @brief comparison operator
+     * @param e maintain buffer entry
+     * @return true if the entry is expired
      */
     bool operator()(const DsrMaintainBuffEntry& e) const
     {
         // NS_LOG_DEBUG("Expire time for packet in req queue: "<<e.GetExpireTime ());
-        return (e.GetExpireTime() < Seconds(0));
+        return (e.GetExpireTime().IsStrictlyNegative());
     }
 };
 

@@ -1,17 +1,6 @@
 /*
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Hossam Khader <hossamkhader@gmail.com>
  */
@@ -28,8 +17,10 @@
 #include "ns3/uan-helper.h"
 
 using namespace ns3;
+using namespace ns3::energy;
 
 /**
+ * @ingroup uan
  *
  * This example shows the usage of UDP over IPv4 to transfer data.
  * Two nodes are sending their remaining energy percentage (1 byte)
@@ -72,15 +63,15 @@ class UanExperiment
 
     /**
      * Send a packet from one of the nodes
-     * \param node The sending node
-     * \param pkt The packet
-     * \param dst the destination
+     * @param node The sending node
+     * @param pkt The packet
+     * @param dst the destination
      */
     void SendSinglePacket(Ptr<Node> node, Ptr<Packet> pkt, Ipv4Address dst);
 
     /**
      * Print the received packet
-     * \param socket The receiving socket
+     * @param socket The receiving socket
      */
     void PrintReceivedPacket(Ptr<Socket> socket);
 
@@ -129,7 +120,7 @@ UanExperiment::SetupCommunications()
     UanHelper uanHelper;
     NetDeviceContainer netDeviceContainer = uanHelper.Install(m_nodes, channel);
     EnergySourceContainer energySourceContainer;
-    NodeContainer::Iterator node = m_nodes.Begin();
+    auto node = m_nodes.Begin();
     while (node != m_nodes.End())
     {
         energySourceContainer.Add((*node)->GetObject<EnergySourceContainer>()->Get(0));
@@ -176,7 +167,7 @@ UanExperiment::PrintReceivedPacket(Ptr<Socket> socket)
 void
 UanExperiment::SetupApplications()
 {
-    NodeContainer::Iterator node = m_nodes.Begin();
+    auto node = m_nodes.Begin();
     while (node != m_nodes.End())
     {
         m_sockets[*node] =
@@ -197,7 +188,7 @@ UanExperiment::SendPackets()
 {
     Ptr<UniformRandomVariable> uniformRandomVariable = CreateObject<UniformRandomVariable>();
 
-    NodeContainer::Iterator node = m_nodes.Begin();
+    auto node = m_nodes.Begin();
     Ipv4Address dst =
         (*node)->GetObject<Ipv4L3Protocol>()->GetInterface(1)->GetAddress(0).GetLocal();
     node++;
@@ -218,8 +209,7 @@ UanExperiment::SendPackets()
 void
 UanExperiment::SendSinglePacket(Ptr<Node> node, Ptr<Packet> pkt, Ipv4Address dst)
 {
-    NS_LOG_UNCOND(Simulator::Now().GetHours() << "h"
-                                              << " packet sent to " << dst);
+    NS_LOG_UNCOND(Simulator::Now().GetHours() << "h packet sent to " << dst);
     InetSocketAddress ipv4_destination = InetSocketAddress(dst, 9);
     m_sockets[node]->SendTo(pkt, 0, ipv4_destination);
 }
@@ -238,9 +228,7 @@ UanExperiment::Prepare()
 void
 UanExperiment::Teardown()
 {
-    std::map<Ptr<Node>, Ptr<Socket>>::iterator socket;
-
-    for (socket = m_sockets.begin(); socket != m_sockets.end(); socket++)
+    for (auto socket = m_sockets.begin(); socket != m_sockets.end(); socket++)
     {
         socket->second->Close();
     }

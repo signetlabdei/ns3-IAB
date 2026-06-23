@@ -1,26 +1,15 @@
 /*
  * Copyright (c) 2023 Lawrence Livermore National Laboratory
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Peter D. Barnes, Jr. <pdbarnes@llnl.gov>
  */
 
 /**
- * \file
- * \ingroup core-examples
- * \ingroup logging
+ * @file
+ * @ingroup core-examples
+ * @ingroup logging
  * Example program illustrating the various logging functions.
  */
 
@@ -51,9 +40,9 @@ FreeEvent()
 
     NS_LOG_ERROR("FreeEvent: error msg");
     NS_LOG_WARN("FreeEvent: warning msg");
-    NS_LOG_DEBUG("FreeEvent: debug msg");
     NS_LOG_INFO("FreeEvent: info msg");
     NS_LOG_LOGIC("FreeEvent: logic msg");
+    NS_LOG_DEBUG("FreeEvent: debug msg");
 }
 
 /** Simple object to aggregate to a node.
@@ -64,8 +53,8 @@ class MyEventObject : public Object
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId()
     {
@@ -93,9 +82,9 @@ class MyEventObject : public Object
 
         NS_LOG_ERROR("MyEventObject:Event: error msg");
         NS_LOG_WARN("MyEventObject:Event: warning msg");
-        NS_LOG_DEBUG("MyEventObject:Event: debug msg");
         NS_LOG_INFO("MyEventObject:Event: info msg");
         NS_LOG_LOGIC("MyEventObject:Event: logic msg");
+        NS_LOG_DEBUG("MyEventObject:Event: debug msg");
     }
 
 }; // MyEventObject
@@ -107,29 +96,29 @@ NS_OBJECT_ENSURE_REGISTERED(MyEventObject);
 int
 main(int argc, char** argv)
 {
-    CommandLine cmd;
+    CommandLine cmd(__FILE__);
     cmd.Parse(argc, argv);
 
-    NS_LOG_UNCOND("Creating a Node");
+    NS_LOG_DEBUG("Creating a Node");
     auto node = CreateObject<Node>();
 
-    NS_LOG_UNCOND("Creating MyEventObject");
+    NS_LOG_DEBUG("Creating MyEventObject");
     auto myObj = CreateObject<MyEventObject>();
 
-    NS_LOG_UNCOND("Aggregating MyEventObject to Node");
+    NS_LOG_DEBUG("Aggregating MyEventObject to Node");
     node->AggregateObject(myObj);
 
-    NS_LOG_UNCOND("Scheduling the MyEventObject::Event with node context");
+    NS_LOG_INFO("Scheduling the MyEventObject::Event with node context");
     Simulator::ScheduleWithContext(node->GetId(), Seconds(3), &MyEventObject::Event, &(*myObj));
 
-    NS_LOG_UNCOND("Scheduling FreeEvent");
+    NS_LOG_INFO("Scheduling FreeEvent");
     Simulator::Schedule(Seconds(5), FreeEvent);
 
-    NS_LOG_UNCOND("Starting run...");
+    NS_LOG_DEBUG("Starting run...");
     Simulator::Run();
-    NS_LOG_UNCOND("... run complete");
+    NS_LOG_DEBUG("... run complete");
     Simulator::Destroy();
-    NS_LOG_UNCOND("Goodbye");
+    NS_LOG_DEBUG("Goodbye");
 
     return 0;
 }

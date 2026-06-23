@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2005,2006 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  *          Sébastien Deronne <sebastien.deronne@gmail.com>
@@ -23,16 +12,19 @@
 
 #include "ns3/fatal-error.h"
 
+namespace ns3
+{
+
 /**
  * The state of the PHY layer.
  */
 /// State enumeration
-enum WifiPhyState
+enum class WifiPhyState
 {
     /**
      * The PHY layer is IDLE.
      */
-    IDLE,
+    IDLE = 0,
     /**
      * The PHY layer has sense the medium busy through the CCA mechanism
      */
@@ -60,35 +52,37 @@ enum WifiPhyState
 };
 
 /**
- * \brief Stream insertion operator.
+ * @brief Stream insertion operator.
  *
- * \param os the stream
- * \param state the state
- * \returns a reference to the stream
+ * @param os the stream
+ * @param state the state
+ * @returns a reference to the stream
  */
 inline std::ostream&
 operator<<(std::ostream& os, WifiPhyState state)
 {
     switch (state)
     {
-    case IDLE:
+    case WifiPhyState::IDLE:
         return (os << "IDLE");
-    case CCA_BUSY:
+    case WifiPhyState::CCA_BUSY:
         return (os << "CCA_BUSY");
-    case TX:
+    case WifiPhyState::TX:
         return (os << "TX");
-    case RX:
+    case WifiPhyState::RX:
         return (os << "RX");
-    case SWITCHING:
+    case WifiPhyState::SWITCHING:
         return (os << "SWITCHING");
-    case SLEEP:
+    case WifiPhyState::SLEEP:
         return (os << "SLEEP");
-    case OFF:
+    case WifiPhyState::OFF:
         return (os << "OFF");
     default:
         NS_FATAL_ERROR("Invalid state");
         return (os << "INVALID");
     }
 }
+
+} // namespace ns3
 
 #endif /* WIFI_PHY_STATE_H */

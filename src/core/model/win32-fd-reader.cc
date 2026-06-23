@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2010 The Boeing Company
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Tom Goff <thomas.goff@boeing.com>
  */
@@ -31,8 +20,8 @@
 // #define pipe(fds) _pipe(fds,4096, _O_BINARY)
 
 /**
- * \file
- * \ingroup system
+ * @file
+ * @ingroup system
  * ns3::FdReader implementation.
  */
 
@@ -41,7 +30,10 @@ namespace ns3
 
 NS_LOG_COMPONENT_DEFINE("FdReader");
 
+// conditional compilation to avoid Doxygen errors
+#ifdef __WIN32__
 bool FdReader::winsock_initialized = false;
+#endif
 
 FdReader::FdReader()
     : m_fd(-1),
@@ -101,7 +93,7 @@ FdReader::Start(int fd, Callback<void, uint8_t*, ssize_t> readCallback)
     // scheduling a "destroy time" method to make sure the thread exits before
     // proceeding.
     //
-    if (!m_destroyEvent.IsRunning())
+    if (!m_destroyEvent.IsPending())
     {
         // hold a reference to ensure that this object is not
         // deallocated before the destroy-time event fires
@@ -225,7 +217,7 @@ FdReader::Run()
 
         if (FD_ISSET(m_fd, &readfds))
         {
-            struct FdReader::Data data = DoRead();
+            FdReader::Data data = DoRead();
             // reading stops when m_len is zero
             if (data.m_len == 0)
             {

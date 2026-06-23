@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2011 Yufei Cheng
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Yufei Cheng   <yfcheng@ittc.ku.edu>
  *
@@ -43,9 +32,9 @@ namespace ns3
 {
 
 /**
- * \ingroup dsr
+ * @ingroup dsr
  *
- * \brief DSR helper class to manage creation of DSR routing instance and
+ * @brief DSR helper class to manage creation of DSR routing instance and
  *        to insert it on a node as a sublayer between transport and
  *        IP layers.
  */
@@ -63,27 +52,27 @@ class DsrHelper
     DsrHelper& operator=(const DsrHelper&) = delete;
 
     /**
-     * \brief Construct an DsrHelper from another previously initialized instance
+     * @brief Construct an DsrHelper from another previously initialized instance
      * (Copy Constructor).
-     * \param o object to copy from
+     * @param o object to copy from
      */
     DsrHelper(const DsrHelper& o);
     /**
-     * \returns pointer to clone of this DsrHelper
+     * @returns pointer to clone of this DsrHelper
      *
      * This method is mainly for internal use by the other helpers;
      * clients are expected to free the dynamic memory allocated by this method
      */
     DsrHelper* Copy() const;
     /**
-     * \param node the node on which the routing protocol will run
-     * \returns a newly-created L4 protocol
+     * @param node the node on which the routing protocol will run
+     * @returns a newly-created L4 protocol
      */
     Ptr<ns3::dsr::DsrRouting> Create(Ptr<Node> node) const;
     /**
      * Set attribute values for future instances of DSR that this helper creates
-     * \param name the node on which the routing protocol will run
-     * \param value newly-created L4 protocol
+     * @param name the node on which the routing protocol will run
+     * @param value newly-created L4 protocol
      */
     void Set(std::string name, const AttributeValue& value);
 

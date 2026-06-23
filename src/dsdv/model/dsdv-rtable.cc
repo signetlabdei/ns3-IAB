@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2010 Hemanth Narra
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Hemanth Narra <hemanth@ittc.ku.com>
  *
@@ -80,7 +69,7 @@ RoutingTable::LookupRoute(Ipv4Address id, RoutingTableEntry& rt)
     {
         return false;
     }
-    std::map<Ipv4Address, RoutingTableEntry>::const_iterator i = m_ipv4AddressEntry.find(id);
+    auto i = m_ipv4AddressEntry.find(id);
     if (i == m_ipv4AddressEntry.end())
     {
         return false;
@@ -96,12 +85,12 @@ RoutingTable::LookupRoute(Ipv4Address id, RoutingTableEntry& rt, bool forRouteIn
     {
         return false;
     }
-    std::map<Ipv4Address, RoutingTableEntry>::const_iterator i = m_ipv4AddressEntry.find(id);
+    auto i = m_ipv4AddressEntry.find(id);
     if (i == m_ipv4AddressEntry.end())
     {
         return false;
     }
-    if (forRouteInput == true && id == i->second.GetInterface().GetBroadcast())
+    if (forRouteInput && id == i->second.GetInterface().GetBroadcast())
     {
         return false;
     }
@@ -112,12 +101,7 @@ RoutingTable::LookupRoute(Ipv4Address id, RoutingTableEntry& rt, bool forRouteIn
 bool
 RoutingTable::DeleteRoute(Ipv4Address dst)
 {
-    if (m_ipv4AddressEntry.erase(dst) != 0)
-    {
-        // NS_LOG_DEBUG("Route erased");
-        return true;
-    }
-    return false;
+    return m_ipv4AddressEntry.erase(dst) != 0;
 }
 
 uint32_t
@@ -129,16 +113,14 @@ RoutingTable::RoutingTableSize()
 bool
 RoutingTable::AddRoute(RoutingTableEntry& rt)
 {
-    std::pair<std::map<Ipv4Address, RoutingTableEntry>::iterator, bool> result =
-        m_ipv4AddressEntry.insert(std::make_pair(rt.GetDestination(), rt));
+    auto result = m_ipv4AddressEntry.insert(std::make_pair(rt.GetDestination(), rt));
     return result.second;
 }
 
 bool
 RoutingTable::Update(RoutingTableEntry& rt)
 {
-    std::map<Ipv4Address, RoutingTableEntry>::iterator i =
-        m_ipv4AddressEntry.find(rt.GetDestination());
+    auto i = m_ipv4AddressEntry.find(rt.GetDestination());
     if (i == m_ipv4AddressEntry.end())
     {
         return false;
@@ -154,12 +136,11 @@ RoutingTable::DeleteAllRoutesFromInterface(Ipv4InterfaceAddress iface)
     {
         return;
     }
-    for (std::map<Ipv4Address, RoutingTableEntry>::iterator i = m_ipv4AddressEntry.begin();
-         i != m_ipv4AddressEntry.end();)
+    for (auto i = m_ipv4AddressEntry.begin(); i != m_ipv4AddressEntry.end();)
     {
         if (i->second.GetInterface() == iface)
         {
-            std::map<Ipv4Address, RoutingTableEntry>::iterator tmp = i;
+            auto tmp = i;
             ++i;
             m_ipv4AddressEntry.erase(tmp);
         }
@@ -173,9 +154,7 @@ RoutingTable::DeleteAllRoutesFromInterface(Ipv4InterfaceAddress iface)
 void
 RoutingTable::GetListOfAllRoutes(std::map<Ipv4Address, RoutingTableEntry>& allRoutes)
 {
-    for (std::map<Ipv4Address, RoutingTableEntry>::iterator i = m_ipv4AddressEntry.begin();
-         i != m_ipv4AddressEntry.end();
-         ++i)
+    for (auto i = m_ipv4AddressEntry.begin(); i != m_ipv4AddressEntry.end(); ++i)
     {
         if (i->second.GetDestination() != Ipv4Address("127.0.0.1") && i->second.GetFlag() == VALID)
         {
@@ -189,9 +168,7 @@ RoutingTable::GetListOfDestinationWithNextHop(Ipv4Address nextHop,
                                               std::map<Ipv4Address, RoutingTableEntry>& unreachable)
 {
     unreachable.clear();
-    for (std::map<Ipv4Address, RoutingTableEntry>::const_iterator i = m_ipv4AddressEntry.begin();
-         i != m_ipv4AddressEntry.end();
-         ++i)
+    for (auto i = m_ipv4AddressEntry.begin(); i != m_ipv4AddressEntry.end(); ++i)
     {
         if (i->second.GetNextHop() == nextHop)
         {
@@ -239,19 +216,17 @@ RoutingTable::Purge(std::map<Ipv4Address, RoutingTableEntry>& removedAddresses)
     {
         return;
     }
-    for (std::map<Ipv4Address, RoutingTableEntry>::iterator i = m_ipv4AddressEntry.begin();
-         i != m_ipv4AddressEntry.end();)
+    for (auto i = m_ipv4AddressEntry.begin(); i != m_ipv4AddressEntry.end();)
     {
-        std::map<Ipv4Address, RoutingTableEntry>::iterator itmp = i;
+        auto itmp = i;
         if (i->second.GetLifeTime() > m_holddownTime && (i->second.GetHop() > 0))
         {
-            for (std::map<Ipv4Address, RoutingTableEntry>::iterator j = m_ipv4AddressEntry.begin();
-                 j != m_ipv4AddressEntry.end();)
+            for (auto j = m_ipv4AddressEntry.begin(); j != m_ipv4AddressEntry.end();)
             {
                 if ((j->second.GetNextHop() == i->second.GetDestination()) &&
                     (i->second.GetHop() != j->second.GetHop()))
                 {
-                    std::map<Ipv4Address, RoutingTableEntry>::iterator jtmp = j;
+                    auto jtmp = j;
                     removedAddresses.insert(std::make_pair(j->first, j->second));
                     ++j;
                     m_ipv4AddressEntry.erase(jtmp);
@@ -265,7 +240,7 @@ RoutingTable::Purge(std::map<Ipv4Address, RoutingTableEntry>& removedAddresses)
             ++i;
             m_ipv4AddressEntry.erase(itmp);
         }
-        /** \todo Need to decide when to invalidate a route */
+        /** @todo Need to decide when to invalidate a route */
         /*          else if (i->second.GetLifeTime() > m_holddownTime)
          {
          ++i;
@@ -296,9 +271,7 @@ RoutingTable::Print(Ptr<OutputStreamWrapper> stream, Time::Unit unit /*= Time::S
     *os << std::setw(16) << "SeqNum";
     *os << std::setw(16) << "LifeTime";
     *os << "SettlingTime" << std::endl;
-    for (std::map<Ipv4Address, RoutingTableEntry>::const_iterator i = m_ipv4AddressEntry.begin();
-         i != m_ipv4AddressEntry.end();
-         ++i)
+    for (auto i = m_ipv4AddressEntry.begin(); i != m_ipv4AddressEntry.end(); ++i)
     {
         i->second.Print(stream, unit);
     }
@@ -310,8 +283,7 @@ RoutingTable::Print(Ptr<OutputStreamWrapper> stream, Time::Unit unit /*= Time::S
 bool
 RoutingTable::AddIpv4Event(Ipv4Address address, EventId id)
 {
-    std::pair<std::map<Ipv4Address, EventId>::iterator, bool> result =
-        m_ipv4Events.insert(std::make_pair(address, id));
+    auto result = m_ipv4Events.insert(std::make_pair(address, id));
     return result.second;
 }
 
@@ -319,7 +291,7 @@ bool
 RoutingTable::AnyRunningEvent(Ipv4Address address)
 {
     EventId event;
-    std::map<Ipv4Address, EventId>::const_iterator i = m_ipv4Events.find(address);
+    auto i = m_ipv4Events.find(address);
     if (m_ipv4Events.empty())
     {
         return false;
@@ -329,21 +301,14 @@ RoutingTable::AnyRunningEvent(Ipv4Address address)
         return false;
     }
     event = i->second;
-    if (event.IsRunning())
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return event.IsPending();
 }
 
 bool
 RoutingTable::ForceDeleteIpv4Event(Ipv4Address address)
 {
     EventId event;
-    std::map<Ipv4Address, EventId>::const_iterator i = m_ipv4Events.find(address);
+    auto i = m_ipv4Events.find(address);
     if (m_ipv4Events.empty() || i == m_ipv4Events.end())
     {
         return false;
@@ -358,13 +323,13 @@ bool
 RoutingTable::DeleteIpv4Event(Ipv4Address address)
 {
     EventId event;
-    std::map<Ipv4Address, EventId>::const_iterator i = m_ipv4Events.find(address);
+    auto i = m_ipv4Events.find(address);
     if (m_ipv4Events.empty() || i == m_ipv4Events.end())
     {
         return false;
     }
     event = i->second;
-    if (event.IsRunning())
+    if (event.IsPending())
     {
         return false;
     }
@@ -384,7 +349,7 @@ RoutingTable::DeleteIpv4Event(Ipv4Address address)
 EventId
 RoutingTable::GetEventId(Ipv4Address address)
 {
-    std::map<Ipv4Address, EventId>::const_iterator i = m_ipv4Events.find(address);
+    auto i = m_ipv4Events.find(address);
     if (m_ipv4Events.empty() || i == m_ipv4Events.end())
     {
         return EventId();

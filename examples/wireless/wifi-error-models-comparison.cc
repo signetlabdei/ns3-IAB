@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2020 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Sébastien Deronne <sebastien.deronne@gmail.com>
  *          Rohan Patidar <rpatidar@uw.edu>
@@ -86,66 +75,61 @@ main(int argc, char* argv[])
     mode << format << "Mcs" << +endMcs;
     modes.push_back(mode.str());
 
-    for (uint32_t i = 0; i < modes.size(); i++)
+    for (const auto& mode : modes)
     {
-        std::cout << modes[i] << std::endl;
-        Gnuplot2dDataset yansdataset(modes[i]);
-        Gnuplot2dDataset nistdataset(modes[i]);
-        Gnuplot2dDataset tabledataset(modes[i]);
-        txVector.SetMode(modes[i]);
+        std::cout << mode << std::endl;
+        Gnuplot2dDataset yansdataset(mode);
+        Gnuplot2dDataset nistdataset(mode);
+        Gnuplot2dDataset tabledataset(mode);
+        txVector.SetMode(mode);
 
-        for (double snr = -5.0; snr <= (endMcs * 5); snr += 0.1)
+        WifiMode wifiMode(mode);
+
+        for (double snrDb = -5.0; snrDb <= (endMcs * 5); snrDb += 0.1)
         {
-            double ps = yans->GetChunkSuccessRate(WifiMode(modes[i]),
-                                                  txVector,
-                                                  std::pow(10.0, snr / 10.0),
-                                                  size);
+            double snr = std::pow(10.0, snrDb / 10.0);
+
+            double ps = yans->GetChunkSuccessRate(wifiMode, txVector, snr, size);
             if (ps < 0 || ps > 1)
             {
                 // error
                 exit(1);
             }
-            yansdataset.Add(snr, 1 - ps);
-            ps = nist->GetChunkSuccessRate(WifiMode(modes[i]),
-                                           txVector,
-                                           std::pow(10.0, snr / 10.0),
-                                           size);
+            yansdataset.Add(snrDb, 1 - ps);
+            ps = nist->GetChunkSuccessRate(wifiMode, txVector, snr, size);
             if (ps < 0 || ps > 1)
             {
                 // error
                 exit(1);
             }
-            nistdataset.Add(snr, 1 - ps);
-            ps = table->GetChunkSuccessRate(WifiMode(modes[i]),
-                                            txVector,
-                                            std::pow(10.0, snr / 10.0),
-                                            size);
+            nistdataset.Add(snrDb, 1 - ps);
+            ps = table->GetChunkSuccessRate(wifiMode, txVector, snr, size);
             if (ps < 0 || ps > 1)
             {
                 // error
                 exit(1);
             }
-            tabledataset.Add(snr, 1 - ps);
+            tabledataset.Add(snrDb, 1 - ps);
         }
 
         if (tableErrorModelEnabled)
         {
             std::stringstream ss;
-            ss << "Table-" << modes[i];
+            ss << "Table-" << mode;
             tabledataset.SetTitle(ss.str());
             plot.AddDataset(tabledataset);
         }
         if (yansErrorModelEnabled)
         {
             std::stringstream ss;
-            ss << "Yans-" << modes[i];
+            ss << "Yans-" << mode;
             yansdataset.SetTitle(ss.str());
             plot.AddDataset(yansdataset);
         }
         if (nistErrorModelEnabled)
         {
             std::stringstream ss;
-            ss << "Nist-" << modes[i];
+            ss << "Nist-" << mode;
             nistdataset.SetTitle(ss.str());
             plot.AddDataset(nistdataset);
         }

@@ -1,7 +1,16 @@
 # Set lib core link dependencies
-set(libraries_to_link
-    ${CMAKE_THREAD_LIBS_INIT}
+set(libraries_to_link)
+
+set(config_headers
+    ${CMAKE_HEADER_OUTPUT_DIRECTORY}/core-config.h
 )
+if(${ENABLE_BUILD_VERSION})
+  list(
+    APPEND
+    config_headers
+    ${CMAKE_HEADER_OUTPUT_DIRECTORY}/version-defines.h
+  )
+endif()
 
 set(gsl_test_sources)
 if(${GSL_FOUND})
@@ -16,38 +25,12 @@ if(${GSL_FOUND})
 endif()
 
 # Check for dependencies and add sources accordingly
-if(${CMAKE_VERSION}
-   VERSION_LESS
-   "3.11.0"
+check_include_files(
+  "boost/units/quantity.hpp;boost/units/systems/si.hpp"
+  HAVE_BOOST_UNITS
+  LANGUAGE
+  CXX
 )
-  check_include_file_cxx(
-    boost/units/quantity.hpp
-    HAVE_BOOST_UNITS_QUANTITY
-  )
-  check_include_file_cxx(
-    boost/units/systems/si.hpp
-    HAVE_BOOST_UNITS_SI
-  )
-  if(${HAVE_BOOST_UNITS_QUANTITY}
-     AND ${HAVE_BOOST_UNITS_SI}
-  )
-    set(HAVE_BOOST_UNITS
-        TRUE
-    )
-  else()
-    set(HAVE_BOOST_UNITS
-        FALSE
-    )
-  endif()
-else()
-  # Fast path for CMake >= 3.11
-  check_include_files(
-    "boost/units/quantity.hpp;boost/units/systems/si.hpp"
-    HAVE_BOOST_UNITS
-    LANGUAGE
-    CXX
-  )
-endif()
 
 if(${HAVE_BOOST_UNITS})
   add_definitions(
@@ -99,13 +82,8 @@ elseif(
   )
 endif()
 
+set(example_as_test_suite)
 if(${ENABLE_EXAMPLES})
-  set(example_as_test_sources
-      model/example-as-test.cc
-  )
-  set(example_as_test_headers
-      model/example-as-test.h
-  )
   set(example_as_test_suite
       test/examples-as-tests-test-suite.cc
   )
@@ -142,7 +120,6 @@ endif()
 set(source_files
     ${int64x64_sources}
     ${fd-reader-sources}
-    ${example_as_test_sources}
     ${embedded_version_sources}
     helper/csv-reader.cc
     helper/random-variable-stream-helper.cc
@@ -162,7 +139,6 @@ set(source_files
     model/timer.cc
     model/watchdog.cc
     model/synchronizer.cc
-    model/make-event.cc
     model/environment-variable.cc
     model/log.cc
     model/breakpoint.cc
@@ -179,7 +155,6 @@ set(source_files
     model/boolean.cc
     model/integer.cc
     model/uinteger.cc
-    model/enum.cc
     model/double.cc
     model/int64x64.cc
     model/string.cc
@@ -210,12 +185,14 @@ set(source_files
     model/realtime-simulator-impl.cc
     model/wall-clock-synchronizer.cc
     model/matrix-array.cc
+    model/demangle.cc
+    model/example-as-test.cc
 )
 
 # Define core lib headers
 set(header_files
+    ${config_headers}
     ${int64x64_headers}
-    ${example_as_test_headers}
     ${embedded_version_headers}
     helper/csv-reader.h
     helper/event-garbage-collector.h
@@ -238,6 +215,7 @@ set(header_files
     model/config.h
     model/default-deleter.h
     model/default-simulator-impl.h
+    model/demangle.h
     model/deprecated.h
     model/des-metrics.h
     model/double.h
@@ -254,7 +232,6 @@ set(header_files
     model/hash-murmur3.h
     model/hash.h
     model/heap-scheduler.h
-    model/int-to-type.h
     model/int64x64-double.h
     model/int64x64.h
     model/integer.h
@@ -284,6 +261,7 @@ set(header_files
     model/rng-stream.h
     model/scheduler.h
     model/show-progress.h
+    model/shuffle.h
     model/simple-ref-count.h
     model/simulation-singleton.h
     model/simulator-impl.h
@@ -307,7 +285,7 @@ set(header_files
     model/type-name.h
     model/type-traits.h
     model/uinteger.h
-    model/unused.h
+    model/uniform-random-bit-generator.h
     model/valgrind.h
     model/vector.h
     model/warnings.h
@@ -316,6 +294,7 @@ set(header_files
     model/wall-clock-synchronizer.h
     model/val-array.h
     model/matrix-array.h
+    model/example-as-test.h
 )
 
 set(test_sources
@@ -362,4 +341,27 @@ build_lib(
   HEADER_FILES ${header_files}
   LIBRARIES_TO_LINK ${libraries_to_link}
   TEST_SOURCES ${test_sources}
+  GENERATE_EXPORT_HEADER
 )
+
+if(${ENABLE_TESTS})
+  set(test-executables
+      fatal-command-line-duplicate-non-option-example
+      fatal-command-line-duplicate-option-example
+  )
+  foreach(
+    test-exec
+    ${test-executables}
+  )
+    build_exec(
+      EXECNAME ${test-exec}
+      SOURCE_FILES ./test/${test-exec}.cc
+      LIBRARIES_TO_LINK ${libcore}
+      EXECUTABLE_DIRECTORY_PATH ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/src/core/test/
+    )
+    add_dependencies(
+      test-runner-examples-as-tests
+      ${test-exec}
+    )
+  endforeach()
+endif()

@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2019 NITK Surathkal
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Harsh Patel <thadodaharsh10@gmail.com>
  *         Hrishikesh Hiraskar <hrishihiraskar@gmail.com>
@@ -144,14 +133,11 @@ DpdkNetDevice::CheckAllPortsLinkStatus()
         /* print link status if flag set */
         if (printFlag == 1)
         {
-            if (link.link_status)
+            if (!link.link_status)
             {
-                continue;
+                NS_LOG_INFO("Port " << +m_portId << " Link Down");
             }
-            else
-            {
-                printf("Port %d Link Down\n", m_portId);
-            }
+
             continue;
         }
         /* clear allPortsUp flag if any link down */
@@ -186,7 +172,7 @@ DpdkNetDevice::SignalHandler(int signum)
 {
     if (signum == SIGINT || signum == SIGTERM)
     {
-        printf("\n\nSignal %d received, preparing to exit...\n", signum);
+        NS_LOG_INFO("Signal " << signum << " received, preparing to exit...");
         m_forceQuit = true;
     }
 }
@@ -260,7 +246,7 @@ DpdkNetDevice::InitDpdk(int argc, char** argv, std::string dpdkDriver)
     command.append(dpdkDriver);
     command.append(" ");
     command.append(m_deviceName);
-    printf("Executing: %s\n", command.c_str());
+    NS_LOG_INFO("Executing: " << command);
     if (system(command.c_str()))
     {
         rte_exit(EXIT_FAILURE, "Execution failed - bye\n");

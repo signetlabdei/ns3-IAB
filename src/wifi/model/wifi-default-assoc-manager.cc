@@ -2,18 +2,7 @@
  * Copyright (c) 2022 Universita' degli Studi di Napoli Federico II
 
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Stefano Avallone <stavallo@unina.it>
  */
@@ -21,10 +10,13 @@
 #include "wifi-default-assoc-manager.h"
 
 #include "sta-wifi-mac.h"
+#include "wifi-net-device.h"
 #include "wifi-phy.h"
 
+#include "ns3/boolean.h"
 #include "ns3/log.h"
 #include "ns3/simulator.h"
+#include "ns3/vht-configuration.h"
 
 #include <algorithm>
 
@@ -49,7 +41,16 @@ WifiDefaultAssocManager::GetTypeId()
                           "notified within this amount of time, we give up setting up that link.",
                           TimeValue(MilliSeconds(5)),
                           MakeTimeAccessor(&WifiDefaultAssocManager::m_channelSwitchTimeout),
-                          MakeTimeChecker(Seconds(0)));
+                          MakeTimeChecker(Seconds(0)))
+            .AddAttribute(
+                "SkipAssocIncompatibleChannelWidth",
+                "If set to true, it does not include APs with incompatible channel width with the "
+                "STA in the list of candidate APs. An incompatible channel width is one that the "
+                "STA cannot advertise to the AP, unless AP operates on a channel width that is "
+                "equal or lower than that channel width.",
+                BooleanValue(false),
+                MakeBooleanAccessor(&WifiDefaultAssocManager::m_skipAssocIncompatibleChannelWidth),
+                MakeBooleanChecker());
     return tid;
 }
 
@@ -94,9 +95,18 @@ WifiDefaultAssocManager::DoStartScanning()
     m_probeRequestEvent.Cancel();
     m_waitBeaconEvent.Cancel();
 
-    if (GetScanParams().type == WifiScanParams::ACTIVE)
+    if (GetScanParams().type == WifiScanType::ACTIVE)
     {
-        Simulator::Schedule(GetScanParams().probeDelay, &StaWifiMac::SendProbeRequest, m_mac);
+        for (uint8_t linkId = 0; linkId < m_mac->GetNLinks(); linkId++)
+        {
+            Simulator::Schedule(GetScanParams().probeDelay,
+                                &StaWifiMac::EnqueueProbeRequest,
+                                m_mac,
+                                m_mac->GetProbeRequest(linkId),
+                                linkId,
+                                Mac48Address::GetBroadcast(),
+                                Mac48Address::GetBroadcast());
+        }
         m_probeRequestEvent =
             Simulator::Schedule(GetScanParams().probeDelay + GetScanParams().maxChannelTime,
                                 &WifiDefaultAssocManager::EndScanning,
@@ -127,15 +137,12 @@ WifiDefaultAssocManager::EndScanning()
     }
 
     auto& bestAp = *GetSortedList().begin();
-
-    // store AP MLD MAC address in the WifiRemoteStationManager associated with
-    // the link on which the Beacon/Probe Response was received
-    m_mac->GetWifiRemoteStationManager(bestAp.m_linkId)
-        ->SetMldAddress(bestAp.m_apAddr, mle->get().GetMldMacAddress());
     auto& setupLinks = GetSetupLinks(bestAp);
 
     setupLinks.clear();
-    setupLinks.emplace_back(bestAp.m_linkId, mle->get().GetLinkIdInfo());
+    setupLinks.emplace_back(StaWifiMac::ApInfo::SetupLinksInfo{bestAp.m_linkId,
+                                                               mle->get().GetLinkIdInfo(),
+                                                               bestAp.m_bssid});
 
     // sort local PHY objects so that radios with constrained PHY band comes first,
     // then radios with no constraint
@@ -180,10 +187,7 @@ WifiDefaultAssocManager::EndScanning()
             }
 
             bool needChannelSwitch = false;
-            if (const auto& channel = phy->GetOperatingChannel();
-                channel.GetNumber() != apChannel.GetNumber() ||
-                channel.GetWidth() != apChannel.GetWidth() ||
-                channel.GetPhyBand() != apChannel.GetPhyBand())
+            if (phy->GetOperatingChannel() != apChannel)
             {
                 needChannelSwitch = true;
             }
@@ -200,14 +204,10 @@ WifiDefaultAssocManager::EndScanning()
             // if we get here, it means we can setup a link with this affiliated AP
             // set the BSSID for this link
             Mac48Address bssid = rnr->get().GetBssid(apIt->m_nbrApInfoId, apIt->m_tbttInfoFieldId);
-            // store AP MLD MAC address in the WifiRemoteStationManager associated with
-            // the link requested to setup
-            m_mac->GetWifiRemoteStationManager(linkId)->SetMldAddress(
-                bssid,
-                mle->get().GetMldMacAddress());
-            setupLinks.emplace_back(
+            setupLinks.emplace_back(StaWifiMac::ApInfo::SetupLinksInfo{
                 linkId,
-                rnr->get().GetLinkId(apIt->m_nbrApInfoId, apIt->m_tbttInfoFieldId));
+                rnr->get().GetMldParameters(apIt->m_nbrApInfoId, apIt->m_tbttInfoFieldId).linkId,
+                bssid});
 
             if (needChannelSwitch)
             {
@@ -216,18 +216,17 @@ WifiDefaultAssocManager::EndScanning()
                     // switching channel while a PHY is in sleep state fails
                     phy->ResumeFromSleep();
                 }
-                // switch this link to using the channel used by a reported AP
-                // TODO check if the STA only supports a narrower channel width
-                NS_LOG_DEBUG("Switch link "
-                             << +linkId << " to using channel " << +apChannel.GetNumber()
-                             << " in band " << apChannel.GetPhyBand() << " frequency "
-                             << apChannel.GetFrequency() << "MHz width " << apChannel.GetWidth()
-                             << "MHz");
-                WifiPhy::ChannelTuple chTuple{apChannel.GetNumber(),
-                                              apChannel.GetWidth(),
-                                              apChannel.GetPhyBand(),
-                                              apChannel.GetPrimaryChannelIndex(20)};
-                phy->SetOperatingChannel(chTuple);
+
+                // switch this link to using the channel used by a reported AP (or one of its
+                // primary subchannels in case the reported AP has larger channel width than the one
+                // supported by the non-AP MLD)
+                if (apChannel.GetTotalWidth() > phy->GetChannelWidth())
+                {
+                    apChannel = apChannel.GetPrimaryChannel(phy->GetChannelWidth());
+                }
+
+                NS_LOG_DEBUG("Switch link " << +linkId << " to using " << apChannel);
+                phy->SetOperatingChannel(apChannel);
                 // actual channel switching may be delayed, thus setup a channel switch timer
                 m_channelSwitchInfo.resize(m_mac->GetNLinks());
                 m_channelSwitchInfo[linkId].timer.Cancel();
@@ -248,7 +247,7 @@ WifiDefaultAssocManager::EndScanning()
     }
 
     if (std::none_of(m_channelSwitchInfo.begin(), m_channelSwitchInfo.end(), [](auto&& info) {
-            return info.timer.IsRunning();
+            return info.timer.IsPending();
         }))
     {
         // we are done
@@ -260,19 +259,13 @@ void
 WifiDefaultAssocManager::NotifyChannelSwitched(uint8_t linkId)
 {
     NS_LOG_FUNCTION(this << +linkId);
-    if (m_channelSwitchInfo.size() > linkId && m_channelSwitchInfo[linkId].timer.IsRunning())
+    if (m_channelSwitchInfo.size() > linkId && m_channelSwitchInfo[linkId].timer.IsPending())
     {
         // we were waiting for this notification
         m_channelSwitchInfo[linkId].timer.Cancel();
 
-        // the remote station manager has been reset after switching, hence store
-        // information about AP link address and AP MLD address
-        m_mac->GetWifiRemoteStationManager(linkId)->SetMldAddress(
-            m_channelSwitchInfo[linkId].apLinkAddress,
-            m_channelSwitchInfo[linkId].apMldAddress);
-
         if (std::none_of(m_channelSwitchInfo.begin(), m_channelSwitchInfo.end(), [](auto&& info) {
-                return info.timer.IsRunning();
+                return info.timer.IsPending();
             }))
         {
             // we are done
@@ -290,13 +283,13 @@ WifiDefaultAssocManager::ChannelSwitchTimeout(uint8_t linkId)
     auto& bestAp = *GetSortedList().begin();
     auto& setupLinks = GetSetupLinks(bestAp);
     auto it = std::find_if(setupLinks.begin(), setupLinks.end(), [&linkId](auto&& linkIds) {
-        return linkIds.first == linkId;
+        return linkIds.localLinkId == linkId;
     });
     NS_ASSERT(it != setupLinks.end());
     setupLinks.erase(it);
 
     if (std::none_of(m_channelSwitchInfo.begin(), m_channelSwitchInfo.end(), [](auto&& info) {
-            return info.timer.IsRunning();
+            return info.timer.IsPending();
         }))
     {
         // we are done
@@ -307,7 +300,8 @@ WifiDefaultAssocManager::ChannelSwitchTimeout(uint8_t linkId)
 bool
 WifiDefaultAssocManager::CanBeInserted(const StaWifiMac::ApInfo& apInfo) const
 {
-    return (m_waitBeaconEvent.IsRunning() || m_probeRequestEvent.IsRunning());
+    return ((m_waitBeaconEvent.IsPending() || m_probeRequestEvent.IsPending()) &&
+            (!m_skipAssocIncompatibleChannelWidth || IsChannelWidthCompatible(apInfo)));
 }
 
 bool

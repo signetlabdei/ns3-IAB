@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2005,2006 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  *          Sébastien Deronne <sebastien.deronne@gmail.com>
@@ -28,8 +17,10 @@
 namespace ns3
 {
 
+class WifiTxVector;
+
 /**
- * \brief receive notifications about PHY events.
+ * @brief receive notifications about PHY events.
  */
 class WifiPhyListener
 {
@@ -43,7 +34,7 @@ class WifiPhyListener
     }
 
     /**
-     * \param duration the expected duration of the packet reception.
+     * @param duration the expected duration of the packet reception.
      *
      * We have received the first bit of a packet. We decided
      * that we could synchronize on this packet. It does not mean
@@ -62,14 +53,16 @@ class WifiPhyListener
      */
     virtual void NotifyRxEndOk() = 0;
     /**
+     * @param txVector the TXVECTOR used for transmission
+     *
      * We have received the last bit of a packet for which
      * NotifyRxStart was invoked first and, the packet has
      * _not_ been successfully received.
      */
-    virtual void NotifyRxEndError() = 0;
+    virtual void NotifyRxEndError(const WifiTxVector& txVector) = 0;
     /**
-     * \param duration the expected transmission duration.
-     * \param txPowerDbm the nominal TX power in dBm
+     * @param duration the expected transmission duration.
+     * @param txPower the nominal TX power
      *
      * We are about to send the first bit of the packet.
      * We do not send any event to notify the end of
@@ -77,11 +70,11 @@ class WifiPhyListener
      * channel implicitly reverts to the idle state
      * unless they have received a CCA busy report.
      */
-    virtual void NotifyTxStart(Time duration, double txPowerDbm) = 0;
+    virtual void NotifyTxStart(Time duration, dBm_u txPower) = 0;
     /**
-     * \param duration the expected busy duration.
-     * \param channelType the channel type for which the CCA busy state is reported.
-     * \param per20MhzDurations vector that indicates for how long each 20 MHz subchannel
+     * @param duration the expected busy duration.
+     * @param channelType the channel type for which the CCA busy state is reported.
+     * @param per20MhzDurations vector that indicates for how long each 20 MHz subchannel
      *        (corresponding to the index of the element in the vector) is busy and where a zero
      * duration indicates that the subchannel is idle. The vector is non-empty if  the PHY supports
      * 802.11ax or later and if the operational channel width is larger than 20 MHz.
@@ -102,7 +95,7 @@ class WifiPhyListener
                                     WifiChannelListType channelType,
                                     const std::vector<Time>& per20MhzDurations) = 0;
     /**
-     * \param duration the expected channel switching duration.
+     * @param duration the expected channel switching duration.
      *
      * We do not send any event to notify the end of
      * channel switching. Listeners should assume that the

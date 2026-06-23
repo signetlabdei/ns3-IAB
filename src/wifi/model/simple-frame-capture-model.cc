@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2017
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Sébastien Deronne <sebastien.deronne@gmail.com>
  */
@@ -48,7 +37,7 @@ SimpleFrameCaptureModel::GetTypeId()
                 DoubleValue(5),
                 MakeDoubleAccessor(&SimpleFrameCaptureModel::GetMargin,
                                    &SimpleFrameCaptureModel::SetMargin),
-                MakeDoubleChecker<double>());
+                MakeDoubleChecker<dB_u>());
     return tid;
 }
 
@@ -63,13 +52,13 @@ SimpleFrameCaptureModel::~SimpleFrameCaptureModel()
 }
 
 void
-SimpleFrameCaptureModel::SetMargin(double margin)
+SimpleFrameCaptureModel::SetMargin(dB_u margin)
 {
     NS_LOG_FUNCTION(this << margin);
     m_margin = margin;
 }
 
-double
+dB_u
 SimpleFrameCaptureModel::GetMargin() const
 {
     return m_margin;
@@ -79,12 +68,8 @@ bool
 SimpleFrameCaptureModel::CaptureNewFrame(Ptr<Event> currentEvent, Ptr<Event> newEvent) const
 {
     NS_LOG_FUNCTION(this);
-    if ((WToDbm(currentEvent->GetRxPowerW()) + GetMargin()) < WToDbm(newEvent->GetRxPowerW()) &&
-        (IsInCaptureWindow(currentEvent->GetStartTime())))
-    {
-        return true;
-    }
-    return false;
+    return WToDbm(currentEvent->GetRxPower()) + GetMargin() < WToDbm(newEvent->GetRxPower()) &&
+           IsInCaptureWindow(currentEvent->GetStartTime());
 }
 
 } // namespace ns3

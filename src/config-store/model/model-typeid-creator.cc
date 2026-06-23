@@ -1,16 +1,5 @@
 /*
- *  This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Faker Moatamri <faker.moatamri@sophia.inria.fr>
  */
@@ -38,7 +27,7 @@ void
 ModelTypeidCreator::Add(ModelTypeid* node)
 {
     GtkTreeIter* parent = m_iters.back();
-    GtkTreeIter* current = g_new(GtkTreeIter, 1);
+    auto current = g_new(GtkTreeIter, 1);
     gtk_tree_store_append(m_treestore, current, parent);
     gtk_tree_store_set(m_treestore, current, COL_TYPEID, node, -1);
     m_iters.push_back(current);
@@ -58,7 +47,7 @@ ModelTypeidCreator::VisitAttribute(TypeId tid,
                                    std::string defaultValue,
                                    uint32_t index)
 {
-    ModelTypeid* node = new ModelTypeid();
+    auto node = new ModelTypeid();
     node->type = ModelTypeid::NODE_ATTRIBUTE;
     node->tid = tid;
     node->name = name;
@@ -71,7 +60,7 @@ ModelTypeidCreator::VisitAttribute(TypeId tid,
 void
 ModelTypeidCreator::StartVisitTypeId(std::string name)
 {
-    ModelTypeid* node = new ModelTypeid();
+    auto node = new ModelTypeid();
     node->type = ModelTypeid::NODE_TYPEID;
     node->tid = TypeId::LookupByName(name);
     Add(node);
@@ -82,4 +71,4 @@ ModelTypeidCreator::EndVisitTypeId()
 {
     Remove();
 }
-} // end namespace ns3
+} // namespace ns3

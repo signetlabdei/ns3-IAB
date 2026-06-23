@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2014 Natale Patriciello <natale.patriciello@gmail.com>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  */
 
@@ -37,7 +26,7 @@ TcpCubic::GetTypeId()
 {
     static TypeId tid =
         TypeId("ns3::TcpCubic")
-            .SetParent<TcpSocketBase>()
+            .SetParent<TcpCongestionOps>()
             .AddConstructor<TcpCubic>()
             .SetGroupName("Internet")
             .AddAttribute("FastConvergence",
@@ -45,11 +34,21 @@ TcpCubic::GetTypeId()
                           BooleanValue(true),
                           MakeBooleanAccessor(&TcpCubic::m_fastConvergence),
                           MakeBooleanChecker())
+            .AddAttribute("TcpFriendliness",
+                          "Enable (true) or disable (false) TCP friendliness",
+                          BooleanValue(true),
+                          MakeBooleanAccessor(&TcpCubic::m_tcpFriendliness),
+                          MakeBooleanChecker())
             .AddAttribute("Beta",
                           "Beta for multiplicative decrease",
                           DoubleValue(0.7),
                           MakeDoubleAccessor(&TcpCubic::m_beta),
-                          MakeDoubleChecker<double>(0.0))
+                          MakeDoubleChecker<double>(0.0, 1.0))
+            .AddAttribute("BetaEcn",
+                          "Beta for multiplicative decrease for ABE",
+                          DoubleValue(0.85), // According to RFC 8511 (ABE)
+                          MakeDoubleAccessor(&TcpCubic::m_betaEcn),
+                          MakeDoubleChecker<double>(0.0, 1.0))
             .AddAttribute("HyStart",
                           "Enable (true) or disable (false) hybrid slow start algorithm",
                           BooleanValue(true),
@@ -64,7 +63,7 @@ TcpCubic::GetTypeId()
                           "Hybrid Slow Start detection mechanisms:"
                           "packet train, delay, both",
                           EnumValue(HybridSSDetectionMode::BOTH),
-                          MakeEnumAccessor(&TcpCubic::m_hystartDetect),
+                          MakeEnumAccessor<HybridSSDetectionMode>(&TcpCubic::m_hystartDetect),
                           MakeEnumChecker(HybridSSDetectionMode::PACKET_TRAIN,
                                           "PACKET_TRAIN",
                                           HybridSSDetectionMode::DELAY,
@@ -135,6 +134,7 @@ TcpCubic::TcpCubic(const TcpCubic& sock)
     : TcpCongestionOps(sock),
       m_fastConvergence(sock.m_fastConvergence),
       m_beta(sock.m_beta),
+      m_betaEcn(sock.m_betaEcn),
       m_hystart(sock.m_hystart),
       m_hystartDetect(sock.m_hystartDetect),
       m_hystartLowWindow(sock.m_hystartLowWindow),
@@ -169,6 +169,12 @@ TcpCubic::GetName() const
 }
 
 void
+TcpCubic::Init(Ptr<TcpSocketState> tcb)
+{
+    HystartReset(tcb);
+}
+
+void
 TcpCubic::HystartReset(Ptr<const TcpSocketState> tcb)
 {
     NS_LOG_FUNCTION(this);
@@ -183,6 +189,13 @@ void
 TcpCubic::IncreaseWindow(Ptr<TcpSocketState> tcb, uint32_t segmentsAcked)
 {
     NS_LOG_FUNCTION(this << tcb << segmentsAcked);
+
+    if (!tcb->m_isCwndLimited)
+    {
+        NS_LOG_DEBUG("No increase because current cwnd " << tcb->m_cWnd
+                                                         << " is not limiting the flow");
+        return;
+    }
 
     if (tcb->m_cWnd < tcb->m_ssThresh)
     {
@@ -209,7 +222,7 @@ TcpCubic::IncreaseWindow(Ptr<TcpSocketState> tcb, uint32_t segmentsAcked)
     if (tcb->m_cWnd >= tcb->m_ssThresh && segmentsAcked > 0)
     {
         m_cWndCnt += segmentsAcked;
-        uint32_t cnt = Update(tcb);
+        uint32_t cnt = Update(tcb, segmentsAcked);
 
         /* According to RFC 6356 even once the new cwnd is
          * calculated you must compare this to the number of ACKs received since
@@ -232,19 +245,24 @@ TcpCubic::IncreaseWindow(Ptr<TcpSocketState> tcb, uint32_t segmentsAcked)
 }
 
 uint32_t
-TcpCubic::Update(Ptr<TcpSocketState> tcb)
+TcpCubic::Update(Ptr<TcpSocketState> tcb, uint32_t segmentsAcked)
 {
     NS_LOG_FUNCTION(this);
     Time t;
     uint32_t delta;
     uint32_t bicTarget;
     uint32_t cnt = 0;
+    uint32_t maxCnt;
     double offs;
     uint32_t segCwnd = tcb->GetCwndInSegments();
+
+    m_ackCnt += segmentsAcked;
 
     if (m_epochStart == Time::Min())
     {
         m_epochStart = Simulator::Now(); // record the beginning of an epoch
+        m_ackCnt = segmentsAcked;
+        m_tcpCwnd = segCwnd;
 
         if (m_lastMaxCwnd <= segCwnd)
         {
@@ -309,6 +327,26 @@ TcpCubic::Update(Ptr<TcpSocketState> tcb)
     if (m_lastMaxCwnd == 0 && cnt > m_cntClamp)
     {
         cnt = m_cntClamp;
+    }
+
+    if (m_tcpFriendliness)
+    {
+        auto scale = static_cast<uint32_t>(8 * (1024 + m_beta * 1024) / 3 / (1024 - m_beta * 1024));
+        delta = (segCwnd * scale) >> 3;
+        while (m_ackCnt > delta)
+        {
+            m_ackCnt -= delta;
+            m_tcpCwnd++;
+        }
+        if (m_tcpCwnd > segCwnd)
+        {
+            delta = m_tcpCwnd - segCwnd;
+            maxCnt = segCwnd / delta;
+            if (cnt > maxCnt)
+            {
+                cnt = maxCnt;
+            }
+        }
     }
 
     // The maximum rate of cwnd increase CUBIC allows is 1 packet per
@@ -435,8 +473,16 @@ TcpCubic::GetSsThresh(Ptr<const TcpSocketState> tcb, uint32_t bytesInFlight)
 
     m_epochStart = Time::Min(); // end of epoch
 
-    /* Formula taken from the Linux kernel */
-    uint32_t ssThresh = std::max(static_cast<uint32_t>(segCwnd * m_beta), 2U) * tcb->m_segmentSize;
+    uint32_t ssThresh;
+    if (tcb->m_abeEnabled && tcb->m_ecnState == TcpSocketState::ECN_ECE_RCVD)
+    {
+        ssThresh = std::max(static_cast<uint32_t>(segCwnd * m_betaEcn), 2U) *
+                   tcb->m_segmentSize; // According to RFC 8511 (ABE)
+    }
+    else
+    { /* Formula taken from the Linux kernel */
+        ssThresh = std::max(static_cast<uint32_t>(segCwnd * m_beta), 2U) * tcb->m_segmentSize;
+    }
 
     NS_LOG_DEBUG("SsThresh = " << ssThresh);
 
@@ -460,9 +506,10 @@ TcpCubic::CubicReset(Ptr<const TcpSocketState> tcb)
 {
     NS_LOG_FUNCTION(this << tcb);
 
-    m_lastMaxCwnd = 0;
     m_bicOriginPoint = 0;
     m_bicK = 0;
+    m_ackCnt = 0;
+    m_tcpCwnd = 0;
     m_delayMin = Time::Min();
     m_found = false;
 }

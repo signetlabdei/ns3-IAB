@@ -62,6 +62,7 @@
 #include <ns3/three-gpp-spectrum-propagation-loss-model.h>
 #include <ns3/channel-condition-model.h>
 #include <ns3/three-gpp-propagation-loss-model.h>
+#include <ns3/angles.h>
 #include <ns3/mmwave-beamforming-model.h>
 #include <ns3/uniform-planar-array.h>
 #include <ns3/file-beamforming-codebook.h>
@@ -1753,6 +1754,10 @@ MmWaveHelper::InstallSingleEnbDevice (Ptr<Node> n, std::optional<std::uint8_t> c
 
       dlPhy->SetBeamformingModel (bfModel);
 
+      // Initialize antenna with a default beamforming vector so that propagation models
+      // can run before the first explicit ConfigureBeamforming call.
+      antenna->SetBeamformingVector(antenna->GetBeamformingVector(Angles(0.0, M_PI / 2.0)));
+
       NS_LOG_DEBUG ("Create the mac");
       Ptr<MmWaveEnbMac> mac = CreateObject<MmWaveEnbMac> ();
       mac->SetCellId(ccEnb->GetCellId ());
@@ -1833,7 +1838,7 @@ MmWaveHelper::InstallSingleEnbDevice (Ptr<Node> n, std::optional<std::uint8_t> c
 
   if (m_epcHelper)
     {
-      EnumValue epsBearerToRlcMapping;
+      EnumValue<LteEnbRrc::LteEpsBearerToRlcMapping_t> epsBearerToRlcMapping;
       rrc->GetAttribute ("EpsBearerToRlcMapping", epsBearerToRlcMapping);
       // it does not make sense to use RLC/SM when also using the EPC
       if (epsBearerToRlcMapping.Get () == LteEnbRrc::RLC_SM_ALWAYS)
@@ -2379,7 +2384,7 @@ MmWaveHelper::InstallSingleIabDevice(Ptr<Node> n,
               MakeCallback (&EpcSgwPgwApplication::GetDonorBapAddress, sgwPgwApp));
         }
 
-      EnumValue epsBearerToRlcMapping;
+      EnumValue<LteEnbRrc::LteEpsBearerToRlcMapping_t> epsBearerToRlcMapping;
       duRrc->GetAttribute ("EpsBearerToRlcMapping", epsBearerToRlcMapping);
       // it does not make sense to use RLC/SM when also using the EPC
       if (epsBearerToRlcMapping.Get () == LteEnbRrc::RLC_SM_ALWAYS)
@@ -2543,8 +2548,16 @@ MmWaveHelper::InstallSingleIabDevice(Ptr<Node> n,
     {
         Ptr<MmWaveComponentCarrierEnb> ccDu = DynamicCast<MmWaveComponentCarrierEnb>(it->second);
         auto spCh = GetSpChFromCarrierComponent(ccDu);
-        spCh->AddRx(
-            ccDu->GetPhy()->GetDlSpectrumPhy()); // TODO check if Dl and Ul are the same
+        // Initialize the DU antenna beamforming vector before registering as receiver.
+        // dlDuPhy is registered at install time (before attachment), so its antenna must
+        // have a valid beamforming vector before any DL signal arrives on the shared channel.
+        auto dlDuPhyLocal = ccDu->GetPhy()->GetDlSpectrumPhy();
+        auto duAnt = DynamicCast<PhasedArrayModel>(dlDuPhyLocal->GetAntenna());
+        if (duAnt)
+        {
+            duAnt->SetBeamformingVector(duAnt->GetBeamformingVector(Angles(0.0, M_PI / 2.0)));
+        }
+        spCh->AddRx(dlDuPhyLocal); // TODO check if Dl and Ul are the same
         ccDu->GetMacScheduler()->SetCellId(iabDevice->GetCellId());
     }
 
@@ -2575,6 +2588,16 @@ MmWaveHelper::InstallSingleIabDevice(Ptr<Node> n,
       ccMtPhy->SetImsi (imsi);
       ccMtPhy->GetUlSpectrumPhy ()->SetDevice (iabDevice);
       ccMtPhy->GetDlSpectrumPhy ()->SetDevice (iabDevice);
+      // Initialize the MT antenna beamforming vector before any channel use.
+      // Without a donor eNB, AttachIabTotDonorWithIndex is never called, so
+      // ConfigureBeamforming never runs for the MT — leaving m_isBfVectorValid
+      // false and causing an assert when the MT first transmits on the channel.
+      auto dlMtPhyLocal = ccMtPhy->GetDlSpectrumPhy ();
+      auto mtAnt = DynamicCast<PhasedArrayModel> (dlMtPhyLocal->GetAntenna ());
+      if (mtAnt)
+        {
+          mtAnt->SetBeamformingVector (mtAnt->GetBeamformingVector (Angles (0.0, M_PI / 2.0)));
+        }
       ccMtPhy->GetDlSpectrumPhy ()->SetPhyRxDataEndOkCallback (
           MakeCallback (&MmWaveUePhy::PhyDataPacketReceived, ccMtPhy));
       ccMtPhy->GetDlSpectrumPhy ()->SetPhyRxCtrlEndOkCallback (
@@ -2707,7 +2730,7 @@ MmWaveHelper::InstallSingleLteEnbDevice (Ptr<Node> n)
 
   if (m_epcHelper)
     {
-      EnumValue epsBearerToRlcMapping;
+      EnumValue<LteEnbRrc::LteEpsBearerToRlcMapping_t> epsBearerToRlcMapping;
       rrc->GetAttribute ("EpsBearerToRlcMapping", epsBearerToRlcMapping);
       // it does not make sense to use RLC/SM when also using the EPC
 
@@ -2999,8 +3022,8 @@ MmWaveHelper::AttachIabTotIabWithIndex (NetDeviceContainer iabDevices, uint32_t 
     // check carrier frequency consistency
     auto childCenterFreq = childIabDev->GetMtCcMap().at(0)->GetCenterFrequency();
     auto parentCenterFreq = parentIabDev->GetDuCcMap().at(0)->GetCenterFrequency();
-    NS_ASSERT_MSG(childCenterFreq == parentCenterFreq,
-                  "MT IAB child and DU IAB parent must have the same center frequency");
+    NS_ABORT_MSG_IF(childCenterFreq != parentCenterFreq,
+                    "MT IAB child and DU IAB parent must have the same center frequency");
 
     auto addedPaths =
         donorEnbApp->RegisterNewIabAttachment(m_bapPathIdCounter, childIabDev, parentIabDev);
@@ -3145,8 +3168,8 @@ MmWaveHelper::AttachIabTotDonorWithIndex (Ptr<NetDevice> iabDevice, NetDeviceCon
     // check frequency compatibility
     auto mtCenterFreq = childIabDev->GetMtCcMap().at(0)->GetCenterFrequency();
     auto donorCenterFreq = targetEnbDevice->GetCcMap().at(0)->GetCenterFrequency();
-    NS_ASSERT_MSG(mtCenterFreq == donorCenterFreq,
-                  "MT IAB node and IAB donor must have the same center frequency");
+    NS_ABORT_MSG_IF(mtCenterFreq != donorCenterFreq,
+                    "MT IAB node and IAB donor must have the same center frequency");
 
     auto addedPaths =
         donorEnbApp->RegisterNewIabAttachment(m_bapPathIdCounter, childIabDev, targetEnbDevice);
@@ -3531,8 +3554,8 @@ MmWaveHelper::AttachToIabWithIndex (Ptr<NetDevice> ueDevice, NetDeviceContainer 
         // check carrier frequency consistency
         auto iabCenterFreq = duCcMap.at(0)->GetCenterFrequency();
         auto ueCenterFreq = mmWaveUe->GetCcMap().at(0)->GetCenterFrequency();
-        NS_ASSERT_MSG(iabCenterFreq == ueCenterFreq,
-                  "UE and DU IAB must have the same center frequency");
+        NS_ABORT_MSG_IF(iabCenterFreq != ueCenterFreq,
+                        "UE and DU IAB must have the same center frequency");
 
         // TODO here I have to pair UE CC and eNB CC with the same CCid, CCs with different
         // IDs cannot communicate

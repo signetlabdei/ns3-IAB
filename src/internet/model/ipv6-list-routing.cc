@@ -1,26 +1,15 @@
 /*
  * Copyright (c) 2009 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  */
 
 #include "ipv6-list-routing.h"
 
-#include "ns3/ipv6-route.h"
-#include "ns3/ipv6-static-routing.h"
-#include "ns3/ipv6.h"
+#include "ipv6-route.h"
+#include "ipv6.h"
+
 #include "ns3/log.h"
 #include "ns3/node.h"
 #include "ns3/simulator.h"
@@ -57,8 +46,7 @@ void
 Ipv6ListRouting::DoDispose()
 {
     NS_LOG_FUNCTION(this);
-    for (Ipv6RoutingProtocolList::iterator rprotoIter = m_routingProtocols.begin();
-         rprotoIter != m_routingProtocols.end();
+    for (auto rprotoIter = m_routingProtocols.begin(); rprotoIter != m_routingProtocols.end();
          rprotoIter++)
     {
         // Note:  Calling dispose on these protocols causes memory leak
@@ -74,19 +62,25 @@ Ptr<Ipv6Route>
 Ipv6ListRouting::RouteOutput(Ptr<Packet> p,
                              const Ipv6Header& header,
                              Ptr<NetDevice> oif,
-                             enum Socket::SocketErrno& sockerr)
+                             Socket::SocketErrno& sockerr)
 {
     NS_LOG_FUNCTION(this << header.GetDestination() << header.GetSource() << oif);
     Ptr<Ipv6Route> route;
 
-    for (Ipv6RoutingProtocolList::const_iterator i = m_routingProtocols.begin();
-         i != m_routingProtocols.end();
-         i++)
+    for (auto i = m_routingProtocols.begin(); i != m_routingProtocols.end(); i++)
     {
         NS_LOG_LOGIC("Checking protocol " << (*i).second->GetInstanceTypeId() << " with priority "
                                           << (*i).first);
         NS_LOG_LOGIC("Requesting source address for destination " << header.GetDestination());
         route = (*i).second->RouteOutput(p, header, oif, sockerr);
+        if (oif)
+        {
+            if (route && route->GetOutputDevice() != oif)
+            {
+                NS_LOG_LOGIC("Not on requested interface, skipping");
+                continue;
+            }
+        }
         if (route)
         {
             NS_LOG_LOGIC("Found route " << route);
@@ -105,10 +99,10 @@ bool
 Ipv6ListRouting::RouteInput(Ptr<const Packet> p,
                             const Ipv6Header& header,
                             Ptr<const NetDevice> idev,
-                            UnicastForwardCallback ucb,
-                            MulticastForwardCallback mcb,
-                            LocalDeliverCallback lcb,
-                            ErrorCallback ecb)
+                            const UnicastForwardCallback& ucb,
+                            const MulticastForwardCallback& mcb,
+                            const LocalDeliverCallback& lcb,
+                            const ErrorCallback& ecb)
 {
     NS_LOG_FUNCTION(p << header << idev);
     NS_LOG_LOGIC("RouteInput logic for node: " << m_ipv6->GetObject<Node>()->GetId());
@@ -116,11 +110,10 @@ Ipv6ListRouting::RouteInput(Ptr<const Packet> p,
     NS_ASSERT(m_ipv6);
     // Check if input device supports IP
     NS_ASSERT(m_ipv6->GetInterfaceForDevice(idev) >= 0);
-    Ipv6Address dst = header.GetDestination();
 
     // Check if input device supports IP forwarding
     uint32_t iif = m_ipv6->GetInterfaceForDevice(idev);
-    if (m_ipv6->IsForwarding(iif) == false)
+    if (!m_ipv6->IsForwarding(iif))
     {
         NS_LOG_LOGIC("Forwarding disabled for this interface");
         ecb(p, header, Socket::ERROR_NOROUTETOHOST);
@@ -131,8 +124,7 @@ Ipv6ListRouting::RouteInput(Ptr<const Packet> p,
     ErrorCallback nullEcb =
         MakeNullCallback<void, Ptr<const Packet>, const Ipv6Header&, Socket::SocketErrno>();
 
-    for (Ipv6RoutingProtocolList::const_iterator rprotoIter = m_routingProtocols.begin();
-         rprotoIter != m_routingProtocols.end();
+    for (auto rprotoIter = m_routingProtocols.begin(); rprotoIter != m_routingProtocols.end();
          rprotoIter++)
     {
         if ((*rprotoIter).second->RouteInput(p, header, idev, ucb, mcb, lcb, nullEcb))
@@ -150,8 +142,7 @@ void
 Ipv6ListRouting::NotifyInterfaceUp(uint32_t interface)
 {
     NS_LOG_FUNCTION(this << interface);
-    for (Ipv6RoutingProtocolList::const_iterator rprotoIter = m_routingProtocols.begin();
-         rprotoIter != m_routingProtocols.end();
+    for (auto rprotoIter = m_routingProtocols.begin(); rprotoIter != m_routingProtocols.end();
          rprotoIter++)
     {
         (*rprotoIter).second->NotifyInterfaceUp(interface);
@@ -162,8 +153,7 @@ void
 Ipv6ListRouting::NotifyInterfaceDown(uint32_t interface)
 {
     NS_LOG_FUNCTION(this << interface);
-    for (Ipv6RoutingProtocolList::const_iterator rprotoIter = m_routingProtocols.begin();
-         rprotoIter != m_routingProtocols.end();
+    for (auto rprotoIter = m_routingProtocols.begin(); rprotoIter != m_routingProtocols.end();
          rprotoIter++)
     {
         (*rprotoIter).second->NotifyInterfaceDown(interface);
@@ -174,8 +164,7 @@ void
 Ipv6ListRouting::NotifyAddAddress(uint32_t interface, Ipv6InterfaceAddress address)
 {
     NS_LOG_FUNCTION(this << interface << address);
-    for (Ipv6RoutingProtocolList::const_iterator rprotoIter = m_routingProtocols.begin();
-         rprotoIter != m_routingProtocols.end();
+    for (auto rprotoIter = m_routingProtocols.begin(); rprotoIter != m_routingProtocols.end();
          rprotoIter++)
     {
         (*rprotoIter).second->NotifyAddAddress(interface, address);
@@ -186,8 +175,7 @@ void
 Ipv6ListRouting::NotifyRemoveAddress(uint32_t interface, Ipv6InterfaceAddress address)
 {
     NS_LOG_FUNCTION(this << interface << address);
-    for (Ipv6RoutingProtocolList::const_iterator rprotoIter = m_routingProtocols.begin();
-         rprotoIter != m_routingProtocols.end();
+    for (auto rprotoIter = m_routingProtocols.begin(); rprotoIter != m_routingProtocols.end();
          rprotoIter++)
     {
         (*rprotoIter).second->NotifyRemoveAddress(interface, address);
@@ -202,8 +190,7 @@ Ipv6ListRouting::NotifyAddRoute(Ipv6Address dst,
                                 Ipv6Address prefixToUse)
 {
     NS_LOG_FUNCTION(this << dst << mask << nextHop << interface);
-    for (Ipv6RoutingProtocolList::const_iterator rprotoIter = m_routingProtocols.begin();
-         rprotoIter != m_routingProtocols.end();
+    for (auto rprotoIter = m_routingProtocols.begin(); rprotoIter != m_routingProtocols.end();
          rprotoIter++)
     {
         (*rprotoIter).second->NotifyAddRoute(dst, mask, nextHop, interface, prefixToUse);
@@ -218,8 +205,7 @@ Ipv6ListRouting::NotifyRemoveRoute(Ipv6Address dst,
                                    Ipv6Address prefixToUse)
 {
     NS_LOG_FUNCTION(this << dst << mask << nextHop << interface);
-    for (Ipv6RoutingProtocolList::const_iterator rprotoIter = m_routingProtocols.begin();
-         rprotoIter != m_routingProtocols.end();
+    for (auto rprotoIter = m_routingProtocols.begin(); rprotoIter != m_routingProtocols.end();
          rprotoIter++)
     {
         (*rprotoIter).second->NotifyRemoveRoute(dst, mask, nextHop, interface, prefixToUse);
@@ -235,9 +221,7 @@ Ipv6ListRouting::PrintRoutingTable(Ptr<OutputStreamWrapper> stream, Time::Unit u
                          << ", Time: " << Now().As(unit)
                          << ", Local time: " << m_ipv6->GetObject<Node>()->GetLocalTime().As(unit)
                          << ", Ipv6ListRouting table" << std::endl;
-    for (Ipv6RoutingProtocolList::const_iterator i = m_routingProtocols.begin();
-         i != m_routingProtocols.end();
-         i++)
+    for (auto i = m_routingProtocols.begin(); i != m_routingProtocols.end(); i++)
     {
         *stream->GetStream() << "  Priority: " << (*i).first
                              << " Protocol: " << (*i).second->GetInstanceTypeId() << std::endl;
@@ -250,8 +234,7 @@ Ipv6ListRouting::SetIpv6(Ptr<Ipv6> ipv6)
 {
     NS_LOG_FUNCTION(this << ipv6);
     NS_ASSERT(!m_ipv6);
-    for (Ipv6RoutingProtocolList::const_iterator rprotoIter = m_routingProtocols.begin();
-         rprotoIter != m_routingProtocols.end();
+    for (auto rprotoIter = m_routingProtocols.begin(); rprotoIter != m_routingProtocols.end();
          rprotoIter++)
     {
         (*rprotoIter).second->SetIpv6(ipv6);
@@ -288,8 +271,7 @@ Ipv6ListRouting::GetRoutingProtocol(uint32_t index, int16_t& priority) const
                                                                          << " out of range");
     }
     uint32_t i = 0;
-    for (Ipv6RoutingProtocolList::const_iterator rprotoIter = m_routingProtocols.begin();
-         rprotoIter != m_routingProtocols.end();
+    for (auto rprotoIter = m_routingProtocols.begin(); rprotoIter != m_routingProtocols.end();
          rprotoIter++, i++)
     {
         if (i == index)

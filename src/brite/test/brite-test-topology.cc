@@ -1,16 +1,5 @@
 /*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  */
 
@@ -32,9 +21,9 @@
 using namespace ns3;
 
 /**
- * \ingroup brite-tests
+ * @ingroup brite-tests
  *
- * \brief BRITE topology structure Test
+ * @brief BRITE topology structure Test
  *
  * Test that two brite topologies created with same seed value
  * produce same graph (not an exact test)
@@ -101,9 +90,9 @@ BriteTopologyStructureTestCase::DoRun()
 }
 
 /**
- * \ingroup brite-tests
+ * @ingroup brite-tests
  *
- * \brief BRITE topology function Test
+ * @brief BRITE topology function Test
  *
  * Test that packets can be send across a BRITE topology using UDP
  */
@@ -185,19 +174,19 @@ BriteTopologyFunctionTestCase::DoRun()
 
     ApplicationContainer apps = onOff.Install(source.Get(0));
 
-    apps.Start(Seconds(1.0));
-    apps.Stop(Seconds(10.0));
+    apps.Start(Seconds(1));
+    apps.Stop(Seconds(10));
 
     PacketSinkHelper sinkHelper("ns3::UdpSocketFactory",
                                 Address(InetSocketAddress(Ipv4Address::GetAny(), port)));
     apps = sinkHelper.Install(sink.Get(0));
 
-    apps.Start(Seconds(1.0));
-    apps.Stop(Seconds(10.0));
+    apps.Start(Seconds(1));
+    apps.Stop(Seconds(10));
 
     Ipv4GlobalRoutingHelper::PopulateRoutingTables();
 
-    Simulator::Stop(Seconds(10.0));
+    Simulator::Stop(Seconds(10));
     Simulator::Run();
 
     Ptr<PacketSink> sink1 = DynamicCast<PacketSink>(apps.Get(0));
@@ -207,18 +196,18 @@ BriteTopologyFunctionTestCase::DoRun()
 }
 
 /**
- * \ingroup brite-tests
+ * @ingroup brite-tests
  *
- * \brief BRITE TestSuite
+ * @brief BRITE TestSuite
  */
 class BriteTestSuite : public TestSuite
 {
   public:
     BriteTestSuite()
-        : TestSuite("brite-testing", UNIT)
+        : TestSuite("brite-testing", Type::UNIT)
     {
-        AddTestCase(new BriteTopologyStructureTestCase, TestCase::QUICK);
-        AddTestCase(new BriteTopologyFunctionTestCase, TestCase::QUICK);
+        AddTestCase(new BriteTopologyStructureTestCase, TestCase::Duration::QUICK);
+        AddTestCase(new BriteTopologyFunctionTestCase, TestCase::Duration::QUICK);
     }
 };
 

@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2015, IMDEA Networks Institute
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Hany Assasa <hany.assasa@gmail.com>
 .*
@@ -72,12 +61,12 @@ CalculateThroughput()
 int
 main(int argc, char* argv[])
 {
-    uint32_t payloadSize = 1472;           /* Transport layer payload size in bytes. */
-    std::string dataRate = "100Mbps";      /* Application layer datarate. */
-    std::string tcpVariant = "TcpNewReno"; /* TCP variant type. */
-    std::string phyRate = "HtMcs7";        /* Physical layer bitrate. */
-    double simulationTime = 10;            /* Simulation time in seconds. */
-    bool pcapTracing = false;              /* PCAP Tracing is enabled or not. */
+    uint32_t payloadSize{1472};           /* Transport layer payload size in bytes. */
+    DataRate dataRate{"100Mb/s"};         /* Application layer datarate. */
+    std::string tcpVariant{"TcpNewReno"}; /* TCP variant type. */
+    std::string phyRate{"HtMcs7"};        /* Physical layer bitrate. */
+    Time simulationTime{"10s"};           /* Simulation time. */
+    bool pcapTracing{false};              /* PCAP Tracing is enabled or not. */
 
     /* Command line argument parser setup. */
     CommandLine cmd(__FILE__);
@@ -181,8 +170,8 @@ main(int argc, char* argv[])
     ApplicationContainer serverApp = server.Install(staWifiNode);
 
     /* Start Applications */
-    sinkApp.Start(Seconds(0.0));
-    serverApp.Start(Seconds(1.0));
+    sinkApp.Start(Seconds(0));
+    serverApp.Start(Seconds(1));
     Simulator::Schedule(Seconds(1.1), &CalculateThroughput);
 
     /* Enable Traces */
@@ -194,10 +183,11 @@ main(int argc, char* argv[])
     }
 
     /* Start Simulation */
-    Simulator::Stop(Seconds(simulationTime + 1));
+    Simulator::Stop(simulationTime + Seconds(1));
     Simulator::Run();
 
-    double averageThroughput = ((sink->GetTotalRx() * 8) / (1e6 * simulationTime));
+    auto averageThroughput =
+        (static_cast<double>(sink->GetTotalRx() * 8) / simulationTime.GetMicroSeconds());
 
     Simulator::Destroy();
 

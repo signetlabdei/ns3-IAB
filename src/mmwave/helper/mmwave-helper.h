@@ -106,8 +106,8 @@ public:
     struct IabMtDuCcIdInfo
     {
         // TODO: Need vector here when using CA ?
-        uint8_t m_duCcId;         // The CC ID for the MT
-        uint8_t m_mtCcId;         // The CC ID for the DU
+        uint8_t m_duCcId;         ///< The CC ID for the DU
+        uint8_t m_mtCcId;         ///< The CC ID for the MT
     };
 
     NetDeviceContainer InstallUeDevice(NodeContainer c);

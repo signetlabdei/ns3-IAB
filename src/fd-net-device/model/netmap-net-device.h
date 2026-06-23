@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2017 Universita' degli Studi di Napoli Federico II
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Pasquale Imputato <p.imputato@gmail.com>
  */
@@ -33,9 +22,9 @@ namespace ns3
 {
 
 /**
- * \ingroup fd-net-device
+ * @ingroup fd-net-device
  *
- * \brief Network device transmission queue with lock
+ * @brief Network device transmission queue with lock
  *
  * This class stores information about a single transmission queue
  * of a network device that is exposed to queue discs. This class extends
@@ -46,8 +35,8 @@ class NetDeviceQueueLock : public NetDeviceQueue
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
 
@@ -74,8 +63,8 @@ class NetDeviceQueueLock : public NetDeviceQueue
     virtual void Wake();
 
     /**
-     * \brief Get the status of the device transmission queue.
-     * \return true if the device transmission queue is stopped.
+     * @brief Get the status of the device transmission queue.
+     * @return true if the device transmission queue is stopped.
      *
      * Called by queue discs to enquire about the status of a given transmission queue.
      * This is the analogous to the netif_xmit_stopped function of the Linux kernel.
@@ -83,14 +72,14 @@ class NetDeviceQueueLock : public NetDeviceQueue
     virtual bool IsStopped() const;
 
     /**
-     * \brief Called by the netdevice to report the number of bytes queued to the device queue
-     * \param bytes number of bytes queued to the device queue
+     * @brief Called by the netdevice to report the number of bytes queued to the device queue
+     * @param bytes number of bytes queued to the device queue
      */
     virtual void NotifyQueuedBytes(uint32_t bytes);
 
     /**
-     * \brief Called by the netdevice to report the number of bytes it is going to transmit
-     * \param bytes number of bytes the device is going to transmit
+     * @brief Called by the netdevice to report the number of bytes it is going to transmit
+     * @param bytes number of bytes the device is going to transmit
      */
     virtual void NotifyTransmittedBytes(uint32_t bytes);
 
@@ -99,9 +88,9 @@ class NetDeviceQueueLock : public NetDeviceQueue
 };
 
 /**
- * \ingroup fd-net-device
+ * @ingroup fd-net-device
  *
- * \brief This class performs the actual data reading from the netmap ring.
+ * @brief This class performs the actual data reading from the netmap ring.
  */
 class NetmapNetDeviceFdReader : public FdReader
 {
@@ -109,14 +98,14 @@ class NetmapNetDeviceFdReader : public FdReader
     NetmapNetDeviceFdReader();
 
     /**
-     * \brief Set size of the read buffer.
-     * \param bufferSize the size of the read buffer
+     * @brief Set size of the read buffer.
+     * @param bufferSize the size of the read buffer
      */
     void SetBufferSize(uint32_t bufferSize);
 
     /**
-     * \brief Set netmap interface representation.
-     * \param nifp the netmap interface representation
+     * @brief Set netmap interface representation.
+     * @param nifp the netmap interface representation
      */
     void SetNetmapIfp(struct netmap_if* nifp);
 
@@ -128,9 +117,9 @@ class NetmapNetDeviceFdReader : public FdReader
 };
 
 /**
- * \ingroup fd-net-device
+ * @ingroup fd-net-device
  *
- * \brief a NetDevice to read/write network traffic from/into a netmap file descriptor.
+ * @brief a NetDevice to read/write network traffic from/into a netmap file descriptor.
  *
  * A NetmapNetDevice object will read and write packets from/to a netmap file descriptor.
  *
@@ -139,8 +128,8 @@ class NetmapNetDevice : public FdNetDevice
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
 
@@ -148,48 +137,48 @@ class NetmapNetDevice : public FdNetDevice
     virtual ~NetmapNetDevice();
 
     /**
-     * \brief Get the number of bytes currently in the netmap transmission ring.
-     * \return the number of bytes in the netmap transmission ring.
+     * @brief Get the number of bytes currently in the netmap transmission ring.
+     * @return the number of bytes in the netmap transmission ring.
      */
     uint32_t GetBytesInNetmapTxRing();
 
     /**
-     * \brief Get the number of slots currently available in the netmap transmission ring.
-     * \return the number of slots currently available in the netmap transmission ring.
+     * @brief Get the number of slots currently available in the netmap transmission ring.
+     * @return the number of slots currently available in the netmap transmission ring.
      */
     int GetSpaceInNetmapTxRing() const;
 
     /**
-     * \brief Set the NetDeviceQueue
-     * \param queue the NetDeviceQueue
+     * @brief Set the NetDeviceQueue
+     * @param queue the NetDeviceQueue
      */
     void SetNetDeviceQueue(Ptr<NetDeviceQueue> queue);
 
     /**
-     * \brief Set the netmap interface representation
-     * \param nifp the pointer to netmap interface representation
+     * @brief Set the netmap interface representation
+     * @param nifp the pointer to netmap interface representation
      */
     void SetNetmapInterfaceRepresentation(struct netmap_if* nifp);
 
     /**
-     * \brief Set the netmap transmission rings info
-     * \param nTxRings the number of transmission rings
-     * \param nTxRingsSlots the number of slots for each transmission ring
+     * @brief Set the netmap transmission rings info
+     * @param nTxRings the number of transmission rings
+     * @param nTxRingsSlots the number of slots for each transmission ring
      */
     void SetTxRingsInfo(uint32_t nTxRings, uint32_t nTxRingsSlots);
 
     /**
-     * \brief Set the netmap receiver rings info
-     * \param nRxRings the number of receiver rings
-     * \param nRxRingsSlots the number of slots for each receiver ring
+     * @brief Set the netmap receiver rings info
+     * @param nRxRings the number of receiver rings
+     * @param nRxRingsSlots the number of slots for each receiver ring
      */
     void SetRxRingsInfo(uint32_t nRxRings, uint32_t nRxRingsSlots);
 
     /**
-     * \brief The function Writes a packet into the netmap transmission ring.
-     * \param buffer the pointer to packet
-     * \param length the packet length
-     * \return the number of written bytes
+     * @brief The function Writes a packet into the netmap transmission ring.
+     * @param buffer the pointer to packet
+     * @param length the packet length
+     * @return the number of written bytes
      */
     virtual ssize_t Write(uint8_t* buffer, size_t length);
 
@@ -199,7 +188,7 @@ class NetmapNetDevice : public FdNetDevice
     void DoFinishStoppingDevice();
 
     /**
-     * \brief This function syncs netmap ring and notifies netdevice queue.
+     * @brief This function syncs netmap ring and notifies netdevice queue.
      * This function runs in a separate thread.
      */
     virtual void SyncAndNotifyQueue();

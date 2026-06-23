@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 CTTC
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Nicola Baldo <nbaldo@cttc.es>
  */
@@ -20,13 +9,14 @@
 #ifndef SPECTRUM_ANALYZER_H
 #define SPECTRUM_ANALYZER_H
 
-#include <ns3/mobility-model.h>
-#include <ns3/net-device.h>
-#include <ns3/nstime.h>
-#include <ns3/packet.h>
-#include <ns3/spectrum-channel.h>
-#include <ns3/spectrum-phy.h>
-#include <ns3/spectrum-value.h>
+#include "spectrum-channel.h"
+#include "spectrum-phy.h"
+#include "spectrum-value.h"
+
+#include "ns3/mobility-model.h"
+#include "ns3/net-device.h"
+#include "ns3/nstime.h"
+#include "ns3/packet.h"
 
 #include <fstream>
 #include <string>
@@ -35,7 +25,7 @@ namespace ns3
 {
 
 /**
- * \ingroup spectrum
+ * @ingroup spectrum
  *
  * Simple SpectrumPhy implementation that averages the spectrum power
  * density of incoming transmissions to produce a spectrogram.
@@ -51,8 +41,8 @@ class SpectrumAnalyzer : public SpectrumPhy
     ~SpectrumAnalyzer() override;
 
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
 
@@ -76,7 +66,7 @@ class SpectrumAnalyzer : public SpectrumPhy
     /**
      * Set the AntennaModel to be used
      *
-     * \param a the Antenna Model
+     * @param a the Antenna Model
      */
     void SetAntenna(Ptr<AntennaModel> a);
 
@@ -110,12 +100,12 @@ class SpectrumAnalyzer : public SpectrumPhy
 
     /**
      * Adds a signal to the data collected.
-     * \param psd signal to add
+     * @param psd signal to add
      */
     void AddSignal(Ptr<const SpectrumValue> psd);
     /**
      * Removes a signal to the data collected.
-     * \param psd signal to subtract
+     * @param psd signal to subtract
      */
     void SubtractSignal(Ptr<const SpectrumValue> psd);
     /**

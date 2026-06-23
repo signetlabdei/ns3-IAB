@@ -1,23 +1,11 @@
 /*
  * Copyright (c) 2010 Network Security Lab, University of Washington, Seattle.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Sidharth Nabar <snabar@uw.edu>, He Wu <mdzz@u.washington.edu>
  */
 
-#include "ns3/config-store-module.h"
 #include "ns3/core-module.h"
 #include "ns3/energy-module.h"
 #include "ns3/internet-module.h"
@@ -32,14 +20,15 @@
 #include <vector>
 
 using namespace ns3;
+using namespace ns3::energy;
 
 NS_LOG_COMPONENT_DEFINE("EnergyExample");
 
 /**
  * Print a received packet
  *
- * \param from sender address
- * \return a string with the details of the packet: dst {IP, port}, time.
+ * @param from sender address
+ * @return a string with the details of the packet: dst {IP, port}, time.
  */
 static inline std::string
 PrintReceivedPacket(Address& from)
@@ -54,7 +43,7 @@ PrintReceivedPacket(Address& from)
 }
 
 /**
- * \param socket Pointer to socket.
+ * @param socket Pointer to socket.
  *
  * Packet receiving sink.
  */
@@ -73,11 +62,11 @@ ReceivePacket(Ptr<Socket> socket)
 }
 
 /**
- * \param socket Pointer to socket.
- * \param pktSize Packet size.
- * \param n Pointer to node.
- * \param pktCount Number of packets to generate.
- * \param pktInterval Packet sending interval.
+ * @param socket Pointer to socket.
+ * @param pktSize Packet size.
+ * @param n Pointer to node.
+ * @param pktCount Number of packets to generate.
+ * @param pktInterval Packet sending interval.
  *
  * Traffic generator.
  */
@@ -108,8 +97,8 @@ GenerateTraffic(Ptr<Socket> socket,
 /**
  * Trace function for remaining energy at node.
  *
- * \param oldValue Old value
- * \param remainingEnergy New value
+ * @param oldValue Old value
+ * @param remainingEnergy New value
  */
 void
 RemainingEnergy(double oldValue, double remainingEnergy)
@@ -119,10 +108,10 @@ RemainingEnergy(double oldValue, double remainingEnergy)
 }
 
 /**
- * \brief Trace function for total energy consumption at node.
+ * @brief Trace function for total energy consumption at node.
  *
- * \param oldValue Old value
- * \param totalEnergy New value
+ * @param oldValue Old value
+ * @param totalEnergy New value
  */
 void
 TotalEnergy(double oldValue, double totalEnergy)
@@ -286,12 +275,10 @@ main(int argc, char* argv[])
                         numPackets,
                         interPacketInterval);
 
-    Simulator::Stop(Seconds(10.0));
+    Simulator::Stop(Seconds(10));
     Simulator::Run();
 
-    for (DeviceEnergyModelContainer::Iterator iter = deviceModels.Begin();
-         iter != deviceModels.End();
-         iter++)
+    for (auto iter = deviceModels.Begin(); iter != deviceModels.End(); iter++)
     {
         double energyConsumed = (*iter)->GetTotalEnergyConsumption();
         NS_LOG_UNCOND("End of simulation ("

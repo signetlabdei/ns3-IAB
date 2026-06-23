@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2022 Universita' degli Studi di Napoli Federico II
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Stefano Avallone <stavallo@unina.it>
  */
@@ -38,8 +27,8 @@ using namespace ns3;
 NS_LOG_COMPONENT_DEFINE("WifiDynamicBwOpTestSuite");
 
 /**
- * \ingroup wifi-test
- * \ingroup tests
+ * @ingroup wifi-test
+ * @ingroup tests
  *
  * Two BSSes, each with one AP and one non-AP STA, are configured to operate on
  * different channels. Specifically, the operating channel of BSS 1 is the secondary<X>
@@ -53,25 +42,25 @@ class WifiUseAvailBwTest : public TestCase
     /**
      * Constructor
      *
-     * \param channelStr channel setting strings for BSS 0 and BSS 1
-     * \param bss0Width width (MHz) of the transmission in BSS 0 started when BSS 1 is transmitting
+     * @param channelStr channel setting strings for BSS 0 and BSS 1
+     * @param bss0Width width of the transmission in BSS 0 started when BSS 1 is transmitting
      */
-    WifiUseAvailBwTest(std::initializer_list<std::string> channelStr, uint16_t bss0Width);
+    WifiUseAvailBwTest(std::initializer_list<std::string> channelStr, MHz_u bss0Width);
     ~WifiUseAvailBwTest() override;
 
     /**
      * Function to trace packets received by the server application in the given BSS
-     * \param bss the given BSS
-     * \param p the packet
-     * \param addr the address
+     * @param bss the given BSS
+     * @param p the packet
+     * @param addr the address
      */
     void L7Receive(uint8_t bss, Ptr<const Packet> p, const Address& addr);
     /**
      * Callback invoked when a PHY receives a PSDU to transmit
-     * \param bss the BSS the PSDU belongs to
-     * \param psduMap the PSDU map
-     * \param txVector the TX vector
-     * \param txPowerW the tx power in Watts
+     * @param bss the BSS the PSDU belongs to
+     * @param psduMap the PSDU map
+     * @param txVector the TX vector
+     * @param txPowerW the tx power in Watts
      */
     void Transmit(uint8_t bss, WifiConstPsduMap psduMap, WifiTxVector txVector, double txPowerW);
     /**
@@ -94,7 +83,7 @@ class WifiUseAvailBwTest : public TestCase
     };
 
     std::vector<std::string> m_channelStr;        ///< channel setting strings
-    uint16_t m_bss0Width;                         ///< width (MHz) of the transmission in BSS 0
+    MHz_u m_bss0Width;                            ///< width of the transmission in BSS 0
                                                   ///< started when BSS 1 is transmitting
     NetDeviceContainer m_staDevices;              ///< container for stations' NetDevices
     NetDeviceContainer m_apDevices;               ///< container for AP's NetDevice
@@ -106,7 +95,7 @@ class WifiUseAvailBwTest : public TestCase
 };
 
 WifiUseAvailBwTest::WifiUseAvailBwTest(std::initializer_list<std::string> channelStr,
-                                       uint16_t bss0Width)
+                                       MHz_u bss0Width)
     : TestCase("Check transmission on available bandwidth"),
       m_channelStr(channelStr),
       m_bss0Width(bss0Width),
@@ -134,6 +123,7 @@ WifiUseAvailBwTest::Transmit(uint8_t bss,
 {
     auto psdu = psduMap.begin()->second;
     Time now = Simulator::Now();
+    const auto band = DynamicCast<WifiNetDevice>(m_apDevices.Get(0))->GetPhy()->GetPhyBand();
 
     // Log all frames that are not management frames (we are only interested in data
     // frames and acknowledgments) and have been transmitted after 400ms (so as to
@@ -141,7 +131,7 @@ WifiUseAvailBwTest::Transmit(uint8_t bss,
     if (!psdu->GetHeader(0).IsMgt() && now > MilliSeconds(400))
     {
         m_txPsdus.push_back({now,
-                             WifiPhy::CalculateTxDuration(psduMap, txVector, WIFI_PHY_BAND_5GHZ),
+                             WifiPhy::CalculateTxDuration(psduMap, txVector, band),
                              bss,
                              psdu->GetHeader(0),
                              psdu->GetNMpdus(),
@@ -151,8 +141,8 @@ WifiUseAvailBwTest::Transmit(uint8_t bss,
     NS_LOG_INFO(now << " BSS " << +bss << " " << psdu->GetHeader(0).GetTypeString() << " seq "
                     << psdu->GetHeader(0).GetSequenceNumber() << " to " << psdu->GetAddr1()
                     << " #MPDUs " << psdu->GetNMpdus() << " size " << psdu->GetSize()
-                    << " TX duration "
-                    << WifiPhy::CalculateTxDuration(psduMap, txVector, WIFI_PHY_BAND_5GHZ) << "\n"
+                    << " TX duration " << WifiPhy::CalculateTxDuration(psduMap, txVector, band)
+                    << "\n"
                     << "TXVECTOR " << txVector << "\n");
 
     // when AP of BSS 1 starts transmitting (after 1.5 s), we generate packets
@@ -165,8 +155,8 @@ WifiUseAvailBwTest::Transmit(uint8_t bss,
         client->SetAttribute("Interval", TimeValue(MicroSeconds(0)));
         client->SetRemote(m_sockets[0]);
         m_apDevices.Get(0)->GetNode()->AddApplication(client);
-        client->SetStartTime(Seconds(0));  // start now
-        client->SetStopTime(Seconds(1.0)); // stop in a second
+        client->SetStartTime(TimeStep(1)); // start shortly after the start of PPDU in BSS 1
+        client->SetStopTime(Seconds(1));   // stop in a second
         client->Initialize();
 
         // after 1us (to allow for propagation delay), the largest idle primary
@@ -202,11 +192,16 @@ WifiUseAvailBwTest::DoRun()
     SpectrumWifiPhyHelper phy;
     phy.SetChannel(spectrumChannel);
 
+    // increase TX power to ensure signal spread over 160 MHz will trigger CCA busy indication on
+    // each 20 MHz subchannel
+    phy.Set("TxPowerStart", DoubleValue(20));
+    phy.Set("TxPowerEnd", DoubleValue(20));
+
     WifiHelper wifi;
-    wifi.SetStandard(WIFI_STANDARD_80211ax);
+    wifi.SetStandard(WIFI_STANDARD_80211be);
     wifi.SetRemoteStationManager("ns3::ConstantRateWifiManager",
                                  "DataMode",
-                                 StringValue("HeMcs0"),
+                                 StringValue("EhtMcs0"),
                                  "ControlMode",
                                  StringValue("OfdmRate6Mbps"));
 
@@ -232,8 +227,8 @@ WifiUseAvailBwTest::DoRun()
     Ptr<WifiNetDevice> dev;
 
     // Assign fixed streams to random variables in use
-    streamNumber += wifi.AssignStreams(m_apDevices, streamNumber);
-    streamNumber += wifi.AssignStreams(m_staDevices, streamNumber);
+    streamNumber += WifiHelper::AssignStreams(m_apDevices, streamNumber);
+    streamNumber += WifiHelper::AssignStreams(m_staDevices, streamNumber);
 
     MobilityHelper mobility;
     Ptr<ListPositionAllocator> positionAlloc = CreateObject<ListPositionAllocator>();
@@ -277,7 +272,7 @@ WifiUseAvailBwTest::DoRun()
         client1->SetRemote(m_sockets[bss]);
         wifiApNodes.Get(bss)->AddApplication(client1);
         client1->SetStartTime(Seconds(0.5) + bss * MilliSeconds(500));
-        client1->SetStopTime(Seconds(2.0));
+        client1->SetStopTime(Seconds(2));
 
         // At time 1.5, start a transmission in BSS 1
         if (bss == 1)
@@ -289,14 +284,14 @@ WifiUseAvailBwTest::DoRun()
             client2->SetRemote(m_sockets[bss]);
             wifiApNodes.Get(bss)->AddApplication(client2);
             client2->SetStartTime(Seconds(1.5));
-            client2->SetStopTime(Seconds(2.0));
+            client2->SetStopTime(Seconds(2));
         }
 
         Ptr<PacketSocketServer> server = CreateObject<PacketSocketServer>();
         server->SetLocal(m_sockets[bss]);
         wifiStaNodes.Get(bss)->AddApplication(server);
-        server->SetStartTime(Seconds(0.0));
-        server->SetStopTime(Seconds(2.0));
+        server->SetStartTime(Seconds(0));
+        server->SetStopTime(Seconds(2));
 
         // Trace received packets on non-AP STAs
         Config::ConnectWithoutContext("/NodeList/" + std::to_string(2 + bss) +
@@ -418,10 +413,10 @@ WifiUseAvailBwTest::CheckResults()
 }
 
 /**
- * \ingroup wifi-test
- * \ingroup tests
+ * @ingroup wifi-test
+ * @ingroup tests
  *
- * \brief wifi dynamic bandwidth operation Test Suite
+ * @brief wifi dynamic bandwidth operation Test Suite
  */
 class WifiDynamicBwOpTestSuite : public TestSuite
 {
@@ -430,7 +425,7 @@ class WifiDynamicBwOpTestSuite : public TestSuite
 };
 
 WifiDynamicBwOpTestSuite::WifiDynamicBwOpTestSuite()
-    : TestSuite("wifi-dynamic-bw-op", UNIT)
+    : TestSuite("wifi-dynamic-bw-op", Type::UNIT)
 {
     /**
      *                    primary20
@@ -442,8 +437,9 @@ WifiDynamicBwOpTestSuite::WifiDynamicBwOpTestSuite()
      *  BSS 1   │   52   │
      *          └────────┘
      */
-    AddTestCase(new WifiUseAvailBwTest({"{54, 40, BAND_5GHZ, 1}", "{52, 20, BAND_5GHZ, 0}"}, 20),
-                TestCase::QUICK);
+    AddTestCase(
+        new WifiUseAvailBwTest({"{54, 40, BAND_5GHZ, 1}", "{52, 20, BAND_5GHZ, 0}"}, MHz_u{20}),
+        TestCase::Duration::QUICK);
     /**
      *           ─── primary 40 ───
      *           primary20
@@ -456,8 +452,9 @@ WifiDynamicBwOpTestSuite::WifiDynamicBwOpTestSuite()
      *                            └────────┴────────┘
      *                                      primary20
      */
-    AddTestCase(new WifiUseAvailBwTest({"{58, 80, BAND_5GHZ, 0}", "{62, 40, BAND_5GHZ, 1}"}, 40),
-                TestCase::QUICK);
+    AddTestCase(
+        new WifiUseAvailBwTest({"{58, 80, BAND_5GHZ, 0}", "{62, 40, BAND_5GHZ, 1}"}, MHz_u{40}),
+        TestCase::Duration::QUICK);
     /**
      *                                               ─────────── primary 80 ───────────
      *                                                       primary20
@@ -470,8 +467,24 @@ WifiDynamicBwOpTestSuite::WifiDynamicBwOpTestSuite()
      *          └────────┴────────┴────────┴────────┘
      *                             primary20
      */
-    AddTestCase(new WifiUseAvailBwTest({"{50, 160, BAND_5GHZ, 5}", "{42, 80, BAND_5GHZ, 2}"}, 80),
-                TestCase::QUICK);
+    AddTestCase(
+        new WifiUseAvailBwTest({"{50, 160, BAND_5GHZ, 5}", "{42, 80, BAND_5GHZ, 2}"}, MHz_u{80}),
+        TestCase::Duration::QUICK);
+    /**
+     *                                                  ────────────── primary 160 ──────────────
+     *                                                           primary20
+     *          ┌────┬────┬────┬────┬────┬────┬────┬────┬────┬────┬────┬────┬────┬────┬────┬────┐
+     *  BSS 0   │  1 │  5 │  9 │ 13 │ 17 │ 21 │ 25 │ 29 │ 33 │ 37 │ 41 │ 45 │ 49 │ 53 │ 57 │ 61 │
+     *          └────┴────┴────┴────┴────┴────┴────┴────┴────┴────┴────┴────┴────┴────┴────┴────┘
+     *
+     *          ┌────┬────┬────┬────┬────┬────┬────┬────┐
+     *  BSS 1   │  1 │  5 │  9 │ 13 │ 17 │ 21 │ 25 │ 29 │
+     *          └────┴────┴────┴────┴────┴────┴────┴────┘
+     *                                            primary20
+     */
+    AddTestCase(
+        new WifiUseAvailBwTest({"{31, 320, BAND_6GHZ, 10}", "{15, 160, BAND_6GHZ, 7}"}, MHz_u{160}),
+        TestCase::Duration::QUICK);
 }
 
 static WifiDynamicBwOpTestSuite g_wifiDynamicBwOpTestSuite; ///< the test suite

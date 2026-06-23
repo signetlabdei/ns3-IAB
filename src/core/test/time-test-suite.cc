@@ -2,18 +2,7 @@
  * Copyright (c) 2005,2006 INRIA
  * Copyright (c) 2007 Emmanuelle Laprise
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  * TimeStep support by Emmanuelle Laprise <emmanuelle.laprise@bluekazoo.ca>
@@ -33,47 +22,47 @@
 using namespace ns3;
 
 /**
- * \ingroup core-tests
- * \brief time simple test case, Checks the basic operations on time
+ * @ingroup core-tests
+ * @brief time simple test case, Checks the basic operations on time
  */
 class TimeSimpleTestCase : public TestCase
 {
   public:
     /**
-     * \brief constructor for TimeSimpleTestCase.
+     * @brief constructor for TimeSimpleTestCase.
      */
     TimeSimpleTestCase();
 
   private:
     /**
-     * \brief setup function for TimeSimpleTestCase.
+     * @brief setup function for TimeSimpleTestCase.
      */
     void DoSetup() override;
 
     /**
-     * \brief Runs the Simple Time test case.
+     * @brief Runs the Simple Time test case.
      */
     void DoRun() override;
 
     /**
-     * \brief Tests the Time Operations.
+     * @brief Tests the Time Operations.
      */
     virtual void DoTimeOperations();
 
     /**
-     * \brief Does the tear down for TimeSimpleTestCase.
+     * @brief Does the tear down for TimeSimpleTestCase.
      */
     void DoTeardown() override;
 
     /**
      * Helper function to handle boilerplate code for multiplication tests
      *
-     * \tparam T type of multiplication value
+     * @tparam T type of multiplication value
      *
-     * \param t Time value to multiply
-     * \param expected Expected result of the multiplication
-     * \param val Value to multiply by
-     * \param msg Error message to print if test fails
+     * @param t Time value to multiply
+     * @param expected Expected result of the multiplication
+     * @param val Value to multiply by
+     * @param msg Error message to print if test fails
      */
     template <typename T>
     void TestMultiplication(Time t, Time expected, T val, const std::string& msg);
@@ -91,12 +80,12 @@ class TimeSimpleTestCase : public TestCase
     /**
      * Helper function to handle boilerplate code for division tests
      *
-     * \tparam T type of division value
+     * @tparam T type of division value
      *
-     * \param t Time value to divide
-     * \param expected Expected result of the division
-     * \param val Value to divide by
-     * \param msg Error message to print if test fails
+     * @param t Time value to divide
+     * @param expected Expected result of the division
+     * @param val Value to divide by
+     * @param msg Error message to print if test fails
      */
     template <typename T>
     void TestDivision(Time t, Time expected, T val, const std::string& msg);
@@ -179,11 +168,11 @@ TimeSimpleTestCase::DoRun()
                               10.0,
                               Minutes(1).GetMinutes(),
                               "is 10 really 10 ?");
-    NS_TEST_ASSERT_MSG_EQ_TOL(Seconds(1.0).GetSeconds(),
+    NS_TEST_ASSERT_MSG_EQ_TOL(Seconds(1).GetSeconds(),
                               1.0,
                               TimeStep(1).GetSeconds(),
                               "is 1 really 1 ?");
-    NS_TEST_ASSERT_MSG_EQ_TOL(Seconds(10.0).GetSeconds(),
+    NS_TEST_ASSERT_MSG_EQ_TOL(Seconds(10).GetSeconds(),
                               10.0,
                               TimeStep(1).GetSeconds(),
                               "is 10 really 10 ?");
@@ -336,30 +325,30 @@ TimeSimpleTestCase::TestDivisionByDecimalTypes()
 }
 
 /**
- * \ingroup core-tests
- * \brief  time-tests Time with Sign test case
+ * @ingroup core-tests
+ * @brief  time-tests Time with Sign test case
  */
 class TimeWithSignTestCase : public TestCase
 {
   public:
     /**
-     * \brief constructor for TimeWithSignTestCase.
+     * @brief constructor for TimeWithSignTestCase.
      */
     TimeWithSignTestCase();
 
   private:
     /**
-     * \brief DoSetup for TimeWithSignTestCase.
+     * @brief DoSetup for TimeWithSignTestCase.
      */
     void DoSetup() override;
 
     /**
-     * \brief DoRun for TimeWithSignTestCase.
+     * @brief DoRun for TimeWithSignTestCase.
      */
     void DoRun() override;
 
     /**
-     * \brief DoTeardown for TimeWithSignTestCase.
+     * @brief DoTeardown for TimeWithSignTestCase.
      */
     void DoTeardown() override;
 };
@@ -410,32 +399,32 @@ TimeWithSignTestCase::DoTeardown()
 }
 
 /**
- * \ingroup core-tests
- * \brief Input output Test Case for Time
+ * @ingroup core-tests
+ * @brief Input output Test Case for Time
  */
 class TimeInputOutputTestCase : public TestCase
 {
   public:
     /**
-     * \brief Constructor for TimeInputOutputTestCase.
+     * @brief Constructor for TimeInputOutputTestCase.
      */
     TimeInputOutputTestCase();
 
   private:
     /**
-     * \brief DoRun for TimeInputOutputTestCase.
+     * @brief DoRun for TimeInputOutputTestCase.
      */
     void DoRun() override;
     /**
-     * \brief Check roundtrip from/to string.
-     * \param str Time input check.
+     * @brief Check roundtrip from/to string.
+     * @param str Time input check.
      */
     void Check(const std::string& str);
 
     /**
-     * \brief Check autoscaling output using Time::As()
-     * \param t Time instance.
-     * \param expect Expected string output with Time::As() autoscaling.
+     * @brief Check autoscaling output using Time::As()
+     * @param t Time instance.
+     * @param expect Expected string output with Time::As() autoscaling.
      */
     void CheckAs(const Time t, const std::string expect);
 };
@@ -535,20 +524,20 @@ TimeInputOutputTestCase::DoRun()
 }
 
 /**
- * \ingroup core-tests
- * \brief   Time test Suite.  Runs the appropriate test cases for time
+ * @ingroup core-tests
+ * @brief   Time test Suite.  Runs the appropriate test cases for time
  */
 static class TimeTestSuite : public TestSuite
 {
   public:
     TimeTestSuite()
-        : TestSuite("time", UNIT)
+        : TestSuite("time", Type::UNIT)
     {
-        AddTestCase(new TimeWithSignTestCase(), TestCase::QUICK);
-        AddTestCase(new TimeInputOutputTestCase(), TestCase::QUICK);
+        AddTestCase(new TimeWithSignTestCase(), TestCase::Duration::QUICK);
+        AddTestCase(new TimeInputOutputTestCase(), TestCase::Duration::QUICK);
         // This should be last, since it changes the resolution
-        AddTestCase(new TimeSimpleTestCase(), TestCase::QUICK);
+        AddTestCase(new TimeSimpleTestCase(), TestCase::Duration::QUICK);
     }
 }
-/** \brief Member variable for time test suite */
+/** @brief Member variable for time test suite */
 g_timeTestSuite;

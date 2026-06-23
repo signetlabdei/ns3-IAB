@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2007 Emmanuelle Laprise
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Emmanuelle Laprise <emmanuelle.laprise@bluekazoo.ca>
  */
@@ -20,8 +9,9 @@
 #ifndef ETHERNET_HEADER_H
 #define ETHERNET_HEADER_H
 
+#include "mac48-address.h"
+
 #include "ns3/header.h"
-#include "ns3/mac48-address.h"
 
 #include <string>
 
@@ -29,7 +19,7 @@ namespace ns3
 {
 
 /**
- * \ingroup network
+ * @ingroup network
  *
  * Types of ethernet packets. Indicates the type of the current
  * header.
@@ -43,9 +33,9 @@ enum ethernet_header_t
 };
 
 /**
- * \ingroup network
+ * @ingroup network
  *
- * \brief Packet header for Ethernet
+ * @brief Packet header for Ethernet
  *
  * This class can be used to add a header to an ethernet packet that
  * will specify the source and destination addresses and the length of
@@ -56,60 +46,60 @@ class EthernetHeader : public Header
 {
   public:
     /**
-     * \brief Construct a null ethernet header
-     * \param hasPreamble if true, insert and remove an ethernet preamble from the
+     * @brief Construct a null ethernet header
+     * @param hasPreamble if true, insert and remove an ethernet preamble from the
      *       packet, if false, does not insert and remove it.
      */
     EthernetHeader(bool hasPreamble);
     /**
-     * \brief Construct a null ethernet header
+     * @brief Construct a null ethernet header
      * By default, does not add or remove an ethernet preamble
      */
     EthernetHeader();
     /**
-     * \param size The size of the payload in bytes
+     * @param size The size of the payload in bytes
      */
     void SetLengthType(uint16_t size);
     /**
-     * \param source The source address of this packet
+     * @param source The source address of this packet
      */
     void SetSource(Mac48Address source);
     /**
-     * \param destination The destination address of this packet.
+     * @param destination The destination address of this packet.
      */
     void SetDestination(Mac48Address destination);
     /**
-     * \param preambleSfd The value that the preambleSfd field should take
+     * @param preambleSfd The value that the preambleSfd field should take
      */
     void SetPreambleSfd(uint64_t preambleSfd);
     /**
-     * \return The size of the payload in bytes
+     * @return The size of the payload in bytes
      */
     uint16_t GetLengthType() const;
     /**
-     * \return The type of packet (only basic Ethernet is currently supported)
+     * @return The type of packet (only basic Ethernet is currently supported)
      */
     ethernet_header_t GetPacketType() const;
     /**
-     * \return The source address of this packet
+     * @return The source address of this packet
      */
     Mac48Address GetSource() const;
     /**
-     * \return The destination address of this packet
+     * @return The destination address of this packet
      */
     Mac48Address GetDestination() const;
     /**
-     * \return The value of the PreambleSfd field
+     * @return The value of the PreambleSfd field
      */
     uint64_t GetPreambleSfd() const;
     /**
-     * \return The size of the header
+     * @return The size of the header
      */
     uint32_t GetHeaderSize() const;
 
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
     TypeId GetInstanceTypeId() const override;

@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2015 Universita' degli Studi di Napoli Federico II
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Stefano Avallone <stavallo@unina.it>
  */
@@ -71,17 +60,13 @@ QueueDiscFactory::CreateQueueDisc(const std::vector<Ptr<QueueDisc>>& queueDiscs)
     Ptr<QueueDisc> qd = m_queueDiscFactory.Create<QueueDisc>();
 
     // create and add the internal queues
-    for (std::vector<ObjectFactory>::iterator i = m_internalQueuesFactory.begin();
-         i != m_internalQueuesFactory.end();
-         i++)
+    for (auto i = m_internalQueuesFactory.begin(); i != m_internalQueuesFactory.end(); i++)
     {
         qd->AddInternalQueue(i->Create<QueueDisc::InternalQueue>());
     }
 
     // create and add the packet filters
-    for (std::vector<ObjectFactory>::iterator i = m_packetFiltersFactory.begin();
-         i != m_packetFiltersFactory.end();
-         i++)
+    for (auto i = m_packetFiltersFactory.begin(); i != m_packetFiltersFactory.end(); i++)
     {
         qd->AddPacketFilter(i->Create<PacketFilter>());
     }
@@ -182,7 +167,7 @@ TrafficControlHelper::DoAddChildQueueDisc(uint16_t handle, uint16_t classId, Obj
     NS_ABORT_MSG_IF(handle >= m_queueDiscFactory.size(),
                     "A queue disc with handle " << handle << " does not exist");
 
-    uint16_t childHandle = static_cast<uint16_t>(m_queueDiscFactory.size());
+    auto childHandle = static_cast<uint16_t>(m_queueDiscFactory.size());
     m_queueDiscFactory.emplace_back(factory);
     m_queueDiscFactory[handle].SetChildQueueDisc(classId, childHandle);
 
@@ -195,7 +180,7 @@ TrafficControlHelper::DoAddChildQueueDiscs(uint16_t handle,
                                            ObjectFactory factory)
 {
     HandleList list;
-    for (ClassIdList::const_iterator c = classes.begin(); c != classes.end(); c++)
+    for (auto c = classes.begin(); c != classes.end(); c++)
     {
         uint16_t childHandle = DoAddChildQueueDisc(handle, *c, factory);
         list.push_back(childHandle);
@@ -254,7 +239,7 @@ TrafficControlHelper::Install(NetDeviceContainer c)
 {
     QueueDiscContainer container;
 
-    for (NetDeviceContainer::Iterator i = c.Begin(); i != c.End(); ++i)
+    for (auto i = c.Begin(); i != c.End(); ++i)
     {
         container.Add(Install(*i));
     }
@@ -283,7 +268,7 @@ TrafficControlHelper::Uninstall(Ptr<NetDevice> d)
 void
 TrafficControlHelper::Uninstall(NetDeviceContainer c)
 {
-    for (NetDeviceContainer::Iterator i = c.Begin(); i != c.End(); ++i)
+    for (auto i = c.Begin(); i != c.End(); ++i)
     {
         Uninstall(*i);
     }

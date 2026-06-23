@@ -1,24 +1,13 @@
 /*
  * Copyright (c) 2020 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  */
 
 #include "box-line-intersection-test.h"
 
-#include <ns3/simulator.h>
+#include "ns3/simulator.h"
 
 using namespace ns3;
 
@@ -31,7 +20,7 @@ using namespace ns3;
  */
 
 BoxLineIntersectionTestSuite::BoxLineIntersectionTestSuite()
-    : TestSuite("box-line-intersection", UNIT)
+    : TestSuite("box-line-intersection", Type::UNIT)
 {
     // Box in the positive x-plane to check the intersection with.
     Box box = Box(890.0, 990.0, 840.0, 870.0, 0.0, 6.0);
@@ -42,28 +31,28 @@ BoxLineIntersectionTestSuite::BoxLineIntersectionTestSuite()
     // Expected result: No intersection. The box is between the two position,
     // however, pos2 is above the height of the box.
     intersect = false;
-    AddTestCase(new BoxLineIntersectionTestCase(3, 6, box, intersect), TestCase::QUICK);
+    AddTestCase(new BoxLineIntersectionTestCase(3, 6, box, intersect), TestCase::Duration::QUICK);
 
     // Test #2 :
     // pos1 (index 1) is inside the box.
     // pos2 (index 2) is inside the box.
     // Expected result: Intersection.
     intersect = true;
-    AddTestCase(new BoxLineIntersectionTestCase(1, 2, box, intersect), TestCase::QUICK);
+    AddTestCase(new BoxLineIntersectionTestCase(1, 2, box, intersect), TestCase::Duration::QUICK);
 
     // Test #3 :
     // pos1 (index 3) is outside the box.
     // pos2 (index 1) is inside the box.
     // Expected result: Intersection.
     intersect = true;
-    AddTestCase(new BoxLineIntersectionTestCase(3, 1, box, intersect), TestCase::QUICK);
+    AddTestCase(new BoxLineIntersectionTestCase(3, 1, box, intersect), TestCase::Duration::QUICK);
 
     // Test #4:
     // pos1 (index 4) is outside the box.
     // pos2 (index 5) is outside the box.
     // Expected result: Intersection because box is in between the two positions.
     intersect = true;
-    AddTestCase(new BoxLineIntersectionTestCase(4, 5, box, intersect), TestCase::QUICK);
+    AddTestCase(new BoxLineIntersectionTestCase(4, 5, box, intersect), TestCase::Duration::QUICK);
 }
 
 static BoxLineIntersectionTestSuite boxLineIntersectionTestSuite; //!< boxLineIntersectionTestSuite

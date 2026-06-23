@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2013 Universita' di Firenze
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Tommaso Pecorella <tommaso.pecorella@unifi.it>
  */
@@ -41,7 +30,7 @@ Ipv6PmtuCache::GetTypeId()
                 "Validity time for a Path MTU entry. Default is 10 minutes, minimum is 5 minutes.",
                 TimeValue(Seconds(60 * 10)),
                 MakeTimeAccessor(&Ipv6PmtuCache::m_validityTime),
-                MakeTimeChecker(Time(Seconds(60 * 5))));
+                MakeTimeChecker(Seconds(60 * 5)));
     return tid;
 }
 
@@ -56,7 +45,7 @@ Ipv6PmtuCache::~Ipv6PmtuCache()
 void
 Ipv6PmtuCache::DoDispose()
 {
-    for (pathMtuTimerIter iter = m_pathMtuTimer.begin(); iter != m_pathMtuTimer.end(); iter++)
+    for (auto iter = m_pathMtuTimer.begin(); iter != m_pathMtuTimer.end(); iter++)
     {
         iter->second.Cancel();
     }

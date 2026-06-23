@@ -1,30 +1,25 @@
 /*
  * Copyright (c) 2021 DERONNE SOFTWARE ENGINEERING
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Sébastien Deronne <sebastien.deronne@gmail.com>
  */
 
 #include "eht-phy.h"
 
+#include "eht-configuration.h"
 #include "eht-ppdu.h"
 
 #include "ns3/interference-helper.h"
+#include "ns3/obss-pd-algorithm.h"
+#include "ns3/wifi-net-device.h"
 #include "ns3/wifi-phy.h"
 #include "ns3/wifi-psdu.h"
 #include "ns3/wifi-utils.h"
+
+#undef NS_LOG_APPEND_CONTEXT
+#define NS_LOG_APPEND_CONTEXT WIFI_PHY_NS_LOG_APPEND_CONTEXT(m_wifiPhy)
 
 namespace ns3
 {
@@ -49,6 +44,16 @@ const PhyEntity::PpduFormats EhtPhy::m_ehtPpduFormats {
                               WIFI_PPDU_FIELD_U_SIG,         // U-SIG
                               WIFI_PPDU_FIELD_TRAINING,      // EHT-STF + EHT-LTFs
                               WIFI_PPDU_FIELD_DATA } }
+};
+
+/**
+ * \brief map a given secondary channel width to its channel list type
+ */
+const std::map<MHz_u, WifiChannelListType> ehtSecondaryChannels {
+    {20, WIFI_CHANLIST_SECONDARY},
+    {40, WIFI_CHANLIST_SECONDARY40},
+    {80, WIFI_CHANLIST_SECONDARY80},
+    {160, WIFI_CHANLIST_SECONDARY160},
 };
 
 // clang-format on
@@ -82,6 +87,16 @@ EhtPhy::BuildModeList()
         NS_LOG_LOGIC("Add EhtMcs" << +index << " to list");
         m_modeList.emplace_back(CreateEhtMcs(index));
     }
+}
+
+uint16_t
+EhtPhy::GetUsableSubcarriers(MHz_u channelWidth)
+{
+    if (channelWidth == MHz_u{320})
+    {
+        return 3920;
+    }
+    return HePhy::GetUsableSubcarriers(channelWidth);
 }
 
 WifiMode
@@ -129,8 +144,24 @@ EhtPhy::GetDuration(WifiPpduField field, const WifiTxVector& txVector) const
     }
 }
 
+uint32_t
+EhtPhy::GetSigBSize(const WifiTxVector& txVector) const
+{
+    if (ns3::IsDlMu(txVector.GetPreambleType()) && ns3::IsEht(txVector.GetPreambleType()))
+    {
+        return EhtPpdu::GetEhtSigFieldSize(
+            txVector.GetChannelWidth(),
+            txVector.GetRuAllocation(
+                m_wifiPhy ? m_wifiPhy->GetOperatingChannel().GetPrimaryChannelIndex(MHz_u{20}) : 0),
+            txVector.GetEhtPpduType(),
+            txVector.IsSigBCompression(),
+            txVector.IsSigBCompression() ? txVector.GetHeMuUserInfoMap().size() : 0);
+    }
+    return HePhy::GetSigBSize(txVector);
+}
+
 Time
-EhtPhy::CalculateNonOfdmaDurationForHeTb(const WifiTxVector& txVector) const
+EhtPhy::CalculateNonHeDurationForHeTb(const WifiTxVector& txVector) const
 {
     Time duration = GetDuration(WIFI_PPDU_FIELD_PREAMBLE, txVector) +
                     GetDuration(WIFI_PPDU_FIELD_NON_HT_HEADER, txVector) +
@@ -139,7 +170,7 @@ EhtPhy::CalculateNonOfdmaDurationForHeTb(const WifiTxVector& txVector) const
 }
 
 Time
-EhtPhy::CalculateNonOfdmaDurationForHeMu(const WifiTxVector& txVector) const
+EhtPhy::CalculateNonHeDurationForHeMu(const WifiTxVector& txVector) const
 {
     Time duration = GetDuration(WIFI_PPDU_FIELD_PREAMBLE, txVector) +
                     GetDuration(WIFI_PPDU_FIELD_NON_HT_HEADER, txVector) +
@@ -160,10 +191,8 @@ EhtPhy::BuildPpdu(const WifiConstPsduMap& psdus, const WifiTxVector& txVector, T
     NS_LOG_FUNCTION(this << psdus << txVector << ppduDuration);
     return Create<EhtPpdu>(psdus,
                            txVector,
-                           m_wifiPhy->GetOperatingChannel().GetPrimaryChannelCenterFrequency(
-                               txVector.GetChannelWidth()),
+                           m_wifiPhy->GetOperatingChannel(),
                            ppduDuration,
-                           m_wifiPhy->GetPhyBand(),
                            ObtainNextUid(txVector),
                            HePpdu::PSD_NON_HE_PORTION);
 }
@@ -257,7 +286,7 @@ EhtPhy::GetEhtMcs(uint8_t index)
     {                                                                                              \
         static WifiMode mcs = CreateEhtMcs(x);                                                     \
         return mcs;                                                                                \
-    };
+    }
 
 GET_EHT_MCS(0)
 GET_EHT_MCS(1)
@@ -320,20 +349,20 @@ EhtPhy::GetConstellationSize(uint8_t mcsValue)
 }
 
 uint64_t
-EhtPhy::GetPhyRate(uint8_t mcsValue, uint16_t channelWidth, uint16_t guardInterval, uint8_t nss)
+EhtPhy::GetPhyRate(uint8_t mcsValue, MHz_u channelWidth, Time guardInterval, uint8_t nss)
 {
-    WifiCodeRate codeRate = GetCodeRate(mcsValue);
-    uint64_t dataRate = GetDataRate(mcsValue, channelWidth, guardInterval, nss);
+    const auto codeRate = GetCodeRate(mcsValue);
+    const auto dataRate = GetDataRate(mcsValue, channelWidth, guardInterval, nss);
     return HtPhy::CalculatePhyRate(codeRate, dataRate);
 }
 
 uint64_t
 EhtPhy::GetPhyRateFromTxVector(const WifiTxVector& txVector, uint16_t staId /* = SU_STA_ID */)
 {
-    uint16_t bw = txVector.GetChannelWidth();
+    auto bw = txVector.GetChannelWidth();
     if (txVector.IsMu())
     {
-        bw = HeRu::GetBandwidth(txVector.GetRu(staId).GetRuType());
+        bw = WifiRu::GetBandwidth(WifiRu::GetRuType(txVector.GetRu(staId)));
     }
     return EhtPhy::GetPhyRate(txVector.GetMode(staId).GetMcsValue(),
                               bw,
@@ -344,10 +373,10 @@ EhtPhy::GetPhyRateFromTxVector(const WifiTxVector& txVector, uint16_t staId /* =
 uint64_t
 EhtPhy::GetDataRateFromTxVector(const WifiTxVector& txVector, uint16_t staId /* = SU_STA_ID */)
 {
-    uint16_t bw = txVector.GetChannelWidth();
+    auto bw = txVector.GetChannelWidth();
     if (txVector.IsMu())
     {
-        bw = HeRu::GetBandwidth(txVector.GetRu(staId).GetRuType());
+        bw = WifiRu::GetBandwidth(WifiRu::GetRuType(txVector.GetRu(staId)));
     }
     return EhtPhy::GetDataRate(txVector.GetMode(staId).GetMcsValue(),
                                bw,
@@ -356,11 +385,12 @@ EhtPhy::GetDataRateFromTxVector(const WifiTxVector& txVector, uint16_t staId /* 
 }
 
 uint64_t
-EhtPhy::GetDataRate(uint8_t mcsValue, uint16_t channelWidth, uint16_t guardInterval, uint8_t nss)
+EhtPhy::GetDataRate(uint8_t mcsValue, MHz_u channelWidth, Time guardInterval, uint8_t nss)
 {
-    NS_ASSERT(guardInterval == 800 || guardInterval == 1600 || guardInterval == 3200);
+    [[maybe_unused]] const auto gi = guardInterval.GetNanoSeconds();
+    NS_ASSERT((gi == 800) || (gi == 1600) || (gi == 3200));
     NS_ASSERT(nss <= 8);
-    return HtPhy::CalculateDataRate(GetSymbolDuration(NanoSeconds(guardInterval)),
+    return HtPhy::CalculateDataRate(GetSymbolDuration(guardInterval),
                                     GetUsableSubcarriers(channelWidth),
                                     static_cast<uint16_t>(log2(GetConstellationSize(mcsValue))),
                                     HtPhy::GetCodeRatio(GetCodeRate(mcsValue)),
@@ -398,6 +428,135 @@ EhtPhy::CalculateNonHtReferenceRate(WifiCodeRate codeRate, uint16_t constellatio
     return dataRate;
 }
 
+uint32_t
+EhtPhy::GetMaxPsduSize() const
+{
+    return WIFI_PSDU_MAX_LENGTH_EHT;
+}
+
+dBm_u
+EhtPhy::Per20MHzCcaThreshold(const Ptr<const WifiPpdu> ppdu) const
+{
+    if (!ppdu)
+    {
+        /**
+         * A signal is present on the 20 MHz subchannel at or above a threshold of –62 dBm at the
+         * receiver's antenna(s). The PHY shall indicate that the 20 MHz subchannel is busy a period
+         * aCCATime after the signal starts and shall continue to indicate the 20 MHz subchannel is
+         * busy while the threshold continues to be exceeded (Sec. 36.3.21.6.4 - Per 20 MHz CCA
+         * sensitivity - of 802.11be D7.0).
+         */
+        return m_wifiPhy->GetCcaEdThreshold();
+    }
+
+    /**
+     * A non-HT, HT_MF, HT_GF, VHT, HE, or EHT PPDU for which the power measured within
+     * this 20 MHz subchannel is at or above max(–72 dBm, OBSS_PD level) at the
+     * receiver’s antenna(s). The PHY shall indicate that the 20 MHz subchannel is busy
+     * with greater than 90% probability within a period aCCAMidTime (Sec. 36.3.21.6.4 - Per 20 MHz
+     * CCA sensitivity - of 802.11be D7.0).
+     */
+    auto ehtConfiguration = m_wifiPhy->GetDevice()->GetEhtConfiguration();
+    NS_ASSERT(ehtConfiguration);
+    const auto ccaThresholdNonObss = ehtConfiguration->m_per20CcaSensitivityThreshold;
+    return GetObssPdAlgorithm()
+               ? std::max(ccaThresholdNonObss, GetObssPdAlgorithm()->GetObssPdLevel())
+               : ccaThresholdNonObss;
+}
+
+dBm_u
+EhtPhy::GetCcaThreshold(const Ptr<const WifiPpdu> ppdu, WifiChannelListType channelType) const
+{
+    if (channelType != WIFI_CHANLIST_PRIMARY)
+    {
+        return Per20MHzCcaThreshold(ppdu);
+    }
+    return HePhy::GetCcaThreshold(ppdu, channelType);
+}
+
+const std::map<MHz_u, WifiChannelListType>&
+EhtPhy::GetCcaSecondaryChannels() const
+{
+    return ehtSecondaryChannels;
+}
+
+PhyEntity::CcaIndication
+EhtPhy::GetCcaIndicationOnSecondary(const Ptr<const WifiPpdu> ppdu)
+{
+    const auto secondaryWidthsToCheck = GetCcaSecondaryWidths(ppdu);
+
+    for (auto secondaryWidth : secondaryWidthsToCheck)
+    {
+        const auto channelType = ehtSecondaryChannels.at(secondaryWidth);
+        const auto ccaThreshold = GetCcaThreshold(ppdu, channelType);
+        const auto indices =
+            m_wifiPhy->GetOperatingChannel().GetAll20MHzChannelIndicesInSecondary(secondaryWidth);
+        for (auto index : indices)
+        {
+            const auto band = m_wifiPhy->GetBand(20, index);
+            if (const auto delayUntilCcaEnd = GetDelayUntilCcaEnd(ccaThreshold, band);
+                delayUntilCcaEnd.IsStrictlyPositive())
+            {
+                return std::make_pair(delayUntilCcaEnd, channelType);
+            }
+        }
+    }
+
+    return std::nullopt;
+}
+
+std::vector<Time>
+EhtPhy::GetPer20MHzDurations(const Ptr<const WifiPpdu> ppdu)
+{
+    NS_LOG_FUNCTION(this);
+
+    /**
+     * 36.3.21.6.4 Per 20 MHz CCA sensitivity:
+     * If the operating channel width is greater than 20 MHz and the PHY issues a PHY-CCA.indication
+     * primitive, the PHY shall set the per20bitmap to indicate the busy/idle status of each 20 MHz
+     * subchannel.
+     */
+    if (m_wifiPhy->GetChannelWidth() < 40)
+    {
+        return {};
+    }
+
+    std::vector<Time> per20MhzDurations{};
+    const auto indices = m_wifiPhy->GetOperatingChannel().GetAll20MHzChannelIndicesInPrimary(
+        m_wifiPhy->GetChannelWidth());
+    for (auto index : indices)
+    {
+        auto band = m_wifiPhy->GetBand(20, index);
+        /**
+         * A signal is present on the 20 MHz subchannel at or above a threshold of –62 dBm at the
+         * receiver's antenna(s). The PHY shall indicate that the 20 MHz subchannel is busy a period
+         * aCCATime after the signal starts and shall continue to indicate the 20 MHz subchannel is
+         * busy while the threshold continues to be exceeded.
+         */
+        dBm_u ccaThreshold = m_wifiPhy->GetCcaEdThreshold();
+        auto delayUntilCcaEnd = GetDelayUntilCcaEnd(ccaThreshold, band);
+
+        if (ppdu)
+        {
+            const MHz_u subchannelMinFreq =
+                m_wifiPhy->GetFrequency() - (m_wifiPhy->GetChannelWidth() / 2) + (index * 20);
+            const MHz_u subchannelMaxFreq = subchannelMinFreq + 20;
+            const auto ppduBw = ppdu->GetTxVector().GetChannelWidth();
+
+            if ((ppduBw <= m_wifiPhy->GetChannelWidth()) &&
+                ppdu->DoesOverlapChannel(subchannelMinFreq, subchannelMaxFreq))
+            {
+                ccaThreshold = Per20MHzCcaThreshold(ppdu);
+                const auto ppduCcaDuration = GetDelayUntilCcaEnd(ccaThreshold, band);
+                delayUntilCcaEnd = std::max(delayUntilCcaEnd, ppduCcaDuration);
+            }
+        }
+        per20MhzDurations.push_back(delayUntilCcaEnd);
+    }
+
+    return per20MhzDurations;
+}
+
 } // namespace ns3
 
 namespace
@@ -412,7 +571,7 @@ class ConstructorEht
     ConstructorEht()
     {
         ns3::EhtPhy::InitializeModes();
-        ns3::WifiPhy::AddStaticPhyEntity(ns3::WIFI_MOD_CLASS_EHT, ns3::Create<ns3::EhtPhy>());
+        ns3::WifiPhy::AddStaticPhyEntity(ns3::WIFI_MOD_CLASS_EHT, std::make_shared<ns3::EhtPhy>());
     }
 } g_constructor_eht; ///< the constructor for EHT modes
 

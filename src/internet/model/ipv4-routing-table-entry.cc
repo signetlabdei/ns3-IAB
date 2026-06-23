@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2005 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -99,14 +88,7 @@ bool
 Ipv4RoutingTableEntry::IsHost() const
 {
     NS_LOG_FUNCTION(this);
-    if (m_destNetworkMask == Ipv4Mask::GetOnes())
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return m_destNetworkMask == Ipv4Mask::GetOnes();
 }
 
 Ipv4Address
@@ -127,14 +109,7 @@ bool
 Ipv4RoutingTableEntry::IsDefault() const
 {
     NS_LOG_FUNCTION(this);
-    if (m_dest == Ipv4Address::GetZero())
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return m_dest == Ipv4Address::GetZero();
 }
 
 Ipv4Address
@@ -155,14 +130,7 @@ bool
 Ipv4RoutingTableEntry::IsGateway() const
 {
     NS_LOG_FUNCTION(this);
-    if (m_gateway == Ipv4Address::GetZero())
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
+    return m_gateway != Ipv4Address::GetZero();
 }
 
 Ipv4Address

@@ -1,28 +1,17 @@
 /*
  * Copyright (c) 2009 IITP RAS
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Pavel Boyko <boyko@iitp.ru>
  *
  * This is doxygen module description, don't include
  */
 /**
- * \ingroup mesh
- * \defgroup dot11s IEEE 802.11s draft
+ * @ingroup mesh
+ * @defgroup dot11s IEEE 802.11s draft
  *
- * \brief IEEE 802.11s (mesh) draft standard implementation
+ * @brief IEEE 802.11s (mesh) draft standard implementation
  *
  * Current model conforms IEEE 802.11s D3.0 draft version and includes
  * Peer Management Protocol and HWMP (routing) Protocol implementations.
@@ -30,7 +19,7 @@
  * The multi-interface mesh points are supported as an
  * extension of IEEE draft version 3.0. Note that corresponding helper
  * creates single interface station by default.
- * \section Dot11s Overview of IEEE 802.11s
+ * @section Dot11s Overview of IEEE 802.11s
  * Implementation of 802.11s draft standard consists of two main parts:
  * Peer management protocol and HWMP - Hybrid Wireless Mesh Protocol.
  *
@@ -42,7 +31,7 @@
  * If peer link between sender and receiver does not exist, the packet will be dropped.
  * So, the plug-in to peer management protocol is the first in the list of
  * ns3::MeshWifiInterfaceMacPlugin
- * \subsection PMP Peer management protocol
+ * @subsection PMP Peer management protocol
  * Peer management protocol consists of three main parts:
  *      - Protocol itself ns3::dot11s::PeerManagementProtocol, which keeps all active peer links on
  * interfaces, handles all changes of their states and notifies a routing protocol about link
@@ -65,7 +54,7 @@
  * but the structure is similar: the upper tier of protocol ns3::dot11s::PeerManagementProtocol
  * and its plug-in is  ns3::dot11s::PeerManagementProtocolMac.
  *
- * \subsection HWMP Hybrid Wireless Mesh Protocol
+ * @subsection HWMP Hybrid Wireless Mesh Protocol
  * HWMP is implemented in both modes -- reactive and proactive. Also we have implemented an ability
  * to transmit broadcast data and management frames as unicasts (see appropriate attributes).
  * This feature turns off at a station when the number of neighbours of the station is more than a

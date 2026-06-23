@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2016
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Sébastien Deronne <sebastien.deronne@gmail.com>
  */
@@ -136,6 +125,13 @@ HeCapabilities::ElementIdExt() const
     return IE_EXT_HE_CAPABILITIES;
 }
 
+void
+HeCapabilities::Print(std::ostream& os) const
+{
+    os << "HE Capabilities=[Max AMPDU Length Exponent: " << +m_maxAmpduLengthExponent
+       << ", Channel Width Set: " << +m_channelWidthSet << "]";
+}
+
 uint16_t
 HeCapabilities::GetInformationFieldSize() const
 {
@@ -151,12 +147,12 @@ void
 HeCapabilities::SerializeInformationField(Buffer::Iterator start) const
 {
     // write the corresponding value for each bit
-    start.WriteHtolsbU32(GetHeMacCapabilitiesInfo1());
-    start.WriteHtolsbU16(GetHeMacCapabilitiesInfo2());
-    start.WriteHtolsbU64(GetHePhyCapabilitiesInfo1());
-    start.WriteHtolsbU16(GetHePhyCapabilitiesInfo2());
+    start.WriteU32(GetHeMacCapabilitiesInfo1());
+    start.WriteU16(GetHeMacCapabilitiesInfo2());
+    start.WriteU64(GetHePhyCapabilitiesInfo1());
+    start.WriteU16(GetHePhyCapabilitiesInfo2());
     start.WriteU8(GetHePhyCapabilitiesInfo3());
-    start.WriteHtolsbU32(GetSupportedMcsAndNss());
+    start.WriteU32(GetSupportedMcsAndNss());
     // TODO: add another 32-bits field if 160 MHz channel is supported (variable length)
     // TODO: optional PPE Threshold field (variable length)
 }
@@ -165,10 +161,10 @@ uint16_t
 HeCapabilities::DeserializeInformationField(Buffer::Iterator start, uint16_t length)
 {
     Buffer::Iterator i = start;
-    uint32_t macCapabilities1 = i.ReadLsbtohU32();
-    uint16_t macCapabilities2 = i.ReadLsbtohU16();
-    uint64_t phyCapabilities1 = i.ReadLsbtohU64();
-    uint64_t phyCapabilities2 = i.ReadLsbtohU16();
+    uint32_t macCapabilities1 = i.ReadU32();
+    uint16_t macCapabilities2 = i.ReadU16();
+    uint64_t phyCapabilities1 = i.ReadU64();
+    uint64_t phyCapabilities2 = i.ReadU16();
     uint8_t phyCapabilities3 = i.ReadU8();
     uint32_t mcsset = i.ReadU32();
     SetHeMacCapabilitiesInfo(macCapabilities1, macCapabilities2);
@@ -607,18 +603,6 @@ uint32_t
 HeCapabilities::GetMaxAmpduLength() const
 {
     return std::min<uint32_t>((1UL << (20 + m_maxAmpduLengthExponent)) - 1, 6500631);
-}
-
-std::ostream&
-operator<<(std::ostream& os, const HeCapabilities& heCapabilities)
-{
-    os << heCapabilities.GetHeMacCapabilitiesInfo1() << "|"
-       << +heCapabilities.GetHeMacCapabilitiesInfo2() << "|"
-       << heCapabilities.GetHePhyCapabilitiesInfo1() << "|"
-       << heCapabilities.GetHePhyCapabilitiesInfo2() << "|"
-       << +heCapabilities.GetHePhyCapabilitiesInfo3() << "|"
-       << heCapabilities.GetSupportedMcsAndNss();
-    return os;
 }
 
 } // namespace ns3

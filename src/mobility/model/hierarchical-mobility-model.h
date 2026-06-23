@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2007 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -25,8 +14,8 @@ namespace ns3
 {
 
 /**
- * \ingroup mobility
- * \brief Hierarchical mobility model.
+ * @ingroup mobility
+ * @brief Hierarchical mobility model.
  *
  * This model allows you to specify the position of a child object
  * relative to a parent object.
@@ -59,21 +48,27 @@ class HierarchicalMobilityModel : public MobilityModel
   public:
     /**
      * Register this type with the TypeId system.
-     * \return the object TypeId
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
 
     HierarchicalMobilityModel();
 
+    // Inherited from MobilityModel
+    Ptr<MobilityModel> Copy() const override
+    {
+        return CreateObject<HierarchicalMobilityModel>(*this);
+    }
+
     /**
-     * \return the child mobility model.
+     * @return the child mobility model.
      *
      * Calling GetPosition() on the model returned by this method allows
      * one to access the position of the child relative to its parent.
      */
     Ptr<MobilityModel> GetChild() const;
     /**
-     * \return the parent mobility model.
+     * @return the parent mobility model.
      *
      * Calling GetPosition() on the model returned by this method allows
      * one to access the position of the parent alone, which is used
@@ -86,7 +81,7 @@ class HierarchicalMobilityModel : public MobilityModel
      * then the new child mobility model's current position is also set to
      * the previous position to ensure that the composite
      * position is preserved by this operation.
-     * \param model new mobility model child
+     * @param model new mobility model child
      */
     void SetChild(Ptr<MobilityModel> model);
     /**
@@ -95,7 +90,7 @@ class HierarchicalMobilityModel : public MobilityModel
      * then the new position is set to the position that was set before
      * replacement, to ensure that the composite position is preserved
      * across changes to the parent model.
-     * \param model new mobility model parent
+     * @param model new mobility model parent
      */
     void SetParent(Ptr<MobilityModel> model);
 
@@ -108,12 +103,12 @@ class HierarchicalMobilityModel : public MobilityModel
 
     /**
      * Callback for when parent mobility model course change occurs
-     * \param model mobility mode (unused)
+     * @param model mobility mode (unused)
      */
     void ParentChanged(Ptr<const MobilityModel> model);
     /**
      * Callback for when child mobility model course change occurs
-     * \param model mobility mode (unused)
+     * @param model mobility mode (unused)
      */
     void ChildChanged(Ptr<const MobilityModel> model);
 

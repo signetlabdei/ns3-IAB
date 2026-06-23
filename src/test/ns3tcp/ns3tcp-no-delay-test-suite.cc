@@ -1,16 +1,5 @@
 /*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #include "ns3tcp-socket-writer.h"
@@ -40,9 +29,9 @@ using namespace ns3;
 NS_LOG_COMPONENT_DEFINE("Ns3TcpNoDelayTest");
 
 /**
- * \ingroup system-tests-tcp
+ * @ingroup system-tests-tcp
  *
- * \brief Tests of Nagle's algorithm and the TCP no delay option.
+ * @brief Tests of Nagle's algorithm and the TCP no delay option.
  */
 class Ns3TcpNoDelayTestCase : public TestCase
 {
@@ -50,7 +39,7 @@ class Ns3TcpNoDelayTestCase : public TestCase
     /**
      * Constructor.
      *
-     * \param noDelay Enable or disable TCP no delay option.
+     * @param noDelay Enable or disable TCP no delay option.
      */
     Ns3TcpNoDelayTestCase(bool noDelay);
 
@@ -65,9 +54,9 @@ class Ns3TcpNoDelayTestCase : public TestCase
 
     /**
      * Receive a TCP packet.
-     * \param path The callback context (unused).
-     * \param p The received packet.
-     * \param address The sender's address (unused).
+     * @param path The callback context (unused).
+     * @param p The received packet.
+     * @param address The sender's address (unused).
      */
     void SinkRx(std::string path, Ptr<const Packet> p, const Address& address);
 
@@ -128,7 +117,7 @@ Ns3TcpNoDelayTestCase::DoRun()
                           InetSocketAddress(Ipv4Address::GetAny(), sinkPort));
     ApplicationContainer apps = sink.Install(n1);
     // Start the sink application at time zero, and stop it at sinkStopTime
-    apps.Start(Seconds(0.0));
+    apps.Start(Seconds(0));
     apps.Stop(sinkStopTimeObj);
 
     Config::Connect("/NodeList/*/ApplicationList/*/$ns3::PacketSink/Rx",
@@ -212,7 +201,7 @@ Ns3TcpNoDelayTestCase::DoRun()
 }
 
 /**
- * \ingroup system-tests-tcp
+ * @ingroup system-tests-tcp
  *
  * TCP Nagle's algorithm and the TCP no delay option TestSuite.
  */
@@ -223,10 +212,10 @@ class Ns3TcpNoDelayTestSuite : public TestSuite
 };
 
 Ns3TcpNoDelayTestSuite::Ns3TcpNoDelayTestSuite()
-    : TestSuite("ns3-tcp-no-delay", SYSTEM)
+    : TestSuite("ns3-tcp-no-delay", Type::SYSTEM)
 {
-    AddTestCase(new Ns3TcpNoDelayTestCase(true), TestCase::QUICK);
-    AddTestCase(new Ns3TcpNoDelayTestCase(false), TestCase::QUICK);
+    AddTestCase(new Ns3TcpNoDelayTestCase(true), TestCase::Duration::QUICK);
+    AddTestCase(new Ns3TcpNoDelayTestCase(false), TestCase::Duration::QUICK);
 }
 
 /// Do not forget to allocate an instance of this TestSuite.

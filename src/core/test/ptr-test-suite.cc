@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2005,2006 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -21,16 +10,16 @@
 #include "ns3/test.h"
 
 /**
- * \file
- * \ingroup core-tests
- * \ingroup ptr
- * \ingroup ptr-tests
+ * @file
+ * @ingroup core-tests
+ * @ingroup ptr
+ * @ingroup ptr-tests
  * Smart pointer test suite.
  */
 
 /**
- * \ingroup core-tests
- * \defgroup ptr-tests Smart pointer test suite
+ * @ingroup core-tests
+ * @defgroup ptr-tests Smart pointer test suite
  */
 
 namespace ns3
@@ -42,7 +31,7 @@ namespace tests
 class PtrTestCase;
 
 /**
- * \ingroup ptr-tests
+ * @ingroup ptr-tests
  * Pointer base test class
  */
 class PtrTestBase
@@ -62,7 +51,7 @@ class PtrTestBase
 };
 
 /**
- * \ingroup ptr-tests
+ * @ingroup ptr-tests
  * No Count class
  */
 class NoCount : public PtrTestBase
@@ -71,7 +60,7 @@ class NoCount : public PtrTestBase
     /**
      * Constructor
      *
-     * \param [in] test The object to track.
+     * @param [in] test The object to track.
      */
     NoCount(PtrTestCase* test);
     /**
@@ -88,7 +77,7 @@ class NoCount : public PtrTestBase
 };
 
 /**
- * \ingroup ptr-tests
+ * @ingroup ptr-tests
  * Test case for pointer
  */
 class PtrTestCase : public TestCase
@@ -103,11 +92,11 @@ class PtrTestCase : public TestCase
     void DoRun() override;
     /**
      * Test that \pname{p} is a valid object, by calling a member function.
-     * \param [in] p The object pointer to test.
-     * \returns The object pointer.
+     * @param [in] p The object pointer to test.
+     * @returns The object pointer.
      */
     Ptr<NoCount> CallTest(Ptr<NoCount> p);
-    /** \copydoc CallTest(Ptr<NoCount>) */
+    /** @copydoc CallTest(Ptr<NoCount>) */
     const Ptr<NoCount> CallTestConst(const Ptr<NoCount> p);
     uint32_t m_nDestroyed; //!< Counter of number of objects destroyed.
 };
@@ -178,7 +167,7 @@ PtrTestCase::CallTestConst(const Ptr<NoCount> p)
 void
 PtrTestCase::DoRun()
 {
-    m_nDestroyed = false;
+    m_nDestroyed = 0;
     {
         Ptr<NoCount> p = Create<NoCount>(this);
     }
@@ -338,7 +327,7 @@ PtrTestCase::DoRun()
 }
 
 /**
- * \ingroup ptr-tests
+ * @ingroup ptr-tests
  * Test suite for pointer
  */
 class PtrTestSuite : public TestSuite
@@ -353,7 +342,7 @@ class PtrTestSuite : public TestSuite
 };
 
 /**
- * \ingroup ptr-tests
+ * @ingroup ptr-tests
  * PtrTestSuite instance variable.
  */
 static PtrTestSuite g_ptrTestSuite;

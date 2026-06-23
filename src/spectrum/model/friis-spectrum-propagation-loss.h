@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 CTTC
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Nicola Baldo <nbaldo@cttc.es>
  */
@@ -20,7 +9,7 @@
 #ifndef FRIIS_SPECTRUM_PROPAGATION_LOSS_H
 #define FRIIS_SPECTRUM_PROPAGATION_LOSS_H
 
-#include <ns3/spectrum-propagation-loss-model.h>
+#include "spectrum-propagation-loss-model.h"
 
 namespace ns3
 {
@@ -28,13 +17,11 @@ namespace ns3
 class MobilityModel;
 
 /**
- * \ingroup spectrum
- * \brief Friis spectrum propagation loss model
+ * @ingroup spectrum
+ * @brief Friis spectrum propagation loss model
  *
  * The propagation loss is calculated according to a simplified version of Friis'
- * formula in which antenna gains are unitary:
- *
- * \f$ L = \frac{4 \pi * d * f}{C^2}\f$
+ * formula in which antenna gains are unitary: \f$L = \frac{4 \pi * d * f}{C^2}\f$
  *
  * where C = 3e8 m/s is the light speed in the vacuum. The intended
  * use is to calculate Prx = Ptx * G
@@ -46,8 +33,8 @@ class FriisSpectrumPropagationLossModel : public SpectrumPropagationLossModel
     ~FriisSpectrumPropagationLossModel() override;
 
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
 
@@ -65,6 +52,9 @@ class FriisSpectrumPropagationLossModel : public SpectrumPropagationLossModel
      * @return if Prx < Ptx then return Prx; else return Ptx
      */
     double CalculateLoss(double f, double d) const;
+
+  protected:
+    int64_t DoAssignStreams(int64_t stream) override;
 };
 
 } // namespace ns3

@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 IITP RAS
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Kirill Andreev <andreev@iitp.ru>
  */
@@ -131,7 +120,7 @@ FlameProtocol::GetTypeId()
 FlameProtocol::FlameProtocol()
     : m_address(Mac48Address()),
       m_broadcastInterval(Seconds(5)),
-      m_lastBroadcast(Seconds(0)),
+      m_lastBroadcast(),
       m_maxCost(32),
       m_myLastSeqno(1),
       m_rtable(CreateObject<FlameRtable>())
@@ -307,8 +296,7 @@ FlameProtocol::RemoveRoutingStuff(uint32_t fromIface,
     // Start PATH_UPDATE procedure if destination is our own address and last broadcast was sent
     // more than broadcast interval ago or was not sent at all
     if ((destination == GetAddress()) &&
-        ((m_lastBroadcast + m_broadcastInterval < Simulator::Now()) ||
-         (m_lastBroadcast == Seconds(0))))
+        ((m_lastBroadcast + m_broadcastInterval < Simulator::Now()) || m_lastBroadcast.IsZero()))
     {
         Ptr<Packet> packet = Create<Packet>();
         m_mp->Send(packet, Mac48Address::GetBroadcast(), 0);
@@ -324,8 +312,7 @@ FlameProtocol::Install(Ptr<MeshPointDevice> mp)
 {
     m_mp = mp;
     std::vector<Ptr<NetDevice>> interfaces = mp->GetInterfaces();
-    for (std::vector<Ptr<NetDevice>>::const_iterator i = interfaces.begin(); i != interfaces.end();
-         i++)
+    for (auto i = interfaces.begin(); i != interfaces.end(); i++)
     {
         // Checking for compatible net device
         Ptr<WifiNetDevice> wifiNetDev = (*i)->GetObject<WifiNetDevice>();
@@ -423,8 +410,7 @@ FlameProtocol::Report(std::ostream& os) const
        << "broadcastInterval=\"" << m_broadcastInterval.GetSeconds() << "\"" << std::endl
        << "maxCost=\"" << (uint16_t)m_maxCost << "\">" << std::endl;
     m_stats.Print(os);
-    for (FlamePluginMap::const_iterator plugin = m_interfaces.begin(); plugin != m_interfaces.end();
-         plugin++)
+    for (auto plugin = m_interfaces.begin(); plugin != m_interfaces.end(); plugin++)
     {
         plugin->second->Report(os);
     }
@@ -435,8 +421,7 @@ void
 FlameProtocol::ResetStats()
 {
     m_stats = Statistics();
-    for (FlamePluginMap::const_iterator plugin = m_interfaces.begin(); plugin != m_interfaces.end();
-         plugin++)
+    for (auto plugin = m_interfaces.begin(); plugin != m_interfaces.end(); plugin++)
     {
         plugin->second->ResetStats();
     }

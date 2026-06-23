@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2008 Timo Bingmann
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Timo Bingmann <timo.bingmann@student.kit.edu>
  */
@@ -30,9 +19,9 @@
 #include <map>
 
 /**
- * \file
- * \ingroup core-examples
- * \ingroup randomvariable
+ * @file
+ * @ingroup core-examples
+ * @ingroup randomvariable
  * Example program illustrating use of RandomVariableStream
  */
 
@@ -45,9 +34,9 @@ namespace
  * Round a double number to the given precision.
  * For example, `dround(0.234, 0.1) = 0.2`
  * and `dround(0.257, 0.1) = 0.3`
- * \param [in] number The number to round.
- * \param [in] precision The least significant digit to keep in the rounding.
- * \returns \pname{number} rounded to \pname{precision}.
+ * @param [in] number The number to round.
+ * @param [in] precision The least significant digit to keep in the rounding.
+ * @returns \pname{number} rounded to \pname{precision}.
  */
 double
 dround(double number, double precision)
@@ -67,12 +56,12 @@ dround(double number, double precision)
 
 /**
  * Generate a histogram from a RandomVariableStream.
- * \param [in] rndvar The RandomVariableStream to sample.
- * \param [in] probes The number of samples.
- * \param [in] precision The precision to round samples to.
- * \param [in] title The title for the histogram.
- * \param [in] impulses Set the plot style to IMPULSES.
- * \return The histogram as a GnuPlot data set.
+ * @param [in] rndvar The RandomVariableStream to sample.
+ * @param [in] probes The number of samples.
+ * @param [in] precision The precision to round samples to.
+ * @param [in] title The title for the histogram.
+ * @param [in] impulses Set the plot style to IMPULSES.
+ * @return The histogram as a GnuPlot data set.
  */
 GnuplotDataset
 Histogram(Ptr<RandomVariableStream> rndvar,
@@ -99,7 +88,7 @@ Histogram(Ptr<RandomVariableStream> rndvar,
         data.SetStyle(Gnuplot2dDataset::IMPULSES);
     }
 
-    for (histogram_maptype::const_iterator hi = histogram.begin(); hi != histogram.end(); ++hi)
+    for (auto hi = histogram.begin(); hi != histogram.end(); ++hi)
     {
         data.Add(hi->first, (double)hi->second / (double)probes / precision);
     }
@@ -279,12 +268,12 @@ main(int argc, char* argv[])
         plot.AppendExtra("set xrange [*:*]");
 
         auto x = CreateObject<EmpiricalRandomVariable>();
-        x->CDF(0.0, 0.0 / 15.0);
+        x->CDF(0.0, 0.0);
         x->CDF(0.2, 1.0 / 15.0);
         x->CDF(0.4, 3.0 / 15.0);
         x->CDF(0.6, 6.0 / 15.0);
         x->CDF(0.8, 10.0 / 15.0);
-        x->CDF(1.0, 15.0 / 15.0);
+        x->CDF(1.0, 1.0);
 
         plot.AddDataset(
             Histogram(x, probes, precision, "EmpiricalRandomVariable (Sampling)", true));
@@ -550,6 +539,37 @@ main(int argc, char* argv[])
             Histogram(x7, probes, precision, "ErlangRandomVariable k=2 {/Symbol l}=5.0"));
 
         plot.AddDataset(Gnuplot2dFunction("Erlang(x, 2, 5.0)", "ErlangDist(x, 2, 5.0)"));
+
+        gnuplots.AddPlot(plot);
+        std::cout << "done" << std::endl;
+    }
+
+    {
+        std::cout << "BinomialRandomVariable......." << std::flush;
+        Gnuplot plot;
+        plot.SetTitle("BinomialRandomVariable");
+        plot.AppendExtra("set yrange [0:10]");
+
+        auto x = CreateObject<BinomialRandomVariable>();
+        x->SetAttribute("Trials", IntegerValue(10));
+        x->SetAttribute("Probability", DoubleValue(0.5));
+
+        plot.AddDataset(Histogram(x, probes, precision, "BinomialRandomVariable n=10 p=0.5"));
+
+        gnuplots.AddPlot(plot);
+        std::cout << "done" << std::endl;
+    }
+
+    {
+        std::cout << "BernoulliRandomVariable......." << std::flush;
+        Gnuplot plot;
+        plot.SetTitle("BernoulliRandomVariable");
+        plot.AppendExtra("set yrange [0:1]");
+
+        auto x = CreateObject<BernoulliRandomVariable>();
+        x->SetAttribute("Probability", DoubleValue(0.5));
+
+        plot.AddDataset(Histogram(x, probes, precision, "BernoulliRandomVariable p=0.5"));
 
         gnuplots.AddPlot(plot);
         std::cout << "done" << std::endl;

@@ -1,26 +1,16 @@
 /*
  * Copyright (c) 2012 INRIA, 2012 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  */
 
 #ifndef EMU_FD_NET_DEVICE_HELPER_H
 #define EMU_FD_NET_DEVICE_HELPER_H
 
+#include "fd-net-device-helper.h"
+
 #include "ns3/attribute.h"
-#include "ns3/fd-net-device-helper.h"
 #include "ns3/fd-net-device.h"
 #include "ns3/net-device-container.h"
 #include "ns3/node-container.h"
@@ -32,8 +22,8 @@ namespace ns3
 {
 
 /**
- * \ingroup fd-net-device
- * \brief build a set of FdNetDevice objects attached to a physical network
+ * @ingroup fd-net-device
+ * @brief build a set of FdNetDevice objects attached to a physical network
  * interface
  *
  */
@@ -52,20 +42,20 @@ class EmuFdNetDeviceHelper : public FdNetDeviceHelper
     /**
      * Get the device name of this device.
      *
-     * \returns The device name of this device.
+     * @returns The device name of this device.
      */
     std::string GetDeviceName();
 
     /**
      * Set the device name of this device.
      *
-     * \param deviceName The device name of this device.
+     * @param deviceName The device name of this device.
      */
     void SetDeviceName(std::string deviceName);
 
     /**
-     * \brief Request host qdisc bypass
-     * \param hostQdiscBypass to enable host qdisc bypass
+     * @brief Request host qdisc bypass
+     * @param hostQdiscBypass to enable host qdisc bypass
      */
     void HostQdiscBypass(bool hostQdiscBypass);
 
@@ -74,21 +64,21 @@ class EmuFdNetDeviceHelper : public FdNetDeviceHelper
      * This method creates an ns3::FdNetDevice attached to a physical network
      * interface
      *
-     * \param node The node to install the device in
-     * \returns A container holding the added net device.
+     * @param node The node to install the device in
+     * @returns A container holding the added net device.
      */
     Ptr<NetDevice> InstallPriv(Ptr<Node> node) const override;
 
     /**
      * Sets a file descriptor on the FileDescriptorNetDevice.
-     * \param device the device to install the file descriptor in
+     * @param device the device to install the file descriptor in
      */
     virtual void SetFileDescriptor(Ptr<FdNetDevice> device) const;
 
     /**
      * Call out to a separate process running as suid root in order to get a raw
      * socket.  We do this to avoid having the entire simulation running as root.
-     * \return the rawSocket number
+     * @return the rawSocket number
      */
     virtual int CreateFileDescriptor() const;
 

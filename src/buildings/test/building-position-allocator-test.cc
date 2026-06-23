@@ -1,32 +1,21 @@
 /*
  * Copyright (c) 2011, 2012 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Nicola Baldo <nbaldo@cttc.es>
  */
 
+#include "ns3/building-position-allocator.h"
+#include "ns3/building.h"
+#include "ns3/buildings-helper.h"
+#include "ns3/constant-position-mobility-model.h"
 #include "ns3/log.h"
+#include "ns3/mobility-building-info.h"
+#include "ns3/mobility-helper.h"
+#include "ns3/mobility-model.h"
+#include "ns3/simulator.h"
 #include "ns3/test.h"
-#include <ns3/building-position-allocator.h>
-#include <ns3/building.h>
-#include <ns3/buildings-helper.h>
-#include <ns3/constant-position-mobility-model.h>
-#include <ns3/mobility-building-info.h>
-#include <ns3/mobility-helper.h>
-#include <ns3/mobility-model.h>
-#include <ns3/simulator.h>
 
 #include <map>
 
@@ -35,13 +24,13 @@ using namespace ns3;
 NS_LOG_COMPONENT_DEFINE("BuildingPositionAllocatorTest");
 
 /**
- * \ingroup propagation
- * \defgroup building-test Buildings module tests
+ * @ingroup buildings
+ * @ingroup tests
+ * @defgroup building-test Buildings module tests
  */
 
 /**
- * \ingroup building-test
- * \ingroup tests
+ * @ingroup building-test
  *
  * Room coordinates
  */
@@ -49,9 +38,9 @@ struct Room
 {
     /**
      * Constructor
-     * \param xx X coord
-     * \param yy Y coord
-     * \param zz Z coord
+     * @param xx X coord
+     * @param yy Y coord
+     * @param zz Z coord
      */
     Room(uint32_t xx, uint32_t yy, uint32_t zz);
     uint32_t x; //!< X coord
@@ -74,8 +63,7 @@ operator<(const Room& a, const Room& b)
 }
 
 /**
- * \ingroup building-test
- * \ingroup tests
+ * @ingroup building-test
  *
  * RandomRoomPositionAllocator test
  */
@@ -117,7 +105,7 @@ RandomRoomPositionAllocatorTestCase::DoRun()
 
     std::map<Room, uint32_t> roomCounter;
 
-    for (NodeContainer::Iterator it = nodes.Begin(); it != nodes.End(); ++it)
+    for (auto it = nodes.Begin(); it != nodes.End(); ++it)
     {
         Ptr<MobilityModel> mm = (*it)->GetObject<MobilityModel>();
         NS_ASSERT_MSG(mm, "no mobility model aggregated to this node");
@@ -138,7 +126,7 @@ RandomRoomPositionAllocatorTestCase::DoRun()
         NS_TEST_ASSERT_MSG_LT(p.z, bmm->GetFloorNumber() + 1, "wrong z value");
     }
 
-    for (std::map<Room, uint32_t>::iterator it = roomCounter.begin(); it != roomCounter.end(); ++it)
+    for (auto it = roomCounter.begin(); it != roomCounter.end(); ++it)
     {
         // random selection is done without replacement until the set of
         // eligible room is empty, at which point the set is filled
@@ -152,8 +140,7 @@ RandomRoomPositionAllocatorTestCase::DoRun()
 }
 
 /**
- * \ingroup building-test
- * \ingroup tests
+ * @ingroup building-test
  *
  * SameRoomPositionAllocator test
  */
@@ -202,7 +189,7 @@ SameRoomPositionAllocatorTestCase::DoRun()
 
     std::map<Room, uint32_t> roomCounter;
 
-    for (NodeContainer::Iterator it = copyNodes.Begin(); it != copyNodes.End(); ++it)
+    for (auto it = copyNodes.Begin(); it != copyNodes.End(); ++it)
     {
         Ptr<MobilityModel> mm = (*it)->GetObject<MobilityModel>();
         NS_ASSERT_MSG(mm, "no mobility model aggregated to this node");
@@ -215,7 +202,7 @@ SameRoomPositionAllocatorTestCase::DoRun()
         ++(roomCounter[r]);
     }
 
-    for (std::map<Room, uint32_t>::iterator it = roomCounter.begin(); it != roomCounter.end(); ++it)
+    for (auto it = roomCounter.begin(); it != roomCounter.end(); ++it)
     {
         NS_TEST_ASSERT_MSG_EQ(it->second, 4, "expected 4 nodes per room");
     }
@@ -226,10 +213,9 @@ SameRoomPositionAllocatorTestCase::DoRun()
 }
 
 /**
- * \ingroup building-test
- * \ingroup tests
+ * @ingroup building-test
  *
- * \brief RandomRoomPositionAllocator TestSuite
+ * @brief RandomRoomPositionAllocator TestSuite
  */
 class BuildingPositionAllocatorTestSuite : public TestSuite
 {
@@ -238,12 +224,12 @@ class BuildingPositionAllocatorTestSuite : public TestSuite
 };
 
 BuildingPositionAllocatorTestSuite::BuildingPositionAllocatorTestSuite()
-    : TestSuite("building-position-allocator", UNIT)
+    : TestSuite("building-position-allocator", Type::UNIT)
 {
     NS_LOG_FUNCTION(this);
 
-    AddTestCase(new RandomRoomPositionAllocatorTestCase, TestCase::QUICK);
-    AddTestCase(new SameRoomPositionAllocatorTestCase, TestCase::QUICK);
+    AddTestCase(new RandomRoomPositionAllocatorTestCase, TestCase::Duration::QUICK);
+    AddTestCase(new SameRoomPositionAllocatorTestCase, TestCase::Duration::QUICK);
 }
 
 /// Static variable for test initialization

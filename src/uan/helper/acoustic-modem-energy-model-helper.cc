@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2010 Andrea Sacco
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Author: Andrea Sacco <andrea.sacco85@gmail.com>
  */
@@ -55,8 +44,9 @@ AcousticModemEnergyModelHelper::SetDepletionCallback(
  * Private function starts here.
  */
 
-Ptr<DeviceEnergyModel>
-AcousticModemEnergyModelHelper::DoInstall(Ptr<NetDevice> device, Ptr<EnergySource> source) const
+Ptr<energy::DeviceEnergyModel>
+AcousticModemEnergyModelHelper::DoInstall(Ptr<NetDevice> device,
+                                          Ptr<energy::EnergySource> source) const
 {
     NS_ASSERT(device);
     NS_ASSERT(source);
@@ -83,8 +73,8 @@ AcousticModemEnergyModelHelper::DoInstall(Ptr<NetDevice> device, Ptr<EnergySourc
     // set node pointer
     source->SetNode(node);
     // create and install energy model callback
-    DeviceEnergyModel::ChangeStateCallback cb;
-    cb = MakeCallback(&DeviceEnergyModel::ChangeState, model);
+    energy::DeviceEnergyModel::ChangeStateCallback cb;
+    cb = MakeCallback(&energy::DeviceEnergyModel::ChangeState, model);
     uanPhy->SetEnergyModelCallback(cb);
 
     return model;

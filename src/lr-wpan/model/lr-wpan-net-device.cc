@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2011 The Boeing Company
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author:
  *  Tom Henderson <thomas.r.henderson@boeing.com>
@@ -25,26 +14,28 @@
 #include "lr-wpan-error-model.h"
 #include "lr-wpan-phy.h"
 
-#include <ns3/abort.h>
-#include <ns3/boolean.h>
-#include <ns3/log.h>
-#include <ns3/node.h>
-#include <ns3/packet.h>
-#include <ns3/pointer.h>
-#include <ns3/spectrum-channel.h>
+#include "ns3/abort.h"
+#include "ns3/boolean.h"
+#include "ns3/log.h"
+#include "ns3/node.h"
+#include "ns3/packet.h"
+#include "ns3/pointer.h"
+#include "ns3/spectrum-channel.h"
 
 namespace ns3
 {
+namespace lrwpan
+{
 
 NS_LOG_COMPONENT_DEFINE("LrWpanNetDevice");
-
 NS_OBJECT_ENSURE_REGISTERED(LrWpanNetDevice);
 
 TypeId
 LrWpanNetDevice::GetTypeId()
 {
     static TypeId tid =
-        TypeId("ns3::LrWpanNetDevice")
+        TypeId("ns3::lrwpan::LrWpanNetDevice")
+            .AddDeprecatedName("ns3::LrWpanNetDevice")
             .SetParent<NetDevice>()
             .SetGroupName("LrWpan")
             .AddConstructor<LrWpanNetDevice>()
@@ -68,15 +59,16 @@ LrWpanNetDevice::GetTypeId()
                           BooleanValue(true),
                           MakeBooleanAccessor(&LrWpanNetDevice::m_useAcks),
                           MakeBooleanChecker())
-            .AddAttribute("PseudoMacAddressMode",
-                          "Build the pseudo-MAC Address according to RFC 4944 or RFC 6282 "
-                          "(default: RFC 6282).",
-                          EnumValue(LrWpanNetDevice::RFC6282),
-                          MakeEnumAccessor(&LrWpanNetDevice::m_pseudoMacMode),
-                          MakeEnumChecker(LrWpanNetDevice::RFC6282,
-                                          "RFC 6282 (don't use PanId)",
-                                          LrWpanNetDevice::RFC4944,
-                                          "RFC 4944 (use PanId)"));
+            .AddAttribute(
+                "PseudoMacAddressMode",
+                "Build the pseudo-MAC Address according to RFC 4944 or RFC 6282 "
+                "(default: RFC 6282).",
+                EnumValue(LrWpanNetDevice::RFC6282),
+                MakeEnumAccessor<PseudoMacAddressMode_e>(&LrWpanNetDevice::m_pseudoMacMode),
+                MakeEnumChecker(LrWpanNetDevice::RFC6282,
+                                "RFC 6282 (don't use PanId)",
+                                LrWpanNetDevice::RFC4944,
+                                "RFC 4944 (use PanId)"));
     return tid;
 }
 
@@ -84,10 +76,14 @@ LrWpanNetDevice::LrWpanNetDevice()
     : m_configComplete(false)
 {
     NS_LOG_FUNCTION(this);
-    m_mac = CreateObject<LrWpanMac>();
+
     m_phy = CreateObject<LrWpanPhy>();
     m_csmaca = CreateObject<LrWpanCsmaCa>();
-    CompleteConfig();
+    m_mac = CreateObject<LrWpanMac>();
+
+    m_mac->SetPhy(m_phy);
+    m_mac->SetCsmaCa(m_csmaca);
+    m_csmaca->SetMac(m_mac);
 }
 
 LrWpanNetDevice::~LrWpanNetDevice()
@@ -99,7 +95,6 @@ void
 LrWpanNetDevice::DoDispose()
 {
     NS_LOG_FUNCTION(this);
-    m_mac->Dispose();
     m_phy->Dispose();
     m_csmaca->Dispose();
     m_phy = nullptr;
@@ -114,23 +109,24 @@ void
 LrWpanNetDevice::DoInitialize()
 {
     NS_LOG_FUNCTION(this);
+
     m_phy->Initialize();
-    m_mac->Initialize();
+    AggregateObject(m_mac);
+    CompleteConfig();
+
     NetDevice::DoInitialize();
 }
 
 void
 LrWpanNetDevice::CompleteConfig()
 {
-    NS_LOG_FUNCTION(this);
     if (!m_mac || !m_phy || !m_csmaca || !m_node || m_configComplete)
     {
         return;
     }
-    m_mac->SetPhy(m_phy);
-    m_mac->SetCsmaCa(m_csmaca);
+
+    NS_LOG_FUNCTION(this);
     m_mac->SetMcpsDataIndicationCallback(MakeCallback(&LrWpanNetDevice::McpsDataIndication, this));
-    m_csmaca->SetMac(m_mac);
 
     Ptr<LrWpanErrorModel> model = CreateObject<LrWpanErrorModel>();
     m_phy->SetErrorModel(model);
@@ -154,75 +150,68 @@ LrWpanNetDevice::CompleteConfig()
 void
 LrWpanNetDevice::SetMac(Ptr<LrWpanMac> mac)
 {
-    NS_LOG_FUNCTION(this);
+    NS_ABORT_MSG_IF(LrWpanNetDevice::IsInitialized(),
+                    "MAC layer cannot be set after initialization");
     m_mac = mac;
-    CompleteConfig();
 }
 
 void
 LrWpanNetDevice::SetPhy(Ptr<LrWpanPhy> phy)
 {
-    NS_LOG_FUNCTION(this);
+    NS_ABORT_MSG_IF(LrWpanNetDevice::IsInitialized(),
+                    "PHY layer cannot be set after initialization");
     m_phy = phy;
-    CompleteConfig();
 }
 
 void
 LrWpanNetDevice::SetCsmaCa(Ptr<LrWpanCsmaCa> csmaca)
 {
-    NS_LOG_FUNCTION(this);
+    NS_ABORT_MSG_IF(LrWpanNetDevice::IsInitialized(), "CSMA/CA cannot be set after initialization");
     m_csmaca = csmaca;
-    CompleteConfig();
 }
 
 void
 LrWpanNetDevice::SetChannel(Ptr<SpectrumChannel> channel)
 {
-    NS_LOG_FUNCTION(this << channel);
+    NS_ABORT_MSG_IF(LrWpanNetDevice::IsInitialized(),
+                    "Spectrum channel cannot be set after initialization");
     m_phy->SetChannel(channel);
     channel->AddRx(m_phy);
-    CompleteConfig();
 }
 
 Ptr<LrWpanMac>
 LrWpanNetDevice::GetMac() const
 {
-    // NS_LOG_FUNCTION (this);
     return m_mac;
 }
 
 Ptr<LrWpanPhy>
 LrWpanNetDevice::GetPhy() const
 {
-    NS_LOG_FUNCTION(this);
     return m_phy;
 }
 
 Ptr<LrWpanCsmaCa>
 LrWpanNetDevice::GetCsmaCa() const
 {
-    NS_LOG_FUNCTION(this);
     return m_csmaca;
 }
 
 void
 LrWpanNetDevice::SetIfIndex(const uint32_t index)
 {
-    NS_LOG_FUNCTION(this << index);
     m_ifIndex = index;
 }
 
 uint32_t
 LrWpanNetDevice::GetIfIndex() const
 {
-    NS_LOG_FUNCTION(this);
     return m_ifIndex;
 }
 
 Ptr<Channel>
 LrWpanNetDevice::GetChannel() const
 {
-    NS_LOG_FUNCTION(this);
     return m_phy->GetChannel();
 }
 
@@ -457,14 +446,12 @@ LrWpanNetDevice::SendFrom(Ptr<Packet> packet,
 Ptr<Node>
 LrWpanNetDevice::GetNode() const
 {
-    NS_LOG_FUNCTION(this);
     return m_node;
 }
 
 void
 LrWpanNetDevice::SetNode(Ptr<Node> node)
 {
-    NS_LOG_FUNCTION(this);
     m_node = node;
     CompleteConfig();
 }
@@ -554,8 +541,10 @@ LrWpanNetDevice::AssignStreams(int64_t stream)
     int64_t streamIndex = stream;
     streamIndex += m_csmaca->AssignStreams(stream);
     streamIndex += m_phy->AssignStreams(stream);
+    streamIndex += m_mac->AssignStreams(stream);
     NS_LOG_DEBUG("Number of assigned RV streams:  " << (streamIndex - stream));
     return (streamIndex - stream);
 }
 
+} // namespace lrwpan
 } // namespace ns3

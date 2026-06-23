@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2005 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -22,12 +11,14 @@
 #include "ns3/assert.h"
 #include "ns3/log.h"
 
+#include <bit>
 #include <cstdlib>
 
 #ifdef __WIN32__
 #include <WS2tcpip.h>
 #else
 #include <arpa/inet.h>
+#include <sys/socket.h>
 #endif
 
 namespace ns3
@@ -35,16 +26,11 @@ namespace ns3
 
 NS_LOG_COMPONENT_DEFINE("Ipv4Address");
 
-Ipv4Mask::Ipv4Mask()
-    : m_mask(0x66666666)
-{
-    NS_LOG_FUNCTION(this);
-}
-
 Ipv4Mask::Ipv4Mask(uint32_t mask)
     : m_mask(mask)
 {
-    NS_LOG_FUNCTION(this << mask);
+    NS_LOG_FUNCTION(this << m_mask);
+    NS_ASSERT_MSG(IsValid(), "Invalid mask: " << m_mask);
 }
 
 Ipv4Mask::Ipv4Mask(const char* mask)
@@ -52,7 +38,7 @@ Ipv4Mask::Ipv4Mask(const char* mask)
     NS_LOG_FUNCTION(this << mask);
     if (*mask == '/')
     {
-        uint32_t plen = static_cast<uint32_t>(std::atoi(++mask));
+        auto plen = static_cast<uint32_t>(std::atoi(++mask));
         NS_ASSERT(plen <= 32);
         if (plen > 0)
         {
@@ -70,6 +56,7 @@ Ipv4Mask::Ipv4Mask(const char* mask)
             NS_ABORT_MSG("Error, can not build an IPv4 mask from an invalid string: " << mask);
         }
         m_mask = ntohl(m_mask);
+        NS_ASSERT_MSG(IsValid(), "Invalid mask: " << m_mask);
     }
 }
 
@@ -77,14 +64,7 @@ bool
 Ipv4Mask::IsMatch(Ipv4Address a, Ipv4Address b) const
 {
     NS_LOG_FUNCTION(this << a << b);
-    if ((a.Get() & m_mask) == (b.Get() & m_mask))
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return (a.Get() & m_mask) == (b.Get() & m_mask);
 }
 
 uint32_t
@@ -99,6 +79,7 @@ Ipv4Mask::Set(uint32_t mask)
 {
     NS_LOG_FUNCTION(this << mask);
     m_mask = mask;
+    NS_ASSERT_MSG(IsValid(), "Invalid mask: " << m_mask);
 }
 
 uint32_t
@@ -120,7 +101,7 @@ Ipv4Mask
 Ipv4Mask::GetLoopback()
 {
     NS_LOG_FUNCTION_NOARGS();
-    static Ipv4Mask loopback = Ipv4Mask("255.0.0.0");
+    static Ipv4Mask loopback("255.0.0.0");
     return loopback;
 }
 
@@ -128,7 +109,7 @@ Ipv4Mask
 Ipv4Mask::GetZero()
 {
     NS_LOG_FUNCTION_NOARGS();
-    static Ipv4Mask zero = Ipv4Mask("0.0.0.0");
+    static Ipv4Mask zero("0.0.0.0");
     return zero;
 }
 
@@ -136,7 +117,7 @@ Ipv4Mask
 Ipv4Mask::GetOnes()
 {
     NS_LOG_FUNCTION_NOARGS();
-    static Ipv4Mask ones = Ipv4Mask("255.255.255.255");
+    static Ipv4Mask ones("255.255.255.255");
     return ones;
 }
 
@@ -154,24 +135,16 @@ Ipv4Mask::GetPrefixLength() const
     return tmp;
 }
 
-/**
- *  Value of a not-yet-initialized IPv4 address, corresponding to 102.102.102.102.
- *  This is totally arbitrary.
- */
-static constexpr uint32_t UNINITIALIZED = 0x66666666U;
-
-Ipv4Address::Ipv4Address()
-    : m_address(UNINITIALIZED),
-      m_initialized(false)
+constexpr bool
+Ipv4Mask::IsValid() const
 {
-    NS_LOG_FUNCTION(this);
-}
+    return std::countl_one(m_mask) + std::countr_zero(m_mask) == 32;
+};
 
 Ipv4Address::Ipv4Address(uint32_t address)
 {
     NS_LOG_FUNCTION(this << address);
     m_address = address;
-    m_initialized = true;
 }
 
 Ipv4Address::Ipv4Address(const char* address)
@@ -180,13 +153,25 @@ Ipv4Address::Ipv4Address(const char* address)
 
     if (inet_pton(AF_INET, address, &m_address) <= 0)
     {
-        NS_LOG_LOGIC("Error, can not build an IPv4 address from an invalid string: " << address);
-        m_address = 0;
-        m_initialized = false;
+        NS_ABORT_MSG("Error, can not build an IPv4 address from an invalid string: " << address);
         return;
     }
-    m_initialized = true;
     m_address = ntohl(m_address);
+}
+
+bool
+Ipv4Address::CheckCompatible(const std::string& addressStr)
+{
+    NS_LOG_FUNCTION(addressStr);
+
+    uint32_t buffer;
+
+    if (inet_pton(AF_INET, addressStr.c_str(), &buffer) <= 0)
+    {
+        NS_LOG_WARN("Error, can not build an IPv4 address from an invalid string: " << addressStr);
+        return false;
+    }
+    return true;
 }
 
 uint32_t
@@ -201,7 +186,6 @@ Ipv4Address::Set(uint32_t address)
 {
     NS_LOG_FUNCTION(this << address);
     m_address = address;
-    m_initialized = true;
 }
 
 void
@@ -210,12 +194,9 @@ Ipv4Address::Set(const char* address)
     NS_LOG_FUNCTION(this << address);
     if (inet_pton(AF_INET, address, &m_address) <= 0)
     {
-        NS_LOG_LOGIC("Error, can not build an IPv4 address from an invalid string: " << address);
-        m_address = 0;
-        m_initialized = false;
+        NS_ABORT_MSG("Error, can not build an IPv4 address from an invalid string: " << address);
         return;
     }
-    m_initialized = true;
     m_address = ntohl(m_address);
 }
 
@@ -255,7 +236,7 @@ bool
 Ipv4Address::IsInitialized() const
 {
     NS_LOG_FUNCTION(this);
-    return (m_initialized);
+    return true;
 }
 
 bool
@@ -298,6 +279,14 @@ Ipv4Address::IsLocalMulticast() const
     return (m_address & 0xffffff00) == 0xe0000000;
 }
 
+bool
+Ipv4Address::IsLinkLocal() const
+{
+    NS_LOG_FUNCTION(this);
+    // Link-Local address is 169.254.0.0/16
+    return (m_address & 0xffff0000) == 0xa9fe0000;
+}
+
 void
 Ipv4Address::Serialize(uint8_t buf[4]) const
 {
@@ -321,7 +310,6 @@ Ipv4Address::Deserialize(const uint8_t buf[4])
     ipv4.m_address |= buf[2];
     ipv4.m_address <<= 8;
     ipv4.m_address |= buf[3];
-    ipv4.m_initialized = true;
 
     return ipv4;
 }
@@ -341,7 +329,8 @@ Ipv4Address::IsMatchingType(const Address& address)
     return address.CheckCompatible(GetType(), 4);
 }
 
-Ipv4Address::operator Address() const
+Ipv4Address::
+operator Address() const
 {
     return ConvertTo();
 }
@@ -369,7 +358,7 @@ uint8_t
 Ipv4Address::GetType()
 {
     NS_LOG_FUNCTION_NOARGS();
-    static uint8_t type = Address::Register();
+    static uint8_t type = Address::Register("IpAddress", 4);
     return type;
 }
 

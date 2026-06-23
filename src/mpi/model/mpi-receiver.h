@@ -1,24 +1,13 @@
 /*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: George Riley <riley@ece.gatech.edu>
  */
 
 /**
- * \file
- * \ingroup mpi
- * ns3::MpiReciver declaration,
+ * @file
+ * @ingroup mpi
+ * ns3::MpiReceiver declaration,
  * provides an interface to aggregate to MPI-compatible NetDevices.
  */
 
@@ -32,9 +21,9 @@ namespace ns3
 {
 
 /**
- * \ingroup mpi
+ * @ingroup mpi
  *
- * \brief Class to aggregate to a NetDevice if it supports MPI capability
+ * @brief Class to aggregate to a NetDevice if it supports MPI capability
  *
  * MpiInterface::ReceiveMessages () needs to send packets to a NetDevice
  * Receive() method.  Since each NetDevice's Receive() method is specific
@@ -49,19 +38,19 @@ class MpiReceiver : public Object
   public:
     /**
      * Register this type.
-     * \return The object TypeId.
+     * @return The object TypeId.
      */
     static TypeId GetTypeId();
     ~MpiReceiver() override;
 
     /**
-     * \brief Direct an incoming packet to the device Receive() method
-     * \param p Packet to receive
+     * @brief Direct an incoming packet to the device Receive() method
+     * @param p Packet to receive
      */
     void Receive(Ptr<Packet> p);
     /**
-     * \brief Set the receive callback to get packets to net devices
-     * \param callback the callback itself
+     * @brief Set the receive callback to get packets to net devices
+     * @param callback the callback itself
      */
     void SetReceiveCallback(Callback<void, Ptr<Packet>> callback);
 

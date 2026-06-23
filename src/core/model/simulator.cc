@@ -1,26 +1,14 @@
 /*
  * Copyright (c) 2005,2006 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
 #include "simulator.h"
 
-#include "assert.h"
-#include "des-metrics.h"
 #include "event-impl.h"
+#include "fatal-error.h"
 #include "global-value.h"
 #include "log.h"
 #include "map-scheduler.h"
@@ -30,18 +18,13 @@
 #include "simulator-impl.h"
 #include "string.h"
 
-#include "ns3/core-config.h"
-
-#include <cmath>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <list>
-#include <vector>
+#ifdef ENABLE_DES_METRICS
+#include "des-metrics.h"
+#endif
 
 /**
- * \file
- * \ingroup simulator
+ * @file
+ * @ingroup simulator
  * ns3::Simulator implementation, as well as implementation pointer,
  * global scheduler implementation.
  */
@@ -54,9 +37,11 @@ namespace ns3
 // of causing recursions leading to stack overflow
 NS_LOG_COMPONENT_DEFINE("Simulator");
 
+EventId Simulator::m_stopEvent;
+
 /**
- * \ingroup simulator
- * \anchor GlobalValueSimulatorImplementationType
+ * @ingroup simulator
+ * @anchor GlobalValueSimulatorImplementationType
  * The specific simulator implementation to use.
  *
  * Must be derived from SimulatorImpl.
@@ -68,8 +53,8 @@ static GlobalValue g_simTypeImpl =
                 MakeStringChecker());
 
 /**
- * \ingroup scheduler
- * \anchor GlobalValueSchedulerType
+ * @ingroup scheduler
+ * @anchor GlobalValueSchedulerType
  * The specific event scheduler implementation to use.
  *
  * Must be derived from Scheduler.
@@ -81,9 +66,9 @@ static GlobalValue g_schedTypeImpl =
                 MakeTypeIdChecker());
 
 /**
- * \ingroup simulator
- * \brief Get the static SimulatorImpl instance.
- * \return The SimulatorImpl instance pointer.
+ * @ingroup simulator
+ * @brief Get the static SimulatorImpl instance.
+ * @return The SimulatorImpl instance pointer.
  */
 static SimulatorImpl**
 PeekImpl()
@@ -93,10 +78,10 @@ PeekImpl()
 }
 
 /**
- * \ingroup simulator
- * \brief Get the SimulatorImpl singleton.
- * \return The singleton pointer.
- * \see Simulator::GetImplementation()
+ * @ingroup simulator
+ * @brief Get the SimulatorImpl singleton.
+ * @return The singleton pointer.
+ * @see Simulator::GetImplementation()
  */
 static SimulatorImpl*
 GetImpl()
@@ -188,11 +173,18 @@ Simulator::Stop()
     GetImpl()->Stop();
 }
 
-void
+EventId
 Simulator::Stop(const Time& delay)
 {
     NS_LOG_FUNCTION(delay);
-    GetImpl()->Stop(delay);
+    m_stopEvent = GetImpl()->Stop(delay);
+    return m_stopEvent;
+}
+
+EventId
+Simulator::GetStopEvent()
+{
+    return m_stopEvent;
 }
 
 Time

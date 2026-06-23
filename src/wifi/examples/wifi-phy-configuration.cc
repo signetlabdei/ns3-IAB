@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2016 Tom Henderson
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Tom Henderson <tomh@tomh.org>
  */
@@ -31,6 +20,7 @@
 #include "ns3/string.h"
 #include "ns3/uinteger.h"
 #include "ns3/wifi-net-device.h"
+#include "ns3/wifi-ns3-constants.h"
 #include "ns3/yans-wifi-helper.h"
 #include "ns3/yans-wifi-phy.h"
 
@@ -41,8 +31,8 @@ NS_LOG_COMPONENT_DEFINE("WifiPhyConfigurationExample");
 /**
  * Get the Yans Wifi Phy Ptr object for the 1st node in the NodeContainer
  *
- * \param nc The node container.
- * \return the Yans Wifi Phy Ptr object of the 1st node in the NodeContainer
+ * @param nc The node container.
+ * @return the Yans Wifi Phy Ptr object of the 1st node in the NodeContainer
  */
 Ptr<YansWifiPhy>
 GetYansWifiPhyPtr(const NetDeviceContainer& nc)
@@ -55,7 +45,7 @@ GetYansWifiPhyPtr(const NetDeviceContainer& nc)
 /**
  * Print the attributes to a file.
  *
- * \param enabled Enable printing.
+ * @param enabled Enable printing.
  */
 void
 PrintAttributesIfEnabled(bool enabled)
@@ -104,7 +94,7 @@ main(int argc, char* argv[])
                   "Ssid",
                   SsidValue(ssid),
                   "BeaconInterval",
-                  TimeValue(MicroSeconds(102400)),
+                  TimeValue(DEFAULT_BEACON_INTERVAL()),
                   "BeaconGeneration",
                   BooleanValue(true));
     NetDeviceContainer staDevice;
@@ -135,8 +125,8 @@ main(int argc, char* argv[])
         phySta = GetYansWifiPhyPtr(staDevice);
         // We expect channel 36, width 20, frequency 5180
         NS_ASSERT(phySta->GetChannelNumber() == 36);
-        NS_ASSERT(phySta->GetChannelWidth() == 20);
-        NS_ASSERT(phySta->GetFrequency() == 5180);
+        NS_ASSERT(phySta->GetChannelWidth() == MHz_u{20});
+        NS_ASSERT(phySta->GetFrequency() == MHz_u{5180});
         PrintAttributesIfEnabled(printAttributes);
         break;
     case 2:
@@ -146,8 +136,8 @@ main(int argc, char* argv[])
         phySta = GetYansWifiPhyPtr(staDevice);
         // We expect channel 1, width 22, frequency 2412
         NS_ASSERT(phySta->GetChannelNumber() == 1);
-        NS_ASSERT(phySta->GetChannelWidth() == 22);
-        NS_ASSERT(phySta->GetFrequency() == 2412);
+        NS_ASSERT(phySta->GetChannelWidth() == MHz_u{22});
+        NS_ASSERT(phySta->GetFrequency() == MHz_u{2412});
         PrintAttributesIfEnabled(printAttributes);
         break;
     case 3:
@@ -157,8 +147,8 @@ main(int argc, char* argv[])
         phySta = GetYansWifiPhyPtr(staDevice);
         // We expect channel 1, width 20, frequency 2412
         NS_ASSERT(phySta->GetChannelNumber() == 1);
-        NS_ASSERT(phySta->GetChannelWidth() == 20);
-        NS_ASSERT(phySta->GetFrequency() == 2412);
+        NS_ASSERT(phySta->GetChannelWidth() == MHz_u{20});
+        NS_ASSERT(phySta->GetFrequency() == MHz_u{2412});
         PrintAttributesIfEnabled(printAttributes);
         break;
     case 4:
@@ -169,8 +159,8 @@ main(int argc, char* argv[])
         phySta = GetYansWifiPhyPtr(staDevice);
         // We expect channel 36, width 20, frequency 5180
         NS_ASSERT(phySta->GetChannelNumber() == 36);
-        NS_ASSERT(phySta->GetChannelWidth() == 20);
-        NS_ASSERT(phySta->GetFrequency() == 5180);
+        NS_ASSERT(phySta->GetChannelWidth() == MHz_u{20});
+        NS_ASSERT(phySta->GetFrequency() == MHz_u{5180});
         PrintAttributesIfEnabled(printAttributes);
         break;
     case 5:
@@ -180,8 +170,8 @@ main(int argc, char* argv[])
         phySta = GetYansWifiPhyPtr(staDevice);
         // We expect channel 1, width 20, frequency 2412
         NS_ASSERT(phySta->GetChannelNumber() == 1);
-        NS_ASSERT(phySta->GetChannelWidth() == 20);
-        NS_ASSERT(phySta->GetFrequency() == 2412);
+        NS_ASSERT(phySta->GetChannelWidth() == MHz_u{20});
+        NS_ASSERT(phySta->GetFrequency() == MHz_u{2412});
         PrintAttributesIfEnabled(printAttributes);
         break;
     case 6:
@@ -191,8 +181,8 @@ main(int argc, char* argv[])
         phySta = GetYansWifiPhyPtr(staDevice);
         // We expect channel 42, width 80, frequency 5210
         NS_ASSERT(phySta->GetChannelNumber() == 42);
-        NS_ASSERT(phySta->GetChannelWidth() == 80);
-        NS_ASSERT(phySta->GetFrequency() == 5210);
+        NS_ASSERT(phySta->GetChannelWidth() == MHz_u{80});
+        NS_ASSERT(phySta->GetFrequency() == MHz_u{5210});
         PrintAttributesIfEnabled(printAttributes);
         break;
     case 7:
@@ -204,8 +194,8 @@ main(int argc, char* argv[])
         phySta = GetYansWifiPhyPtr(staDevice);
         // We expect channel 1, width 20, frequency 2412
         NS_ASSERT(phySta->GetChannelNumber() == 1);
-        NS_ASSERT(phySta->GetChannelWidth() == 20);
-        NS_ASSERT(phySta->GetFrequency() == 2412);
+        NS_ASSERT(phySta->GetChannelWidth() == MHz_u{20});
+        NS_ASSERT(phySta->GetFrequency() == MHz_u{2412});
         PrintAttributesIfEnabled(printAttributes);
         break;
     case 8:
@@ -215,8 +205,8 @@ main(int argc, char* argv[])
         phySta = GetYansWifiPhyPtr(staDevice);
         // We expect channel 42, width 80, frequency 5210
         NS_ASSERT(phySta->GetChannelNumber() == 42);
-        NS_ASSERT(phySta->GetChannelWidth() == 80);
-        NS_ASSERT(phySta->GetFrequency() == 5210);
+        NS_ASSERT(phySta->GetChannelWidth() == MHz_u{80});
+        NS_ASSERT(phySta->GetFrequency() == MHz_u{5210});
         PrintAttributesIfEnabled(printAttributes);
         break;
     case 9:
@@ -227,8 +217,8 @@ main(int argc, char* argv[])
         phySta = GetYansWifiPhyPtr(staDevice);
         // We expect channel 7, width 80, frequency 5985
         NS_ASSERT(phySta->GetChannelNumber() == 7);
-        NS_ASSERT(phySta->GetChannelWidth() == 80);
-        NS_ASSERT(phySta->GetFrequency() == 5985);
+        NS_ASSERT(phySta->GetChannelWidth() == MHz_u{80});
+        NS_ASSERT(phySta->GetFrequency() == MHz_u{5985});
         PrintAttributesIfEnabled(printAttributes);
         break;
     case 10:
@@ -239,8 +229,8 @@ main(int argc, char* argv[])
         phySta = GetYansWifiPhyPtr(staDevice);
         // We expect channel 172, width 10, frequency 5860
         NS_ASSERT(phySta->GetChannelNumber() == 172);
-        NS_ASSERT(phySta->GetChannelWidth() == 10);
-        NS_ASSERT(phySta->GetFrequency() == 5860);
+        NS_ASSERT(phySta->GetChannelWidth() == MHz_u{10});
+        NS_ASSERT(phySta->GetFrequency() == MHz_u{5860});
         PrintAttributesIfEnabled(printAttributes);
         break;
     case 11:
@@ -251,8 +241,8 @@ main(int argc, char* argv[])
         phySta = GetYansWifiPhyPtr(staDevice);
         // We expect channel 171, width 5, frequency 5860
         NS_ASSERT(phySta->GetChannelNumber() == 171);
-        NS_ASSERT(phySta->GetChannelWidth() == 5);
-        NS_ASSERT(phySta->GetFrequency() == 5860);
+        NS_ASSERT(phySta->GetChannelWidth() == MHz_u{5});
+        NS_ASSERT(phySta->GetFrequency() == MHz_u{5860});
         PrintAttributesIfEnabled(printAttributes);
         break;
     case 12:
@@ -263,8 +253,8 @@ main(int argc, char* argv[])
         phySta = GetYansWifiPhyPtr(staDevice);
         // We expect channel 44, width 20, frequency 5220
         NS_ASSERT(phySta->GetChannelNumber() == 44);
-        NS_ASSERT(phySta->GetChannelWidth() == 20);
-        NS_ASSERT(phySta->GetFrequency() == 5220);
+        NS_ASSERT(phySta->GetChannelWidth() == MHz_u{20});
+        NS_ASSERT(phySta->GetFrequency() == MHz_u{5220});
         PrintAttributesIfEnabled(printAttributes);
         break;
     case 13:
@@ -282,8 +272,8 @@ main(int argc, char* argv[])
             StringValue("{40, 0, BAND_5GHZ, 0}"));
         // We expect channel 40, width 20, frequency 5200
         NS_ASSERT(phySta->GetChannelNumber() == 40);
-        NS_ASSERT(phySta->GetChannelWidth() == 20);
-        NS_ASSERT(phySta->GetFrequency() == 5200);
+        NS_ASSERT(phySta->GetChannelWidth() == MHz_u{20});
+        NS_ASSERT(phySta->GetFrequency() == MHz_u{5200});
         PrintAttributesIfEnabled(printAttributes);
         break;
     case 14:
@@ -300,8 +290,8 @@ main(int argc, char* argv[])
             "/NodeList/1/DeviceList/*/$ns3::WifiNetDevice/Phy/$ns3::YansWifiPhy/ChannelSettings",
             StringValue("{46, 0, BAND_5GHZ, 0}"));
         NS_ASSERT(phySta->GetChannelNumber() == 46);
-        NS_ASSERT(phySta->GetChannelWidth() == 40);
-        NS_ASSERT(phySta->GetFrequency() == 5230);
+        NS_ASSERT(phySta->GetChannelWidth() == MHz_u{40});
+        NS_ASSERT(phySta->GetFrequency() == MHz_u{5230});
         PrintAttributesIfEnabled(printAttributes);
         break;
     case 15:
@@ -318,8 +308,8 @@ main(int argc, char* argv[])
             "/NodeList/1/DeviceList/*/$ns3::WifiNetDevice/Phy/$ns3::YansWifiPhy/ChannelSettings",
             StringValue("{46, 0, BAND_5GHZ, 0}"));
         NS_ASSERT(phySta->GetChannelNumber() == 46);
-        NS_ASSERT(phySta->GetChannelWidth() == 40);
-        NS_ASSERT(phySta->GetFrequency() == 5230);
+        NS_ASSERT(phySta->GetChannelWidth() == MHz_u{40});
+        NS_ASSERT(phySta->GetFrequency() == MHz_u{5230});
         PrintAttributesIfEnabled(printAttributes);
         break;
     case 16:
@@ -358,8 +348,8 @@ main(int argc, char* argv[])
         phySta = GetYansWifiPhyPtr(staDevice);
         // We expect channel number to be 100 due to frequency 5500
         NS_ASSERT(phySta->GetChannelNumber() == 100);
-        NS_ASSERT(phySta->GetChannelWidth() == 20);
-        NS_ASSERT(phySta->GetFrequency() == 5500);
+        NS_ASSERT(phySta->GetChannelWidth() == MHz_u{20});
+        NS_ASSERT(phySta->GetFrequency() == MHz_u{5500});
         PrintAttributesIfEnabled(printAttributes);
         break;
     case 18:
@@ -401,8 +391,8 @@ main(int argc, char* argv[])
         phySta->SetAttribute("ChannelSettings", StringValue("{36, 0, BAND_5GHZ, 0}"));
         // We expect channel number to be 36 due to known center frequency 5180
         NS_ASSERT(phySta->GetChannelNumber() == 36);
-        NS_ASSERT(phySta->GetChannelWidth() == 20);
-        NS_ASSERT(phySta->GetFrequency() == 5180);
+        NS_ASSERT(phySta->GetChannelWidth() == MHz_u{20});
+        NS_ASSERT(phySta->GetFrequency() == MHz_u{5180});
         exceptionThrown = false;
         try
         {
@@ -416,8 +406,8 @@ main(int argc, char* argv[])
         NS_ASSERT(exceptionThrown);
         phySta->SetAttribute("ChannelSettings", StringValue("{36, 0, BAND_5GHZ, 0}"));
         NS_ASSERT(phySta->GetChannelNumber() == 36);
-        NS_ASSERT(phySta->GetChannelWidth() == 20);
-        NS_ASSERT(phySta->GetFrequency() == 5180);
+        NS_ASSERT(phySta->GetChannelWidth() == MHz_u{20});
+        NS_ASSERT(phySta->GetFrequency() == MHz_u{5180});
         PrintAttributesIfEnabled(printAttributes);
         break;
     case 20:
@@ -428,8 +418,8 @@ main(int argc, char* argv[])
         apDevice = wifi.Install(phy, macAp, wifiApNode.Get(0));
         phySta = GetYansWifiPhyPtr(staDevice);
         NS_ASSERT(phySta->GetChannelNumber() == 40);
-        NS_ASSERT(phySta->GetChannelWidth() == 20);
-        NS_ASSERT(phySta->GetFrequency() == 5200);
+        NS_ASSERT(phySta->GetChannelWidth() == MHz_u{20});
+        NS_ASSERT(phySta->GetFrequency() == MHz_u{5200});
         // Set both channel and frequency to consistent values after initialization
         wifi.SetStandard(WIFI_STANDARD_80211n);
         staDevice = wifi.Install(phy, macSta, wifiStaNode.Get(0));
@@ -437,8 +427,8 @@ main(int argc, char* argv[])
         phySta = GetYansWifiPhyPtr(staDevice);
         phySta->SetAttribute("ChannelSettings", StringValue("{40, 0, BAND_5GHZ, 0}"));
         NS_ASSERT(phySta->GetChannelNumber() == 40);
-        NS_ASSERT(phySta->GetChannelWidth() == 20);
-        NS_ASSERT(phySta->GetFrequency() == 5200);
+        NS_ASSERT(phySta->GetChannelWidth() == MHz_u{20});
+        NS_ASSERT(phySta->GetFrequency() == MHz_u{5200});
         exceptionThrown = false;
         try
         {
@@ -451,10 +441,9 @@ main(int argc, char* argv[])
         phySta->SetAttribute("ChannelSettings", StringValue("{36, 0, BAND_5GHZ, 0}"));
         // We expect channel number to be 36 and an exception to be thrown
         NS_ASSERT(phySta->GetChannelNumber() == 36);
-        NS_ASSERT(phySta->GetChannelWidth() == 20);
-        NS_ASSERT(phySta->GetFrequency() == 5180);
+        NS_ASSERT(phySta->GetChannelWidth() == MHz_u{20});
+        NS_ASSERT(phySta->GetFrequency() == MHz_u{5180});
         NS_ASSERT(exceptionThrown);
-        phySta->SetAttribute("ChannelSettings", StringValue("{36, 0, BAND_5GHZ, 0}"));
         exceptionThrown = false;
         try
         {
@@ -464,10 +453,11 @@ main(int argc, char* argv[])
         {
             exceptionThrown = true;
         }
+        phySta->SetAttribute("ChannelSettings", StringValue("{36, 0, BAND_5GHZ, 0}"));
         // We expect channel number to be 36 and an exception to be thrown
         NS_ASSERT(phySta->GetChannelNumber() == 36);
-        NS_ASSERT(phySta->GetChannelWidth() == 20);
-        NS_ASSERT(phySta->GetFrequency() == 5180);
+        NS_ASSERT(phySta->GetChannelWidth() == MHz_u{20});
+        NS_ASSERT(phySta->GetFrequency() == MHz_u{5180});
         NS_ASSERT(exceptionThrown);
         PrintAttributesIfEnabled(printAttributes);
         break;
@@ -479,4 +469,6 @@ main(int argc, char* argv[])
 
     // No need to Simulator::Run (); this is a configuration example
     Simulator::Destroy();
+
+    return 0;
 }

@@ -1,40 +1,28 @@
 /*
  * Copyright (c) 2011, 2012 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Nicola Baldo <nbaldo@cttc.es>
  */
 
+#include "ns3/building.h"
+#include "ns3/buildings-helper.h"
+#include "ns3/constant-position-mobility-model.h"
 #include "ns3/log.h"
+#include "ns3/mobility-building-info.h"
+#include "ns3/mobility-helper.h"
+#include "ns3/simulator.h"
 #include "ns3/test.h"
-#include <ns3/building.h>
-#include <ns3/buildings-helper.h>
-#include <ns3/constant-position-mobility-model.h>
-#include <ns3/mobility-building-info.h>
-#include <ns3/mobility-helper.h>
-#include <ns3/simulator.h>
 
 using namespace ns3;
 
 NS_LOG_COMPONENT_DEFINE("BuildingsHelperTest");
 
 /**
- * \ingroup building-test
- * \ingroup tests
+ * @ingroup building-test
  *
- * \brief Struct representing a position in a building
+ * @brief Struct representing a position in a building
  */
 struct PositionInBuilding
 {
@@ -58,8 +46,7 @@ PositionInBuilding::PositionInBuilding()
 }
 
 /**
- * \ingroup building-test
- * \ingroup tests
+ * @ingroup building-test
 
  * Data to construct a Building object. We don't want to pass Building
  * objects to the TestCase constructor because otherwise BuildingList
@@ -95,26 +82,25 @@ BuildingData::BuildingData()
 }
 
 /**
- * \ingroup building-test
- * \ingroup tests
+ * @ingroup building-test
  *
- * \brief BuildingsHelper test
+ * @brief BuildingsHelper test
  */
 class BuildingsHelperOneTestCase : public TestCase
 {
   public:
     /**
      * Build the testcase name
-     * \param pib Position in building
-     * \param bd Building data
-     * \return the TestCase name
+     * @param pib Position in building
+     * @param bd Building data
+     * @return the TestCase name
      */
     static std::string BuildNameString(PositionInBuilding pib, BuildingData bd);
 
     /**
      * Constructor
-     * \param pib Position in building
-     * \param bd Building data
+     * @param pib Position in building
+     * @param bd Building data
      */
     BuildingsHelperOneTestCase(PositionInBuilding pib, BuildingData bd);
 
@@ -196,10 +182,9 @@ BuildingsHelperOneTestCase::DoRun()
 }
 
 /**
- * \ingroup building-test
- * \ingroup tests
+ * @ingroup building-test
  *
- * \brief BuildingsHelper TestSuite
+ * @brief BuildingsHelper TestSuite
  */
 class BuildingsHelperTestSuite : public TestSuite
 {
@@ -208,7 +193,7 @@ class BuildingsHelperTestSuite : public TestSuite
 };
 
 BuildingsHelperTestSuite::BuildingsHelperTestSuite()
-    : TestSuite("buildings-helper", UNIT)
+    : TestSuite("buildings-helper", Type::UNIT)
 {
     NS_LOG_FUNCTION(this);
 
@@ -231,25 +216,25 @@ BuildingsHelperTestSuite::BuildingsHelperTestSuite()
     p1.rx = 1;
     p1.ry = 1;
     p1.fn = 1;
-    AddTestCase(new BuildingsHelperOneTestCase(p1, b1), TestCase::QUICK);
+    AddTestCase(new BuildingsHelperOneTestCase(p1, b1), TestCase::Duration::QUICK);
 
     Vector vp2(1.5, 0.5, 0.5);
     PositionInBuilding p2;
     p2.pos = vp2;
     p2.indoor = false;
-    AddTestCase(new BuildingsHelperOneTestCase(p2, b1), TestCase::QUICK);
+    AddTestCase(new BuildingsHelperOneTestCase(p2, b1), TestCase::Duration::QUICK);
 
     Vector vp3(1.5, 2.5, 0.5);
     PositionInBuilding p3;
     p3.pos = vp3;
     p3.indoor = false;
-    AddTestCase(new BuildingsHelperOneTestCase(p3, b1), TestCase::QUICK);
+    AddTestCase(new BuildingsHelperOneTestCase(p3, b1), TestCase::Duration::QUICK);
 
     Vector vp4(1.5, 1.5, 5);
     PositionInBuilding p4;
     p4.pos = vp4;
     p4.indoor = false;
-    AddTestCase(new BuildingsHelperOneTestCase(p4, b1), TestCase::QUICK);
+    AddTestCase(new BuildingsHelperOneTestCase(p4, b1), TestCase::Duration::QUICK);
 
     Vector vp5(2.5, 1.6, 3.5);
     PositionInBuilding p5;
@@ -259,31 +244,31 @@ BuildingsHelperTestSuite::BuildingsHelperTestSuite()
     p5.rx = 1;
     p5.ry = 1;
     p5.fn = 1;
-    AddTestCase(new BuildingsHelperOneTestCase(p5, b1), TestCase::QUICK);
+    AddTestCase(new BuildingsHelperOneTestCase(p5, b1), TestCase::Duration::QUICK);
 
     Vector vp6(0.9999, 1.5, 1.5);
     PositionInBuilding p6;
     p6.pos = vp6;
     p6.indoor = false;
-    AddTestCase(new BuildingsHelperOneTestCase(p6, b1), TestCase::QUICK);
+    AddTestCase(new BuildingsHelperOneTestCase(p6, b1), TestCase::Duration::QUICK);
 
     Vector vp7(3.0001, 1.5, 2.5);
     PositionInBuilding p7;
     p7.pos = vp7;
     p7.indoor = false;
-    AddTestCase(new BuildingsHelperOneTestCase(p7, b1), TestCase::QUICK);
+    AddTestCase(new BuildingsHelperOneTestCase(p7, b1), TestCase::Duration::QUICK);
 
     Vector vp8(1.001, 1.001, -0.01);
     PositionInBuilding p8;
     p8.pos = vp8;
     p8.indoor = false;
-    AddTestCase(new BuildingsHelperOneTestCase(p8, b1), TestCase::QUICK);
+    AddTestCase(new BuildingsHelperOneTestCase(p8, b1), TestCase::Duration::QUICK);
 
     Vector vp9(1.5, 1.5, 4.001);
     PositionInBuilding p9;
     p9.pos = vp9;
     p9.indoor = false;
-    AddTestCase(new BuildingsHelperOneTestCase(p9, b1), TestCase::QUICK);
+    AddTestCase(new BuildingsHelperOneTestCase(p9, b1), TestCase::Duration::QUICK);
 
     BuildingData b2;
     b2.xmin = -1;
@@ -304,7 +289,7 @@ BuildingsHelperTestSuite::BuildingsHelperTestSuite()
     q1.rx = 1;
     q1.ry = 2;
     q1.fn = 3;
-    AddTestCase(new BuildingsHelperOneTestCase(q1, b2), TestCase::QUICK);
+    AddTestCase(new BuildingsHelperOneTestCase(q1, b2), TestCase::Duration::QUICK);
 
     Vector vq2(0.2, 0.3, 0.2);
     PositionInBuilding q2;
@@ -314,37 +299,37 @@ BuildingsHelperTestSuite::BuildingsHelperTestSuite()
     q2.rx = 3;
     q2.ry = 5;
     q2.fn = 1;
-    AddTestCase(new BuildingsHelperOneTestCase(q2, b2), TestCase::QUICK);
+    AddTestCase(new BuildingsHelperOneTestCase(q2, b2), TestCase::Duration::QUICK);
 
     Vector vq3(0.6, -1.75, 1.5);
     PositionInBuilding q3;
     q3.pos = vq3;
     q3.indoor = false;
-    AddTestCase(new BuildingsHelperOneTestCase(q3, b2), TestCase::QUICK);
+    AddTestCase(new BuildingsHelperOneTestCase(q3, b2), TestCase::Duration::QUICK);
 
     Vector vq4(-1.01, 0.3, 1.99);
     PositionInBuilding q4;
     q4.pos = vq4;
     q4.indoor = false;
-    AddTestCase(new BuildingsHelperOneTestCase(q4, b2), TestCase::QUICK);
+    AddTestCase(new BuildingsHelperOneTestCase(q4, b2), TestCase::Duration::QUICK);
 
     Vector vq5(-0.8, 0.7, 0.01);
     PositionInBuilding q5;
     q5.pos = vq5;
     q5.indoor = false;
-    AddTestCase(new BuildingsHelperOneTestCase(q5, b2), TestCase::QUICK);
+    AddTestCase(new BuildingsHelperOneTestCase(q5, b2), TestCase::Duration::QUICK);
 
     Vector vq6(0.2, 0.3, -0.2);
     PositionInBuilding q6;
     q6.pos = vq6;
     q6.indoor = false;
-    AddTestCase(new BuildingsHelperOneTestCase(q6, b2), TestCase::QUICK);
+    AddTestCase(new BuildingsHelperOneTestCase(q6, b2), TestCase::Duration::QUICK);
 
     Vector vq7(0.2, 0.3, 2.001);
     PositionInBuilding q7;
     q7.pos = vq7;
     q7.indoor = false;
-    AddTestCase(new BuildingsHelperOneTestCase(q7, b2), TestCase::QUICK);
+    AddTestCase(new BuildingsHelperOneTestCase(q7, b2), TestCase::Duration::QUICK);
 }
 
 /// Static variable for test initialization

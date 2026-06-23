@@ -1,16 +1,5 @@
 /*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  */
 
@@ -83,8 +72,8 @@ NS_LOG_COMPONENT_DEFINE("MixedWireless");
  * This function will be used below as a trace sink, if the command-line
  * argument or default value "useCourseChangeCallback" is set to true
  *
- * \param path The callback path.
- * \param model The mobility model.
+ * @param path The callback path.
+ * @param model The mobility model.
  */
 static void
 CourseChangeCallback(std::string path, Ptr<const MobilityModel> model)
@@ -414,7 +403,7 @@ main(int argc, char* argv[])
     // pcap trace on the application data sink
     wifiPhy.EnablePcap("mixed-wireless", appSink->GetId(), 0);
 
-    if (useCourseChangeCallback == true)
+    if (useCourseChangeCallback)
     {
         Config::Connect("/NodeList/*/$ns3::MobilityModel/CourseChange",
                         MakeCallback(&CourseChangeCallback));

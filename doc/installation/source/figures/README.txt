@@ -15,3 +15,4 @@ a .png and a .pdf version in this directory.
 
 If you add a source (.dia) file here, remember to add it to
 the list of figure sources in the Makefile in the directory above
+

@@ -94,7 +94,6 @@ public:
    * \brief Get the type ID of this instance
    * \return the Type ID of this instance
    */
-  TypeId GetInstanceTypeId (void) const override;
 
   /**
    * \brief MmWaveErrorModel default constructor

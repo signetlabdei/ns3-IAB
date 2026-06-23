@@ -1,16 +1,5 @@
 /*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  */
 
@@ -186,10 +175,9 @@ BriteTopologyHelper::BuildBriteEdgeInfoList()
 {
     NS_LOG_FUNCTION(this);
     brite::Graph* g = m_topology->GetGraph();
-    std::list<brite::Edge*>::iterator el;
     std::list<brite::Edge*> edgeList = g->GetEdges();
 
-    for (el = edgeList.begin(); el != edgeList.end(); el++)
+    for (auto el = edgeList.begin(); el != edgeList.end(); el++)
     {
         BriteEdgeInfo edgeInfo;
         edgeInfo.edgeId = (*el)->GetId();
@@ -412,15 +400,13 @@ BriteTopologyHelper::BuildBriteTopology(InternetStackHelper& stack, const uint32
     NS_LOG_LOGIC("Assigning << " << m_numAs << " AS to " << systemCount << " MPI instances");
     for (uint32_t i = 0; i < m_numAs; ++i)
     {
-        int val = i % systemCount;
-        m_systemForAs.push_back(val);
+        uint32_t val = i % systemCount;
+        m_systemForAs.push_back(static_cast<int>(val));
         NS_LOG_INFO("AS: " << i << " System: " << val);
     }
 
     // create nodes
-    for (BriteTopologyHelper::BriteNodeInfoList::iterator it = m_briteNodeInfoList.begin();
-         it != m_briteNodeInfoList.end();
-         ++it)
+    for (auto it = m_briteNodeInfoList.begin(); it != m_briteNodeInfoList.end(); ++it)
     {
         m_nodes.Add(CreateObject<Node>(GetSystemNumberForAs((*it).asId)));
         m_numNodes++;
@@ -468,9 +454,7 @@ BriteTopologyHelper::ConstructTopology()
         m_nodesByAs.push_back(new NodeContainer());
     }
 
-    for (BriteTopologyHelper::BriteEdgeInfoList::iterator it = m_briteEdgeInfoList.begin();
-         it != m_briteEdgeInfoList.end();
-         ++it)
+    for (auto it = m_briteEdgeInfoList.begin(); it != m_briteEdgeInfoList.end(); ++it)
     {
         // Set the link delay
         // The brite value for delay is given in milliseconds
@@ -492,9 +476,7 @@ BriteTopologyHelper::ConstructTopology()
     NS_LOG_INFO("Created " << m_numEdges << " edges in BRITE topology");
 
     // iterate through all nodes and add leaf nodes for each AS
-    for (BriteTopologyHelper::BriteNodeInfoList::iterator it = m_briteNodeInfoList.begin();
-         it != m_briteNodeInfoList.end();
-         ++it)
+    for (auto it = m_briteNodeInfoList.begin(); it != m_briteNodeInfoList.end(); ++it)
     {
         m_nodesByAs[(*it).asId]->Add(m_nodes.Get((*it).nodeId));
 

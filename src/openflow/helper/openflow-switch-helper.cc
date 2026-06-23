@@ -1,22 +1,10 @@
 /*
  * Copyright (c) 2011 Blake Hurd
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Blake Hurd  <naimorai@gmail.com>
  */
-#ifdef NS3_OPENFLOW
 
 #include "openflow-switch-helper.h"
 
@@ -60,7 +48,7 @@ OpenFlowSwitchHelper::Install(Ptr<Node> node,
     NS_LOG_INFO("**** Set up Controller");
     dev->SetController(controller);
 
-    for (NetDeviceContainer::Iterator i = c.Begin(); i != c.End(); ++i)
+    for (auto i = c.Begin(); i != c.End(); ++i)
     {
         NS_LOG_INFO("**** Add SwitchPort " << *i);
         dev->AddSwitchPort(*i);
@@ -79,7 +67,7 @@ OpenFlowSwitchHelper::Install(Ptr<Node> node, NetDeviceContainer c)
     devs.Add(dev);
     node->AddDevice(dev);
 
-    for (NetDeviceContainer::Iterator i = c.Begin(); i != c.End(); ++i)
+    for (auto i = c.Begin(); i != c.End(); ++i)
     {
         NS_LOG_INFO("**** Add SwitchPort " << *i);
         dev->AddSwitchPort(*i);
@@ -96,5 +84,3 @@ OpenFlowSwitchHelper::Install(std::string nodeName, NetDeviceContainer c)
 }
 
 } // namespace ns3
-
-#endif // NS3_OPENFLOW

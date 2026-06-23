@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2020 Tom Henderson
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #include "tcp-general-test.h"
@@ -27,9 +16,9 @@ using namespace ns3;
 NS_LOG_COMPONENT_DEFINE("TcpLossTestSuite");
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief Check rollover of sequence number and how that affects loss recovery
+ * @brief Check rollover of sequence number and how that affects loss recovery
  *
  * This test checks that fast recovery is entered correctly even if it has
  * been a long time since the last recovery event.  Merge request !156
@@ -55,12 +44,12 @@ class TcpLargeTransferLossTest : public TcpGeneralTest
 {
   public:
     /**
-     * \brief Constructor
+     * @brief Constructor
      *
-     * \param firstLoss First packet number to force loss
-     * \param secondLoss Second packet number to force loss
-     * \param lastSegment Last packet number to transmit
-     * \param desc Description about the test
+     * @param firstLoss First packet number to force loss
+     * @param secondLoss Second packet number to force loss
+     * @param lastSegment Last packet number to transmit
+     * @param desc Description about the test
      */
     TcpLargeTransferLossTest(uint32_t firstLoss,
                              uint32_t secondLoss,
@@ -174,7 +163,7 @@ TcpLargeTransferLossTest::FinalChecks()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
  * Test various packet losses
  */
@@ -182,7 +171,7 @@ class TcpLossTestSuite : public TestSuite
 {
   public:
     TcpLossTestSuite()
-        : TestSuite("tcp-loss-test", UNIT)
+        : TestSuite("tcp-loss-test", Type::UNIT)
     {
         // For large transfer tests, the three sequence numbers passed in
         // are the segment (i.e. not byte) number that should be dropped first,
@@ -192,13 +181,13 @@ class TcpLossTestSuite : public TestSuite
         // the TCP logic should correctly pass this case (no sequence wrapping).
         AddTestCase(
             new TcpLargeTransferLossTest(1000, 2000, 2500, "large-transfer-loss-without-wrap"),
-            TestCase::EXTENSIVE);
+            TestCase::Duration::EXTENSIVE);
         // If we force a loss at packet 1000 and then much later at 3294967, the
         // second sequence number will evaluate to less than 1000 considering
         // the sequence space wrap, so check this case also.
         AddTestCase(
             new TcpLargeTransferLossTest(1000, 3294967, 3295100, "large-transfer-loss-with-wrap"),
-            TestCase::EXTENSIVE);
+            TestCase::Duration::EXTENSIVE);
     }
 };
 

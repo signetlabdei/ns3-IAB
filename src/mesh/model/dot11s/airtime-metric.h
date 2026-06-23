@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 IITP RAS
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Kirill Andreev <andreev@iitp.ru>
  */
@@ -28,9 +17,9 @@ namespace ns3
 namespace dot11s
 {
 /**
- * \ingroup dot11s
+ * @ingroup dot11s
  *
- * \brief Airtime link metric calculator
+ * @brief Airtime link metric calculator
  *
  * Airtime link metric is defined in 11B.10 of 802.11s Draft D3.0 as:
  *
@@ -47,8 +36,8 @@ class AirtimeLinkMetricCalculator : public Object
   public:
     AirtimeLinkMetricCalculator();
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
     /**
@@ -63,21 +52,21 @@ class AirtimeLinkMetricCalculator : public Object
      * Final result is expressed encoded as an unsigned integer in units of
      * 0.01 TU = 10.24 us
      *
-     * \param peerAddress The peer MAC address
-     * \param mac The MAC layer
-     * \returns the calculated metric in units of 0.01 TU
+     * @param peerAddress The peer MAC address
+     * @param mac The MAC layer
+     * @returns the calculated metric in units of 0.01 TU
      */
     uint32_t CalculateMetric(Mac48Address peerAddress, Ptr<MeshWifiInterfaceMac> mac);
 
   private:
     /**
      * Set number of bytes in test frame (a constant 1024 in the standard)
-     * \param testLength the test length in bits
+     * @param testLength the test length in bits
      */
     void SetTestLength(uint16_t testLength);
     /**
      * Set header TID from the Dot11MetricTid attribute
-     * \param tid the header TID to use to calculate data rate
+     * @param tid the header TID to use to calculate data rate
      */
     void SetHeaderTid(uint8_t tid);
 

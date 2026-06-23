@@ -113,12 +113,6 @@ EmuEpcHelper::GetTypeId (void)
   return tid;
 }
 
-TypeId
-EmuEpcHelper::GetInstanceTypeId () const
-{
-  return GetTypeId ();
-}
-
 void
 EmuEpcHelper::DoInitialize ()
 {

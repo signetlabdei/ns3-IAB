@@ -2,24 +2,13 @@
  * Copyright (c) 2020 SIGNET Lab, Department of Information Engineering,
  * University of Padova
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #ifndef PROBABILISTIC_V2V_CHANNEL_CONDITION_MODEL_H
 #define PROBABILISTIC_V2V_CHANNEL_CONDITION_MODEL_H
 
-#include "ns3/channel-condition-model.h"
+#include "channel-condition-model.h"
 
 namespace ns3
 {
@@ -27,9 +16,9 @@ namespace ns3
 class MobilityModel;
 
 /**
- * \ingroup propagation
+ * @ingroup propagation
  *
- * \brief Computes the channel condition for the V2V Urban scenario
+ * @brief Computes the channel condition for the V2V Urban scenario
  *
  * Computes the channel condition following the probabilistic model described in
  * M. Boban,  X.Gong, and  W. Xu, “Modeling the evolution of line-of-sight
@@ -41,8 +30,8 @@ class ProbabilisticV2vUrbanChannelConditionModel : public ThreeGppChannelConditi
   public:
     /**
      * Get the type ID.
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
 
@@ -60,18 +49,18 @@ class ProbabilisticV2vUrbanChannelConditionModel : public ThreeGppChannelConditi
     /**
      * Compute the LOS probability
      *
-     * \param a tx mobility model
-     * \param b rx mobility model
-     * \return the LOS probability
+     * @param a tx mobility model
+     * @param b rx mobility model
+     * @return the LOS probability
      */
     double ComputePlos(Ptr<const MobilityModel> a, Ptr<const MobilityModel> b) const override;
 
     /**
      * Compute the NLOS probability
      *
-     * \param a tx mobility model
-     * \param b rx mobility model
-     * \return the NLOS probability
+     * @param a tx mobility model
+     * @param b rx mobility model
+     * @return the NLOS probability
      */
     double ComputePnlos(Ptr<const MobilityModel> a, Ptr<const MobilityModel> b) const override;
 
@@ -79,9 +68,9 @@ class ProbabilisticV2vUrbanChannelConditionModel : public ThreeGppChannelConditi
 };
 
 /**
- * \ingroup propagation
+ * @ingroup propagation
  *
- * \brief Computes the channel condition for the V2V Highway scenario
+ * @brief Computes the channel condition for the V2V Highway scenario
  *
  * Computes the channel condition following the probabilistic model described in
  * M. Boban,  X.Gong, and  W. Xu, “Modeling the evolution of line-of-sight
@@ -93,8 +82,8 @@ class ProbabilisticV2vHighwayChannelConditionModel : public ThreeGppChannelCondi
   public:
     /**
      * Get the type ID.
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
 
@@ -112,18 +101,18 @@ class ProbabilisticV2vHighwayChannelConditionModel : public ThreeGppChannelCondi
     /**
      * Compute the LOS probability
      *
-     * \param a tx mobility model
-     * \param b rx mobility model
-     * \return the LOS probability
+     * @param a tx mobility model
+     * @param b rx mobility model
+     * @return the LOS probability
      */
     double ComputePlos(Ptr<const MobilityModel> a, Ptr<const MobilityModel> b) const override;
 
     /**
      * Compute the NLOS probability
      *
-     * \param a tx mobility model
-     * \param b rx mobility model
-     * \return the NLOS probability
+     * @param a tx mobility model
+     * @param b rx mobility model
+     * @return the NLOS probability
      */
     double ComputePnlos(Ptr<const MobilityModel> a, Ptr<const MobilityModel> b) const override;
 

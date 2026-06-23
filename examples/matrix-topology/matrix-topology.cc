@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2010 Egemen K. Cetinkaya, Justin P. Rohrer, and Amit Dandekar
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Egemen K. Cetinkaya <ekc@ittc.ku.edu>
  * Author: Justin P. Rohrer    <rohrej@ittc.ku.edu>
@@ -60,7 +49,7 @@ using namespace ns3;
 // ---------- Prototypes ------------------------------------------------------
 
 std::vector<std::vector<bool>> readNxNMatrix(std::string adj_mat_file_name);
-std::vector<std::vector<double>> readCordinatesFile(std::string node_coordinates_file_name);
+std::vector<std::vector<double>> readCoordinatesFile(std::string node_coordinates_file_name);
 void printCoordinateArray(const char* description, std::vector<std::vector<double>> coord_array);
 void printMatrix(const char* description, std::vector<std::vector<bool>> array);
 
@@ -115,7 +104,7 @@ main(int argc, char* argv[])
     // ---------- Read Node Coordinates File -----------------------------------
 
     std::vector<std::vector<double>> coord_array;
-    coord_array = readCordinatesFile(node_coordinates_file_name);
+    coord_array = readCoordinatesFile(node_coordinates_file_name);
 
     // Optionally display node coordinates file
     // printCoordinateArray (node_coordinates_file_name.c_str (),coord_array);
@@ -163,7 +152,7 @@ main(int argc, char* argv[])
     {
         for (size_t j = 0; j < Adj_Matrix[i].size(); j++)
         {
-            if (Adj_Matrix[i][j] == 1)
+            if (Adj_Matrix[i][j])
             {
                 NodeContainer n_links = NodeContainer(nodes.Get(i), nodes.Get(j));
                 NetDeviceContainer n_devs = p2p.Install(n_links);
@@ -361,7 +350,7 @@ readNxNMatrix(std::string adj_mat_file_name)
 }
 
 std::vector<std::vector<double>>
-readCordinatesFile(std::string node_coordinates_file_name)
+readCoordinatesFile(std::string node_coordinates_file_name)
 {
     std::ifstream node_coordinates_file;
     node_coordinates_file.open(node_coordinates_file_name, std::ios::in);

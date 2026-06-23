@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2021 2020 Universita' degli Studi di Napoli Federico II
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Stefano Avallone <stavallo@unina.it>
  */
@@ -40,20 +29,20 @@ using namespace ns3;
 NS_LOG_COMPONENT_DEFINE("WifiChannelSwitchingTest");
 
 /**
- * \ingroup wifi-test
- * \ingroup tests
+ * @ingroup wifi-test
+ * @ingroup tests
  *
  * This test verifies that communication between an AP and a STA resumes
  * after that both switch channel and PHY band. The channel switch is
- * scheduled to happen during the transmission of a frame sent by the AP
- * to the STA. STA discards the frame, associates with the AP again and
- * finally receives the frame successfully.
+ * scheduled to happen during the transmission of a frame sent by the STA
+ * to the AP. AP discards the frame, STA associates with the AP again and
+ * the AP finally receives the frame successfully.
  */
 class WifiChannelSwitchingTest : public TestCase
 {
   public:
     /**
-     * \brief Constructor
+     * @brief Constructor
      */
     WifiChannelSwitchingTest();
     ~WifiChannelSwitchingTest() override;
@@ -64,27 +53,27 @@ class WifiChannelSwitchingTest : public TestCase
      * Callback invoked when a station associates with an AP. Tracks the number of
      * times the association procedure is performed.
      *
-     * \param bssid the BSSID
+     * @param bssid the BSSID
      */
     void Associated(Mac48Address bssid);
     /**
      * Callback invoked when PHY receives a PSDU to transmit from the MAC. Tracks the
-     * number of times a QoS data frame is transmitted by the AP.
+     * number of times a QoS data frame is transmitted by the STA.
      *
-     * \param psduMap the PSDU map
-     * \param txVector the TX vector
-     * \param txPowerW the tx power in Watts
+     * @param psduMap the PSDU map
+     * @param txVector the TX vector
+     * @param txPowerW the tx power in Watts
      */
     void Transmit(WifiConstPsduMap psduMap, WifiTxVector txVector, double txPowerW);
     /**
      * Function to trace packets received by the server application
      *
-     * \param p the packet
-     * \param addr the address
+     * @param p the packet
+     * @param addr the address
      */
     void L7Receive(Ptr<const Packet> p, const Address& addr);
     /**
-     * Send a packet from the AP to the STA through a packet socket
+     * Send a packet from the STA to the AP through a packet socket
      */
     void SendPacket();
     /**
@@ -94,10 +83,10 @@ class WifiChannelSwitchingTest : public TestCase
     /**
      * Callback invoked when the PHY on the given node changes state.
      *
-     * \param nodeId the given node ID
-     * \param start the time state changes
-     * \param duration the time the PHY will stay in the new state
-     * \param state the new PHY state
+     * @param nodeId the given node ID
+     * @param start the time state changes
+     * @param duration the time the PHY will stay in the new state
+     * @param state the new PHY state
      */
     void StateChange(uint32_t nodeId, Time start, Time duration, WifiPhyState state);
 
@@ -172,8 +161,8 @@ void
 WifiChannelSwitchingTest::SendPacket()
 {
     PacketSocketAddress socket;
-    socket.SetSingleDevice(m_apDevice.Get(0)->GetIfIndex());
-    socket.SetPhysicalAddress(m_staDevice.Get(0)->GetAddress());
+    socket.SetSingleDevice(m_staDevice.Get(0)->GetIfIndex());
+    socket.SetPhysicalAddress(m_apDevice.Get(0)->GetAddress());
     socket.SetProtocol(1);
 
     // give packet socket powers to nodes.
@@ -181,20 +170,20 @@ WifiChannelSwitchingTest::SendPacket()
     packetSocket.Install(m_staNode);
     packetSocket.Install(m_apNode);
 
-    Ptr<PacketSocketClient> client = CreateObject<PacketSocketClient>();
+    auto client = CreateObject<PacketSocketClient>();
     client->SetAttribute("PacketSize", UintegerValue(m_payloadSize));
     client->SetAttribute("MaxPackets", UintegerValue(1));
     client->SetAttribute("Interval", TimeValue(MicroSeconds(0)));
     client->SetRemote(socket);
-    m_apNode.Get(0)->AddApplication(client);
+    m_staNode.Get(0)->AddApplication(client);
     client->SetStartTime(Seconds(0.5));
-    client->SetStopTime(Seconds(1.0));
+    client->SetStopTime(Seconds(1));
 
-    Ptr<PacketSocketServer> server = CreateObject<PacketSocketServer>();
+    auto server = CreateObject<PacketSocketServer>();
     server->SetLocal(socket);
-    m_staNode.Get(0)->AddApplication(server);
-    server->SetStartTime(Seconds(0.0));
-    server->SetStopTime(Seconds(1.0));
+    m_apNode.Get(0)->AddApplication(server);
+    server->SetStartTime(Seconds(0));
+    server->SetStopTime(Seconds(1));
 }
 
 void
@@ -220,8 +209,6 @@ WifiChannelSwitchingTest::StateChange(uint32_t nodeId,
 void
 WifiChannelSwitchingTest::DoRun()
 {
-    Time simulationTime(Seconds(6.0));
-
     RngSeedManager::SetSeed(1);
     RngSeedManager::SetRun(40);
     int64_t streamNumber = 100;
@@ -229,11 +216,10 @@ WifiChannelSwitchingTest::DoRun()
     m_apNode.Create(1);
     m_staNode.Create(1);
 
-    Ptr<MultiModelSpectrumChannel> spectrumChannel = CreateObject<MultiModelSpectrumChannel>();
-    Ptr<FriisPropagationLossModel> lossModel = CreateObject<FriisPropagationLossModel>();
+    auto spectrumChannel = CreateObject<MultiModelSpectrumChannel>();
+    auto lossModel = CreateObject<FriisPropagationLossModel>();
     spectrumChannel->AddPropagationLossModel(lossModel);
-    Ptr<ConstantSpeedPropagationDelayModel> delayModel =
-        CreateObject<ConstantSpeedPropagationDelayModel>();
+    auto delayModel = CreateObject<ConstantSpeedPropagationDelayModel>();
     spectrumChannel->SetPropagationDelayModel(delayModel);
 
     SpectrumWifiPhyHelper phy;
@@ -258,7 +244,7 @@ WifiChannelSwitchingTest::DoRun()
     m_apDevice = wifi.Install(phy, mac, m_apNode);
 
     // Assign fixed streams to random variables in use
-    wifi.AssignStreams(m_apDevice, streamNumber);
+    WifiHelper::AssignStreams(m_apDevice, streamNumber);
 
     MobilityHelper mobility;
     Ptr<ListPositionAllocator> positionAlloc = CreateObject<ListPositionAllocator>();
@@ -293,10 +279,10 @@ WifiChannelSwitchingTest::DoRun()
     NS_TEST_EXPECT_MSG_EQ(+m_assocCount, 2, "STA did not associate twice");
     NS_TEST_EXPECT_MSG_EQ(+m_txCount,
                           2,
-                          "The QoS Data frame should have been transmitted twice by the AP");
+                          "The QoS Data frame should have been transmitted twice by the STA");
     NS_TEST_EXPECT_MSG_EQ(m_rxBytes,
                           m_payloadSize,
-                          "The QoS Data frame should have been received once by the STA");
+                          "The QoS Data frame should have been received once by the AP");
     NS_TEST_EXPECT_MSG_EQ(+m_channelSwitchCount[0], 1, "AP had to perform one channel switch");
     NS_TEST_EXPECT_MSG_EQ(+m_channelSwitchCount[1], 1, "STA had to perform one channel switch");
 
@@ -304,10 +290,10 @@ WifiChannelSwitchingTest::DoRun()
 }
 
 /**
- * \ingroup wifi-test
- * \ingroup tests
+ * @ingroup wifi-test
+ * @ingroup tests
  *
- * \brief Block Ack Test Suite
+ * @brief Block Ack Test Suite
  */
 class WifiChannelSwitchingTestSuite : public TestSuite
 {
@@ -316,9 +302,9 @@ class WifiChannelSwitchingTestSuite : public TestSuite
 };
 
 WifiChannelSwitchingTestSuite::WifiChannelSwitchingTestSuite()
-    : TestSuite("wifi-channel-switching", UNIT)
+    : TestSuite("wifi-channel-switching", Type::UNIT)
 {
-    AddTestCase(new WifiChannelSwitchingTest, TestCase::QUICK);
+    AddTestCase(new WifiChannelSwitchingTest, TestCase::Duration::QUICK);
 }
 
 static WifiChannelSwitchingTestSuite g_issue211TestSuite; ///< the test suite

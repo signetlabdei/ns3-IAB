@@ -1,16 +1,5 @@
 /*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author:  Craig Dowell (craigdo@ee.washington.edu)
  */
@@ -77,10 +66,10 @@ CheckFileLength(std::string filename, long sizeExpected)
 }
 
 /**
- * \ingroup network-test
- * \ingroup tests
+ * @ingroup network-test
+ * @ingroup tests
  *
- * \brief Test case to make sure that the Pcap File Object can do its
+ * @brief Test case to make sure that the Pcap File Object can do its
  * most basic job and create an empty pcap file.
  */
 class WriteModeCreateTestCase : public TestCase
@@ -204,10 +193,10 @@ WriteModeCreateTestCase::DoRun()
 }
 
 /**
- * \ingroup network-test
- * \ingroup tests
+ * @ingroup network-test
+ * @ingroup tests
  *
- * \brief Test case to make sure that the Pcap File Object can open an
+ * @brief Test case to make sure that the Pcap File Object can open an
  * existing pcap file.
  */
 class ReadModeCreateTestCase : public TestCase
@@ -435,10 +424,10 @@ AppendModeCreateTestCase::DoRun ()
 #endif
 
 /**
- * \ingroup network-test
- * \ingroup tests
+ * @ingroup network-test
+ * @ingroup tests
  *
- * \brief Test case to make sure that the Pcap File Object can
+ * @brief Test case to make sure that the Pcap File Object can
  * write out correct pcap file headers in both endian cases,
  * and then read them in correctly.
  */
@@ -713,10 +702,10 @@ FileHeaderTestCase::DoRun()
 }
 
 /**
- * \ingroup network-test
- * \ingroup tests
+ * @ingroup network-test
+ * @ingroup tests
  *
- * \brief Test case to make sure that the Pcap File Object can
+ * @brief Test case to make sure that the Pcap File Object can
  * write pcap packet records in both endian cases, and then read
  * them in correctly.
  */
@@ -1071,10 +1060,10 @@ RecordHeaderTestCase::DoRun()
 }
 
 /**
- * \ingroup network-test
- * \ingroup tests
+ * @ingroup network-test
+ * @ingroup tests
  *
- * \brief Test case to make sure that the Pcap File Object can read
+ * @brief Test case to make sure that the Pcap File Object can read
  * out the contents of a known good pcap file.
  */
 class ReadFileTestCase : public TestCase
@@ -1313,10 +1302,10 @@ ReadFileTestCase::DoRun()
 }
 
 /**
- * \ingroup network-test
- * \ingroup tests
+ * @ingroup network-test
+ * @ingroup tests
  *
- * \brief Test case to make sure that the Pcap::Diff method works as expected.
+ * @brief Test case to make sure that the Pcap::Diff method works as expected.
  */
 class DiffTestCase : public TestCase
 {
@@ -1376,10 +1365,10 @@ DiffTestCase::DoRun()
 }
 
 /**
- * \ingroup network-test
- * \ingroup tests
+ * @ingroup network-test
+ * @ingroup tests
  *
- * \brief PCAP file utils TestSuite
+ * @brief PCAP file utils TestSuite
  */
 class PcapFileTestSuite : public TestSuite
 {
@@ -1388,16 +1377,16 @@ class PcapFileTestSuite : public TestSuite
 };
 
 PcapFileTestSuite::PcapFileTestSuite()
-    : TestSuite("pcap-file", UNIT)
+    : TestSuite("pcap-file", Type::UNIT)
 {
     SetDataDir(NS_TEST_SOURCEDIR);
-    AddTestCase(new WriteModeCreateTestCase, TestCase::QUICK);
-    AddTestCase(new ReadModeCreateTestCase, TestCase::QUICK);
-    // AddTestCase (new AppendModeCreateTestCase, TestCase::QUICK);
-    AddTestCase(new FileHeaderTestCase, TestCase::QUICK);
-    AddTestCase(new RecordHeaderTestCase, TestCase::QUICK);
-    AddTestCase(new ReadFileTestCase, TestCase::QUICK);
-    AddTestCase(new DiffTestCase, TestCase::QUICK);
+    AddTestCase(new WriteModeCreateTestCase, TestCase::Duration::QUICK);
+    AddTestCase(new ReadModeCreateTestCase, TestCase::Duration::QUICK);
+    // AddTestCase (new AppendModeCreateTestCase, TestCase::Duration::QUICK);
+    AddTestCase(new FileHeaderTestCase, TestCase::Duration::QUICK);
+    AddTestCase(new RecordHeaderTestCase, TestCase::Duration::QUICK);
+    AddTestCase(new ReadFileTestCase, TestCase::Duration::QUICK);
+    AddTestCase(new DiffTestCase, TestCase::Duration::QUICK);
 }
 
 static PcapFileTestSuite pcapFileTestSuite; //!< Static variable for test initialization

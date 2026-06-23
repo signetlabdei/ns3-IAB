@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2011 Yufei Cheng
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Yufei Cheng   <yfcheng@ittc.ku.edu>
  *
@@ -33,6 +22,8 @@
 #include "ns3/assert.h"
 #include "ns3/header.h"
 #include "ns3/log.h"
+
+#include <vector>
 
 namespace ns3
 {
@@ -174,9 +165,9 @@ DsrFsHeader::Deserialize(Buffer::Iterator start)
     m_destId = i.ReadU16();
     m_payloadLen = i.ReadU16();
 
-    uint32_t dataLength = GetPayloadLength();
-    uint8_t data[dataLength];
-    i.Read(data, dataLength);
+    const uint32_t dataLength = GetPayloadLength();
+    std::vector<uint8_t> data(dataLength);
+    i.Read(data.data(), dataLength);
 
     if (dataLength > m_data.GetSize())
     {
@@ -188,7 +179,7 @@ DsrFsHeader::Deserialize(Buffer::Iterator start)
     }
 
     i = m_data.Begin();
-    i.Write(data, dataLength);
+    i.Write(data.data(), data.size());
 
     return GetSerializedSize();
 }
@@ -233,11 +224,11 @@ DsrOptionField::Serialize(Buffer::Iterator start) const
 uint32_t
 DsrOptionField::Deserialize(Buffer::Iterator start, uint32_t length)
 {
-    uint8_t buf[length];
-    start.Read(buf, length);
+    std::vector<uint8_t> buf(length);
+    start.Read(buf.data(), length);
     m_optionData = Buffer();
     m_optionData.AddAtEnd(length);
-    m_optionData.Begin().Write(buf, length);
+    m_optionData.Begin().Write(buf.data(), buf.size());
     return length;
 }
 

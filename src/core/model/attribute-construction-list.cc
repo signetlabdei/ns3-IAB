@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2011 Mathieu Lacage
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Mathieu Lacage <mathieu.lacage@gmail.com>
  */
@@ -21,8 +10,8 @@
 #include "log.h"
 
 /**
- * \file
- * \ingroup object
+ * @file
+ * @ingroup object
  * ns3::AttributeConstructionList implementation.
  */
 
@@ -45,7 +34,7 @@ AttributeConstructionList::Add(std::string name,
     // vector of values.
     NS_LOG_FUNCTION(this << name << checker << value);
 
-    for (std::list<struct Item>::iterator k = m_list.begin(); k != m_list.end(); k++)
+    for (auto k = m_list.begin(); k != m_list.end(); k++)
     {
         if (k->checker == checker)
         {
@@ -65,7 +54,7 @@ Ptr<AttributeValue>
 AttributeConstructionList::Find(Ptr<const AttributeChecker> checker) const
 {
     NS_LOG_FUNCTION(this << checker);
-    for (CIterator k = m_list.begin(); k != m_list.end(); k++)
+    for (auto k = m_list.begin(); k != m_list.end(); k++)
     {
         NS_LOG_DEBUG("Found " << k->name << " " << k->checker << " " << k->value);
         if (k->checker == checker)

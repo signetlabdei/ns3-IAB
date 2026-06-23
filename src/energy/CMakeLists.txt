@@ -7,6 +7,7 @@ build_lib(
     helper/energy-harvester-helper.cc
     helper/energy-model-helper.cc
     helper/energy-source-container.cc
+    helper/generic-battery-model-helper.cc
     helper/li-ion-energy-source-helper.cc
     helper/rv-battery-model-helper.cc
     model/basic-energy-harvester.cc
@@ -15,7 +16,7 @@ build_lib(
     model/device-energy-model.cc
     model/energy-harvester.cc
     model/energy-source.cc
-    model/li-ion-energy-source.cc
+    model/generic-battery-model.cc
     model/rv-battery-model.cc
     model/simple-device-energy-model.cc
   HEADER_FILES
@@ -25,6 +26,7 @@ build_lib(
     helper/energy-harvester-helper.h
     helper/energy-model-helper.h
     helper/energy-source-container.h
+    helper/generic-battery-model-helper.h
     helper/li-ion-energy-source-helper.h
     helper/rv-battery-model-helper.h
     model/basic-energy-harvester.h
@@ -33,10 +35,10 @@ build_lib(
     model/device-energy-model.h
     model/energy-harvester.h
     model/energy-source.h
-    model/li-ion-energy-source.h
+    model/generic-battery-model.h
     model/rv-battery-model.h
     model/simple-device-energy-model.h
   LIBRARIES_TO_LINK ${libnetwork}
   TEST_SOURCES test/basic-energy-harvester-test.cc
-               test/li-ion-energy-source-test.cc
+               test/generic-battery-test.cc
 )

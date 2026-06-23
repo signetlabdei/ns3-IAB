@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2012 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #include "ns3/internet-stack-helper.h"
@@ -28,9 +17,9 @@
 using namespace ns3;
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv6 AddressHelper Test
+ * @brief IPv6 AddressHelper Test
  */
 class IpAddressHelperTestCasev6 : public TestCase
 {
@@ -168,9 +157,9 @@ IpAddressHelperTestCasev6::DoTeardown()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv6 AddressHelper TestSuite
+ * @brief IPv6 AddressHelper TestSuite
  */
 class Ipv6AddressHelperTestSuite : public TestSuite
 {
@@ -179,9 +168,9 @@ class Ipv6AddressHelperTestSuite : public TestSuite
 };
 
 Ipv6AddressHelperTestSuite::Ipv6AddressHelperTestSuite()
-    : TestSuite("ipv6-address-helper", UNIT)
+    : TestSuite("ipv6-address-helper", Type::UNIT)
 {
-    AddTestCase(new IpAddressHelperTestCasev6, TestCase::QUICK);
+    AddTestCase(new IpAddressHelperTestCasev6, TestCase::Duration::QUICK);
 }
 
 static Ipv6AddressHelperTestSuite

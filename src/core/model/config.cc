@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2008 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -29,11 +18,15 @@
 #include <sstream>
 
 /**
- * \file
- * \ingroup config
+ * @file
+ * @ingroup config-impl
  * ns3::Config implementations.
  */
 
+/**
+ * @defgroup config-impl Config implementations
+ * @ingroup config
+ */
 namespace ns3
 {
 
@@ -103,7 +96,7 @@ void
 MatchContainer::Set(std::string name, const AttributeValue& value)
 {
     NS_LOG_FUNCTION(this << name << &value);
-    for (Iterator tmp = Begin(); tmp != End(); ++tmp)
+    for (auto tmp = Begin(); tmp != End(); ++tmp)
     {
         Ptr<Object> object = *tmp;
         // Let ObjectBase::SetAttribute raise any errors
@@ -116,7 +109,7 @@ MatchContainer::SetFailSafe(std::string name, const AttributeValue& value)
 {
     NS_LOG_FUNCTION(this << name << &value);
     bool ok = false;
-    for (Iterator tmp = Begin(); tmp != End(); ++tmp)
+    for (auto tmp = Begin(); tmp != End(); ++tmp)
     {
         Ptr<Object> object = *tmp;
         ok |= object->SetAttributeFailSafe(name, value);
@@ -162,7 +155,7 @@ MatchContainer::ConnectWithoutContextFailSafe(std::string name, const CallbackBa
 {
     NS_LOG_FUNCTION(this << name << &cb);
     bool ok = false;
-    for (Iterator tmp = Begin(); tmp != End(); ++tmp)
+    for (auto tmp = Begin(); tmp != End(); ++tmp)
     {
         Ptr<Object> object = *tmp;
         ok |= object->TraceConnectWithoutContext(name, cb);
@@ -187,7 +180,7 @@ void
 MatchContainer::DisconnectWithoutContext(std::string name, const CallbackBase& cb)
 {
     NS_LOG_FUNCTION(this << name << &cb);
-    for (Iterator tmp = Begin(); tmp != End(); ++tmp)
+    for (auto tmp = Begin(); tmp != End(); ++tmp)
     {
         Ptr<Object> object = *tmp;
         object->TraceDisconnectWithoutContext(name, cb);
@@ -195,7 +188,7 @@ MatchContainer::DisconnectWithoutContext(std::string name, const CallbackBase& c
 }
 
 /**
- * \ingroup config-impl
+ * @ingroup config-impl
  * Helper to test if an array entry matches a config path specification.
  */
 class ArrayMatcher
@@ -204,14 +197,14 @@ class ArrayMatcher
     /**
      * Construct from a Config path specification.
      *
-     * \param [in] element The Config path specification.
+     * @param [in] element The Config path specification.
      */
     ArrayMatcher(std::string element);
     /**
      * Test if a specific index matches the Config Path.
      *
-     * \param [in] i The index.
-     * \returns \c true if the index matches the Config Path.
+     * @param [in] i The index.
+     * @returns \c true if the index matches the Config Path.
      */
     bool Matches(std::size_t i) const;
 
@@ -219,15 +212,16 @@ class ArrayMatcher
     /**
      * Convert a string to an \c uint32_t.
      *
-     * \param [in] str The string.
-     * \param [in] value The location to store the \c uint32_t.
-     * \returns \c true if the string could be converted.
+     * @param [in] str The string.
+     * @param [in] value The location to store the \c uint32_t.
+     * @returns \c true if the string could be converted.
      */
     bool StringToUint32(std::string str, uint32_t* value) const;
     /** The Config path element. */
     std::string m_element;
 
-}; // class ArrayMatcher
+    // end of class ArrayMatcher
+};
 
 ArrayMatcher::ArrayMatcher(std::string element)
     : m_element(element)
@@ -308,7 +302,7 @@ ArrayMatcher::StringToUint32(std::string str, uint32_t* value) const
 }
 
 /**
- * \ingroup config-impl
+ * @ingroup config-impl
  * Abstract class to parse Config paths into object references.
  */
 class Resolver
@@ -317,7 +311,7 @@ class Resolver
     /**
      * Construct from a base Config path.
      *
-     * \param [in] path The Config path.
+     * @param [in] path The Config path.
      */
     Resolver(std::string path);
     /** Destructor. */
@@ -327,7 +321,7 @@ class Resolver
      * Parse the stored Config path into an object reference,
      * beginning at the indicated root object.
      *
-     * \param [in] root The object corresponding to the current position in
+     * @param [in] root The object corresponding to the current position in
      *                  in the Config path.
      */
     void Resolve(Ptr<Object> root);
@@ -338,35 +332,35 @@ class Resolver
     /**
      * Parse the next element in the Config path.
      *
-     * \param [in] path The remaining portion of the Config path.
-     * \param [in] root The object corresponding to the current position
+     * @param [in] path The remaining portion of the Config path.
+     * @param [in] root The object corresponding to the current position
      *                  in the Config path.
      */
     void DoResolve(std::string path, Ptr<Object> root);
     /**
      * Parse an index on the Config path.
      *
-     * \param [in] path The remaining Config path.
-     * \param [in,out] vector The resulting list of matching objects.
+     * @param [in] path The remaining Config path.
+     * @param [in,out] vector The resulting list of matching objects.
      */
     void DoArrayResolve(std::string path, const ObjectPtrContainerValue& vector);
     /**
      * Handle one object found on the path.
      *
-     * \param [in] object The current object on the Config path.
+     * @param [in] object The current object on the Config path.
      */
     void DoResolveOne(Ptr<Object> object);
     /**
      * Get the current Config path.
      *
-     * \returns The current Config path.
+     * @returns The current Config path.
      */
     std::string GetResolvedPath() const;
     /**
      * Handle one found object.
      *
-     * \param [in] object The found object.
-     * \param [in] path The matching Config path context.
+     * @param [in] object The found object.
+     * @param [in] path The matching Config path context.
      */
     virtual void DoOne(Ptr<Object> object, std::string path) = 0;
 
@@ -375,7 +369,8 @@ class Resolver
     /** The Config path. */
     std::string m_path;
 
-}; // class Resolver
+    // end of class Resolver
+};
 
 Resolver::Resolver(std::string path)
     : m_path(path)
@@ -423,8 +418,7 @@ Resolver::GetResolvedPath() const
     NS_LOG_FUNCTION(this);
 
     std::string fullPath = "/";
-    for (std::vector<std::string>::const_iterator i = m_workStack.begin(); i != m_workStack.end();
-         i++)
+    for (auto i = m_workStack.begin(); i != m_workStack.end(); i++)
     {
         fullPath += *i + "/";
     }
@@ -542,14 +536,14 @@ Resolver::DoResolve(std::string path, Ptr<Object> root)
 
             for (uint32_t i = 0; i < tid.GetAttributeN(); i++)
             {
-                struct TypeId::AttributeInformation info;
+                TypeId::AttributeInformation info;
                 info = tid.GetAttribute(i);
                 if (info.name != item && item != "*")
                 {
                     continue;
                 }
                 // attempt to cast to a pointer checker.
-                const PointerChecker* pChecker =
+                const auto pChecker =
                     dynamic_cast<const PointerChecker*>(PeekPointer(info.checker));
                 if (pChecker != nullptr)
                 {
@@ -572,7 +566,7 @@ Resolver::DoResolve(std::string path, Ptr<Object> root)
                     m_workStack.pop_back();
                 }
                 // attempt to cast to an object vector.
-                const ObjectPtrContainerChecker* vectorChecker =
+                const auto vectorChecker =
                     dynamic_cast<const ObjectPtrContainerChecker*>(PeekPointer(info.checker));
                 if (vectorChecker != nullptr)
                 {
@@ -631,46 +625,46 @@ Resolver::DoArrayResolve(std::string path, const ObjectPtrContainerValue& contai
 }
 
 /**
- * \ingroup config-impl
+ * @ingroup config-impl
  * Config system implementation class.
  */
 class ConfigImpl : public Singleton<ConfigImpl>
 {
   public:
     // Keep Set and SetFailSafe since their errors are triggered
-    // by the underlying ObjecBase functions.
-    /** \copydoc ns3::Config::Set() */
+    // by the underlying ObjectBase functions.
+    /** @copydoc ns3::Config::Set() */
     void Set(std::string path, const AttributeValue& value);
-    /** \copydoc ns3::Config::SetFailSafe() */
+    /** @copydoc ns3::Config::SetFailSafe() */
     bool SetFailSafe(std::string path, const AttributeValue& value);
-    /** \copydoc ns3::Config::ConnectWithoutContextFailSafe() */
+    /** @copydoc ns3::Config::ConnectWithoutContextFailSafe() */
     bool ConnectWithoutContextFailSafe(std::string path, const CallbackBase& cb);
-    /** \copydoc ns3::Config::ConnectFailSafe() */
+    /** @copydoc ns3::Config::ConnectFailSafe() */
     bool ConnectFailSafe(std::string path, const CallbackBase& cb);
-    /** \copydoc ns3::Config::DisconnectWithoutContext() */
+    /** @copydoc ns3::Config::DisconnectWithoutContext() */
     void DisconnectWithoutContext(std::string path, const CallbackBase& cb);
-    /** \copydoc ns3::Config::Disconnect() */
+    /** @copydoc ns3::Config::Disconnect() */
     void Disconnect(std::string path, const CallbackBase& cb);
-    /** \copydoc ns3::Config::LookupMatches() */
+    /** @copydoc ns3::Config::LookupMatches() */
     MatchContainer LookupMatches(std::string path);
 
-    /** \copydoc ns3::Config::RegisterRootNamespaceObject() */
+    /** @copydoc ns3::Config::RegisterRootNamespaceObject() */
     void RegisterRootNamespaceObject(Ptr<Object> obj);
-    /** \copydoc ns3::Config::UnregisterRootNamespaceObject() */
+    /** @copydoc ns3::Config::UnregisterRootNamespaceObject() */
     void UnregisterRootNamespaceObject(Ptr<Object> obj);
 
-    /** \copydoc ns3::Config::GetRootNamespaceObjectN() */
+    /** @copydoc ns3::Config::GetRootNamespaceObjectN() */
     std::size_t GetRootNamespaceObjectN() const;
-    /** \copydoc ns3::Config::GetRootNamespaceObject() */
+    /** @copydoc ns3::Config::GetRootNamespaceObject() */
     Ptr<Object> GetRootNamespaceObject(std::size_t i) const;
 
   private:
     /**
      * Break a Config path into the leading path and the last leaf token.
-     * \param [in] path The Config path.
-     * \param [in,out] root The leading part of the \pname{path},
+     * @param [in] path The Config path.
+     * @param [in,out] root The leading part of the \pname{path},
      *   up to the final slash.
-     * \param [in,out] leaf The trailing part of the \pname{path}.
+     * @param [in,out] leaf The trailing part of the \pname{path}.
      */
     void ParsePath(std::string path, std::string* root, std::string* leaf) const;
 
@@ -680,7 +674,8 @@ class ConfigImpl : public Singleton<ConfigImpl>
     /** The list of Config path roots. */
     Roots m_roots;
 
-}; // class ConfigImpl
+    // end of class ConfigImpl
+};
 
 void
 ConfigImpl::ParsePath(std::string path, std::string* root, std::string* leaf) const
@@ -801,7 +796,7 @@ ConfigImpl::LookupMatches(std::string path)
         std::vector<std::string> m_contexts;
     } resolver = LookupMatchesResolver(path);
 
-    for (Roots::const_iterator i = m_roots.begin(); i != m_roots.end(); i++)
+    for (auto i = m_roots.begin(); i != m_roots.end(); i++)
     {
         resolver.Resolve(*i);
     }
@@ -828,7 +823,7 @@ ConfigImpl::UnregisterRootNamespaceObject(Ptr<Object> obj)
 {
     NS_LOG_FUNCTION(this << obj);
 
-    for (std::vector<Ptr<Object>>::iterator i = m_roots.begin(); i != m_roots.end(); i++)
+    for (auto i = m_roots.begin(); i != m_roots.end(); i++)
     {
         if (*i == obj)
         {
@@ -862,12 +857,12 @@ Reset()
         TypeId tid = TypeId::GetRegistered(i);
         for (uint32_t j = 0; j < tid.GetAttributeN(); j++)
         {
-            struct TypeId::AttributeInformation info = tid.GetAttribute(j);
+            TypeId::AttributeInformation info = tid.GetAttribute(j);
             tid.SetAttributeInitialValue(j, info.originalInitialValue);
         }
     }
     // now, let's reset the initial value of every global value.
-    for (GlobalValue::Iterator i = GlobalValue::Begin(); i != GlobalValue::End(); ++i)
+    for (auto i = GlobalValue::Begin(); i != GlobalValue::End(); ++i)
     {
         (*i)->ResetInitialValue();
     }
@@ -914,11 +909,11 @@ SetDefaultFailSafe(std::string fullName, const AttributeValue& value)
     {
         return false;
     }
-    struct TypeId::AttributeInformation info;
+    TypeId::AttributeInformation info;
     tid.LookupAttributeByName(paramName, &info);
     for (uint32_t j = 0; j < tid.GetAttributeN(); j++)
     {
-        struct TypeId::AttributeInformation tmp = tid.GetAttribute(j);
+        TypeId::AttributeInformation tmp = tid.GetAttribute(j);
         if (tmp.name == paramName)
         {
             Ptr<AttributeValue> v = tmp.checker->CreateValidValue(value);

@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2008 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -21,16 +10,16 @@
 #include "ns3/uinteger.h"
 
 /**
- * \file
- * \ingroup core
- * \ingroup core-tests
- * \ingroup global-value-tests
+ * @file
+ * @ingroup core
+ * @ingroup core-tests
+ * @ingroup global-value-tests
  * GlobalValue test suite
  */
 
 /**
- * \ingroup core-tests
- * \defgroup global-value-tests GlobalValue test suite
+ * @ingroup core-tests
+ * @defgroup global-value-tests GlobalValue test suite
  */
 
 namespace ns3
@@ -40,7 +29,7 @@ namespace tests
 {
 
 /**
- * \ingroup global-value-tests
+ * @ingroup global-value-tests
  * Test for the ability to get at a GlobalValue.
  */
 class GlobalValueTestCase : public TestCase
@@ -84,7 +73,7 @@ GlobalValueTestCase::DoRun()
     // Remove the global value for a valgrind clean run
     //
     GlobalValue::Vector* vector = GlobalValue::GetVector();
-    for (GlobalValue::Vector::iterator i = vector->begin(); i != vector->end(); ++i)
+    for (auto i = vector->begin(); i != vector->end(); ++i)
     {
         if ((*i) == &uint)
         {
@@ -95,7 +84,7 @@ GlobalValueTestCase::DoRun()
 }
 
 /**
- * \ingroup global-value-tests
+ * @ingroup global-value-tests
  * The Test Suite that glues all of the Test Cases together.
  */
 class GlobalValueTestSuite : public TestSuite
@@ -112,7 +101,7 @@ GlobalValueTestSuite::GlobalValueTestSuite()
 }
 
 /**
- * \ingroup global-value-tests
+ * @ingroup global-value-tests
  * GlobalValueTestSuite instance variable.
  */
 static GlobalValueTestSuite g_globalValueTestSuite;

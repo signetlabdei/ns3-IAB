@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2010 Hemanth Narra
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Hemanth Narra <hemanth@ittc.ku.com>
  *
@@ -41,20 +30,19 @@
 #include "ns3/string.h"
 #include "ns3/test.h"
 #include "ns3/uinteger.h"
-#include "ns3/v4ping-helper.h"
 
 using namespace ns3;
 
 /**
- * \ingroup dsdv
- * \ingroup tests
- * \defgroup dsdv-test DSDV module tests
+ * @ingroup dsdv
+ * @ingroup tests
+ * @defgroup dsdv-test DSDV module tests
  */
 
 /**
- * \ingroup dsdv-test
+ * @ingroup dsdv-test
  *
- * \brief DSDV test case to verify the DSDV header
+ * @brief DSDV test case to verify the DSDV header
  *
  */
 class DsdvHeaderTestCase : public TestCase
@@ -110,9 +98,9 @@ DsdvHeaderTestCase::DoRun()
 }
 
 /**
- * \ingroup dsdv-test
+ * @ingroup dsdv-test
  *
- * \brief DSDV routing table tests (adding and looking up routes)
+ * @brief DSDV routing table tests (adding and looking up routes)
  */
 class DsdvTableTestCase : public TestCase
 {
@@ -211,17 +199,17 @@ DsdvTableTestCase::DoRun()
 }
 
 /**
- * \ingroup dsdv-test
+ * @ingroup dsdv-test
  *
- * \brief DSDV test suite
+ * @brief DSDV test suite
  */
 class DsdvTestSuite : public TestSuite
 {
   public:
     DsdvTestSuite()
-        : TestSuite("routing-dsdv", UNIT)
+        : TestSuite("routing-dsdv", Type::UNIT)
     {
-        AddTestCase(new DsdvHeaderTestCase(), TestCase::QUICK);
-        AddTestCase(new DsdvTableTestCase(), TestCase::QUICK);
+        AddTestCase(new DsdvHeaderTestCase(), TestCase::Duration::QUICK);
+        AddTestCase(new DsdvTableTestCase(), TestCase::Duration::QUICK);
     }
 } g_dsdvTestSuite; ///< the test suite

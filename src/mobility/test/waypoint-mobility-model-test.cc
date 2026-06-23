@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 Phillip Sitbon
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Phillip Sitbon <phillip@sitbon.net>
  */
@@ -26,9 +15,9 @@
 using namespace ns3;
 
 /**
- * \ingroup mobility-test
+ * @ingroup mobility-test
  *
- * \brief Waypoint Mobility Model Notify Test
+ * @brief Waypoint Mobility Model Notify Test
  */
 class WaypointMobilityModelNotifyTest : public TestCase
 {
@@ -36,7 +25,7 @@ class WaypointMobilityModelNotifyTest : public TestCase
     /**
      * Constructor
      *
-     * \param lazy lazy?
+     * @param lazy lazy?
      */
     WaypointMobilityModelNotifyTest(bool lazy)
         : TestCase(lazy ? "Check Waypoint Mobility Model LAZY notification accuracy"
@@ -62,7 +51,7 @@ class WaypointMobilityModelNotifyTest : public TestCase
     void ForceUpdates();
     /**
      * Course change callback
-     * \param model the mobility model
+     * @param model the mobility model
      */
     void CourseChangeCallback(Ptr<const MobilityModel> model);
 };
@@ -92,28 +81,27 @@ WaypointMobilityModelNotifyTest::DoRun()
 
         // Add this mobility model to the stack.
         mobilityStack.push_back(model);
-        Simulator::Schedule(Seconds(0.0), &Object::Initialize, model);
+        Simulator::Schedule(Seconds(0), &Object::Initialize, model);
     }
 
-    Waypoint wpt(Seconds(0.0), Vector(0.0, 0.0, 0.0));
+    Waypoint wpt(Seconds(0), Vector(0.0, 0.0, 0.0));
 
     // Create waypoints
     for (uint32_t iw = 0; iw < waypointCount; ++iw)
     {
-        wpt.time += Seconds(1.0);
+        wpt.time += Seconds(1);
         waypoints.push_back(wpt);
     }
 
     // Add the same waypoints to each node
-    std::vector<Ptr<MobilityModel>>::iterator i;
-    for (i = mobilityStack.begin(); i != mobilityStack.end(); ++i)
+    for (auto i = mobilityStack.begin(); i != mobilityStack.end(); ++i)
     {
         Ptr<WaypointMobilityModel> mob = (*i)->GetObject<WaypointMobilityModel>();
         mob->TraceConnectWithoutContext(
             "CourseChange",
             MakeCallback(&WaypointMobilityModelNotifyTest::CourseChangeCallback, this));
 
-        for (std::deque<Waypoint>::iterator w = waypoints.begin(); w != waypoints.end(); ++w)
+        for (auto w = waypoints.begin(); w != waypoints.end(); ++w)
         {
             mob->AddWaypoint(*w);
         }
@@ -135,8 +123,7 @@ WaypointMobilityModelNotifyTest::DoRun()
 void
 WaypointMobilityModelNotifyTest::ForceUpdates()
 {
-    std::vector<Ptr<MobilityModel>>::iterator i;
-    for (i = mobilityStack.begin(); i != mobilityStack.end(); ++i)
+    for (auto i = mobilityStack.begin(); i != mobilityStack.end(); ++i)
     {
         Ptr<WaypointMobilityModel> mob = (*i)->GetObject<WaypointMobilityModel>();
         mob->Update();
@@ -170,9 +157,9 @@ WaypointMobilityModelNotifyTest::CourseChangeCallback(Ptr<const MobilityModel> m
 }
 
 /**
- * \ingroup mobility-test
+ * @ingroup mobility-test
  *
- * \brief Waypoint Mobility Model Add Waypoint Test
+ * @brief Waypoint Mobility Model Add Waypoint Test
  */
 class WaypointMobilityModelAddWaypointTest : public TestCase
 {
@@ -196,7 +183,7 @@ class WaypointMobilityModelAddWaypointTest : public TestCase
     void DoTeardown() override;
     /**
      * Course change callback
-     * \param model the mobility model
+     * @param model the mobility model
      */
     void CourseChangeCallback(Ptr<const MobilityModel> model);
 };
@@ -224,7 +211,7 @@ WaypointMobilityModelAddWaypointTest::DoRun()
         MakeCallback(&WaypointMobilityModelAddWaypointTest::CourseChangeCallback, this));
 
     // Add this mobility model to the stack.
-    Simulator::Schedule(Seconds(0.0), &Object::Initialize, m_mobilityModel);
+    Simulator::Schedule(Seconds(0), &Object::Initialize, m_mobilityModel);
 
     Ptr<WaypointMobilityModel> mob = DynamicCast<WaypointMobilityModel>(m_mobilityModel);
     Waypoint m_nextWaypoint(Seconds(m_waypointCounter), Vector(0.0, 0.0, 0.0));
@@ -254,17 +241,17 @@ WaypointMobilityModelAddWaypointTest::CourseChangeCallback(Ptr<const MobilityMod
 }
 
 /**
- * \ingroup mobility-test
+ * @ingroup mobility-test
  *
- * \brief Waypoint Mobility Model Test Suite
+ * @brief Waypoint Mobility Model Test Suite
  */
 static struct WaypointMobilityModelTestSuite : public TestSuite
 {
     WaypointMobilityModelTestSuite()
-        : TestSuite("waypoint-mobility-model", UNIT)
+        : TestSuite("waypoint-mobility-model", Type::UNIT)
     {
-        AddTestCase(new WaypointMobilityModelNotifyTest(true), TestCase::QUICK);
-        AddTestCase(new WaypointMobilityModelNotifyTest(false), TestCase::QUICK);
-        AddTestCase(new WaypointMobilityModelAddWaypointTest(), TestCase::QUICK);
+        AddTestCase(new WaypointMobilityModelNotifyTest(true), TestCase::Duration::QUICK);
+        AddTestCase(new WaypointMobilityModelNotifyTest(false), TestCase::Duration::QUICK);
+        AddTestCase(new WaypointMobilityModelAddWaypointTest(), TestCase::Duration::QUICK);
     }
 } g_waypointMobilityModelTestSuite; ///< the test suite

@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2007,2008 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Jahanzeb Farooq <jahanzeb.farooq@sophia.inria.fr>
  */
@@ -22,8 +11,8 @@
 #include "ns3/log.h"
 #include "ns3/packet.h"
 
+#include <cstdint>
 #include <list>
-#include <stdint.h>
 
 namespace ns3
 {
@@ -50,8 +39,7 @@ PacketBurst::PacketBurst()
 PacketBurst::~PacketBurst()
 {
     NS_LOG_FUNCTION(this);
-    for (std::list<Ptr<Packet>>::const_iterator iter = m_packets.begin(); iter != m_packets.end();
-         ++iter)
+    for (auto iter = m_packets.begin(); iter != m_packets.end(); ++iter)
     {
         (*iter)->Unref();
     }
@@ -68,10 +56,9 @@ Ptr<PacketBurst>
 PacketBurst::Copy() const
 {
     NS_LOG_FUNCTION(this);
-    Ptr<PacketBurst> burst = Create<PacketBurst>();
+    Ptr<PacketBurst> burst = CreateObject<PacketBurst>();
 
-    for (std::list<Ptr<Packet>>::const_iterator iter = m_packets.begin(); iter != m_packets.end();
-         ++iter)
+    for (auto iter = m_packets.begin(); iter != m_packets.end(); ++iter)
     {
         Ptr<Packet> packet = (*iter)->Copy();
         burst->AddPacket(packet);
@@ -108,8 +95,7 @@ PacketBurst::GetSize() const
 {
     NS_LOG_FUNCTION(this);
     uint32_t size = 0;
-    for (std::list<Ptr<Packet>>::const_iterator iter = m_packets.begin(); iter != m_packets.end();
-         ++iter)
+    for (auto iter = m_packets.begin(); iter != m_packets.end(); ++iter)
     {
         Ptr<Packet> packet = *iter;
         size += packet->GetSize();

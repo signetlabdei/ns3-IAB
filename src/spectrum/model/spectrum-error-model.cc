@@ -1,26 +1,15 @@
 /*
  * Copyright (c) 2009 CTTC
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Nicola Baldo <nbaldo@cttc.es>
  */
 
 #include "spectrum-error-model.h"
 
-#include <ns3/log.h>
-#include <ns3/nstime.h>
+#include "ns3/log.h"
+#include "ns3/nstime.h"
 
 namespace ns3
 {
@@ -79,8 +68,8 @@ ShannonSpectrumErrorModel::EvaluateChunk(const SpectrumValue& sinr, Time duratio
     SpectrumValue CapacityPerHertz = Log2(1 + sinr);
     double capacity = 0;
 
-    Bands::const_iterator bi = CapacityPerHertz.ConstBandsBegin();
-    Values::const_iterator vi = CapacityPerHertz.ConstValuesBegin();
+    auto bi = CapacityPerHertz.ConstBandsBegin();
+    auto vi = CapacityPerHertz.ConstValuesBegin();
 
     while (bi != CapacityPerHertz.ConstBandsEnd())
     {

@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2005,2006 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -39,7 +28,7 @@ class PsrExperiment
     struct Input
     {
         Input();
-        double distance;      ///< distance
+        meter_u distance;     ///< distance
         std::string txMode;   ///< transmit mode
         uint8_t txPowerLevel; ///< transmit power level
         uint32_t packetSize;  ///< packet size
@@ -56,25 +45,25 @@ class PsrExperiment
 
     /**
      * Run function
-     * \param input the PSR experiment
-     * \returns the PSR experiment output
+     * @param input the PSR experiment
+     * @returns the PSR experiment output
      */
-    struct PsrExperiment::Output Run(struct PsrExperiment::Input input);
+    PsrExperiment::Output Run(PsrExperiment::Input input);
 
   private:
     /// Send function
     void Send();
     /**
      * Send receive function
-     * \param psdu the PSDU
-     * \param rxSignalInfo the info on the received signal (\see RxSignalInfo)
-     * \param txVector the wifi transmit vector
-     * \param statusPerMpdu reception status per MPDU
+     * @param psdu the PSDU
+     * @param rxSignalInfo the info on the received signal (\see RxSignalInfo)
+     * @param txVector the wifi transmit vector
+     * @param statusPerMpdu reception status per MPDU
      */
     void Receive(Ptr<const WifiPsdu> psdu,
                  RxSignalInfo rxSignalInfo,
-                 WifiTxVector txVector,
-                 std::vector<bool> statusPerMpdu);
+                 const WifiTxVector& txVector,
+                 const std::vector<bool>& statusPerMpdu);
     Ptr<WifiPhy> m_tx; ///< transmit
     Input m_input;     ///< input
     Output m_output;   ///< output
@@ -95,8 +84,8 @@ PsrExperiment::Send()
 void
 PsrExperiment::Receive(Ptr<const WifiPsdu> psdu,
                        RxSignalInfo rxSignalInfo,
-                       WifiTxVector txVector,
-                       std::vector<bool> statusPerMpdu)
+                       const WifiTxVector& txVector,
+                       const std::vector<bool>& statusPerMpdu)
 {
     m_output.received++;
 }
@@ -114,8 +103,8 @@ PsrExperiment::Input::Input()
 {
 }
 
-struct PsrExperiment::Output
-PsrExperiment::Run(struct PsrExperiment::Input input)
+PsrExperiment::Output
+PsrExperiment::Run(PsrExperiment::Input input)
 {
     m_output.received = 0;
     m_input = input;
@@ -186,10 +175,10 @@ class CollisionExperiment
 
     /**
      * Run function
-     * \param input the collision experiment data
-     * \returns the experiment output
+     * @param input the collision experiment data
+     * @returns the experiment output
      */
-    struct CollisionExperiment::Output Run(struct CollisionExperiment::Input input);
+    CollisionExperiment::Output Run(CollisionExperiment::Input input);
 
   private:
     /// Send A function
@@ -198,15 +187,15 @@ class CollisionExperiment
     void SendB() const;
     /**
      * Receive function
-     * \param psdu the PSDU
-     * \param rxSignalInfo the info on the received signal (\see RxSignalInfo)
-     * \param txVector the wifi transmit vector
-     * \param statusPerMpdu reception status per MPDU
+     * @param psdu the PSDU
+     * @param rxSignalInfo the info on the received signal (\see RxSignalInfo)
+     * @param txVector the wifi transmit vector
+     * @param statusPerMpdu reception status per MPDU
      */
     void Receive(Ptr<const WifiPsdu> psdu,
                  RxSignalInfo rxSignalInfo,
-                 WifiTxVector txVector,
-                 std::vector<bool> statusPerMpdu);
+                 const WifiTxVector& txVector,
+                 const std::vector<bool>& statusPerMpdu);
     Ptr<WifiPhy> m_txA; ///< transmit A
     Ptr<WifiPhy> m_txB; ///< transmit B
     uint32_t m_flowIdA; ///< flow ID A
@@ -242,8 +231,8 @@ CollisionExperiment::SendB() const
 void
 CollisionExperiment::Receive(Ptr<const WifiPsdu> psdu,
                              RxSignalInfo rxSignalInfo,
-                             WifiTxVector txVector,
-                             std::vector<bool> statusPerMpdu)
+                             const WifiTxVector& txVector,
+                             const std::vector<bool>& statusPerMpdu)
 {
     FlowIdTag tag;
     if ((*psdu->begin())->GetPacket()->FindFirstMatchingByteTag(tag))
@@ -264,7 +253,7 @@ CollisionExperiment::CollisionExperiment()
 }
 
 CollisionExperiment::Input::Input()
-    : interval(MicroSeconds(0)),
+    : interval(),
       xA(-5),
       xB(5),
       txModeA("OfdmRate6Mbps"),
@@ -277,8 +266,8 @@ CollisionExperiment::Input::Input()
 {
 }
 
-struct CollisionExperiment::Output
-CollisionExperiment::Run(struct CollisionExperiment::Input input)
+CollisionExperiment::Output
+CollisionExperiment::Run(CollisionExperiment::Input input)
 {
     m_output.receivedA = 0;
     m_output.receivedB = 0;
@@ -339,7 +328,7 @@ static void
 PrintPsr(int argc, char* argv[])
 {
     PsrExperiment experiment;
-    struct PsrExperiment::Input input;
+    PsrExperiment::Input input;
 
     CommandLine cmd(__FILE__);
     cmd.AddValue("Distance", "The distance between two phys", input.distance);
@@ -351,7 +340,7 @@ PrintPsr(int argc, char* argv[])
                  input.txPowerLevel);
     cmd.Parse(argc, argv);
 
-    struct PsrExperiment::Output output;
+    PsrExperiment::Output output;
     output = experiment.Run(input);
 
     double psr = output.received;
@@ -361,7 +350,7 @@ PrintPsr(int argc, char* argv[])
 }
 
 double
-CalcPsr(struct PsrExperiment::Output output, struct PsrExperiment::Input input)
+CalcPsr(PsrExperiment::Output output, PsrExperiment::Input input)
 {
     double psr = output.received;
     psr /= input.nPackets;
@@ -371,7 +360,7 @@ CalcPsr(struct PsrExperiment::Output output, struct PsrExperiment::Input input)
 static void
 PrintPsrVsDistance(int argc, char* argv[])
 {
-    struct PsrExperiment::Input input;
+    PsrExperiment::Input input;
     CommandLine cmd(__FILE__);
     cmd.AddValue("TxPowerLevel",
                  "The power level index to use to send each packet",
@@ -385,7 +374,7 @@ PrintPsrVsDistance(int argc, char* argv[])
     {
         std::cout << input.distance;
         PsrExperiment experiment;
-        struct PsrExperiment::Output output;
+        PsrExperiment::Output output;
 
         input.txMode = "OfdmRate6Mbps";
         output = experiment.Run(input);
@@ -427,7 +416,7 @@ static void
 PrintSizeVsRange(int argc, char* argv[])
 {
     double targetPsr = 0.05;
-    struct PsrExperiment::Input input;
+    PsrExperiment::Input input;
     CommandLine cmd(__FILE__);
     cmd.AddValue("TxPowerLevel",
                  "The power level index to use to send each packet",
@@ -445,7 +434,7 @@ PrintSizeVsRange(int argc, char* argv[])
         while (high - low > precision)
         {
             double middle = low + (high - low) / 2;
-            struct PsrExperiment::Output output;
+            PsrExperiment::Output output;
             PsrExperiment experiment;
             input.distance = middle;
             output = experiment.Run(input);

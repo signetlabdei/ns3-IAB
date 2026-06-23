@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 IITP RAS
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Kirill Andreev <andreev@iitp.ru>
  */
@@ -70,7 +59,7 @@ FlameRtable::AddPath(const Mac48Address destination,
                      const uint8_t cost,
                      const uint16_t seqnum)
 {
-    std::map<Mac48Address, Route>::iterator i = m_routes.find(destination);
+    auto i = m_routes.find(destination);
     if (i == m_routes.end())
     {
         Route newroute;
@@ -93,12 +82,12 @@ FlameRtable::AddPath(const Mac48Address destination,
 FlameRtable::LookupResult
 FlameRtable::Lookup(Mac48Address destination)
 {
-    std::map<Mac48Address, Route>::iterator i = m_routes.find(destination);
+    auto i = m_routes.find(destination);
     if (i == m_routes.end())
     {
         return LookupResult();
     }
-    if ((i->second.whenExpire < Simulator::Now()))
+    if (i->second.whenExpire < Simulator::Now())
     {
         NS_LOG_DEBUG("Route has expired, sorry.");
         m_routes.erase(i);

@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2010 Dean Armstrong
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Dean Armstrong <deanarm@gmail.com>
  */
@@ -134,7 +123,7 @@ WifiInformationElement::Deserialize(Buffer::Iterator i)
     Buffer::Iterator start = i;
     i = DeserializeIfPresent(i);
     // This IE was not optional, so confirm that we did actually
-    // deserialise something.
+    // deserialize something.
     NS_ASSERT(i.GetDistanceFrom(start) != 0);
     return i;
 }
@@ -238,27 +227,34 @@ WifiInformationElement::operator==(const WifiInformationElement& a) const
         return false;
     }
 
-    if (GetInformationFieldSize() != a.GetInformationFieldSize())
-    {
-        return false;
-    }
-
     if (ElementIdExt() != a.ElementIdExt())
     {
         return false;
     }
 
-    uint32_t ieSize = GetInformationFieldSize();
+    uint32_t ieSize = GetSerializedSize();
+
+    if (ieSize != a.GetSerializedSize())
+    {
+        return false;
+    }
 
     Buffer myIe;
     Buffer hisIe;
     myIe.AddAtEnd(ieSize);
     hisIe.AddAtEnd(ieSize);
 
-    SerializeInformationField(myIe.Begin());
-    a.SerializeInformationField(hisIe.Begin());
+    Serialize(myIe.Begin());
+    a.Serialize(hisIe.Begin());
 
     return (memcmp(myIe.PeekData(), hisIe.PeekData(), ieSize) == 0);
+}
+
+std::ostream&
+operator<<(std::ostream& os, const WifiInformationElement& element)
+{
+    element.Print(os);
+    return os;
 }
 
 } // namespace ns3

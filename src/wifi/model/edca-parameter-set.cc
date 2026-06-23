@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2016 Sébastien Deronne
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Sébastien Deronne <sebastien.deronne@gmail.com>
  */
@@ -61,14 +50,14 @@ EdcaParameterSet::SetBeAci(uint8_t aci)
 void
 EdcaParameterSet::SetBeCWmin(uint32_t cwMin)
 {
-    uint8_t ECWmin = static_cast<uint8_t>(log2(cwMin + 1));
+    auto ECWmin = static_cast<uint8_t>(log2(cwMin + 1));
     m_acBE |= (ECWmin & 0x0f) << 8;
 }
 
 void
 EdcaParameterSet::SetBeCWmax(uint32_t cwMax)
 {
-    uint8_t ECWmax = static_cast<uint8_t>(log2(cwMax + 1));
+    auto ECWmax = static_cast<uint8_t>(log2(cwMax + 1));
     m_acBE |= (ECWmax & 0x0f) << 12;
 }
 
@@ -93,14 +82,14 @@ EdcaParameterSet::SetBkAci(uint8_t aci)
 void
 EdcaParameterSet::SetBkCWmin(uint32_t cwMin)
 {
-    uint8_t ECWmin = static_cast<uint8_t>(log2(cwMin + 1));
+    auto ECWmin = static_cast<uint8_t>(log2(cwMin + 1));
     m_acBK |= (ECWmin & 0x0f) << 8;
 }
 
 void
 EdcaParameterSet::SetBkCWmax(uint32_t cwMax)
 {
-    uint8_t ECWmax = static_cast<uint8_t>(log2(cwMax + 1));
+    auto ECWmax = static_cast<uint8_t>(log2(cwMax + 1));
     m_acBK |= (ECWmax & 0x0f) << 12;
 }
 
@@ -125,14 +114,14 @@ EdcaParameterSet::SetViAci(uint8_t aci)
 void
 EdcaParameterSet::SetViCWmin(uint32_t cwMin)
 {
-    uint8_t ECWmin = static_cast<uint8_t>(log2(cwMin + 1));
+    auto ECWmin = static_cast<uint8_t>(log2(cwMin + 1));
     m_acVI |= (ECWmin & 0x0f) << 8;
 }
 
 void
 EdcaParameterSet::SetViCWmax(uint32_t cwMax)
 {
-    uint8_t ECWmax = static_cast<uint8_t>(log2(cwMax + 1));
+    auto ECWmax = static_cast<uint8_t>(log2(cwMax + 1));
     m_acVI |= (ECWmax & 0x0f) << 12;
 }
 
@@ -157,14 +146,14 @@ EdcaParameterSet::SetVoAci(uint8_t aci)
 void
 EdcaParameterSet::SetVoCWmin(uint32_t cwMin)
 {
-    uint8_t ECWmin = static_cast<uint8_t>(log2(cwMin + 1));
+    auto ECWmin = static_cast<uint8_t>(log2(cwMin + 1));
     m_acVO |= (ECWmin & 0x0f) << 8;
 }
 
 void
 EdcaParameterSet::SetVoCWmax(uint32_t cwMax)
 {
-    uint8_t ECWmax = static_cast<uint8_t>(log2(cwMax + 1));
+    auto ECWmax = static_cast<uint8_t>(log2(cwMax + 1));
     m_acVO |= (ECWmax & 0x0f) << 12;
 }
 
@@ -312,6 +301,14 @@ EdcaParameterSet::DeserializeInformationField(Buffer::Iterator start, uint16_t l
     m_acVI = i.ReadU32();
     m_acVO = i.ReadU32();
     return length;
+}
+
+void
+EdcaParameterSet::Print(std::ostream& os) const
+{
+    os << "EDCA Parameter Set=["
+       << "QosInfo: " << +m_qosInfo << ", AC_BE: " << m_acBE << ", AC_BK: " << m_acBK
+       << ", AC_VI: " << m_acVI << ", AC_VO: " << m_acVO << "]";
 }
 
 } // namespace ns3

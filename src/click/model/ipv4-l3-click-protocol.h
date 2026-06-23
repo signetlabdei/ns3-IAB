@@ -1,18 +1,7 @@
 //
 // Copyright (c) 2006 Georgia Tech Research Corporation
 //
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License version 2 as
-// published by the Free Software Foundation;
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+// SPDX-License-Identifier: GPL-2.0-only
 //
 // Author: George F. Riley <riley@ece.gatech.edu>
 // Author: Lalith Suresh <suresh.lalith@gmail.com>
@@ -21,6 +10,7 @@
 #ifndef IPV4_L3_CLICK_PROTOCOL_H
 #define IPV4_L3_CLICK_PROTOCOL_H
 
+#include "ns3/deprecated.h"
 #include "ns3/ipv4-interface.h"
 #include "ns3/ipv4-routing-protocol.h"
 #include "ns3/ipv4.h"
@@ -46,9 +36,9 @@ class IpL4Protocol;
 class Icmpv4L4Protocol;
 
 /**
- * \brief Implement the Ipv4 layer specifically for Click nodes
+ * @brief Implement the Ipv4 layer specifically for Click nodes
  * to allow a clean integration of Click.
- * \ingroup click
+ * @ingroup click
  *
  * This is code is mostly repeated from the Ipv4L3Protocol implementation.
  * Changes include:
@@ -60,8 +50,12 @@ class Icmpv4L4Protocol;
 
 class Ipv4L3ClickProtocol : public Ipv4
 {
-#ifdef NS3_CLICK
   public:
+    /**
+     * Get Type ID.
+     *
+     * @return The type ID.
+     */
     static TypeId GetTypeId();
 
     /**
@@ -84,7 +78,7 @@ class Ipv4L3ClickProtocol : public Ipv4
     Ipv4Address SourceAddressSelection(uint32_t interface, Ipv4Address dest) override;
 
     /**
-     * \param ttl default ttl to use
+     * @param ttl default ttl to use
      *
      * When we need to send an ipv4 packet, we use this default
      * ttl value.
@@ -92,11 +86,11 @@ class Ipv4L3ClickProtocol : public Ipv4
     void SetDefaultTtl(uint8_t ttl);
 
     /**
-     * \param packet packet to send
-     * \param source source address of packet
-     * \param destination address of packet
-     * \param protocol number of packet
-     * \param route route entry
+     * @param packet packet to send
+     * @param source source address of packet
+     * @param destination address of packet
+     * @param protocol number of packet
+     * @param route route entry
      *
      * Higher-level layers call this method to send a packet
      * to Click
@@ -108,9 +102,9 @@ class Ipv4L3ClickProtocol : public Ipv4
               Ptr<Ipv4Route> route) override;
 
     /**
-     * \param packet packet to send
-     * \param ipHeader IP Header
-     * \param route route entry
+     * @param packet packet to send
+     * @param ipHeader IP Header
+     * @param route route entry
      *
      * Higher-level layers call this method to send a packet with IPv4 Header
      * (Intend to be used with IpHeaderInclude attribute.)
@@ -118,8 +112,8 @@ class Ipv4L3ClickProtocol : public Ipv4
     void SendWithHeader(Ptr<Packet> packet, Ipv4Header ipHeader, Ptr<Ipv4Route> route) override;
 
     /**
-     * \param packet packet to send down the stack
-     * \param ifid interface to be used for sending down packet
+     * @param packet packet to send down the stack
+     * @param ifid interface to be used for sending down packet
      *
      * Ipv4ClickRouting calls this method to send a packet further
      * down the stack
@@ -128,12 +122,12 @@ class Ipv4L3ClickProtocol : public Ipv4
 
     /**
      * Lower layer calls this method to send a packet to Click
-     * \param device network device
-     * \param p the packet
-     * \param protocol protocol value
-     * \param from address of the correspondent
-     * \param to address of the destination
-     * \param packetType type of the packet
+     * @param device network device
+     * @param p the packet
+     * @param protocol protocol value
+     * @param from address of the correspondent
+     * @param to address of the destination
+     * @param packetType type of the packet
      */
     void Receive(Ptr<NetDevice> device,
                  Ptr<const Packet> p,
@@ -144,35 +138,35 @@ class Ipv4L3ClickProtocol : public Ipv4
 
     /**
      * Ipv4ClickRouting calls this to locally deliver a packet
-     * \param p the packet
-     * \param ip The Ipv4Header of the packet
-     * \param iif The interface on which the packet was received
+     * @param p the packet
+     * @param ip The Ipv4Header of the packet
+     * @param iif The interface on which the packet was received
      */
     void LocalDeliver(Ptr<const Packet> p, const Ipv4Header& ip, uint32_t iif);
 
     /**
      * Get a pointer to the i'th Ipv4Interface
-     * \param i index of interface, pointer to which is to be returned
-     * \returns Pointer to the i'th Ipv4Interface if any.
+     * @param i index of interface, pointer to which is to be returned
+     * @returns Pointer to the i'th Ipv4Interface if any.
      */
     Ptr<Ipv4Interface> GetInterface(uint32_t i) const;
 
     /**
      * Adds an Ipv4Interface to the interfaces list
-     * \param interface Pointer to the Ipv4Interface to be added
-     * \returns Index of the device which was added
+     * @param interface Pointer to the Ipv4Interface to be added
+     * @returns Index of the device which was added
      */
     uint32_t AddIpv4Interface(Ptr<Ipv4Interface> interface);
 
     /**
      * Calls m_node = node and sets up Loopback if needed
-     * \param node Pointer to the node
+     * @param node Pointer to the node
      */
     void SetNode(Ptr<Node> node);
 
     /**
      * Returns the Icmpv4L4Protocol for the node
-     * \returns Icmpv4L4Protocol instance of the node
+     * @returns Icmpv4L4Protocol instance of the node
      */
     Ptr<Icmpv4L4Protocol> GetIcmp() const;
 
@@ -183,13 +177,13 @@ class Ipv4L3ClickProtocol : public Ipv4
 
     /**
      * Creates a raw-socket
-     * \returns Pointer to the created socket
+     * @returns Pointer to the created socket
      */
     Ptr<Socket> CreateRawSocket() override;
 
     /**
      * Deletes a particular raw socket
-     * \param socket Pointer of socket to be deleted
+     * @param socket Pointer of socket to be deleted
      */
     void DeleteRawSocket(Ptr<Socket> socket) override;
 
@@ -224,6 +218,12 @@ class Ipv4L3ClickProtocol : public Ipv4
     void SetDown(uint32_t i) override;
     bool IsForwarding(uint32_t i) const override;
     void SetForwarding(uint32_t i, bool val) override;
+
+    /**
+     * Sets an interface to run on promiscuous mode.
+     *
+     * @param i Interface ID.
+     */
     void SetPromisc(uint32_t i);
 
   protected:
@@ -236,6 +236,17 @@ class Ipv4L3ClickProtocol : public Ipv4
     void NotifyNewAggregate() override;
 
   private:
+    /**
+     * Build IPv4 header.
+     *
+     * @param source IPv4 source address.
+     * @param destination IPv4 destination address.
+     * @param protocol Protocol.
+     * @param payloadSize Payload size.
+     * @param ttl Time To Live (TTL).
+     * @param mayFragment Whether the packet can be fragmented or not.
+     * @return The IPv4 header.
+     */
     Ipv4Header BuildHeader(Ipv4Address source,
                            Ipv4Address destination,
                            uint8_t protocol,
@@ -245,48 +256,57 @@ class Ipv4L3ClickProtocol : public Ipv4
 
     void SetIpForward(bool forward) override;
     bool GetIpForward() const override;
-    void SetWeakEsModel(bool model) override;
-    bool GetWeakEsModel() const override;
 
-    typedef std::vector<Ptr<Ipv4Interface>> Ipv4InterfaceList;
+    void SetStrongEndSystemModel(bool model) override;
+    bool GetStrongEndSystemModel() const override;
+
     /**
-     * \brief Container of NetDevices registered to IPv4 and their interface indexes.
+     * @brief List of IPv4 interfaces.
+     */
+    typedef std::vector<Ptr<Ipv4Interface>> Ipv4InterfaceList;
+
+    /**
+     * @brief Container of NetDevices registered to IPv4 and their interface indexes.
      */
     typedef std::map<Ptr<const NetDevice>, uint32_t> Ipv4InterfaceReverseContainer;
-    typedef std::list<Ptr<Ipv4RawSocketImpl>> SocketList;
+
     /**
-     * \brief Container of the IPv4 L4 keys: protocol number, interface index
+     * @brief List of sockets.
+     */
+    typedef std::list<Ptr<Ipv4RawSocketImpl>> SocketList;
+
+    /**
+     * @brief Container of the IPv4 L4 keys: protocol number, interface index
      */
     typedef std::pair<int, int32_t> L4ListKey_t;
+
     /**
-     * \brief Container of the IPv4 L4 instances.
+     * @brief Container of the IPv4 L4 instances.
      */
     typedef std::map<L4ListKey_t, Ptr<IpL4Protocol>> L4List_t;
 
-    Ptr<Ipv4RoutingProtocol> m_routingProtocol;
-    bool m_ipForward;
-    bool m_weakEsModel;
-    L4List_t m_protocols;
-    Ipv4InterfaceList m_interfaces;
+    Ptr<Ipv4RoutingProtocol> m_routingProtocol; //!< IPv4 routing protocol
+    bool m_ipForward;                           //!< Whether IP forwarding is enabled
+    bool m_strongEndSystemModel;                //!< Whether to use Strong End System Model
+    L4List_t m_protocols;                       //!< List of IPv4 L4 protocols
+    Ipv4InterfaceList m_interfaces;             //!< List of interfaces
     Ipv4InterfaceReverseContainer
-        m_reverseInterfacesContainer; //!< Container of NetDevice / Interface index associations.
-    uint8_t m_defaultTtl;
-    uint16_t m_identification;
+        m_reverseInterfacesContainer; //!< Container of NetDevice / Interface index associations
+    uint8_t m_defaultTtl;             //!< Default TTL
+    uint16_t m_identification;        //!< Identification
 
-    Ptr<Node> m_node;
+    Ptr<Node> m_node; //!< Node
 
-    /** \todo Remove; this TracedCallback is never invoked. */
+    /** @todo Remove; this TracedCallback is never invoked. */
     TracedCallback<const Ipv4Header&, Ptr<const Packet>, uint32_t> m_sendOutgoingTrace;
-    /** \todo Remove: this TracedCallback is never invoked. */
+    /** @todo Remove: this TracedCallback is never invoked. */
     TracedCallback<const Ipv4Header&, Ptr<const Packet>, uint32_t> m_unicastForwardTrace;
-    /** \todo This TracedCallback is invoked but not accessible. */
+    /** @todo This TracedCallback is invoked but not accessible. */
     TracedCallback<const Ipv4Header&, Ptr<const Packet>, uint32_t> m_localDeliverTrace;
 
-    SocketList m_sockets;
+    SocketList m_sockets; //!< List of sockets
 
-    std::vector<bool> m_promiscDeviceList;
-
-#endif /* NS3_CLICK */
+    std::vector<bool> m_promiscDeviceList; //!< List of promiscuous devices
 };
 
 } // namespace ns3

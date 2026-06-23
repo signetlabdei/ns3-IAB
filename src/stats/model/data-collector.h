@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2008 Drexel University
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Joe Kopena (tjkopena@cs.drexel.edu)
  */
@@ -42,9 +31,9 @@ typedef std::list<Ptr<DataCalculator>> DataCalculatorList;
 typedef std::list<std::pair<std::string, std::string>> MetadataList;
 
 /**
- * \ingroup dataoutput
- * \class DataCollector
- * \brief Collects data
+ * @ingroup dataoutput
+ * @class DataCollector
+ * @brief Collects data
  */
 class DataCollector : public Object
 {
@@ -54,17 +43,17 @@ class DataCollector : public Object
 
     /**
      * Register this type.
-     * \return The TypeId.
+     * @return The TypeId.
      */
     static TypeId GetTypeId();
 
     /**
      * Provide specific parameters to the DataCollector
-     * \param experiment Label for the experiment
-     * \param strategy Label for the strategy
-     * \param input Label for the input
-     * \param runID Label for the runID
-     * \param description Description
+     * @param experiment Label for the experiment
+     * @param strategy Label for the strategy
+     * @param input Label for the input
+     * @param runID Label for the runID
+     * @param description Description
      */
     void DescribeRun(std::string experiment,
                      std::string strategy,
@@ -74,7 +63,7 @@ class DataCollector : public Object
 
     /**
      * Return the experiment label
-     * \return Experiment label
+     * @return Experiment label
      */
     std::string GetExperimentLabel() const
     {
@@ -83,7 +72,7 @@ class DataCollector : public Object
 
     /**
      * Return the strategy label
-     * \return Strategy label
+     * @return Strategy label
      */
     std::string GetStrategyLabel() const
     {
@@ -92,7 +81,7 @@ class DataCollector : public Object
 
     /**
      * Return the input label
-     * \return Input label
+     * @return Input label
      */
     std::string GetInputLabel() const
     {
@@ -101,7 +90,7 @@ class DataCollector : public Object
 
     /**
      * Return the runID label
-     * \return Run label
+     * @return Run label
      */
     std::string GetRunLabel() const
     {
@@ -110,7 +99,7 @@ class DataCollector : public Object
 
     /**
      * Return the description label
-     * \return Description label
+     * @return Description label
      */
     std::string GetDescription() const
     {
@@ -119,46 +108,46 @@ class DataCollector : public Object
 
     /**
      * Add the key and the value as a pair of strings to the metadata list
-     * \param key Key value to include
-     * \param value Value to include of type string
+     * @param key Key value to include
+     * @param value Value to include of type string
      */
     void AddMetadata(std::string key, std::string value);
     /**
      * Add the key and the value as a pair of strings to the metadata list
-     * \param key Key value to include
-     * \param value Value to include of type double
+     * @param key Key value to include
+     * @param value Value to include of type double
      */
     void AddMetadata(std::string key, double value);
     /**
      * Add the key and the value as a pair of strings to the metadata list
-     * \param key Key value to include
-     * \param value Value to include of type uint32_t
+     * @param key Key value to include
+     * @param value Value to include of type uint32_t
      */
     void AddMetadata(std::string key, uint32_t value);
     /**
      * Returns an iterator to the beginning of the metadata list
-     * \return Iterator pointing to the first value of the metadata list
+     * @return Iterator pointing to the first value of the metadata list
      */
     MetadataList::iterator MetadataBegin();
     /**
      * Returns an iterator to the past-the-end of the metadata list
-     * \return Iterator pointing to the past-the-end element of the metadata list
+     * @return Iterator pointing to the past-the-end element of the metadata list
      */
     MetadataList::iterator MetadataEnd();
 
     /**
      * Add a DataCalculator object to the DataCollector
-     * \param datac DataCalculator object to be added
+     * @param datac DataCalculator object to be added
      */
     void AddDataCalculator(Ptr<DataCalculator> datac);
     /**
      * Returns an iterator to the beginning of the DataCalculator list
-     * \return Iterator pointing to the first value of the DataCalculator list
+     * @return Iterator pointing to the first value of the DataCalculator list
      */
     DataCalculatorList::iterator DataCalculatorBegin();
     /**
      * Returns an iterator to the past-the-end of the DataCalculator list
-     * \return Iterator pointing to the past-the-end element of the DataCalculator list
+     * @return Iterator pointing to the past-the-end element of the DataCalculator list
      */
     DataCalculatorList::iterator DataCalculatorEnd();
 

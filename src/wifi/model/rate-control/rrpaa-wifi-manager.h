@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2017 Universidad de la República - Uruguay
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Matías Richart <mrichart@fing.edu.uy>
  */
@@ -30,7 +19,7 @@ namespace ns3
 struct RrpaaWifiRemoteStation;
 
 /**
- * \ingroup wifi
+ * @ingroup wifi
  * Robust Rate and Power Adaptation Algorithm
  *
  * This class implements the RRPAA algorithm as described in <i>Rate, Power and Carrier-Sense
@@ -76,7 +65,7 @@ class RrpaaWifiManager : public WifiRemoteStationManager
   public:
     /**
      * Register this type.
-     * \return The object TypeId.
+     * @return The object TypeId.
      */
     static TypeId GetTypeId();
     RrpaaWifiManager();
@@ -90,9 +79,9 @@ class RrpaaWifiManager : public WifiRemoteStationManager
      * used by this model.  Return the number of streams (possibly zero) that
      * have been assigned.
      *
-     * \param stream first stream index to use
+     * @param stream first stream index to use
      *
-     * \return the number of stream indices assigned by this model
+     * @return the number of stream indices assigned by this model
      */
     int64_t AssignStreams(int64_t stream) override;
 
@@ -110,87 +99,87 @@ class RrpaaWifiManager : public WifiRemoteStationManager
                         double ackSnr,
                         WifiMode ackMode,
                         double dataSnr,
-                        uint16_t dataChannelWidth,
+                        MHz_u dataChannelWidth,
                         uint8_t dataNss) override;
     void DoReportFinalRtsFailed(WifiRemoteStation* station) override;
     void DoReportFinalDataFailed(WifiRemoteStation* station) override;
-    WifiTxVector DoGetDataTxVector(WifiRemoteStation* station, uint16_t allowedWidth) override;
+    WifiTxVector DoGetDataTxVector(WifiRemoteStation* station, MHz_u allowedWidth) override;
     WifiTxVector DoGetRtsTxVector(WifiRemoteStation* station) override;
     bool DoNeedRts(WifiRemoteStation* st, uint32_t size, bool normally) override;
 
     /**
      * Check for initializations.
-     * \param station the remote station.
+     * @param station the remote station.
      */
     void CheckInit(RrpaaWifiRemoteStation* station);
 
     /**
      * Check if the counter should be reset.
      *
-     * \param station the remote station
+     * @param station the remote station
      */
     void CheckTimeout(RrpaaWifiRemoteStation* station);
     /**
      * Find an appropriate rate and power for the given station, using
      * a basic algorithm.
      *
-     * \param station the remote station
+     * @param station the remote station
      */
     void RunBasicAlgorithm(RrpaaWifiRemoteStation* station);
     /**
      * Run an enhanced algorithm which activates the use of RTS
      * for the given station if the conditions are met.
      *
-     * \param station the remote station
+     * @param station the remote station
      */
     void RunAdaptiveRtsAlgorithm(RrpaaWifiRemoteStation* station);
     /**
      * Reset the counters of the given station.
      *
-     * \param station the remote station
+     * @param station the remote station
      */
     void ResetCountersBasic(RrpaaWifiRemoteStation* station);
 
     /**
      * Initialize the thresholds internal list for the given station.
      *
-     * \param station the remote station
+     * @param station the remote station
      */
     void InitThresholds(RrpaaWifiRemoteStation* station);
 
     /**
      * Get the thresholds for the given station and mode.
      *
-     * \param station the remote station
-     * \param mode the WifiMode
+     * @param station the remote station
+     * @param mode the WifiMode
      *
-     * \return the RRPAA thresholds
+     * @return the RRPAA thresholds
      */
     WifiRrpaaThresholds GetThresholds(RrpaaWifiRemoteStation* station, WifiMode mode) const;
 
     /**
      * Get the thresholds for the given station and mode index.
      *
-     * \param station the remote station
-     * \param index the mode index in the supported rates
+     * @param station the remote station
+     * @param index the mode index in the supported rates
      *
-     * \return the RRPAA thresholds
+     * @return the RRPAA thresholds
      */
     WifiRrpaaThresholds GetThresholds(RrpaaWifiRemoteStation* station, uint8_t index) const;
 
     /**
      * Get the estimated TxTime of a packet with a given mode.
      *
-     * \param mode the WifiMode
+     * @param mode the WifiMode
      *
-     * \return the estimated TX time
+     * @return the estimated TX time
      */
     Time GetCalcTxTime(WifiMode mode) const;
     /**
      * Add transmission time for the given mode to an internal list.
      *
-     * \param mode the WifiMode
-     * \param t transmission time
+     * @param mode the WifiMode
+     * @param t transmission time
      */
     void AddCalcTxTime(WifiMode mode, Time t);
 

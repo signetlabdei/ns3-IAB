@@ -1,26 +1,17 @@
 /*
  * Copyright (c) 2011 The Boeing Company
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: kwong yin <kwong-sang.yin@boeing.com>
  */
 #include "lr-wpan-mac-header.h"
 
-#include <ns3/address-utils.h>
+#include "ns3/address-utils.h"
 
 namespace ns3
+{
+namespace lrwpan
 {
 
 NS_OBJECT_ENSURE_REGISTERED(LrWpanMacHeader);
@@ -58,23 +49,19 @@ LrWpanMacHeader::~LrWpanMacHeader()
 {
 }
 
-enum LrWpanMacHeader::LrWpanMacType
+LrWpanMacHeader::LrWpanMacType
 LrWpanMacHeader::GetType() const
 {
     switch (m_fctrlFrmType)
     {
     case 0:
         return LRWPAN_MAC_BEACON;
-        break;
     case 1:
         return LRWPAN_MAC_DATA;
-        break;
     case 2:
         return LRWPAN_MAC_ACKNOWLEDGMENT;
-        break;
     case 3:
         return LRWPAN_MAC_COMMAND;
-        break;
     default:
         return LRWPAN_MAC_RESERVED;
     }
@@ -124,7 +111,7 @@ LrWpanMacHeader::IsPanIdComp() const
 uint8_t
 LrWpanMacHeader::GetFrmCtrlRes() const
 {
-    return (m_fctrlReserved);
+    return m_fctrlReserved;
 }
 
 uint8_t
@@ -148,43 +135,43 @@ LrWpanMacHeader::GetSrcAddrMode() const
 uint8_t
 LrWpanMacHeader::GetSeqNum() const
 {
-    return (m_SeqNum);
+    return m_SeqNum;
 }
 
 uint16_t
 LrWpanMacHeader::GetDstPanId() const
 {
-    return (m_addrDstPanId);
+    return m_addrDstPanId;
 }
 
 Mac16Address
 LrWpanMacHeader::GetShortDstAddr() const
 {
-    return (m_addrShortDstAddr);
+    return m_addrShortDstAddr;
 }
 
 Mac64Address
 LrWpanMacHeader::GetExtDstAddr() const
 {
-    return (m_addrExtDstAddr);
+    return m_addrExtDstAddr;
 }
 
 uint16_t
 LrWpanMacHeader::GetSrcPanId() const
 {
-    return (m_addrSrcPanId);
+    return m_addrSrcPanId;
 }
 
 Mac16Address
 LrWpanMacHeader::GetShortSrcAddr() const
 {
-    return (m_addrShortSrcAddr);
+    return m_addrShortSrcAddr;
 }
 
 Mac64Address
 LrWpanMacHeader::GetExtSrcAddr() const
 {
-    return (m_addrExtSrcAddr);
+    return m_addrExtSrcAddr;
 }
 
 uint8_t
@@ -196,49 +183,49 @@ LrWpanMacHeader::GetSecControl() const
     val |= (m_secctrlKeyIdMode << 3) & (0x3 << 3); // Bit 3-4
     val |= (m_secctrlReserved << 5) & (0x7 << 5);  // Bit 5-7
 
-    return (val);
+    return val;
 }
 
 uint32_t
 LrWpanMacHeader::GetFrmCounter() const
 {
-    return (m_auxFrmCntr);
+    return m_auxFrmCntr;
 }
 
 uint8_t
 LrWpanMacHeader::GetSecLevel() const
 {
-    return (m_secctrlSecLevel);
+    return m_secctrlSecLevel;
 }
 
 uint8_t
 LrWpanMacHeader::GetKeyIdMode() const
 {
-    return (m_secctrlKeyIdMode);
+    return m_secctrlKeyIdMode;
 }
 
 uint8_t
 LrWpanMacHeader::GetSecCtrlReserved() const
 {
-    return (m_secctrlReserved);
+    return m_secctrlReserved;
 }
 
 uint32_t
 LrWpanMacHeader::GetKeyIdSrc32() const
 {
-    return (m_auxKeyIdKeySrc32);
+    return m_auxKeyIdKeySrc32;
 }
 
 uint64_t
 LrWpanMacHeader::GetKeyIdSrc64() const
 {
-    return (m_auxKeyIdKeySrc64);
+    return m_auxKeyIdKeySrc64;
 }
 
 uint8_t
 LrWpanMacHeader::GetKeyIdIndex() const
 {
-    return (m_auxKeyIdKeyIndex);
+    return m_auxKeyIdKeyIndex;
 }
 
 bool
@@ -446,7 +433,8 @@ LrWpanMacHeader::SetKeyId(uint64_t keySrc, uint8_t keyIndex)
 TypeId
 LrWpanMacHeader::GetTypeId()
 {
-    static TypeId tid = TypeId("ns3::LrWpanMacHeader")
+    static TypeId tid = TypeId("ns3::lrwpan::LrWpanMacHeader")
+                            .AddDeprecatedName("ns3::LrWpanMacHeader")
                             .SetParent<Header>()
                             .SetGroupName("LrWpan")
                             .AddConstructor<LrWpanMacHeader>();
@@ -601,7 +589,7 @@ LrWpanMacHeader::GetSerializedSize() const
             break;
         }
     }
-    return (size);
+    return size;
 }
 
 void
@@ -610,7 +598,7 @@ LrWpanMacHeader::Serialize(Buffer::Iterator start) const
     Buffer::Iterator i = start;
     uint16_t frameControl = GetFrameControl();
 
-    i.WriteHtolsbU16(frameControl);
+    i.WriteU16(frameControl);
     i.WriteU8(GetSeqNum());
 
     switch (m_fctrlDstAddrMode)
@@ -618,11 +606,11 @@ LrWpanMacHeader::Serialize(Buffer::Iterator start) const
     case NOADDR:
         break;
     case SHORTADDR:
-        i.WriteHtolsbU16(GetDstPanId());
+        i.WriteU16(GetDstPanId());
         WriteTo(i, m_addrShortDstAddr);
         break;
     case EXTADDR:
-        i.WriteHtolsbU16(GetDstPanId());
+        i.WriteU16(GetDstPanId());
         WriteTo(i, m_addrExtDstAddr);
         break;
     }
@@ -634,14 +622,14 @@ LrWpanMacHeader::Serialize(Buffer::Iterator start) const
     case SHORTADDR:
         if (!IsPanIdComp())
         {
-            i.WriteHtolsbU16(GetSrcPanId());
+            i.WriteU16(GetSrcPanId());
         }
         WriteTo(i, m_addrShortSrcAddr);
         break;
     case EXTADDR:
         if (!IsPanIdComp())
         {
-            i.WriteHtolsbU16(GetSrcPanId());
+            i.WriteU16(GetSrcPanId());
         }
         WriteTo(i, m_addrExtSrcAddr);
         break;
@@ -650,7 +638,7 @@ LrWpanMacHeader::Serialize(Buffer::Iterator start) const
     if (IsSecEnable())
     {
         i.WriteU8(GetSecControl());
-        i.WriteHtolsbU32(GetFrmCounter());
+        i.WriteU32(GetFrmCounter());
 
         switch (m_secctrlKeyIdMode)
         {
@@ -660,11 +648,11 @@ LrWpanMacHeader::Serialize(Buffer::Iterator start) const
             i.WriteU8(GetKeyIdIndex());
             break;
         case SHORTKEYSOURCE:
-            i.WriteHtolsbU32(GetKeyIdSrc32());
+            i.WriteU32(GetKeyIdSrc32());
             i.WriteU8(GetKeyIdIndex());
             break;
         case LONGKEYSOURCE:
-            i.WriteHtolsbU64(GetKeyIdSrc64());
+            i.WriteU64(GetKeyIdSrc64());
             i.WriteU8(GetKeyIdIndex());
             break;
         }
@@ -675,7 +663,7 @@ uint32_t
 LrWpanMacHeader::Deserialize(Buffer::Iterator start)
 {
     Buffer::Iterator i = start;
-    uint16_t frameControl = i.ReadLsbtohU16();
+    uint16_t frameControl = i.ReadU16();
     SetFrameControl(frameControl);
 
     SetSeqNum(i.ReadU8());
@@ -684,11 +672,11 @@ LrWpanMacHeader::Deserialize(Buffer::Iterator start)
     case NOADDR:
         break;
     case SHORTADDR:
-        m_addrDstPanId = i.ReadLsbtohU16();
+        m_addrDstPanId = i.ReadU16();
         ReadFrom(i, m_addrShortDstAddr);
         break;
     case EXTADDR:
-        m_addrDstPanId = i.ReadLsbtohU16();
+        m_addrDstPanId = i.ReadU16();
         ReadFrom(i, m_addrExtDstAddr);
         break;
     }
@@ -700,7 +688,7 @@ LrWpanMacHeader::Deserialize(Buffer::Iterator start)
     case SHORTADDR:
         if (!IsPanIdComp())
         {
-            m_addrSrcPanId = i.ReadLsbtohU16();
+            m_addrSrcPanId = i.ReadU16();
         }
         else
         {
@@ -714,7 +702,7 @@ LrWpanMacHeader::Deserialize(Buffer::Iterator start)
     case EXTADDR:
         if (!IsPanIdComp())
         {
-            m_addrSrcPanId = i.ReadLsbtohU16();
+            m_addrSrcPanId = i.ReadU16();
         }
         else
         {
@@ -730,7 +718,7 @@ LrWpanMacHeader::Deserialize(Buffer::Iterator start)
     if (IsSecEnable())
     {
         SetSecControl(i.ReadU8());
-        SetFrmCounter(i.ReadLsbtohU32());
+        SetFrmCounter(i.ReadU32());
 
         switch (m_secctrlKeyIdMode)
         {
@@ -740,14 +728,15 @@ LrWpanMacHeader::Deserialize(Buffer::Iterator start)
             SetKeyId(i.ReadU8());
             break;
         case SHORTKEYSOURCE:
-            SetKeyId(i.ReadLsbtohU32(), i.ReadU8());
+            SetKeyId(i.ReadU32(), i.ReadU8());
             break;
         case LONGKEYSOURCE:
-            SetKeyId(i.ReadLsbtohU64(), i.ReadU8());
+            SetKeyId(i.ReadU64(), i.ReadU8());
             break;
         }
     }
     return i.GetDistanceFrom(start);
 }
 
+} // namespace lrwpan
 } // namespace ns3

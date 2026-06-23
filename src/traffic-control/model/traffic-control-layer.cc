@@ -2,27 +2,17 @@
  * Copyright (c) 2015 Natale Patriciello <natale.patriciello@gmail.com>
  *               2016 Stefano Avallone <stavallo@unina.it>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #include "traffic-control-layer.h"
+
+#include "queue-disc.h"
 
 #include "ns3/log.h"
 #include "ns3/net-device-queue-interface.h"
 #include "ns3/object-map.h"
 #include "ns3/packet.h"
-#include "ns3/queue-disc.h"
 #include "ns3/socket.h"
 
 #include <tuple>
@@ -56,12 +46,6 @@ TrafficControlLayer::GetTypeId()
                             MakeTraceSourceAccessor(&TrafficControlLayer::m_dropped),
                             "ns3::Packet::TracedCallback");
     return tid;
-}
-
-TypeId
-TrafficControlLayer::GetInstanceTypeId() const
-{
-    return GetTypeId();
 }
 
 TrafficControlLayer::TrafficControlLayer()
@@ -142,7 +126,7 @@ TrafficControlLayer::ScanDevices()
         Ptr<NetDeviceQueueInterface> ndqi = dev->GetObject<NetDeviceQueueInterface>();
         NS_LOG_DEBUG("Pointer to NetDeviceQueueInterface: " << ndqi);
 
-        std::map<Ptr<NetDevice>, NetDeviceInfo>::iterator ndi = m_netDevices.find(dev);
+        auto ndi = m_netDevices.find(dev);
 
         if (ndi != m_netDevices.end())
         {
@@ -221,7 +205,7 @@ TrafficControlLayer::SetRootQueueDiscOnDevice(Ptr<NetDevice> device, Ptr<QueueDi
 {
     NS_LOG_FUNCTION(this << device << qDisc);
 
-    std::map<Ptr<NetDevice>, NetDeviceInfo>::iterator ndi = m_netDevices.find(device);
+    auto ndi = m_netDevices.find(device);
 
     if (ndi == m_netDevices.end())
     {
@@ -243,7 +227,7 @@ TrafficControlLayer::GetRootQueueDiscOnDevice(Ptr<NetDevice> device) const
 {
     NS_LOG_FUNCTION(this << device);
 
-    std::map<Ptr<NetDevice>, NetDeviceInfo>::const_iterator ndi = m_netDevices.find(device);
+    auto ndi = m_netDevices.find(device);
 
     if (ndi == m_netDevices.end())
     {
@@ -264,7 +248,7 @@ TrafficControlLayer::DeleteRootQueueDiscOnDevice(Ptr<NetDevice> device)
 {
     NS_LOG_FUNCTION(this << device);
 
-    std::map<Ptr<NetDevice>, NetDeviceInfo>::iterator ndi = m_netDevices.find(device);
+    auto ndi = m_netDevices.find(device);
 
     NS_ASSERT_MSG(ndi != m_netDevices.end() && ndi->second.m_rootQueueDisc,
                   "No root queue disc installed on device " << device);
@@ -336,7 +320,7 @@ TrafficControlLayer::Receive(Ptr<NetDevice> device,
 
     bool found = false;
 
-    for (ProtocolHandlerList::iterator i = m_handlers.begin(); i != m_handlers.end(); i++)
+    for (auto i = m_handlers.begin(); i != m_handlers.end(); i++)
     {
         if (!i->device || (i->device == device))
         {
@@ -364,7 +348,7 @@ TrafficControlLayer::Send(Ptr<NetDevice> device, Ptr<QueueDiscItem> item)
     NS_LOG_DEBUG("Send packet to device " << device << " protocol number " << item->GetProtocol());
 
     Ptr<NetDeviceQueueInterface> devQueueIface;
-    std::map<Ptr<NetDevice>, NetDeviceInfo>::iterator ndi = m_netDevices.find(device);
+    auto ndi = m_netDevices.find(device);
 
     if (ndi != m_netDevices.end())
     {

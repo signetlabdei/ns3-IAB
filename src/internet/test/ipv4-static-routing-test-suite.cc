@@ -1,16 +1,5 @@
 /*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 // End-to-end tests for Ipv4 static routing
@@ -38,9 +27,9 @@
 using namespace ns3;
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv4 StaticRouting /32 Test
+ * @brief IPv4 StaticRouting /32 Test
  */
 class Ipv4StaticRoutingSlash32TestCase : public TestCase
 {
@@ -51,21 +40,21 @@ class Ipv4StaticRoutingSlash32TestCase : public TestCase
     Ptr<Packet> m_receivedPacket; //!< Received packet
 
     /**
-     * \brief Send data.
-     * \param socket The sending socket.
-     * \param to Destination address.
+     * @brief Send data.
+     * @param socket The sending socket.
+     * @param to Destination address.
      */
     void DoSendData(Ptr<Socket> socket, std::string to);
     /**
-     * \brief Send data.
-     * \param socket The sending socket.
-     * \param to Destination address.
+     * @brief Send data.
+     * @param socket The sending socket.
+     * @param to Destination address.
      */
     void SendData(Ptr<Socket> socket, std::string to);
 
     /**
-     * \brief Receive data.
-     * \param socket The receiving socket.
+     * @brief Receive data.
+     * @param socket The receiving socket.
      */
     void ReceivePkt(Ptr<Socket> socket);
 
@@ -208,9 +197,9 @@ Ipv4StaticRoutingSlash32TestCase::DoRun()
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief IPv4 StaticRouting /32 TestSuite
+ * @brief IPv4 StaticRouting /32 TestSuite
  */
 class Ipv4StaticRoutingTestSuite : public TestSuite
 {
@@ -219,9 +208,9 @@ class Ipv4StaticRoutingTestSuite : public TestSuite
 };
 
 Ipv4StaticRoutingTestSuite::Ipv4StaticRoutingTestSuite()
-    : TestSuite("ipv4-static-routing", UNIT)
+    : TestSuite("ipv4-static-routing", Type::UNIT)
 {
-    AddTestCase(new Ipv4StaticRoutingSlash32TestCase, TestCase::QUICK);
+    AddTestCase(new Ipv4StaticRoutingSlash32TestCase, TestCase::Duration::QUICK);
 }
 
 static Ipv4StaticRoutingTestSuite

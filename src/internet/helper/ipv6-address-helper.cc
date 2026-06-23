@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2008-2009 Strasbourg University
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Sebastien Vincent <vincent@clarinet.u-strasbg.fr>
  */
@@ -151,7 +140,7 @@ Ipv6AddressHelper::NewAddress()
         addrBuf[i] = netBuf[i] | hostBuf[i];
     }
 
-    Ipv6Address addr = Ipv6Address(addrBuf);
+    auto addr = Ipv6Address(addrBuf);
 
     // Remember: hostBuf[15] is the Least Significant Byte.
     uint16_t sum;
@@ -220,11 +209,7 @@ Ipv6InterfaceContainer
 Ipv6AddressHelper::Assign(const NetDeviceContainer& c)
 {
     NS_LOG_FUNCTION(this);
-    std::vector<bool> withConfiguration;
-    for (uint32_t i = 0; i < c.GetN(); ++i)
-    {
-        withConfiguration.push_back(true);
-    }
+    std::vector<bool> withConfiguration(c.GetN(), true);
     return Assign(c, withConfiguration);
 }
 
@@ -232,11 +217,7 @@ Ipv6InterfaceContainer
 Ipv6AddressHelper::Assign(const NetDeviceContainer& c, std::vector<bool> withConfiguration)
 {
     NS_LOG_FUNCTION(this);
-    std::vector<bool> onLink;
-    for (uint32_t i = 0; i < c.GetN(); ++i)
-    {
-        onLink.push_back(true);
-    }
+    std::vector<bool> onLink(c.GetN(), true);
     return Assign(c, withConfiguration, onLink);
 }
 
@@ -312,11 +293,7 @@ Ipv6InterfaceContainer
 Ipv6AddressHelper::AssignWithoutAddress(const NetDeviceContainer& c)
 {
     NS_LOG_FUNCTION(this);
-    std::vector<bool> withConfiguration;
-    for (uint32_t i = 0; i < c.GetN(); ++i)
-    {
-        withConfiguration.push_back(false);
-    }
+    std::vector<bool> withConfiguration(c.GetN(), false);
     return Assign(c, withConfiguration);
 }
 
@@ -324,13 +301,10 @@ Ipv6InterfaceContainer
 Ipv6AddressHelper::AssignWithoutOnLink(const NetDeviceContainer& c)
 {
     NS_LOG_FUNCTION(this);
-    std::vector<bool> withConfiguration;
-    std::vector<bool> onLink;
-    for (uint32_t i = 0; i < c.GetN(); ++i)
-    {
-        withConfiguration.push_back(true);
-        onLink.push_back(false);
-    }
+
+    std::vector<bool> withConfiguration(c.GetN(), true);
+    std::vector<bool> onLink(c.GetN(), false);
+
     return Assign(c, withConfiguration, onLink);
 }
 

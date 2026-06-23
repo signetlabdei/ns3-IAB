@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2014 Natale Patriciello <natale.patriciello@gmail.com>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  */
 
@@ -106,7 +95,7 @@ TcpHybla::SlowStart(Ptr<TcpSocketState> tcb, uint32_t segmentsAcked)
          */
 
         double increment = std::pow(2, m_rho) - 1.0;
-        uint32_t incr = static_cast<uint32_t>(increment * tcb->m_segmentSize);
+        auto incr = static_cast<uint32_t>(increment * tcb->m_segmentSize);
         NS_LOG_INFO("Slow start: inc=" << increment);
 
         tcb->m_cWnd = std::min(tcb->m_cWnd + incr, tcb->m_ssThresh);
@@ -145,7 +134,7 @@ TcpHybla::CongestionAvoidance(Ptr<TcpSocketState> tcb, uint32_t segmentsAcked)
     if (m_cWndCnt >= 1.0)
     {
         // double to int truncates every time.
-        uint32_t inc = static_cast<uint32_t>(m_cWndCnt);
+        auto inc = static_cast<uint32_t>(m_cWndCnt);
         m_cWndCnt -= inc;
 
         NS_ASSERT(m_cWndCnt >= 0.0);

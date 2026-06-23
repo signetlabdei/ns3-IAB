@@ -1,30 +1,20 @@
 /*
  * Copyright (c) 2009 CTTC
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Nicola Baldo <nbaldo@cttc.es>
  */
 
 #include "wifi-spectrum-phy-interface.h"
 
-#include "spectrum-wifi-phy.h"
-
 #include "ns3/log.h"
 #include "ns3/mobility-model.h"
 #include "ns3/net-device.h"
+#include "ns3/spectrum-channel.h"
 #include "ns3/spectrum-value.h"
+
+#include <sstream>
 
 NS_LOG_COMPONENT_DEFINE("WifiSpectrumPhyInterface");
 
@@ -41,24 +31,38 @@ WifiSpectrumPhyInterface::GetTypeId()
     return tid;
 }
 
-WifiSpectrumPhyInterface::WifiSpectrumPhyInterface()
+WifiSpectrumPhyInterface::WifiSpectrumPhyInterface(FrequencyRange freqRange)
+    : m_frequencyRange{freqRange},
+      m_centerFrequencies{},
+      m_channelWidth{0},
+      m_bands{},
+      m_ruBands{}
 {
-    NS_LOG_FUNCTION(this);
+    NS_LOG_FUNCTION(this << freqRange);
 }
 
 void
 WifiSpectrumPhyInterface::DoDispose()
 {
     NS_LOG_FUNCTION(this);
+    m_rxSpectrumModel = nullptr;
     m_spectrumWifiPhy = nullptr;
     m_netDevice = nullptr;
     m_channel = nullptr;
+    m_bands.clear();
+    m_ruBands.clear();
 }
 
 void
 WifiSpectrumPhyInterface::SetSpectrumWifiPhy(const Ptr<SpectrumWifiPhy> spectrumWifiPhy)
 {
     m_spectrumWifiPhy = spectrumWifiPhy;
+}
+
+Ptr<const SpectrumWifiPhy>
+WifiSpectrumPhyInterface::GetSpectrumWifiPhy() const
+{
+    return m_spectrumWifiPhy;
 }
 
 Ptr<NetDevice>
@@ -89,13 +93,40 @@ void
 WifiSpectrumPhyInterface::SetChannel(const Ptr<SpectrumChannel> c)
 {
     NS_LOG_FUNCTION(this << c);
+    NS_ASSERT_MSG(!m_rxSpectrumModel, "Spectrum channel shall be set before RX spectrum model");
     m_channel = c;
+}
+
+void
+WifiSpectrumPhyInterface::SetRxSpectrumModel(const std::vector<MHz_u>& centerFrequencies,
+                                             MHz_u channelWidth,
+                                             Hz_u bandBandwidth,
+                                             MHz_u guardBandwidth)
+{
+    std::stringstream ss;
+    for (const auto& centerFrequency : centerFrequencies)
+    {
+        ss << centerFrequency << " ";
+    }
+    NS_LOG_FUNCTION(this << ss.str() << channelWidth << bandBandwidth << guardBandwidth);
+    m_centerFrequencies = centerFrequencies;
+    m_channelWidth = channelWidth;
+    m_rxSpectrumModel = WifiSpectrumValueHelper::GetSpectrumModel(centerFrequencies,
+                                                                  channelWidth,
+                                                                  bandBandwidth,
+                                                                  guardBandwidth);
+}
+
+Ptr<SpectrumChannel>
+WifiSpectrumPhyInterface::GetChannel() const
+{
+    return m_channel;
 }
 
 Ptr<const SpectrumModel>
 WifiSpectrumPhyInterface::GetRxSpectrumModel() const
 {
-    return m_spectrumWifiPhy->GetRxSpectrumModel();
+    return m_rxSpectrumModel;
 }
 
 Ptr<Object>
@@ -104,10 +135,60 @@ WifiSpectrumPhyInterface::GetAntenna() const
     return m_spectrumWifiPhy->GetAntenna();
 }
 
+const FrequencyRange&
+WifiSpectrumPhyInterface::GetFrequencyRange() const
+{
+    return m_frequencyRange;
+}
+
+const std::vector<MHz_u>&
+WifiSpectrumPhyInterface::GetCenterFrequencies() const
+{
+    return m_centerFrequencies;
+}
+
+MHz_u
+WifiSpectrumPhyInterface::GetChannelWidth() const
+{
+    return m_channelWidth;
+}
+
+void
+WifiSpectrumPhyInterface::SetBands(WifiSpectrumBands&& bands)
+{
+    m_bands = std::move(bands);
+}
+
+const WifiSpectrumBands&
+WifiSpectrumPhyInterface::GetBands() const
+{
+    return m_bands;
+}
+
+void
+WifiSpectrumPhyInterface::SetRuBands(RuBands&& ruBands)
+{
+    m_ruBands = std::move(ruBands);
+}
+
+const RuBands&
+WifiSpectrumPhyInterface::GetRuBands() const
+{
+    return m_ruBands;
+}
+
 void
 WifiSpectrumPhyInterface::StartRx(Ptr<SpectrumSignalParameters> params)
 {
-    m_spectrumWifiPhy->StartRx(params);
+    m_spectrumWifiPhy->StartRx(params, this);
+}
+
+void
+WifiSpectrumPhyInterface::StartTx(Ptr<SpectrumSignalParameters> params)
+{
+    params->txPhy = Ptr<SpectrumPhy>(this);
+    params->txAntenna = m_spectrumWifiPhy->GetAntenna();
+    m_channel->StartTx(params);
 }
 
 } // namespace ns3

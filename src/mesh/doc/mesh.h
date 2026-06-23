@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 IITP RAS
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors:     Kirill Andreev <andreev@itp.ru>
  *              Aleksander Safonov <safa@iitp.ru>
@@ -22,10 +11,10 @@
  */
 
 /**
- * \defgroup mesh Mesh Device
+ * @defgroup mesh Mesh Device
  *
- * \brief MAC-layer mobile mesh networking.
- * \section MeshOverview Overview of Layer-2 Mesh networking protocols
+ * @brief MAC-layer mobile mesh networking.
+ * @section MeshOverview Overview of Layer-2 Mesh networking protocols
  *
  * The main goal of this module is to provide MAC-layer routing functionality.
 
@@ -67,7 +56,7 @@
  support
  * 48-bit MAC-addressing scheme.
  *
- * \subsection Architecture Architecture of MAC-layer routing stack
+ * @subsection Architecture Architecture of MAC-layer routing stack
  * As already mentioned, MAC-layer routing consists of two tiers.
  * An ns3::MeshPointDevice which forwards frames by using an attached ns3::MeshL2RoutingProtocol
  forms
@@ -101,9 +90,9 @@
  * It handles all outgoing and incoming frames, fills headers and make decisions to drop a frame or
  not. Also, it
  * adds information elements to beacons specific to given L2Routing protocol, if needed.
- * \image html MeshArchitecture.png "Overview of the Mesh MAC-layer routing system"
+ * @image html MeshArchitecture.png "Overview of the Mesh MAC-layer routing system"
  *
- * \subsection NewProtocol Adding a new protocol
+ * @subsection NewProtocol Adding a new protocol
  * This module requires all the network devices operate with ns3::Mac48Address addressing scheme.
  *
  * To add a new L2Routing protocol, one needs to define the following:
@@ -118,9 +107,9 @@
  * you work with a frame without an LLC header, and when you are at plug-in tier using
  * ns3::MeshWifiInterfaceMacPlugin, an LLC header is already attached (by WifiNetDevice)
  *
- * \attention Note, when you use ns3::MeshWifiInterfaceMac, multiple plug-ins may be installed.
+ * @attention Note, when you use ns3::MeshWifiInterfaceMac, multiple plug-ins may be installed.
  *
- * \subsection Statistics
+ * @subsection Statistics
  * Each L2Routing protocol has a structure to capture statistics, Report and ResetStats methods.
  * This gives an opportunity to collect statistic to an *.xml file periodically.
  */

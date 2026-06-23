@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2003,2007 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -29,8 +18,8 @@ namespace ns3
 struct AmrrWifiRemoteStation;
 
 /**
- * \brief AMRR Rate control algorithm
- * \ingroup wifi
+ * @brief AMRR Rate control algorithm
+ * @ingroup wifi
  *
  * This class implements the AMRR rate control algorithm which
  * was initially described in <i>IEEE 802.11 Rate Adaptation:
@@ -45,8 +34,8 @@ class AmrrWifiManager : public WifiRemoteStationManager
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
 
@@ -67,44 +56,44 @@ class AmrrWifiManager : public WifiRemoteStationManager
                         double ackSnr,
                         WifiMode ackMode,
                         double dataSnr,
-                        uint16_t dataChannelWidth,
+                        MHz_u dataChannelWidth,
                         uint8_t dataNss) override;
     void DoReportFinalRtsFailed(WifiRemoteStation* station) override;
     void DoReportFinalDataFailed(WifiRemoteStation* station) override;
-    WifiTxVector DoGetDataTxVector(WifiRemoteStation* station, uint16_t allowedWidth) override;
+    WifiTxVector DoGetDataTxVector(WifiRemoteStation* station, MHz_u allowedWidth) override;
     WifiTxVector DoGetRtsTxVector(WifiRemoteStation* station) override;
 
     /**
      * Update the mode used to send to the given station.
      *
-     * \param station the remote station state
+     * @param station the remote station state
      */
     void UpdateMode(AmrrWifiRemoteStation* station);
     /**
      * Reset transmission statistics of the given station.
      *
-     * \param station the remote station state
+     * @param station the remote station state
      */
     void ResetCnt(AmrrWifiRemoteStation* station);
     /**
      * Increase the transmission rate to the given station.
      *
-     * \param station the remote station state
+     * @param station the remote station state
      */
     void IncreaseRate(AmrrWifiRemoteStation* station);
     /**
      * Decrease the transmission rate to the given station.
      *
-     * \param station the remote station state
+     * @param station the remote station state
      */
     void DecreaseRate(AmrrWifiRemoteStation* station);
     /**
      * Check if the current rate for the given station is the
      * minimum rate.
      *
-     * \param station the remote station state
+     * @param station the remote station state
      *
-     * \return true if the current rate is the minimum rate,
+     * @return true if the current rate is the minimum rate,
      *         false otherwise
      */
     bool IsMinRate(AmrrWifiRemoteStation* station) const;
@@ -112,9 +101,9 @@ class AmrrWifiManager : public WifiRemoteStationManager
      * Check if the current rate for the given station is the
      * maximum rate.
      *
-     * \param station the remote station state
+     * @param station the remote station state
      *
-     * \return true if the current rate is the maximum rate,
+     * @return true if the current rate is the maximum rate,
      *         false otherwise
      */
     bool IsMaxRate(AmrrWifiRemoteStation* station) const;
@@ -122,9 +111,9 @@ class AmrrWifiManager : public WifiRemoteStationManager
      * Check if the number of retransmission and transmission error
      * is less than the number of successful transmission (times ratio).
      *
-     * \param station the remote station state
+     * @param station the remote station state
      *
-     * \return true if the number of retransmission and transmission error
+     * @return true if the number of retransmission and transmission error
      *              is less than the number of successful transmission
      *              (times ratio), false otherwise
      */
@@ -133,9 +122,9 @@ class AmrrWifiManager : public WifiRemoteStationManager
      * Check if the number of retransmission and transmission error
      * is greater than the number of successful transmission (times ratio).
      *
-     * \param station the remote station state
+     * @param station the remote station state
      *
-     * \return true if the number of retransmission and transmission error
+     * @return true if the number of retransmission and transmission error
      *              is less than the number of successful transmission
      *              (times ratio), false otherwise
      */
@@ -144,8 +133,8 @@ class AmrrWifiManager : public WifiRemoteStationManager
      * Check if the number of retransmission, transmission error,
      * and successful transmission are greater than 10.
      *
-     * \param station the remote station state
-     * \return true if the number of retransmission, transmission error,
+     * @param station the remote station state
+     * @return true if the number of retransmission, transmission error,
      *         and successful transmission are greater than 10,
      *         false otherwise
      */

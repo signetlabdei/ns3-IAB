@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2020 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #include "ns3/abort.h"
@@ -35,7 +24,7 @@ using namespace ns3;
 NS_LOG_COMPONENT_DEFINE("ProbabilisticV2vChannelConditionModelsTest");
 
 /**
- * \ingroup propagation-tests
+ * @ingroup propagation-tests
  *
  * Test case for the V2V Urban channel condition models using a fully
  * probabilistic model to determine LOS, NLOS and NLOSv states. The test
@@ -69,8 +58,8 @@ class V2vUrbanProbChCondModelTestCase : public TestCase
      * Evaluates the channel condition between two nodes by calling the method
      * GetChannelCondition on m_condModel. If the channel condition is LOS it
      * increments m_numLos, if NLOSv it increments m_numNlosv
-     * \param a the mobility model of the first node
-     * \param b the mobility model of the second node
+     * @param a the mobility model of the first node
+     * @param b the mobility model of the second node
      */
     void EvaluateChannelCondition(Ptr<MobilityModel> a, Ptr<MobilityModel> b);
 
@@ -267,7 +256,7 @@ V2vUrbanProbChCondModelTestCase::DoRun()
 }
 
 /**
- * \ingroup propagation-tests
+ * @ingroup propagation-tests
  *
  * Test case for the V2V Highway channel condition models using a fully
  * probabilistic model to determine LOS, NLOS and NLOSv states. The test
@@ -301,8 +290,8 @@ class V2vHighwayProbChCondModelTestCase : public TestCase
      * Evaluates the channel condition between two nodes by calling the method
      * GetChannelCondition on m_condModel. If the channel condition is LOS it
      * increments m_numLos, if NLOS it increments m_numNlos
-     * \param a the mobility model of the first node
-     * \param b the mobility model of the second node
+     * @param a the mobility model of the first node
+     * @param b the mobility model of the second node
      */
     void EvaluateChannelCondition(Ptr<MobilityModel> a, Ptr<MobilityModel> b);
 
@@ -499,7 +488,7 @@ V2vHighwayProbChCondModelTestCase::DoRun()
 }
 
 /**
- * \ingroup propagation-tests
+ * @ingroup propagation-tests
  *
  * Test suite for the probabilistic V2V channel condition model
  *
@@ -519,14 +508,14 @@ class ProbabilisticV2vChCondModelsTestSuite : public TestSuite
 };
 
 ProbabilisticV2vChCondModelsTestSuite::ProbabilisticV2vChCondModelsTestSuite()
-    : TestSuite("probabilistic-v2v-channel-condition-model", SYSTEM)
+    : TestSuite("probabilistic-v2v-channel-condition-model", Type::SYSTEM)
 {
     AddTestCase(new V2vUrbanProbChCondModelTestCase,
-                TestCase::QUICK); // test for a fully probabilistic model (NLOS vs LOS vs NLOSv), in
-                                  // V2V urban scenario
+                TestCase::Duration::QUICK); // test for a fully probabilistic model (NLOS vs LOS
+                                            // vs NLOSv), in V2V urban scenario
     AddTestCase(new V2vHighwayProbChCondModelTestCase,
-                TestCase::QUICK); // test for a fully probabilistic model (NLOS vs LOS vs NLOSv), in
-                                  // V2V highway scenario*/
+                TestCase::Duration::QUICK); // test for a fully probabilistic model (NLOS vs LOS
+                                            // vs NLOSv), in V2V highway scenario*/
 }
 
 /// Static variable for test initialization

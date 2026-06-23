@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2016 Natale Patriciello <natale.patriciello@gmail.com>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  */
 
@@ -29,15 +18,15 @@ namespace ns3
 NS_LOG_COMPONENT_DEFINE("TcpCloseTestSuite");
 
 /**
- * \brief Check if the TCP correctly close the connection after receiving
+ * @brief Check if the TCP correctly close the connection after receiving
  * previously lost data
  */
 class TcpCloseWithLossTestCase : public TcpGeneralTest
 {
   public:
     /**
-     * \brief Constructor
-     * \param sackEnabled Enable or disable SACK
+     * @brief Constructor
+     * @param sackEnabled Enable or disable SACK
      */
     TcpCloseWithLossTestCase(bool sackEnabled);
 
@@ -62,9 +51,9 @@ class TcpCloseWithLossTestCase : public TcpGeneralTest
 
     /**
      * Called when a packet is dropped.
-     * \param ipH IP header
-     * \param tcpH TCP header
-     * \param pkt packet
+     * @param ipH IP header
+     * @param tcpH TCP header
+     * @param pkt packet
      */
     void PktDropped(const Ipv4Header& ipH, const TcpHeader& tcpH, Ptr<const Packet> pkt);
 
@@ -159,10 +148,10 @@ class TcpTcpCloseTestSuite : public TestSuite
 {
   public:
     TcpTcpCloseTestSuite()
-        : TestSuite("tcp-close", UNIT)
+        : TestSuite("tcp-close", Type::UNIT)
     {
-        AddTestCase(new TcpCloseWithLossTestCase(true), TestCase::QUICK);
-        AddTestCase(new TcpCloseWithLossTestCase(false), TestCase::QUICK);
+        AddTestCase(new TcpCloseWithLossTestCase(true), TestCase::Duration::QUICK);
+        AddTestCase(new TcpCloseWithLossTestCase(false), TestCase::Duration::QUICK);
     }
 };
 

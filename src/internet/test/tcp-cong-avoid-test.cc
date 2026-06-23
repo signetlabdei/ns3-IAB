@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2015 Natale Patriciello <natale.patriciello@gmail.com>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  */
 #include "tcp-general-test.h"
@@ -27,9 +16,9 @@ using namespace ns3;
 NS_LOG_COMPONENT_DEFINE("TcpNewRenoCongAvoidTest");
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief Test the behavior of RFC congestion avoidance
+ * @brief Test the behavior of RFC congestion avoidance
  *
  * From RFC 5681:\n
  *
@@ -55,12 +44,12 @@ class TcpNewRenoCongAvoidNormalTest : public TcpGeneralTest
 {
   public:
     /**
-     * \brief Constructor.
-     * \param segmentSize Segment size.
-     * \param packetSize Size of the packets.
-     * \param packets Number of packets.
-     * \param congControl Type of congestion control.
-     * \param desc The test description.
+     * @brief Constructor.
+     * @param segmentSize Segment size.
+     * @param packetSize Size of the packets.
+     * @param packets Number of packets.
+     * @param congControl Type of congestion control.
+     * @param desc The test description.
      */
     TcpNewRenoCongAvoidNormalTest(uint32_t segmentSize,
                                   uint32_t packetSize,
@@ -74,7 +63,7 @@ class TcpNewRenoCongAvoidNormalTest : public TcpGeneralTest
     void PhyDrop(SocketWho who) override;
     void NormalClose(SocketWho who) override;
     /**
-     * \brief Called each RTT (1.0 sec in the testing environment) and check
+     * @brief Called each RTT (1.0 sec in the testing environment) and check
      * that the overall increment in this RTT is less or equal than 1 MSS
      */
     void Check();
@@ -132,9 +121,9 @@ TcpNewRenoCongAvoidNormalTest::CWndTrace(uint32_t oldValue, uint32_t newValue)
         return;
     }
 
-    if (!m_event.IsRunning())
+    if (!m_event.IsPending())
     {
-        m_event = Simulator::Schedule(Seconds(1.0), &TcpNewRenoCongAvoidNormalTest::Check, this);
+        m_event = Simulator::Schedule(Seconds(1), &TcpNewRenoCongAvoidNormalTest::Check, this);
     }
 
     m_increment += newValue - oldValue;
@@ -166,7 +155,7 @@ TcpNewRenoCongAvoidNormalTest::Check()
 
     m_increment = 0;
 
-    m_event = Simulator::Schedule(Seconds(1.0), &TcpNewRenoCongAvoidNormalTest::Check, this);
+    m_event = Simulator::Schedule(Seconds(1), &TcpNewRenoCongAvoidNormalTest::Check, this);
 }
 
 void
@@ -179,15 +168,15 @@ TcpNewRenoCongAvoidNormalTest::NormalClose(SocketWho who)
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief TestSuite for the behavior of RFC congestion avoidance
+ * @brief TestSuite for the behavior of RFC congestion avoidance
  */
 class TcpRenoCongAvoidTestSuite : public TestSuite
 {
   public:
     TcpRenoCongAvoidTestSuite()
-        : TestSuite("tcp-cong-avoid-test", UNIT)
+        : TestSuite("tcp-cong-avoid-test", Type::UNIT)
     {
         std::list<TypeId> types = {
             TcpNewReno::GetTypeId(),
@@ -205,14 +194,14 @@ class TcpRenoCongAvoidTestSuite : public TestSuite
                                                               t,
                                                               "cong avoid MSS=500, pkt_size=500," +
                                                                   typeName),
-                            TestCase::QUICK);
+                            TestCase::Duration::QUICK);
                 AddTestCase(new TcpNewRenoCongAvoidNormalTest(500,
                                                               1000,
                                                               i,
                                                               t,
                                                               "cong avoid MSS=500, pkt_size=1000," +
                                                                   typeName),
-                            TestCase::QUICK);
+                            TestCase::Duration::QUICK);
             }
         }
     }

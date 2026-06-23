@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2016 NITK Surathkal
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Shravya Ks <shravya.ks0@gmail.com>
  *          Smriti Murali <m.smriti.95@gmail.com>
@@ -27,11 +16,12 @@
 #ifndef PIE_QUEUE_DISC_H
 #define PIE_QUEUE_DISC_H
 
+#include "queue-disc.h"
+
 #include "ns3/boolean.h"
 #include "ns3/data-rate.h"
 #include "ns3/event-id.h"
 #include "ns3/nstime.h"
-#include "ns3/queue-disc.h"
 #include "ns3/random-variable-stream.h"
 #include "ns3/timer.h"
 
@@ -46,31 +36,31 @@ class TraceContainer;
 class UniformRandomVariable;
 
 /**
- * \ingroup traffic-control
+ * @ingroup traffic-control
  *
- * \brief Implements PIE Active Queue Management discipline
+ * @brief Implements PIE Active Queue Management discipline
  */
 class PieQueueDisc : public QueueDisc
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
 
     /**
-     * \brief PieQueueDisc Constructor
+     * @brief PieQueueDisc Constructor
      */
     PieQueueDisc();
 
     /**
-     * \brief PieQueueDisc Destructor
+     * @brief PieQueueDisc Destructor
      */
     ~PieQueueDisc() override;
 
     /**
-     * \brief Burst types
+     * @brief Burst types
      */
     enum BurstStateT
     {
@@ -80,9 +70,9 @@ class PieQueueDisc : public QueueDisc
     };
 
     /**
-     * \brief Get queue delay.
+     * @brief Get queue delay.
      *
-     * \returns The current queue delay.
+     * @returns The current queue delay.
      */
     Time GetQueueDelay();
     /**
@@ -90,8 +80,8 @@ class PieQueueDisc : public QueueDisc
      * used by this model.  Return the number of streams (possibly zero) that
      * have been assigned.
      *
-     * \param stream first stream index to use
-     * \return the number of stream indices assigned by this model
+     * @param stream first stream index to use
+     * @return the number of stream indices assigned by this model
      */
     int64_t AssignStreams(int64_t stream);
 
@@ -107,7 +97,7 @@ class PieQueueDisc : public QueueDisc
 
   protected:
     /**
-     * \brief Dispose of the object
+     * @brief Dispose of the object
      */
     void DoDispose() override;
 
@@ -118,15 +108,15 @@ class PieQueueDisc : public QueueDisc
     bool CheckConfig() override;
 
     /**
-     * \brief Initialize the queue parameters.
+     * @brief Initialize the queue parameters.
      */
     void InitializeParams() override;
 
     /**
-     * \brief Check if a packet needs to be dropped due to probability drop
-     * \param item queue item
-     * \param qSize queue size
-     * \returns 0 for no drop, 1 for drop
+     * @brief Check if a packet needs to be dropped due to probability drop
+     * @param item queue item
+     * @param qSize queue size
+     * @returns 0 for no drop, 1 for drop
      */
     bool DropEarly(Ptr<QueueDiscItem> item, uint32_t qSize);
 

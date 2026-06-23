@@ -1,25 +1,14 @@
 /*
  * Copyright (c) 2011, 2012 CTTC
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Nicola Baldo <nbaldo@cttc.es>
  */
 
 #include "angles.h"
 
-#include <ns3/log.h>
+#include "ns3/log.h"
 
 #include <cmath>
 
@@ -74,55 +63,85 @@ RadiansToDegrees(const std::vector<double>& radians)
 double
 WrapTo360(double a)
 {
-    a = fmod(a, 360);
-    if (a < 0)
+    static constexpr int64_t INT_RANGE = 100000000000;
+    // Divide the input by 360.
+    // Multiply it by INT_RANGE and store into an integer.
+    int64_t b(a / (360.0) * INT_RANGE);
+    // Clamp it between [-INT_RANGE / 2, INT_RANGE / 2)
+    b = b % INT_RANGE;
+    if (b < 0)
     {
-        a += 360;
+        b += INT_RANGE;
     }
-
-    NS_ASSERT_MSG(0 <= a && a < 360, "Invalid wrap, a=" << a);
-    return a;
+    else if (b >= INT_RANGE)
+    {
+        b -= INT_RANGE;
+    }
+    // Divide by INT_RANGE and multiply by 360.
+    return b * (360.0) / INT_RANGE;
 }
 
 double
 WrapTo180(double a)
 {
-    a = fmod(a + 180, 360);
-    if (a < 0)
+    static constexpr int64_t INT_RANGE = 100000000000;
+    // Divide the input by 360.
+    // Multiply it by INT_RANGE and store into an integer.
+    int64_t b(a / (360.0) * INT_RANGE);
+    // Clamp it between [-INT_RANGE / 2, INT_RANGE / 2)
+    b = b % INT_RANGE;
+    if (b < -INT_RANGE / 2)
     {
-        a += 360;
+        b += INT_RANGE;
     }
-    a -= 180;
-
-    NS_ASSERT_MSG(-180 <= a && a < 180, "Invalid wrap, a=" << a);
-    return a;
+    else if (b >= INT_RANGE / 2)
+    {
+        b -= INT_RANGE;
+    }
+    // Divide by INT_RANGE and multiply by 360.
+    return b * (360.0) / INT_RANGE;
 }
 
 double
 WrapTo2Pi(double a)
 {
-    a = fmod(a, 2 * M_PI);
-    if (a < 0)
+    static constexpr int64_t INT_RANGE = 100000000000;
+    // Divide the input by 2*M_PI.
+    // Multiply it by INT_RANGE and store into an integer.
+    int64_t b(a / (2 * M_PI) * INT_RANGE);
+    // Clamp it between [-INT_RANGE / 2, INT_RANGE / 2)
+    b = b % INT_RANGE;
+    if (b < 0)
     {
-        a += 2 * M_PI;
+        b += INT_RANGE;
     }
-
-    NS_ASSERT_MSG(0 <= a && a < 2 * M_PI, "Invalid wrap, a=" << a);
-    return a;
+    else if (b >= INT_RANGE)
+    {
+        b -= INT_RANGE;
+    }
+    // Divide by INT_RANGE and multiply by 2*M_PI.
+    return b * (2 * M_PI) / INT_RANGE;
 }
 
 double
 WrapToPi(double a)
 {
-    a = fmod(a + M_PI, 2 * M_PI);
-    if (a < 0)
+    static constexpr int64_t INT_RANGE = 100000000000;
+    // Divide the input by 2*M_PI.
+    // Multiply it by INT_RANGE and store into an integer.
+    int64_t b(a / (2 * M_PI) * INT_RANGE);
+    // Clamp it between [-INT_RANGE / 2, INT_RANGE / 2)
+    b = b % INT_RANGE;
+    if (b < -INT_RANGE / 2)
     {
-        a += 2 * M_PI;
+        b += INT_RANGE;
     }
-    a -= M_PI;
-
-    NS_ASSERT_MSG(-M_PI <= a && a < M_PI, "Invalid wrap, a=" << a);
-    return a;
+    else if (b >= INT_RANGE / 2)
+    {
+        b -= INT_RANGE;
+    }
+    // Divide by INT_RANGE and multiply by 2*M_PI.
+    return b * (2 * M_PI) / INT_RANGE;
 }
 
 std::ostream&
@@ -180,8 +199,9 @@ Angles::Angles(Vector v)
     // azimuth and inclination angles for zero-length vectors are not defined
     if (v.x == 0.0 && v.y == 0.0 && v.z == 0.0)
     {
-        m_azimuth = NAN;
-        m_inclination = NAN;
+        // assume x and length equals to 1 mm to avoid nans
+        m_azimuth = std::atan2(v.y, 0.001);
+        m_inclination = std::acos(v.z / 0.001);
     }
 
     NormalizeAngles();

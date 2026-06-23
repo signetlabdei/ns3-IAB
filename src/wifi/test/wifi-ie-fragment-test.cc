@@ -1,36 +1,31 @@
 /*
  * Copyright (c) 2022 Universita' degli Studi di Napoli Federico II
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Stefano Avallone <stavallo@unina.it>
  */
 
 #include "ns3/header-serialization-test.h"
 #include "ns3/log.h"
+#include "ns3/supported-rates.h"
 #include "ns3/wifi-information-element.h"
+#include "ns3/wifi-mgt-header.h"
 
 #include <list>
 #include <numeric>
+#include <optional>
 
 using namespace ns3;
 
 NS_LOG_COMPONENT_DEFINE("WifiIeFragmentTest");
 
+/// whether the test Information Element includes an Element ID Extension field
+static bool g_extendedIe = false;
+
 /**
- * \ingroup wifi-test
- * \ingroup tests
+ * @ingroup wifi-test
+ * @ingroup tests
  *
  * Subelement to test fragmentation. Its content is a sequence of bytes
  * of configurable size.
@@ -44,8 +39,8 @@ class TestWifiSubElement : public WifiInformationElement
      * Construct a test subelement containing a sequence of bytes of the given
      * size and with the given initial value.
      *
-     * \param count the number of bytes to append
-     * \param start the initial value for the sequence of bytes to add
+     * @param count the number of bytes to append
+     * @param start the initial value for the sequence of bytes to add
      */
     TestWifiSubElement(uint16_t count, uint8_t start);
 
@@ -101,8 +96,8 @@ TestWifiSubElement::DeserializeInformationField(Buffer::Iterator start, uint16_t
 }
 
 /**
- * \ingroup wifi-test
- * \ingroup tests
+ * @ingroup wifi-test
+ * @ingroup tests
  *
  * Information Element to test IE fragmentation. Its content is one or more
  * test subelements.
@@ -112,7 +107,7 @@ class TestWifiInformationElement : public WifiInformationElement
   public:
     /**
      * Constructor
-     * \param extended whether this IE includes an Element ID Extension field
+     * @param extended whether this IE includes an Element ID Extension field
      */
     TestWifiInformationElement(bool extended);
 
@@ -121,7 +116,7 @@ class TestWifiInformationElement : public WifiInformationElement
     /**
      * Append the given subelement.
      *
-     * \param subelement the subelement to append
+     * @param subelement the subelement to append
      */
     void AddSubelement(TestWifiSubElement&& subelement);
 
@@ -200,35 +195,36 @@ TestWifiInformationElement::DeserializeInformationField(Buffer::Iterator start, 
 }
 
 /**
- * \ingroup wifi-test
- * \ingroup tests
+ * @ingroup wifi-test
+ * @ingroup tests
  *
  * Test header that can contain multiple test information elements.
  */
-class TestHeader : public Header
+class TestHeader
+    : public WifiMgtHeader<TestHeader, std::tuple<std::vector<TestWifiInformationElement>>>
 {
+    friend class WifiMgtHeader<TestHeader, std::tuple<std::vector<TestWifiInformationElement>>>;
+
   public:
+    ~TestHeader() override = default;
+
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
 
-    TypeId GetInstanceTypeId() const override;
-    uint32_t GetSerializedSize() const override;
-    void Serialize(Buffer::Iterator start) const override;
-    uint32_t Deserialize(Buffer::Iterator start) override;
-    void Print(std::ostream& os) const override;
-
     /**
-     * Append the given wifi test information element.
-     *
-     * \param element the given wifi test information element
+     * @return the TypeId for this object.
      */
-    void AddTestIe(TestWifiInformationElement&& element);
+    TypeId GetInstanceTypeId() const override;
 
   private:
-    std::list<TestWifiInformationElement> m_elements; ///< test information elements
+    /**
+     * @param optElem the MultiLinkElement object to initialize for deserializing the
+     *                information element into
+     */
+    void InitForDeserialization(std::optional<TestWifiInformationElement>& optElem);
 };
 
 NS_OBJECT_ENSURE_REGISTERED(TestHeader);
@@ -250,74 +246,23 @@ TestHeader::GetInstanceTypeId() const
 }
 
 void
-TestHeader::Print(std::ostream& os) const
+TestHeader::InitForDeserialization(std::optional<TestWifiInformationElement>& optElem)
 {
-}
-
-uint32_t
-TestHeader::GetSerializedSize() const
-{
-    uint32_t size = 0;
-    for (const auto& elem : m_elements)
-    {
-        size += elem.GetSerializedSize();
-    }
-    return size;
-}
-
-void
-TestHeader::Serialize(Buffer::Iterator start) const
-{
-    NS_LOG_FUNCTION(this);
-    for (const auto& elem : m_elements)
-    {
-        start = elem.Serialize(start);
-    }
-}
-
-uint32_t
-TestHeader::Deserialize(Buffer::Iterator start)
-{
-    NS_LOG_FUNCTION(this);
-    Buffer::Iterator i = start;
-    m_elements.clear();
-
-    while (!i.IsEnd())
-    {
-        std::optional<TestWifiInformationElement> elem;
-        i = WifiInformationElement::DeserializeIfPresent(elem, i, true);
-        if (!elem.has_value())
-        {
-            // try deserializing the test IE without Element ID Extension field
-            i = WifiInformationElement::DeserializeIfPresent(elem, i, false);
-        }
-        if (elem.has_value())
-        {
-            m_elements.push_back(std::move(*elem));
-        }
-    }
-    return i.GetDistanceFrom(start);
-}
-
-void
-TestHeader::AddTestIe(TestWifiInformationElement&& element)
-{
-    NS_LOG_FUNCTION(this);
-    m_elements.push_back(std::move(element));
+    optElem.emplace(g_extendedIe);
 }
 
 /**
- * \ingroup wifi-test
- * \ingroup tests
+ * @ingroup wifi-test
+ * @ingroup tests
  *
- * \brief Test fragmentation of Information Elements
+ * @brief Test fragmentation of Information Elements
  */
 class WifiIeFragmentationTest : public HeaderSerializationTestCase
 {
   public:
     /**
      * Constructor
-     * \param extended whether this IE includes an Element ID Extension field
+     * @param extended whether this IE includes an Element ID Extension field
      */
     WifiIeFragmentationTest(bool extended);
     ~WifiIeFragmentationTest() override = default;
@@ -325,17 +270,17 @@ class WifiIeFragmentationTest : public HeaderSerializationTestCase
     /**
      * Serialize the given element in a buffer.
      *
-     * \param element the given element
-     * \return the buffer in which the given element has been serialized
+     * @param element the given element
+     * @return the buffer in which the given element has been serialized
      */
     Buffer SerializeIntoBuffer(const WifiInformationElement& element);
 
     /**
      * Check that the given buffer contains the given value at the given position.
      *
-     * \param buffer the given buffer
-     * \param position the given position (starting at 0)
-     * \param value the given value
+     * @param buffer the given buffer
+     * @param position the given position (starting at 0)
+     * @param value the given value
      */
     void CheckSerializedByte(const Buffer& buffer, uint32_t position, uint8_t value);
 
@@ -376,6 +321,7 @@ WifiIeFragmentationTest::DoRun()
     uint16_t limit = m_extended ? 254 : 255;
 
     TestHeader header;
+    g_extendedIe = m_extended;
 
     /*
      * Add an IE (containing 2 subelements). No fragmentation occurs
@@ -409,7 +355,7 @@ WifiIeFragmentationTest::DoRun()
                             sub02Size - 2); // subelement 2 Length
     }
 
-    header.AddTestIe(std::move(testIe));
+    header.Get<TestWifiInformationElement>().push_back(std::move(testIe));
     uint32_t expectedHdrSize = 2 + 255;
     NS_TEST_EXPECT_MSG_EQ(header.GetSerializedSize(), expectedHdrSize, "Unexpected header size");
     TestHeaderSerialization(header);
@@ -450,7 +396,7 @@ WifiIeFragmentationTest::DoRun()
                             1); // the length of the second element fragment is 1
     }
 
-    header.AddTestIe(std::move(testIe));
+    header.Get<TestWifiInformationElement>().push_back(std::move(testIe));
     expectedHdrSize += 2 + 255  // first fragment
                        + 2 + 1; // second fragment
     NS_TEST_EXPECT_MSG_EQ(header.GetSerializedSize(), expectedHdrSize, "Unexpected header size");
@@ -493,7 +439,7 @@ WifiIeFragmentationTest::DoRun()
         CheckSerializedByte(buffer, 2 + 255 + 1, 255); // maximum length for second element fragment
     }
 
-    header.AddTestIe(std::move(testIe));
+    header.Get<TestWifiInformationElement>().push_back(std::move(testIe));
     expectedHdrSize += 2 + 255    // first fragment
                        + 2 + 255; // second fragment
     NS_TEST_EXPECT_MSG_EQ(header.GetSerializedSize(), expectedHdrSize, "Unexpected header size");
@@ -544,7 +490,7 @@ WifiIeFragmentationTest::DoRun()
         CheckSerializedByte(buffer, 2 * (2 + 255) + 1, 1); // the length of the third fragment is 1
     }
 
-    header.AddTestIe(std::move(testIe));
+    header.Get<TestWifiInformationElement>().push_back(std::move(testIe));
     expectedHdrSize += 2 + 255   // first fragment
                        + 2 + 255 // second fragment
                        + 2 + 1;  // third fragment
@@ -578,7 +524,7 @@ WifiIeFragmentationTest::DoRun()
                             (m_extended ? 3 : 2)); // length of the second element fragment
     }
 
-    header.AddTestIe(std::move(testIe));
+    header.Get<TestWifiInformationElement>().push_back(std::move(testIe));
     expectedHdrSize += 2 + 255                     // first fragment
                        + 2 + (m_extended ? 3 : 2); // second fragment
     NS_TEST_EXPECT_MSG_EQ(header.GetSerializedSize(), expectedHdrSize, "Unexpected header size");
@@ -623,7 +569,7 @@ WifiIeFragmentationTest::DoRun()
                             1); // Length for second subelement fragment
     }
 
-    header.AddTestIe(std::move(testIe));
+    header.Get<TestWifiInformationElement>().push_back(std::move(testIe));
     expectedHdrSize += 2 + 255                     // first fragment
                        + 2 + (m_extended ? 6 : 5); // second fragment
     NS_TEST_EXPECT_MSG_EQ(header.GetSerializedSize(), expectedHdrSize, "Unexpected header size");
@@ -631,10 +577,10 @@ WifiIeFragmentationTest::DoRun()
 }
 
 /**
- * \ingroup wifi-test
- * \ingroup tests
+ * @ingroup wifi-test
+ * @ingroup tests
  *
- * \brief wifi Information Element fragmentation Test Suite
+ * @brief wifi Information Element fragmentation Test Suite
  */
 class WifiIeFragmentationTestSuite : public TestSuite
 {
@@ -643,10 +589,10 @@ class WifiIeFragmentationTestSuite : public TestSuite
 };
 
 WifiIeFragmentationTestSuite::WifiIeFragmentationTestSuite()
-    : TestSuite("wifi-ie-fragment", UNIT)
+    : TestSuite("wifi-ie-fragment", Type::UNIT)
 {
-    AddTestCase(new WifiIeFragmentationTest(false), TestCase::QUICK);
-    AddTestCase(new WifiIeFragmentationTest(true), TestCase::QUICK);
+    AddTestCase(new WifiIeFragmentationTest(false), TestCase::Duration::QUICK);
+    AddTestCase(new WifiIeFragmentationTest(true), TestCase::Duration::QUICK);
 }
 
 static WifiIeFragmentationTestSuite g_wifiIeFragmentationTestSuite; ///< the test suite

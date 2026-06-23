@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2008 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -23,8 +12,8 @@
 #include "attribute.h"
 
 /**
- * \file
- * \ingroup attribute_Boolean
+ * @file
+ * @ingroup attribute_Boolean
  * ns3::BooleanValue attribute value declarations.
  */
 
@@ -37,12 +26,7 @@ class BooleanValue : public AttributeValue
 {
   public:
     BooleanValue();
-    /**
-     * Construct from an explicit value.
-     *
-     * \param [in] value The boolean value to begin with.
-     */
-    BooleanValue(bool value);
+    BooleanValue(const bool& value);
     void Set(bool value);
     bool Get() const;
     template <typename T>
@@ -50,7 +34,7 @@ class BooleanValue : public AttributeValue
 
     /**
      * Functor returning the value.
-     * \returns The value.
+     * @returns The value.
      */
     operator bool() const;
 
@@ -71,14 +55,14 @@ BooleanValue::GetAccessor(T& v) const
 }
 
 /**
- * \ingroup attribute_Boolean
+ * @ingroup attribute_Boolean
  * Output streamer.
  *
  * The value is printed as "true" or "false".
  *
- * \param [in,out] os The stream.
- * \param [in] value The BooleanValue to print.
- * \returns The stream.
+ * @param [in,out] os The stream.
+ * @param [in] value The BooleanValue to print.
+ * @returns The stream.
  */
 std::ostream& operator<<(std::ostream& os, const BooleanValue& value);
 

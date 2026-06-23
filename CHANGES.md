@@ -1,5 +1,4 @@
-ns-3: API and model change history
-==================================
+# ns-3: API and model change history
 
 ns-3 is an evolving system and there will be API or behavioral changes from time to time. Users who try to use scripts or models across versions of ns-3 may encounter problems at compile time, run time, or may see the simulation output change.
 
@@ -13,49 +12,584 @@ Note that users who upgrade the simulator across versions, or who work directly 
 
 This file is a best-effort approach to solving this issue; we will do our best but can guarantee that there will be things that fall through the cracks, unfortunately. If you, as a user, can suggest improvements to this file based on your experience, please contribute a patch or drop us a note on ns-developers mailing list.
 
-Changes from ns-3.36 to ns-3.37
--------------------------------
+## Changes from ns-3.47 to ns-3.48
 
 ### New API
 
-* Added a new attribute **MaxTbPpduDelay** in HeConfiguration for configuring the maximum delay with which a TB PPDU can arrive at the AP after the first TB PPDU in order to be decoded properly. If the delay is higher than **MaxTbPpduDelay**, the TB PPDU is discarded and treated as interference.
-* Added new methods (**ConfigHtOptions**, **ConfigVhtOptions**, **ConfigHeOptions** and **ConfigEhtOptions**) to `WifiHelper` to configure HT/VHT/HE/EHT options listed as attributes of the respective Configuration classes through the wifi helper.
-* Added new attributes (**AccessReqInterval**, **AccessReqAc** and **DelayAccessReqUponAccess**) to the MultiUserScheduler to allow a wifi AP to coordinate UL MU transmissions even without DL traffic.
-* `WifiNetDevice` has a new **Phys** attribute, which is primarily intended to select a specific PHY object of an 11be multi-link device when using path names.
-* `Txop` class (wifi module) has new attributes (**MinCws**, **MaxCws**, **Aifsns** and **TxopLimits**) to set minimum CW, maximum CW, AIFSN and TXOP limit for all the links of a multi-link device.
-* `WifiPhyListener::NotifyMaybeCcaBusyStart` has been renamed to `WifiPhyListener::NotifyCcaBusyStart` and has two additional parameters: the channel type that indicates for which subchannel the CCA-BUSY is reported and a vector of CCA-BUSY durations for each 20 MHz subchannel. A duration of zero indicates CCA is IDLE, and the vector of CCA-BUSY durations is not empty if the PHY supports 802.11ax and the operational channel width is larger than 20 MHz.
-* Added a new attribute **CcaSensitivity** in WifiPhy for configuring the threshold that corresponds to the minimum received power of a PPDU, that occupies the primary channel, should have to report a CCA-BUSY indication.
-* Added a new attribute **SecondaryCcaSensitivityThresholds** in VhtConfiguration for configuring the thresholds that corresponds to the minimum received power of a PPDU, that does not occupy the primary 20 MHz channel, should have to report a CCA-BUSY indication. This is made of a tuple, where the first threshold is used for 20 MHz PPDUs, the second one is used for 40 MHz PPDUs and the third one is used for 80 MHz PPDUs.
+* (core) The `Ptr` smart pointer class now provides a move constructor and a move assignment operator.
+* (core) Added 3D and 2D Vector cross-product functions `CrossProduct()`.
+* (lr-wpan) Added the `macCoordExtendedAddress` to the list of PIB attributes.
+* (mobility) Added `LeoCircularOrbitMobilityModel` for simulating satellite mobility in circular Low Earth Orbit (LEO) using geocentric coordinates.
+* (mobility) Added `GeocentricEcefMobilityModel` that extends `GeocentricConstantPositionMobilityModel` to return ECEF (Earth-Centered Earth-Fixed) coordinates from `GetPosition()` instead of ENU coordinates.
+* (mobility) Added `LeoOrbitalShell` class for defining Walker Delta/Star orbital shells with altitude, inclination, number of orbital planes, and satellites per plane, with CSV serialization support.
+* (mobility) Added a mobility model and helper for LEO satellite constellations
+  * (mobility) Added `LeoCircularOrbitPositionAllocator` for allocating initial positions of satellites along a circular orbit, computing Right ascension of ascending node (RAAN) and perigee argument.
+  * (mobility) Added `LeoOrbitNodeHelper` helper class for installing LEO satellite nodes from orbit definition files or `LeoOrbitalShell` objects.
+  * (mobility) Added `GeographicPositions::LEO_EARTH_GGC` constant for the geocentric gravitational constant.
+* (sixlowpan) Added support for 6LoWPAN Neighbor Discovery (RFC 6775), including the `SixLowPanNdProtocol` and a binding table for address registration. Border routers and nodes are installed via `SixLowPanHelper::InstallSixLowPanNdBorderRouter()` and `SixLowPanHelper::InstallSixLowPanNdNode()`.
+* (spectrum) Added the Sionna RT channel model, including `SionnaRtChannelModel` and `SionnaRtSpectrumPropagationLossModel`, with scene loading, path solver configuration, delay normalization, and phased-array spectrum loss integration.
+* (wifi) Added the `PsmTimeout` attribute to `DefaultPowerSaveManager` to keep STAs in PS mode awake for extra time before going to sleep
+* (wifi) Added the `ListenAdvance` attribute to `DefaultPowerSaveManager` to make STAs in PS mode wake up some time in advance prior to the TBTT
+* (wifi) Added `RrWifiQueueScheduler`, a round-robin MAC queue scheduler.
 
 ### Changes to existing API
 
-* Adds support for channel paging to the **LrWpanPhy** (only placeholder,  a single modulation/band is currently supported).
-* Adds supporting structures used by **LrWpanMac** (PAN descriptor, Command Payload Header, Capability Field).
-* Mac(8|16|48|64)Address address allocation pool is now reset between consecutive runs.
-* Adds support for **LrWpanMac** energy detection (ED) scan.
-* IPv6 Router Solicitations (RS) are now retransmitted up to 4 times, following RFC 5779.
-* Adds support for **LrWpanMac** active and passive scan.
-* Add supporting association structures: parameters, callbacks and the pending transaction list to **LrWpanMac**.
-* The **TxopTrace** trace source of wifi `QosTxop` now has an additional argument (the third one) indicating the ID of the link the TXOP refers to (for non-MLDs, this value is zero).
-* The maximum allowed channel width (in MHz) for a data transmission is passed to the **GetDataTxVector** method of the `WifiRemoteStationManager`.
+* (network) The `Buffer::Iterator` methods `WriteHtolsbU[16,32,64]()` and `ReadLsbtohU[16,32,64]()` have been deprecated; use the documented `WriteU[16,32,64]()`/`ReadU[16,32,64]()` little-endian methods instead.
+* (network) The `SequenceNumber` template class has been changed to allow sequence numbers with an arbitrary number of bits (e.g., 10 bits). As a consequence, the template signature is slightly changed, but the `typedef` versions `SequenceNumber[8,16,32]` are working as usual. Sequence numbers larger than 63 bits are not supported due to internal representation limitations.
+* (sixlowpan) The boolean `Rfc6282` attribute of the `SixLowPanNetDevice` class has been removed and replaced by the `CompressionType` enum attribute, with values `HC1` (RFC4944) and `IPHC` (RFC6282). The default value (`IPHC`) preserves existing behavior. Scripts that previously set `Rfc6282` to `false` to select HC1 must now set `CompressionType` to `HC1`.
+* (spectrum) `MultiModelSpectrumChannel::StartRx()` now takes a parameter struct instead of a list of arguments, for API stability.
+* (wifi) The `PowerSaveMode` attribute of the `StaWifiMac` class has been deprecated in favor of the `PowerSaveMode` attribute of the `PowerSaveManager` class.
+* (wifi) The `BeaconJitter` attribute of the `ApWifiMac` class is no longer constrained to be a uniform random variable, but it can be a random variable of any type (provided that generated values are comprised between 0 and 1).
 
+### Changes to build system
+
+* The minimum supported version of CMake was raised to version 3.25.
+* The `./ns3 configure` command accepts a new `--preset <name>` option to load a configuration from a `CMakePresets.json` file. When a program is run via `./ns3 run`, the environment variables defined by the configured preset are also applied.
+* Three-character aliases were added for the `./ns3` subcommands (for example, `bld` for `build`, `cfg` for `configure`, `cln` for `clean`, and `shw` for `show`) and for several `./ns3 show` subcommands (for example, `ver` for `version` and `tgt` for `targets`).
+* `./ns3 run` now adds the active Python environment's site-packages directories to `PYTHONPATH`, so that installed Python modules are available to executed programs.
+
+### Changed behavior
+
+* (core) `CommandLine` now aborts when a duplicate parameter or option name is registered, rather than silently ignoring the duplicate.
+* (network) `Ipv4Mask` now rejects impossible mask values.
+* (wifi) An MLD now uses its link address (instead of its MLD address) when communicating with single-link devices (SLDs).
+* (spectrum) Spectrum reception is skipped, and unnecessary spectrum conversions are avoided, when the transmitter and receiver spectrum models are orthogonal or fully aligned, improving performance without changing results.
+
+## Changes from ns-3.46.1 to ns-3.47
+
+### New API
+
+* (applications) New IEEE 802.11ax evaluation methodology traffic generator applications have been added: `TgaxVideoTraffic` (video streaming), `TgaxVoipTraffic` (VoIP), `TgaxVdiTraffic` (virtual desktop infrastructure), and `RtMobileGamingTraffic` (real-time mobile gaming).
+* (applications) New trace sources `SourceApplication::ConnectionSucceeded` and `SourceApplication::ConnectionFailed` have been added to report connection success/failure events.
+* (core) Added `SystemPath::FindSelf()` to retrieve the full path to the running executable.
+* (core) Added `NormalRandomVariable::GetStdDev()` and `NormalRandomVariable::SetStdDev()` convenience functions.
+* (internet) Added support for TCP FACK (Forward Acknowledgement).
+* (internet) Added IPv6 support to Global Routing.
+* (internet) Added `PrintRoute` functionality to `GlobalRouting` similar to `TraceRoute`.
+* (internet) Added attribute `TcpLedbat::AllowedIncrease` to control the ALLOWED_INCREASE parameter defined in RFC 6817.
+* (internet) A new static function `Ipv[4,6]Address::CheckCompatible()` has been added to safely check if a string can be parsed as an IPv4 or IPv6 address.
+* (lr-wpan) The `McpsDataIndication` parameters now include rssi value.
+* (network) Added `std::hash` specialization for `Ipv4Address` and `Ipv6Address`, enabling their use in unordered containers.
+* (propagation) Added 3GPP outdoor-to-indoor (O2I) penetration losses for sub-6 GHz frequencies according to TS 38.901 Table 7.4.3-3, including vehicular O2I penetration losses.
+* (visualizer) Add support to `LrWpanNetDevice` in the PyViz visualizer.
+
+### Changes to existing API
+
+* (applications) Common logic for starting/stopping, socket management, protocol TypeId, and TX/RX trace sources has been refactored into the `SourceApplication` and `SinkApplication` base classes.
+* (applications) The trace source `UdpServer::Rx` has a changed trace signature as a result of the move of this trace to the `SinkApplication` class.  Client code using this trace can either update to the new `Rx` trace signature or instead use the same trace sink function or method with the `SinkApplication::RxWithoutAddress` trace.
+* (core) The `nstime.h` header no longer includes `event-id.h`. It is possible that code might fail to compile due to this change. Adding an include to `event-id.h` fixes the issue.
+* (internet) Initializing a Ipv[4,6]Address from a string using the constructor or the `Set` function will result in a crash if the string can not be parsed as an IPv4 or IPv6 address.
+* (internet) The `Ipv[4,6]Address::IsInitialized()` function has been deprecated and returns always `true`. The default value of Ipv4Address created with the constructor that takes no arguments is 0.0.0.0 (previously, it was 102.102.102.102), and an Ipv4Address instance can be checked against that unspecified address value (or use std::optional to denote an address that has not been set yet).
+* (internet) The function `Ipv4InterfaceAddress::SetBroadcast` has been removed from the codebase because the broadcast address must be built from the IP address and mask.
+* (internet-apps) The DHCPv6 model has been refactored, and now supports all the DUID types.
+* (lr-wpan) Renamed `lr-wpan-pd-plme-sap-test` to `lr-wpan-phy-test` to improve clarity. Also this testsuite now includes an additional test called `LrWpanPhyCollisionTestCase`.
+* (lr-wpan) The PHY now includes the processing of the preamble as well as registering the RSSI at the moment of receiving the packet.
+* (network) Address type 0 was previously used as a wildcard. Type 0 is now disallowd for any practical use. In order to create an Address from raw bytes, you must now set the Address type beforehand. An example is in ArpHeader::Deserialize.
+* (network) The address class comparison is now based on std::strong_ordering operator<=> comparison operator.
+* (network) An empty (uninitialized) Address is now printed as "00-00:00".
+* (visualizer) The namespace `visualizer` is now used for PyViz related classes.
+* (visualizer) `PyViz` has been reformatted and modernized to current ns-3 standards.
+
+### Changes to build system
+
+* A new `NS3_CLANG_TIDY_FIX`/`--enable-clang-tidy-fix` option was added to use clang-tidy
+static analysis and automatically apply fixes during build. Not every clang-tidy warning/error
+has automatic fixes, and checks are performed only at build time. Thus requiring rebuilding
+things to re-run checks. As an alternative, one can use `./ns3 run clang-tidy`. And to apply
+fixes, use `./ns3 run "clang-tidy -fix"`.
+
+### Changed behavior
+
+* (wifi) `CcaEdThreshold` can be changed at run-time.
+* (internet) Updated `TcpLedbat::CongestionAvoidance()` to compute `max_cwnd` as `flightsize + AllowedIncrease * MSS` by adding `m_allowedIncrease * tcb->m_segmentSize`, in accordance with RFC 6817.
+* (internet) The default value of Ipv4Address created with the constructor that takes no arguments is 0.0.0.0 (previously, it was 102.102.102.102).
+* (spectrum) The `UpdatePeriod` attribute of `ThreeGppChannelModel` previously enabled periodic i.i.d. updates of the channel model, but is now used to control spatially-consistent updates of the channel.
+* (propagation) Fixed 3GPP low and high O2I loss distributions where `NormalRandomVariable` variance was incorrectly set with standard deviation values from TS 38.901 Table 7.4.3-2, resulting in lower than expected losses.
+* (wifi) Fixed spurious CCA-BUSY notification after channel width has changed.
+* (wifi) Fixed misuse of TX power and power level in `WifiRemoteStationManager`.
+
+## Changes from ns-3.46 to ns-3.46.1
+
+The ns-3.46.1 contains some small build system fixes discovered after the ns-3.46 release, and two
+new module documentation chapters (see [RELEASE_NOTES.md](RELEASE_NOTES.md)). There are no API
+changes, changes to how the build system works, or changed behavior of the models, compared with
+the ns-3.46 release.
+
+## Changes from ns-3.45 to ns-3.46
+
+### New API
+
+* (spectrum) Added the base `WraparoundModel`, which is retrieved from the associated objects of a spectrum channel, and then used to wraparound the transmitter mobility model during transmissions.
+* (spectrum) Added the `HexagonalWraparoundModel`, which implements the wraparound for a hexagonal cell deployment, typical of cellular networks.
+* (wifi) Added a `StaticWifiSetupHelper` to (optionally) setup Wi-Fi devices (associations, block ack agreements, EMLSR mode) at simulation start time, without actually exchanging management frames over the air.
+to DisableScanning` attribute to `StaWifiMac` to disable channel scanning; it can be useful to set this attribute to false when a static setup is performed.
+* (wifi) Added a new `EarlyTxopEndDetect` attribute to `EhtFrameExchangeManager` to control whether the Duration/ID value of the frame being transmitted or received by a device shall be used to early detect the end of an ongoing TXOP (held by another device).
+* (wifi) Added a new `DisableScanning` attribute to `StaWifiMac` to disable channel scanning; it can be useful to set this attribute to false when a static setup is performed.
+* (tcp) Added new attributes ``TcpSocketBase::UseAbe``, ``TcpCubic::BetaEcn``, ``TcpNewReno::BetaEcn``, ``TcpLinuxReno::BetaLoss``, ``TcpNewReno::BetaLoss``, ``TcpLinuxReno::BetaLoss`` and  to implement the Alternative Backoff with ECN (ABE) mechanism for NewReno and CUBIC. This mechanism is specified by RFC 8511.
+
+### Changes to existing API
+
+The wimax module was removed and moved to the ns-3 App Store.
+
+* (antenna) Reformatted documentation.
+* (documentation) Improve models documentation look and feel.
+* (internet) Added check for longest prefix match in GlobalRouting.
+* (lr-wpan) Debloat MAC PD-DATA.indication and reduce packet copies.
+* (zigbee) Added group table.
+* (zigbee) Added Groupcast (Multicast) support.
+* (zigbee) Added basic APS layer support.
+* (mobility) Mobility models now implement a Copy() function.
+* (propagation) MatrixPropagationLossModels are now associated per NodeId, and not per mobility model objects.
+* (propagation) Removed ThreeGppPropagationLossModel prologue function, added temporarily for ns-3.45 wraparound support.
+* (spectrum) MobilityModels associated to devices are not passed to receptor in SpectrumChannel. A virtual mobility model object, created from a copy and subject to wraparound is passed in its place.
+* (spectrum) SpectrumSignalParameters now includes an entry for the transmitter virtual mobility model.
+* (zigbee) Several callback type definitions were moved from global to class scope, for the ZigbeeAps and ZigbeeNwk classes.
+
+### Changes to build system
+
+* Raised minimum C++ version from C++20 to C++23.
+* Raised minimum CMake version from 3.13 to 3.20.
+* Raised minimum Clang version from 11 to 17.
+* Raised minimum GCC version from 10.1 to 11.0.
+* Added support for ClangCL compiler (part of MSVC tools).
+* Added ``GENERATE_EXPORT_HEADER`` flag to the CMake ``build_lib`` macro. It will generate a ``ns3/module-export.h`` header file, which defines a C++ macro``MODULE_EXPORT``. The macro must be used when declaring a class with static member variables, or a global variable exported by a library.
+
+### Changed behavior
+
+* (internet) ArpCache::Flush() and NdiscCache::Flush() no longer remove autogenerated entries.
+* (internet) The Ipv[4,6]RawSocket now reflects the Linux implementation, meaning that fragmented packets are reassembled (fragments are not anymore received by the socket), and packets that are simply forwarded are not received by the socket either (fixes #809).
+* (wifi) WiFi backoffs are now reset only if PHY went to sleep or off for more than a threshold, improving performance and compliance with standards.
+
+## Changes from ns-3.44 to ns-3.45
+
+### New API
+
+* (network) Added a function to detect IPv4 APIPA addresses (169.254.0.0/16).
+* (wifi) Added a new `AssocType` attribute to `StaWifiMac` to configure the type of association performed by a device, provided that it is supported by the standard configured for the device. By using this attribute, it is possible for an EHT single-link device to perform ML setup with an AP MLD and for an EHT multi-link device to perform legacy association with an AP MLD.
+* (wifi) Added a new attribute `Per20CcaSensitivityThreshold` to `EhtConfiguration` for tuning the Per 20MHz CCA threshold when 802.11be is used.
+* (wifi) Added a new `MaxRadioBw` attribute to `WifiPhy` to configure the maximum width supported by the radio.
+* (wifi) Added a new attribute (`KeepMainPhyAfterDlTxop`) to the `AdvancedEmlsrManager` to control whether, after the end of a DL TXOP carried out on an aux PHY link, the main PHY shall stay on that link (for a switch main PHY back delay) in the attempt to gain an UL TXOP. This attribute is applicable to the case in which aux PHYs are not TX capable and do not switch link.
+
+### Changes to existing API
+
+* (core) ``Object::GetInstanceTypeId()`` can no longer be specialized by subclasses and any such subclass API should be deleted (the base class will handle it).
+* (dsr) Reformatted documentation and added a new concept figure.
+* (flow-monitor) Reformatted documentation and added a new concept figure.
+* (internet-apps) Added a parameter to the RADVD helper to announce a prefix without the autoconfiguration flag.
+* (internet-apps) Added `DhcpV6` application support.
+* (lr-wpan) - Renamed example ``lr-wpan\examples\lr-wpan-mlme.cc`` to ``lr-wpan\examples\lr-wpan-beacon-mode.cc``.
+* (lr-wpan) - Update correct use of extended addresses in ``lr-wpan\examples\lr-wpan-data.cc``.
+* (wifi) Callbacks connected to the `WifiMac::IcfDropReason` trace source are now passed a `struct IcfDropInfo` object that has three fields indicating the reason for dropping the ICF, the ID of the link on which the ICF was dropped and the MAC address of the sender of the ICF.
+* (wifi) Obsoleted the `Support40MHzOperation` and `Support160MHzOperation` attributes from the HT/VHT configurations. These capabilities are now directly derived from the `ChannelSettings` attribute.
+* (wifi) The `EmlsrSwitchMainPhyBackTrace` has been extended to provide the time elapsed since the switch main PHY back timer started, the reason why the main PHY switches back before the expiration of the switch main PHY back timer and whether the main PHY is switching while it is requested to switch back.
+
+### Changes to build system
+
+* The ns-allinone release has been redesigned; it no longer includes ``netanim`` or ``bake`` but instead includes ns-3 plus compatible contributed modules.
+
+### Changed behavior
+
+* (docs) Models documentation format guidelines have been updated.
+* (zigbee) Adjust pedantic link cost requirement in ``NeighborTable::LookUpForBestParent``, a minimum link cost of 3 is not required now.
+* (wifi) Normal Ack, BlockAck and BlockAckReq frames are transmitted, if appropriate, as non-HT duplicate PPDUs on a bandwidth matching that of the data frame transmitted in the same frame exchange sequence.
+* (wifi) Association Request/Response and Probe Request/Response frames are transmitted using single protection setting, i.e., the NAV is set to protect just the reception of the Ack response rather than the entire TXOP (those frames are transmitted via VO AC, which normally has a non-zero TXOP limit). As a consequence, a CF-End frame is not transmitted after the reception of the Ack.
+
+## Changes from ns-3.43 to ns-3.44
+
+### New API
+
+* (antenna) Add `SymmetricAdjacencyMatrix` utility class, used to track the necessity of channel update between every `PhasedArrayModel` pair.
+* (applications) Added two new base classes for source and sink applications, `SourceApplication` and `SinkApplication`, respectively.
+* (applications) Added an `OnOffState` trace source to `OnOffApplication`, to track whether the application is transmitting or not.
+* (wifi) Added a new **RobustAVStreamingSupported** attribute to `WifiMac` to enable 802.11aa features (GCR).
+* (wifi) Changes have been made to the `WifiRemoteStationManager` interface for what concerns the update of the frame retry count of the MPDUs and the decision of dropping MPDUs (possibly based on the max retry limit). The `NeedRetransmission` method has been replaced by the `GetMpdusToDropOnTxFailure` method and the `DoNeedRetransmission` method has been replaced by the `DoGetMpdusToDropOnTxFailure` method. Also, the `DoIncrementRetryCountOnTxFailure` method has been added to implement custom policies for the update of the frame retry count of MPDUs upon transmission failure.
+* (zigbee) Added Zigbee module support. The module includes a NWK layer with joining and routing capabilities. No APS layer included.
+
+### Changes to existing API
+
+* (applications) Deprecated attributes `RemoteAddress` and `RemotePort` in UdpClient, UdpTraceClient and UdpEchoClient. They have been combined into a single `Remote` attribute.
+* (applications) Deprecated attributes `ThreeGppHttpClient::RemoteServerAddress` and `ThreeGppHttpClient::RemoteServerPort`. They have been combined into a single `ThreeGppHttpClient::Remote` attribute.
+* (core) Deprecated `SUPPORTED`, `DEPRECATED` and `OBSOLETE` in `TypeId` class. They have been replaced by `SupportLevel::{SUPPORTED,DEPRECATED,OBSOLETE}`, respectively.
+* (lr-wpan) ``LrWpanMac`` is now also aggregated to ``LrWpanNetDevice``.
+* (stats) Deprecated ns3::NaN and ns3::isNaN to use std::nan and std::isnan in their place
+* (tap-bridge) Deprecated "Gateway" attribute.
+* (tap-bridge) Removed unused gateway option from tap-creator.
+* (wifi) Added a new **ProtectedIfResponded** attribute to `FrameExchangeManager` to disable RTS/CTS protection for stations that have already responded to a frame requiring acknowledgment in the same TXOP, even if such frame had not been protected by RTS/CTS. The default value is true, even though it represents a change with respect to the previous behavior, because it is likely a more realistic choice.
+* (wifi) Deprecated setters/getters of the {Ht,Vht,He}Configuration classes that trivially set/get member variables, which have been made public and hence accessible to users.
+* (wifi) Trace source `QosTxop::BaEstablished` is extended to support GCR block ack agreements.
+
+### Changes to build system
+
+* !2319 Add support for clang-tidy-19
+* !2251 Add msbuild and Visual Studio generator support to the ns3 script
+* !2251 Use ccache with ClangCL/MSVC
+* !2251 Provide option to generate export header from build_lib
+* !2260 Scan for modules in the external contrib directory ../ns-3-external-contrib
+* !2255 Exclude external imported targets from missing libraries check
+* !2238 Prevent Python bindings from being enabled along with MPI
+
+### Changed behavior
+
+* (lr-wpan) !2334 Association: Fix the handling of situations where the association response commands arrives before the data request command acknowledgment that is supposed to precede it.
+
+## Changes from ns-3.42 to ns-3.43
+
+### New API
+
+* (applications) A new trace source `BulkSendApplication::TcpRetransmission` has been added for tracing TCP retransmissions.
+* (core) Added `LaplacianRandomVariable` class implementing the Laplacian random variable, and `LargestExtremeValueRandomVariable` class implementing the Largest Extreme Value random variable.
+* (lr-wpan) Added a new test to `lr-wpan-cca-test.cc` suite. The added test demonstrates a known CCA vulnerability window.
+* (tcp) A new trace source `TcpSocketBase::LastRtt` has been added for tracing the last RTT sample observed. The existing trace source `TcpSocketBase::Rtt` is still providing the smoothed RTT, although it had been incorrectly documented as providing the last RTT.
+* (wifi) Added a new trace source to `WifiPhy`: **PhyRxMacHeaderEnd**, which is fired when the reception of the MAC header of an MPDU is completed and provides the MAC header and the remaining PSDU duration. The trace source is actually fired when the new **NotifyMacHdrRxEnd** attribute of `WifiPhy` is set to true (it is set to false by default).
+* (wifi) WifiHelper::SetStandard() method now accepts selected string values in addition to enum argument.
+* (wifi) Added a new method **SetPcapCaptureType** to `WifiPhyHelper` to control how PCAPs are generated for MLD devices.
+* (wifi) New trace helper `WifiTxStatsHelper` for providing Wi-Fi MAC-level transmission statistics.
+
+### Changes to existing API
+
+* (core) Deprecated struct `TypeTraits`. Functionality provided by the standard library header `<type_traits>` should be used instead.
+* (core) Add `AddDeprecatedName` to TypeId. This allows for TypeIds to transition to name TypeIds that use namespaces while still supporting the old name.
+* (energy) Energy module TypeId now uses the name that includes the namespace `ns3::energy`, the old name is now deprecated.
+* (energy) Documentation was extended and reformatted.
+* (lr-wpan) Lr-wpan module TypeId now uses the name that includes the namespace `ns3::lrwpan`, the old name is now deprecated.
+* (lr-wpan) Attribute `macBeaconPayload` in `MacPibAttributes` is now a `std::vector<uint8_t>` instead of a packet pointer.
+* (lr-wpan) Removes the word `address` from the MAC address prefix when `LOG_PREFIX_FUNC` is used.
+* (lr-wpan) Removes the word `address` from the CSMA-CA logs prefix when `LOG_PREFIX_FUNC` is used.
+* (lr-wpan) Added `AssignStreams` function to the MAC.
+* (lr-wpan) Attribute `macRxOnWhenIdle` added to the supported attributes in `MacPibAttributes`.
+* (lr-wpan) Attribute `macPromiscuousMode` added to the supported attributes in `MacPibAttributes`.
+* (lr-wpan) Attribute `macAssociatePermit` added to the supported attributes in `MacPibAttributes`.
+* (lr-wpan) Attribute `pCurrentChannel` added to the supported attributes in `MacPibAttributes`.
+* (lr-wpan) Attribute `pCurrentPage` added to the supported attributes in `MacPibAttributes`.
+* (lr-wpan) Documentation was extended and reformatted.
+* (wifi) The `WifiHelper::AssignStreams()` method has been made static.
+* (wifi) Attribute `ChannelSettings` has been changed to allow configuration of non-contiguous operating channels by specifying each 80 MHz segment. It has changed from TupleValue to AttributeContainerValue, but the configuration of contiguous channels using a StringValue still works as before.
+
+### Changes to build system
+
+* Module libraries targets names have their "lib" prefixes removed. This affects target selection within IDEs and ns-3 importing via CMake.
+
+### Changed behavior
+
+* (lr-wpan) Beacons are now transmitted using CSMA-CA when requested from a beacon request command.
+* (lr-wpan) Upon a beacon request command, beacons are transmitted after a jitter to reduce the probability of collisions.
+* (tcp) TCP Proportional Rate Reduction (PRR) recovery has been aligned to the updates in draft-ietf-tcpm-prr-rfc6937bis
+
+## Changes from ns-3.41 to ns-3.42
+
+### New API
+
+* (antenna) Added `CircularApertureAntennaModel` class which characterizes the antenna gain pattern of the reflector antenna with circular aperture described in 3GPP TR 38.811 v15.4.0, Section 6.4.1
+* (core) Objects now can be aggregated to multiple objects though the `Object::UnidirectionalAggregateObject` function. Objects aggregated in such a way can not use `GetObject` to access the objects they are aggregated to.
+* (core) Added `TestVector` iterators and dot product operator for `Vector2D` and `Vector3D` types
+* (mobility) Added a new mobility model `GeocentricConstantPositionMobilityModel` for orbital and/or aerial nodes, and coordinate conversion methods between geocentric and topocentric coordinate systems
+* (propagation, spectrum)  Added 3GPP 38.811 Non-Terrestrial Networks (NTNs) channel model. Specifically, the large-scale phenomena have been implemented by extending `ThreeGppPropagationLossModel` with classes representing the various NTN propagation scenarios  (Dense Urban, Urban, Rural and Suburban), while the frequency-dependent phenomena have been implemented by defining the corresponding scenarios in `ThreeGppChannelModel`.
+* (network) Added `ApplicationHelper` helper class to create and install applications, removing redundant code in existing helpers and reducing the burden to add yet another helper when a new application model is added.
+* (wifi) Added a new **SingleRtsPerTxop** attribute to `WifiDefaultProtectionManager`, which, if set to true, prevents to use protection mechanisms (RTS or MU-RTS) more than once in a TXOP (unless required for specific purposes, such as transmitting an Initial Control Frame to an EMLSR client).
+* (wifi) Added a new **RtsCtsTxDurationThresh** to `WifiRemoteStationManager` to enable RTS/CTS protection based on the TX duration of the data frame. Both the value of this attribute and the value of the existing **RtsCtsThreshold** attribute are evaluated: if either of the thresholds (or both) is exceeded, RTS/CTS is used.
+* (wifi) New trace helper `WifiPhyRxTraceHelper` for detailed tracing of Wi-Fi Phy reception events
+* (wifi) New trace sources `WifiPhy::SignalTransmission`, `SpectrumWifiPhy::SignalArrival`, and `YansWifiPhy::SignalArrival`
+* (wifi) New trace sources `WifiPhyStateHelper::RxOutcome` and`WifiPhy::PhyRxPpduDrop`, to support additional tracing.
+
+### Changes to existing API
+
+* (applications) Applications have a new Attribute to set the IPv4 ToS field.
+* (core) Deprecated enum `TestDuration` in `TestCase` class. It has been replaced by enum class `Duration`.
+* (core) In `TestSuite` class, deprecated `ALL`, `UNIT`, `SYSTEM`, `EXAMPLE` and `PERFORMANCE`. They have been replaced by `Type::ALL`, `Type::UNIT`, `Type::SYSTEM`, `Type::EXAMPLE` and `Type::PERFORMANCE`, respectively.
+* (core) Deprecated `EventId::IsRunning()`. It has been replaced with `EventId::IsPending()`.
+* (energy) The model library code of the energy module now uses the nested namespace `energy`.
+* (lr-wpan) `MacPibAttributeIdentifier` attribute ids are now standard compliant.
+* (lr-wpan) Multiple new identifiers added to `MacPibAttributeIdentifier`.
+* (lr-wpan) Adds standard version comments to `MLME-GET.request` function.
+* (lr-wpan) In the MAC layer, renamed `m_selfExt` to the variable `m_macExtendedAddress` to make it consistent with the standard specification.
+* (lr-wpan) The Lr-wpan module now uses the namespace `lrwpan`.
+* (lr-wpan) The model library code of the lr-wpan module now uses the nested namespace `lrwpan`.
+* (lr-wpan) The `LrWpan` prefix of variables, structs and enumerations in the PHY and MAC was shorten to reflect the recent namespace change.
+* (wifi) Deprecated `WIFI_TID_TO_LINK_MAPPING_{NOT_SUPPORTED,SAME_LINK_SET,ANY_LINK_SET}`. They have been replaced by `WifiTidToLinkMappingNegSupport::{NOT_SUPPORTED,SAME_LINK_SET,ANY_LINK_SET}`, respectively.
+* (wifi) Deprecated `{IDLE, CCA_BUSY, TX, RX, SWITCHING, SLEEP, OFF}`. They have been replaced by `WifiPhyState::{IDLE, CCA_BUSY, TX, RX, SWITCHING, SLEEP, OFF}`, respectively.
+* (wifi) Obsoleted **Txop** attributes `MinCw`, `MaxCw`, `Aifsn` and `TxopLimit`. The corresponding attributes for multi-link devices (`MinCws`, `MaxCws`, `Aifsns` and `TxopLimits`) can be used instead.
+
+### Changes to build system
+
+* Removed support of the `experimental/filesystem` library, in favor of the official `filesystem` library.
+* Fixed static and monolib builds when linking to a non ns-3 module library.
+
+### Changed behavior
+
+* (mobility) Fixed the corner rebound direction in `RandomWalk2d[Outdoor]MobilityModel` and the initial direction in case of node starting from a border or corner.
+* (tcp) TcpCubic and TcpLinuxReno will no longer grow their congestion window when application-limited, now matching Linux behavior
+
+## Changes from ns-3.40 to ns-3.41
+
+### New API
+
+* (core) Added `BernoulliRandomVariable` class implementing the bernoulli random variable, and `BinomialRandomVariable` class implementing the binomial random variable.
+* (core) Added wrapper around `UniformRandomVariable` to meet the C++11 requirements of UniformRandomBitGenerator.
+* (core) Added method to `GetStopEvent()` from `Simulator`
+* (internet) It is now possible to set the TOS field for IPv4 ICMP Echo Requests/Responses, via a new `Tos` attribute.
+* (spectrum) `SpectrumSignalParameters` is extended to include two new members called: `spectrumChannelMatrix` and `precodingMatrix` which are the key information needed to support MIMO simulations.
+* (spectrum) `SpectrumChannel::AssignStreams()` is added, to allow random variable stream assignment for all propagation loss and delay models added to the channel.
+* (wifi) Added new attribute `ChannelAccessManager:GenerateBackoffIfTxopWithoutTx` to invoke the backoff procedure when an AC gains the right to start a TXOP but it does not transmit any frame, provided that the queue is not actually empty. No transmission may occur,e.g., due to constraints associated with EMLSR operations. This possibility is specified by the current draft revision of the IEEE 802.11 standard.
+
+### Changes to existing API
+
+* (antenna) `UniformPlannarArray` has new attributes `NumVerticalPorts`, `NumHorizontalPorts`, and `IsDualPolarized`.
+* (antenna) `GetNumberOfElements` is renamed to `GetNumElems` for the sake of simplifying the long lines of code that use complex mathematical expressions.
+* (core) The EnumValue class now also supports enum class in addition to plain enums.  As a result of this change, attributes that wrap enums must update the syntax for the `MakeEnumAccessor` method call. Where you once were able to write, for example (from attribute-test-suite.cc):
+
+  ```cpp
+  MakeEnumAccessor(&AttributeObjectTest::m_enum),
+  ```
+
+  you must now write it with a template parameter such as:
+
+  ```cpp
+  MakeEnumAccessor<Test_e>(&AttributeObjectTest::m_enum),
+  ```
+
+* (internet) Deprecated `Ipv4::WeakEsModel` and `Ipv4::GetWeakEsModel()`, `Ipv4::SetWeakEsModel(bool)` methods. Moved `Ipv6L3Protocol::StrongEndSystemModel` to `Ipv6::StrongEndSystemModel` and added `Ipv4::StrongEndSystemModel` with corresponding `GetStrongEndSystemModel()` and `SetStrongEndSystemModel(bool)` methods to improve end system model configuration options.
+* (lr-wpan) Change the CapabilityField parameter in `LrWpanMac::MlmeAssociateRequest` and `LrWpanMac::MlmeAssociateIndication` to a standard bitmap.
+* (lr-wpan) Change the MAC SuperframeField usage to a standard bitmap, this change impact parameters in the `BeaconPayloadHeader`.
+* (lr-wpan) Create a new abstract class that defines the form of any Lr-wpan MAC layers (`LrWpanMacBase`).
+* (lr-wpan) Add the capability to see the enum values of the MAC transition states in log prints for easier debugging.
+* (lr-wpan) Group MAC status enumerations into a single `LrWpanMacStatus` enumeration in `lr-wpan-mac-base.h.`
+* The spelling of the following files, classes, functions, constants, defines and enumerated values was corrected; this will affect existing users who were using them with the misspelling.
+  * (lte) Struct member `fdbetsFlowPerf_t::lastTtiBytesTrasmitted` in file `fdbet-ff-mac-scheduler.h` was renamed `fdbetsFlowPerf_t::lastTtiBytesTransmitted`.
+  * (lte) Struct member `tdbetsFlowPerf_t::lastTtiBytesTrasmitted` in file `tdbet-ff-mac-scheduler.h` was renamed `fdbetsFlowPerf_t::lastTtiBytesTransmitted`.
+  * (lte) Struct member `pfsFlowPerf_t::lastTtiBytesTrasmitted` in file `pf-ff-mac-scheduler.h` was renamed `fdbetsFlowPerf_t::lastTtiBytesTransmitted`.
+* (sixlowpan) Remove `ForceEtherType` and `EtherType` attributes, and use RFC 7973 EtherType for interfaces supporting an EtherType.
+* (spectrum) `PhasedArraySpectrumPropagationLossModel::CalcRxPowerSpectralDensity` return type is changed from `Ptr<SpectrumValue>` to `Ptr<SpectrumSignalParameters>` to support MIMO, because when multiple transmit and receive antenna ports are present, it is not enough to have a single PSD (represented by `Ptr<SpectrumValue>`) but also the 3D channel matrix is needed per receive and transmit antenna port. Notice that `CalcRxPowerSpectralDensity` is typically called from within `MultiModelSpectrumChannel`, but if some external ns-3 module is calling directly this function, it can still access to its original return value through `Ptr<SpectrumSignalParameters>` which contains `Ptr<SpectrumValue>`.
+* (wifi) The `HeConfiguration::MpduBufferSize` attribute is now obsolete. Use the `WifiMac::MpduBufferSize` attribute instead.
+* (wifi) The `LinkSetupCanceled` trace source of `StaWifiMac` has been obsoleted because disassociation does not occur at link level for non-AP MLDs.
+* (wifi) The default value for `WifiRemoteStationManager::RtsCtsThreshold` has been increased from 65535 to 4692480.
+* (wifi) `SpectrumWifiHelper::SpectrumChannelSwitched()` is now static
+
+### Changes to build system
+
+* In preparation to enable C++20, the following actions have been taken due to compiler issues:
+  * Precompiled headers have been disabled in GCC versions >= 12.2.
+  * The `restrict` warning has been disabled in GCC versions 12.1-12.3.1.
+* Raised minimum CMake version to 3.13.
+* Raised minimum C++ version to C++20.
+* Added guard rails for scratch targets missing or containing more than one `main` function.
+
+### Changed behavior
+
+* (sixlowpan) Now uses RFC 7973 Ethertype by default
+* (spectrum) SpectrumChannel objects and the loss/delay models attached are now automatically initialized (Object::Initialize) at time zero
+* (tcp) TCP Cubic (the default congestion control in ns-3) now supports TCP-friendliness by default (see RFC 9438 Section 4.3), making the congestion window growth somewhat more aggressive.  This follows the default Linux behavior.
+* (wifi) Increase the duration of the timer started when waiting for an ADDBA_RESPONSE from 1ms to 5ms to better account for the time required by the recipient to access the medium and complete the frame exchange (which may involve protection with (MU-)RTS/CTS).
+
+## Changes from ns-3.39 to ns-3.40
+
+### New API
+
+* (energy) Added `GenericBatteryModel` to the energy module with working examples, and support for battery presets and cell packs.
+* (lr-wpan) Added the functions to set or get the capability field via bitmap (a 8 bit int).
+* (lr-wpan) Added the possibility to obtain the LQI from a received `MlmeAssociateIndicationParams`.
+* (wifi) Added new helper methods to SpectrumWifiPhyHelper to allow flexible configuration for the mapping between spectrum PHY interfaces and PHY instances.
+* (wifi) Added new trace sources to `WifiPhy`: **OperatingChannelChange**, which is fired when the operating channel of a PHY is changed.
+* (wifi) The attribute `WifiPhy::Antennas` is extended to support up to 8 antennas.
+
+### Changes to existing API
+
+* (core) Removed private class `EmpiricalRandomVariable::ValueCDF` in favor of `std::map`.
+* (lr-wpan) Removed unnecessary bcst filter from `LrWpanMac::PdDataIndication` which also blocked the correct reception of beacon request commands.
+* (wifi) The attribute `WifiPhy::Antennas` is extended to support up to 8 antennas.
+* (wifi) `StaWifiMac::MacState` enum is now public, and `WifiMacHeader` can be subclassed
+
+### Changes to build system
+
+* Added support for Vcpkg and CPM package managers
+
+### Changed behavior
+
+* (core) `EmpiricalRandomVariable` CDF pairs can now be added in any order.
+* (core) `EmpiricalRandomVariable` no longer requires that a CDF pair with a range value exactly equal to 1.0 be added (see issue #922).
+* (wifi) Upon ML setup, a non-AP MLD updates the IDs of the setup links to match the IDs used by the AP MLD.
+* (wifi) Attribute **TrackSignalsFromInactiveInterfaces** in SpectrumWifiPhy has been defaulted to be enabled.
+
+## Changes from ns-3.38 to ns-3.39
+
+### New API
+
+* (lr-wpan) Added support for orphan scans. Orphan scans can now be performed using the existing `LrWpanMac::MlmeScanRequest`; This orphan scan use the added orphan notification commands and coordinator realignment commands. Usage is shown in added `lr-wpan-orphan-scan.cc` example and in the `TestOrphanScan` included in `lr-wpan-mac-test.cc`.
+* (network) Added `Mac64Address::ConvertToInt`. Converts a Mac64Address object to a uint64_t.
+* (network) Added `Mac16Address::ConvertToInt`. Converts a Mac16Address object to a uint16_t.
+* (network) Added `Mac16Address::Mac16Address(uint16t addr)` and `Mac16Address::Mac64Address(uint64t addr)` constructors.
+* (lr-wpan) Added `LrwpanMac::MlmeGetRequest` function and the corresponding confirm callbacks as well as `LrwpanMac::SetMlmeGetConfirm` function.
+* (applications) Added `Tx` and `TxWithAddresses` trace sources in `UdpClient`.
+* (spectrum) Added `SpectrumTransmitFilter` class and the ability to add them to `SpectrumChannel` instances.
+* (stats) Added `Histogram::Clear` function to clear the histogram contents.
+* (wifi) Added `WifiBandwidthFilter` class to allow filtering of out-of-band Wi-Fi signals.
+* (flow-monitor) Added `FlowMonitor::ResetAllStats` function to reset the FlowMonitor statistics.
+
+### Changes to existing API
+
+* The spelling of the following files, classes, functions, constants, defines and enumerated values was corrected; this will affect existing users who were using them with the misspelling.
+  * (dsr) Class `DsrOptionRerrUnsupportHeader` from `dsr-option-header.h` was renamed `DsrOptionRerrUnsupportedHeader`.
+  * (internet) Enumerated value `IPV6_EXT_AUTHENTIFICATION` from `ipv6-header.h` was renamed `IPV6_EXT_AUTHENTICATION`.
+  * (lr-wpan) Constant `aMaxBeaconPayloadLenght` from `lr-wpan-constants.h` was renamed `aMaxBeaconPayloadLength`.
+  * (lte) Enumeration `ControPduType_t` from `lte-rlc-am-header.h` was renamed `ControlPduType_t`.
+  * (lte) Function `LteUeCphySapProvider::StartInSnycDetection()` from `lte-ue-cphy-sap.h` was renamed `LteUeCphySapProvider::StartInSyncDetection()`.
+  * (lte) Function `MemberLteUeCphySapProvider::StartInSnycDetection()` from `lte-ue-cphy-sap.h` was renamed `MemberLteUeCphySapProvider::StartInSyncDetection()`.
+  * (lte) Function `LteUePhy::StartInSnycDetection()` from `lte-ue-phy.h` was renamed `LteUePhy::StartInSyncDetection()`.
+  * (lte) Function `DoUlInfoListElementHarqFeeback` from `lte-enb-phy-sap.h` and `lte-enb-mac.h` was renamed `DoUlInfoListElementHarqFeedback`.
+  * (lte) Function `DoDlInfoListElementHarqFeeback` from `lte-enb-phy-sap.h` and `lte-enb-mac.h` was renamed `DoDlInfoListElementHarqFeedback`.
+  * (mesh) Function `PeerManagementProtocolMac::SetPeerManagerProtcol` from `peer-management-protocol-mac.h` was renamed `PeerManagementProtocolMac::SetPeerManagerProtocol`.
+  * (network) File `lollipop-comparisions.cc` was renamed `lollipop-comparisons.cc`.
+  * (network) Attribute `currentTrimedFromStart` from `packet-metadata.h` was renamed `currentTrimmedFromStart`.
+  * (network) Attribute `currentTrimedFromEnd` from `packet-metadata.h` was renamed `currentTrimmedFromEnd`.
+  * (sixlowpan) Function `SixLowPanNetDevice::Fragments::GetFraments` from `sixlowpan-net-device.cc` was renamed `SixLowPanNetDevice::Fragments::GetFragments`.
+  * (wave) Function `OcbWifiMac::CancleTx()` from `ocb-wifi-mac.h` was renamed `OcbWifiMac::CancelTx()`.
+  * (wifi) Attribute `m_succesMax1` from `aparf-wifi-manager.h` was renamed `m_successMax1`.
+  * (wifi) Attribute `m_succesMax2` from `aparf-wifi-manager.h` was renamed `m_successMax2`.
+  * (wifi) Enumerated value `MDAOP_ADVERTISMENT_REQUEST` from `mgmt-headers.h` was renamed `MDAOP_ADVERTISEMENT_REQUEST`.
+  * (wifi) Enumerated value `MDAOP_ADVERTISMENTS` from `mgmt-headers.h` was renamed `MDAOP_ADVERTISEMENTS`.
+  * (wifi) Define `IE_BEAMLINK_MAINENANCE` from `wifi-information-element.h` was renamed `IE_BEAMLINK_MAINTENANCE`.
+  * (wimax) Attribute `m_nrRecivedFecBlocks` from `simple-ofdm-wimax-phy.h` was renamed `m_nrReceivedFecBlocks`.
+* (lr-wpan) Updated `LrWpanPhy::PlmeSetAttribute` and `LrWpanPhy::PlmeGetAttribute` (Request and Confirm) to use smart pointers.
+* (lr-wpan) Modified `LrWpanPhy::PlmeGetAttributeRequest` to include support for a few attributes (none were supported before the change).
+* (lr-wpan) Added `macShortAddress`, `macExtendedAddress` and `macPanId` to the attributes that can be use with MLME-GET and MLME-SET functions.
+* (wifi) The QosBlockedDestinations class has been removed and its functionality is now provided via a new framework for blocking/unblocking packets that is based on the queue scheduler.
+* (internet) The function signature of `Ipv4RoutingProtocol::RouteInput` and `Ipv6RoutingProtocol::RouteInput` have changed. The `UnicastForwardCallback` (ucb), `MulticastForwardCallback` (mcb), `LocalDeliverCallback` (lcb) and `ErrorCallback` (ecb) should now be passed as const references.
+* (olsr) The defines `OLSR_WILL_*` have been replaced by enum `Willingness`.
+* (olsr) The defines `OLSR_*_LINK` have been replaced by enum `LinkType`.
+* (olsr) The defines `OLSR_*_NEIGH` have been replaced by enum `NeighborType`.
+* (wifi) The `WifiCodeRate` typedef was converted to an enum.
+* (internet) `InternetStackHelper` can be now used on nodes with an `InternetStack` already installed (it will not install IPv[4,6] twice).
+* (lr-wpan) Block the reception of orphan notification commands to devices other than PAN coordinators or coordinators.
+* (lr-wpan) Block the reception of broadcast messages in the same device that issues it. This is done in both cases when the src address is either short or extended address.
+* (lr-wpan) Adds a new variable flag `m_coor` to the MAC to differentiate between coordinators and PAN coordinators.
+* (lte) Add support for DC-GBR. The member `QosBearerType_e` of the structure `LogicalChannelConfigListElement_s` is extended to include DC-GBR resource type. Based on this change, the method **IsGbr** of `EpsBearer`, is renamed to **GetResourceType**. LTE code using this method, is updated according to this change.
+* (lte) The `EpsBearer` is extended to include 3GPP Release 18 5QIs.
+* (lte) Add PDCP discard timer. If enabled using the attribute `EnablePdcpDiscarding`, in case that the buffering time (head-of-line delay) of a packet is greater than the PDB or a value set by the user, it will perform discarding at the moment of passing the PDCP SDU to RLC.
+* (lte) Centralize the constants `MIN_NO_CC` and `MAX_NO_CC`, declared in multiple header files, into the header `lte-common.h`.
+* (wave) The Wave module was removed from the codebase due to lack of maintenance
+
+### Changes to build system
+
+### Changed behavior
+
+* (core) The priority of `DEBUG` level logging has been lowered from just below `WARN` level to just below `LOGIC` level.
+* (buildings) Calculation of the O2I Low/High Building Penetration Losses based on 3GPP 38.901 7.4.3.1 was missing. These losses are now included in the pathloss calculation when buildings are present.
+* (network) The function `Buffer::Allocate` will over-provision `ALLOC_OVER_PROVISION` bytes when allocating buffers for packets. `ALLOC_OVER_PROVISION` is currently set to 100 bytes.
+* (wifi) By default, the `SpectrumWifiHelper` now adds a `WifiBandwidthFilter` to discard out-of-band signals before scheduling them on the receiver.  This should not affect the simulated behavior of Wi-Fi but may speed up the execution of large Wi-Fi simulations.
+* (wifi) Protection mechanisms (e.g., RTS/CTS) are not used if destinations have already received (MU-)RTS in the current TXOP
+* (wifi) Protection mechanisms can be used for management frames as well (if needed)
+
+## Changes from ns-3.37 to ns-3.38
+
+### New API
+
+* (core) Added new template classes `ValArray` and `MatrixArray` to represent efficiently 1D, 2D and 3D arrays. `ValArray` implements basic efficient storage of such structures and the basic operations, while `MatrixArray` allows to represent 3D arrays as arrays of mathematical matrices and invoke different mathematical operations on the arrays of matrices: multiplication, transpose, hermitian transpose, etc. `MatrixArray` can use Eigen to perform computationally complex operations.
+* (core) Added several macros in **warnings.h** to silence compiler warnings in specific sections of code. Their use is discouraged, unless really necessary.
+* (lr-wpan) Added beacon payload handle support (MLME-SET.request) in  **LrWpanMac**.
+* (lr-wpan) `LrWpanPhy::SetRxSensitivity` now supports the setting of Rx sensitivity.
+* (lr-wpan) `LrWpanNetDevice::SetPanAssociation` is introduced to create more complex topologies (multi-hop) using a manual association.
+* (netanim) Added a helper function to update the size of a node
+* (network) Added class `TimestampTag` for associating a timestamp with a packet.
+* (spectrum) A new fast-fading model `TwoRaySpectrumPropagationLossModel` has been added. This model serves as a performance-oriented alternative to the `ThreeGppSpectrumPropagationLossModel` and `ThreeGppChannelModel` classes, and it has been designed with the goal of providing end-to-end channel samples which are statistically close to the ones generated by the latter.
+* (wifi) Added a new attribute **NMaxInflights** to QosTxop to set the maximum number of links on which an MPDU can be simultaneously in-flight.
+* (wifi) New API has been introduced to support 802.11be Multi-Link Operations (MLO)
+* (wifi) New API has been introduced to support 802.11ax dual NAV, UL MU CS, and MU-RTS/CTS features
+* (wifi) Added a new attribute **TrackSignalsFromInactiveInterfaces** to SpectrumWifiPhy to select whether it should track signals from inactive spectrum PHY interfaces.
+
+### Changes to existing API
+
+* (antenna, spectrum) `ComplexVector` definition has changed. Its API is implemented in `MatrixArray`. Some functions such as `push_back` and `resize` are not supported any more. On the other hand, the size initialization through constructor and access operator[] are maintained. Instead of `size ()` users can call `GetSize()`.
+* (internet) TCP Westwood model has been removed due to a bug in BW estimation documented in <https://gitlab.com/nsnam/ns-3-dev/-/issues/579>. The TCP Westwood+ model is now named **TcpWestwoodPlus** and can be instantiated like all the other TCP flavors.
+* (internet) `TcpCubic` attribute `HyStartDetect` changed from `int` to `enum HybridSSDetectionMode`.
+* (internet-apps) Added class `Ping` for a ping model that works for both IPv4 and IPv6.  Classes `v4Ping` and `Ping6` will be deprecated and removed in the future, replaced by the new `Ping` class.
+* (lr-wpan) Added file `src/lr-wpan/model/lr-wpan-constants.h` with common constants of the LR-WPAN module.
+* (lr-wpan) Removed the functions `LrWpanCsmaCa::GetUnitBackoffPeriod()` and `LrWpanCsmaCa::SetUnitBackoffPeriod()`, and moved the constant `m_aUnitBackoffPeriod` to `src/lr-wpan/model/lr-wpan-constants.h`.
+* (lr-wpan) `LrWpanHelper::CreateAssociatedPan` replace `LrWpanHelper::AssociateToPan` and is able to create an associated PAN of the devices with both short addresses (16-bits) and extended addresses (EUI-64 bits).
+* (wifi) `SpectrumWifiPhy::SetChannel` has been renamed to `SpectrumWifiPhy::AddChannel` and has one additional parameter (optional) to indicate the frequency range that is covered by the provided spectrum channel. By default, the whole wifi spectrum channel is considered.
+* The `WifiSpectrumHelper::SetChannel` functions used for MLO do no longer take a link ID parameter, but instead takes the frequency range covered by the spectrum channel and have been renamed to `WifiSpectrumHelper::AddChannel`. The remaining `WifiSpectrumHelper::SetChannel` functions assume the whole wifi spectrum range is used by the spectrum channel.
+
+### Changes to build system
+
+* Added NinjaTracing support.
+* Check if the ccache version is equal or higher than 4.0 before enabling precompiled headers.
+* Improved bindings search for linked libraries and their include directories.
+* Added `./ns3 distclean` option. It removes the same build artifacts as `./ns3 clean`, along with documentation, python and test artifacts.
+
+### Changed behavior
+
+* (applications) **UdpClient** and **UdpEchoClient** MaxPackets attribute is aligned with other applications, in that the value zero means infinite packets.
+* (network) **Ipv4Address** and **Ipv6Address** now do not raise an exception if built from an invalid string. Instead the address is marked as not initialized.
+* (tests) The test runner test.py will exit if no TestSuite is specified.
+* (wifi) Control frames (specifically, BlockAckRequest and MU-BAR Trigger Frames) are stored in the wifi MAC queue and no longer in a dedicated BlockAckManager queue
+* (wifi) BSSIDs are no longer hashed by the ApInfo comparator because it may lead to different results on different platforms
+
+## Changes from ns-3.36 to ns-3.37
+
+### New API
+
+* (internet) In `src/internet`, several changes were made to enable auto-generated neighbor caches:
+  * A new helper (NeighborCacheHelper) was added to set up auto-generated neighbor cache.
+  * New NUD_STATE `STATIC_AUTOGENERATED`  was added to help the user manage auto-generated entries in Arp cache and Ndisc cache.
+  * Add new callbacks RemoveAddressCallback and AddAddressCallback to dynamically update neighbor cache during addresses are removed/added.
+  * Add NeighborCacheTestSuite to test auto-generated neighbor cache.
+* (lr-wpan) Adds support for **LrWpanMac** devices association.
+* (lr-wpan) Adds support for **LrWpanMac** energy detection (ED) scan.
+* (lr-wpan) Adds support for **LrWpanMac** active and passive scan.
+* (lr-wpan) Adds support for channel paging to the **LrWpanPhy** (only placeholder, a single modulation/band is currently supported).
+* (lr-wpan) Add **LrWpanMac** packet traces and queue limits to Tx queue and Ind Tx queue.
+* (propagation) Add O2I Low/High Building Penetration Losses in 3GPP propagation loss model (`ThreeGppPropagationLossModel`) according to **3GPP TR 38.901 7.4.3.1**. Currently, UMa, UMi and RMa scenarios are supported.
+* (wifi) Added a new attribute **MaxTbPpduDelay** in HeConfiguration for configuring the maximum delay with which a TB PPDU can arrive at the AP after the first TB PPDU in order to be decoded properly. If the delay is higher than **MaxTbPpduDelay**, the TB PPDU is discarded and treated as interference.
+* (wifi) Added new methods (**ConfigHtOptions**, **ConfigVhtOptions**, **ConfigHeOptions** and **ConfigEhtOptions**) to `WifiHelper` to configure HT/VHT/HE/EHT options listed as attributes of the respective Configuration classes through the wifi helper.
+* (wifi) Added new attributes (**AccessReqInterval**, **AccessReqAc** and **DelayAccessReqUponAccess**) to the MultiUserScheduler to allow a wifi AP to coordinate UL MU transmissions even without DL traffic.
+* `(wifi) WifiNetDevice` has a new **Phys** attribute, which is primarily intended to select a specific PHY object of an 11be multi-link device when using path names.
+* (wifi) `Txop` class has new attributes (**MinCws**, **MaxCws**, **Aifsns** and **TxopLimits**) to set minimum CW, maximum CW, AIFSN and TXOP limit for all the links of a multi-link device.
+* (wifi) `WifiPhyListener::NotifyMaybeCcaBusyStart` has been renamed to `WifiPhyListener::NotifyCcaBusyStart` and has two additional parameters: the channel type that indicates for which subchannel the CCA-BUSY is reported and a vector of CCA-BUSY durations for each 20 MHz subchannel. A duration of zero indicates CCA is IDLE, and the vector of CCA-BUSY durations is not empty if the PHY supports 802.11ax and the operational channel width is larger than 20 MHz.
+* (wifi) Added a new attribute **CcaSensitivity** in WifiPhy for configuring the threshold that corresponds to the minimum received power of a PPDU, that occupies the primary channel, should have to report a CCA-BUSY indication.
+* (wifi) Added a new attribute **SecondaryCcaSensitivityThresholds** in VhtConfiguration for configuring the thresholds that corresponds to the minimum received power of a PPDU, that does not occupy the primary 20 MHz channel, should have to report a CCA-BUSY indication. This is made of a tuple, where the first threshold is used for 20 MHz PPDUs, the second one is used for 40 MHz PPDUs and the third one is used for 80 MHz PPDUs.
+* (wifi) Added two new trace sources to `StaWifiMac`: **LinkSetupCompleted**, which is fired when a link is setup in the context of an 11be ML setup, and **LinkSetupCanceled**, which is fired when the setup of a link is terminated. Both sources provide the ID of the setup link and the MAC address of the corresponding AP.
+
+### Changes to existing API
+
+* (lr-wpan) Replace **LrWpanMac** Tx Queue and Ind Tx Queue pointers for smart pointers.
+* (lr-wpan) Adds supporting structures used by **LrWpanMac** (PAN descriptor, Command Payload Header, Capability Field).
+* (lr-wpan) Add supporting association structures: parameters, callbacks and the pending transaction list to **LrWpanMac**.
+* (wifi) The **TxopTrace** trace source of wifi `QosTxop` now has an additional argument (the third one) indicating the ID of the link the TXOP refers to (for non-MLDs, this value is zero).
+* (wifi) The maximum allowed channel width (in MHz) for a data transmission is passed to the **GetDataTxVector** method of the `WifiRemoteStationManager`.
+* (wifi) The **WifiMacQueueItem** class has been renamed as **WifiMpdu**.
+* (wifi) The **Assoc** and **DeAssoc** trace sources of `StaWifiMac` provide the AP MLD address in case (de)association takes place between a non-AP MLD and an AP MLD.
 
 ### Changes to build system
 
 * Replaced the Pybindgen python bindings framework with Cppyy.
 * Enabled precompiled headers (`NS3_PRECOMPILE_HEADERS`) by default when CCache is found.
-* Added a `./ns3 show targets` option to list buildable/runnable targets.
+* Added the `./ns3 show targets` option to list buildable/runnable targets.
+* Added the `./ns3 show (all)` option to list a summary of the current settings.
 * Replaced `./ns3 --check-config` with `./ns3 show config`.
 * Replaced `./ns3 --check-profile` with `./ns3 show profile`.
 * Replaced `./ns3 --check-version` with `./ns3 show version`.
+* Added the `build_exec` macro to declare new executables.
+* Replaced Python-based .ns3rc with a CMake-based version.
+* Deprecated .ns3rc files will be updated to the new CMake-based format and a backup will be placed alongside it.
+* Added the `./ns3 configure --filter-module-examples-and-tests='module1;module2'` option, which can be used to filter out examples and tests that do not use the listed modules.
+* Deprecated symlinks in the build/ directory in favor of stub headers.
+* Added support for faster linkers `lld` and `mold`. These will be used if found. The order of priority is: `mold` > `lld` > default linker.
+* Added support for Windows using the Msys2/MinGW64 toolchain (supports both Unix-like Bash shell shipped with Msys2 and native shells such as CMD and PowerShell).
+* Added new `./ns3 run` options for profilers: `--memray` and `--heaptrack` for memory profiling of Python scripts and C++ programs, respectively, and `--perf` for performance profiling on Linux.
 
 ### Changed behavior
 
-* Lr-wpan: **LrWpanPhy** now change to TRX_OFF after a CSMA-CA failure when the RxOnWhenIdle flag is set to false in the **LrWpanMac**.
-* The **Channel** attribute of `WifiNetDevice` is deprecated because it became ambiguous with the introduction of multiple links per device. The **Channel** attribute of `WifiPhy` can be used instead.
+* (internet) IPv6 Router Solicitations (RS) are now retransmitted up to 4 times, following RFC 5779.
+* (lr-wpan) **LrWpanPhy** now change to TRX_OFF after a CSMA-CA failure when the RxOnWhenIdle flag is set to false in the **LrWpanMac**.
+* (lr-wpan) Pan Id compression is now possible in **LrWpanMac** when transmitting data frames. i.e. When src and dst pan ID are the same, only one PanId is used, making the MAC header 2 bytes smaller. See IEEE 802.15.4-2006 (7.5.6.1).
+* (lte) Support for four types of UE handover failure are now modeled:
+  * A HO failure is triggered if eNB cannot allocate non-contention-based preamble.
+  * Handover joining timeout is now handled.
+  * Handover leaving timeout is now handled.
+  * Upon RACH failure during HO, the UE will perform cell selection again.
+* (network) `Mac(8|16|48|64)Address` address allocation pool is now reset between consecutive runs.
+* (propagation) The O2I Low/High Building Penetration Losses will add losses in the pathloss calculation when buildings are present and a UE results to be in O2I state. In order to not consider these losses, they can be disabled by setting BuildingPenetrationLossesEnabled to false.
+* (wifi) The **Channel** attribute of `WifiNetDevice` is deprecated because it became ambiguous with the introduction of multiple links per device. The **Channel** attribute of `WifiPhy` can be used instead.
 
-Changes from ns-3.36 to ns-3.36.1
----------------------------------
+## Changes from ns-3.36 to ns-3.36.1
 
 ### New API
 
@@ -78,8 +612,7 @@ The build system API has not changed since ns-3.36.  Several bugs were fixed and
 
 Apart from the bugs fixed (listed in the RELEASE_NOTES), the simulation model behavior should not have changed since ns-3.36.
 
-Changes from ns-3.35 to ns-3.36
--------------------------------
+## Changes from ns-3.35 to ns-3.36
 
 ### New API
 
@@ -117,8 +650,7 @@ Changes from ns-3.35 to ns-3.36
 * NixVectorRouting: `NixVectorRouting` can now better cope with topology changes. In-flight packets are not anymore causing crashes, and the path is dynamically rebuilt by intermediate routers (this happens only to packets in-flight during the topology change).
 * Mesh (Wi-Fi) forwarding hops now have a configurable random variable-based forwarding delay model, with a default mean of 350 us.
 
-Changes from ns-3.34 to ns-3.35
--------------------------------
+## Changes from ns-3.34 to ns-3.35
 
 ### New API
 
@@ -149,8 +681,7 @@ Changes from ns-3.34 to ns-3.35
 * Wi-Fi: A-MSDU aggregation now implies that constituent MSDUs are immediately dequeued from the EDCA queue and replaced by an MPDU containing the A-MSDU. Thus, aggregating N MSDUs triggers N dequeue operations and 1 enqueue operation on the EDCA queue.
 * Wi-Fi: MPDUs being passed to the PHY layer for transmission are not dequeued, but are kept in the EDCA queue until they are acknowledged or discarded. Consequently, the BlockAckManager retransmit queue has been removed.
 
-Changes from ns-3.33 to ns-3.34
--------------------------------
+## Changes from ns-3.33 to ns-3.34
 
 ### New features and API
 
@@ -188,9 +719,9 @@ Changes from ns-3.33 to ns-3.34
 * The **wifi BCC AWGN error rate tables** have been aligned with the ones provided by MATLAB and users may note a few dB difference when using BCC at high SNR and high MCS.
 * **`ThreeGppChannelModel` has been fixed**: cluster and sub-cluster angles could have been generated with inclination angles outside the inclination range `[0, pi]`, and have now been constrained to the correct range.
 * The **LTE RLC Acknowledged Mode (AM) transmit buffer** is now limited by default to a size of (`1024 * 10`) bytes. Configuration of unlimited behavior can still be made by passing the value of zero to the new attribute `MaxTxBufferSize`.
+* A **non-AP MLD loses association** when receiving no beacon an any link link for an interval of duration equal to the maximum number of missed beacons times the interval between two consecutive Beacon frames.
 
-Changes from ns-3.32 to ns-3.33
--------------------------------
+## Changes from ns-3.32 to ns-3.33
 
 ### New API
 
@@ -225,8 +756,7 @@ Changes from ns-3.32 to ns-3.33
 * TCP now implements the Linux-like **congestion window reduced (CWR)** state when explicit congestion notification (ECN) is enabled.
 * `TcpDctcp` now inherits from `TcpLinuxReno`, making its congestion avoidance track more closely to that of Linux.
 
-Changes from ns-3.31 to ns-3.32
--------------------------------
+## Changes from ns-3.31 to ns-3.32
 
 ### New API
 
@@ -265,8 +795,7 @@ Changes from ns-3.31 to ns-3.32
 * WifiPhy forwards up MPDUs from an A-MPDU under reception as long as they arrive at the PHY, instead of forwarding up the whole A-MPDU once its reception is completed.
 * The ns-3 TCP model was changed to set the initial congestion window to 10 segments instead of 1 segment (to align with default Linux configuration).
 
-Changes from ns-3.30 to ns-3.31
--------------------------------
+## Changes from ns-3.30 to ns-3.31
 
 ### New API
 
@@ -317,11 +846,10 @@ Changes from ns-3.30 to ns-3.31
 * (as reported above) previously the `Config::Connect` and `Config::Set` families of functions would fail silently if the attribute or trace source didn't exist on the path given (typically due to spelling errors). Now those functions will throw a fatal error. If you need the old behavior use the new `...FailSafe ()` variants.
 * Attempting to deserialize an enum name which wasn't registered with `MakeEnumChecker` now causes a fatal error, rather failing silently. (This can be triggered by setting an enum Attribute from a StringValue.)
 * As a result of the above API changes in `MobilityBuildingInfo` and `BuildingsHelper` classes, a building aware pathloss models, e.g., `HybridBuildingsPropagationLossModel` is now able to accurately compute the pathloss for a node moving in and out of buildings in a simulation. See [issue 80](https://gitlab.com/nsnam/ns-3-dev/issues/80) for discussion.
-* The implementation of the **Wi-Fi channel access** functions has been improved to make them more conformant to the IEEE 802.11-2016 standard. Concerning the DCF, the backoff procedure is no longer invoked when a packet is queued for transmission and the medium has not been idle for a DIFS, but it is invoked if the medium is busy or does not remain idle for a DIFS after the packet has been queued. Concerning the EDCAF, tranmissions are now correctly aligned at slot boundaries.
+* The implementation of the **Wi-Fi channel access** functions has been improved to make them more conformant to the IEEE 802.11-2016 standard. Concerning the DCF, the backoff procedure is no longer invoked when a packet is queued for transmission and the medium has not been idle for a DIFS, but it is invoked if the medium is busy or does not remain idle for a DIFS after the packet has been queued. Concerning the EDCAF, transmissions are now correctly aligned at slot boundaries.
 * Various wifi physical layer behavior around channel occupancy calculation, phy state calculation, and handling different channel widths has been updated.
 
-Changes from ns-3.29 to ns-3.30
--------------------------------
+## Changes from ns-3.29 to ns-3.30
 
 ### New API
 
@@ -331,7 +859,7 @@ Changes from ns-3.29 to ns-3.30
 * A new attribute `WifiPhy::PostReceptionErrorModel` has been added to force specific packet drops.
 * A new attribute `WifiPhy::PreambleDetectionModel` has been added to decide whether PHY preambles are successfully detected.
 * New attributes `QosTxop::AddBaResponseTimeout` and `QosTxop::FailedAddBaTimeout` have been added to set the timeout to wait for an ADDBA response after the ACK to the ADDBA request is received and to set the timeout after a failed BA agreement, respectively.
-* A new attribute `QosTxop::UseExpliciteBarAfterMissedBlockAck` has been added to specify whether explicit Block Ack Request should be sent upon missed Block Ack Response.
+* A new attribute `QosTxop::UseExplicitBarAfterMissedBlockAck` has been added to specify whether explicit Block Ack Request should be sent upon missed Block Ack Response.
 * Added a new trace source `EndOfHePreamble` in WifiPhy for tracing end of preamble (after training fields) for received 802.11ax packets.
 * Added a new helper method to SpectrumWifiPhyHelper and YansWifiPhyHelper to set the **frame capture model**.
 * Added a new helper method to SpectrumWifiPhyHelper and YansWifiPhyHelper to set the **preamble detection model**.
@@ -352,7 +880,7 @@ Changes from ns-3.29 to ns-3.30
 * It is now possible to know the size of the SpectrumValue underlying std::vector, as well as accessing read-only every element of it.
 * The `GetClosestSide` method of the Rectangle class returns the correct closest side also for positions outside the rectangle.
 * The trace sources `BackoffTrace` and `CwTrace` were moved from class QosTxop to base class Txop, allowing these values to be traced for DCF operation. In addition, the trace signature for BackoffTrace was changed from TracedValue to TracedCallback (callback taking one argument instead of two). Most users of CwTrace for QosTxop configurations will not need to change existing programs, but users of BackoffTrace will need to adjust the callback signature to match.
-* New trace sources, namely `DrbCreated`, `Srb1Created` and `DrbCreated` have beed implemented in LteEnbRrc and LteUeRrc classes repectively. These new traces are used to improve the connection of the RLC and PDCP stats in the RadioBearerStatsConnector API.
+* New trace sources, namely `DrbCreated`, `Srb1Created` and `DrbCreated` have been implemented in LteEnbRrc and LteUeRrc classes respectively. These new traces are used to improve the connection of the RLC and PDCP stats in the RadioBearerStatsConnector API.
 * `TraceFadingLossModel` has been moved from lte to spectrum module.
 
 ### Changes to build system
@@ -380,10 +908,10 @@ Changes from ns-3.29 to ns-3.30
 * New `ATTACH_REQUEST` state to wait for finalization of the S1 signalling with the core network.
 * New InitialContextSetupRequest primitive of the S1 SAP that is received by the eNB RRC when the S1 signalling from the core network is finished.
 
-* A new buffer has been introduced in the LteEnbRrc class. This buffer will be used by a target eNB during handover to buffer the packets comming from a source eNB on X2 inteface. The target eNB will buffer this data until it receives RRC Connection Reconfiguration Complete from a UE.
+* A new buffer has been introduced in the LteEnbRrc class. This buffer will be used by a target eNB during handover to buffer the packets coming from a source eNB on X2 interface. The target eNB will buffer this data until it receives RRC Connection Reconfiguration Complete from a UE.
 * The default qdisc installed on single-queue devices (such as PointToPoint, Csma and Simple) is now `FqCoDel` (instead of PfifoFast). On multi-queue devices (such as Wifi), the default root qdisc is now `Mq` with as many FqCoDel child qdiscs as the number of device queues. The new defaults are motivated by the willingness to align with the behavior of major Linux distributions and by the need to preserve the effectiveness of Wifi EDCA Functions in differentiating Access Categories (see issue #35).
 * LTE RLC TM mode does not report anymore the layer-to-layer delay, as it misses (by standard) an header to which attach the timestamp tag. Users can switch to the PDCP layer delay measurements, which must be the same.
-* Token Bank Fair Queue Scheduler (`ns3::FdTbfqFfMacScheduler`) will not anymore schedule a UE, which does not have any RBG left after removng the RBG from its allocation map if the computed TB size is greater than the "budget" computed in the scheduler.
+* Token Bank Fair Queue Scheduler (`ns3::FdTbfqFfMacScheduler`) will not anymore schedule a UE, which does not have any RBG left after removing the RBG from its allocation map if the computed TB size is greater than the "budget" computed in the scheduler.
 * LTE module now supports the **Radio Link Failure (RLF)** functionality. This implementation introduced following key behavioral changes:
   * The UE RRC state will not remain in `CONNECTED_NORMALLY` state if the DL control channel SINR is below a set threshold.
   * The LTE RRC protocol APIs of UE i.e., LteUeRrcProtocolIdeal, LteUeRrcProtocolReal have been extended to send an ideal (i.e., using SAPs instead to transmitting over the air) UE context remove request to the eNB. Similarly, the eNB RRC protocol APIs, i.e, LteEnbRrcProtocolIdeal and LteEnbRrcProtocolReal have been extended to receive this ideal UE context remove request.
@@ -392,8 +920,7 @@ Changes from ns-3.29 to ns-3.30
   * The RachConfigCommon structure in LteRrcSap API has been extended to include `TxFailParam`. This new field would enable an eNB to indicate how many times T300 timer can expire at the UE. Upon reaching this count, the UE aborts the connection establishment, and performs the cell selection again. See TS 36.331 5.3.3.6.
 * The timer T300 in LteUeRrc class is now bounded by the standard min and max values defined in 3GPP TS 36.331.
 
-Changes from ns-3.28 to ns-3.29
--------------------------------
+## Changes from ns-3.28 to ns-3.29
 
 ### New API
 
@@ -470,8 +997,7 @@ Changes from ns-3.28 to ns-3.29
 * The maximum size UDP packet of the UdpClient application is no longer limited to 1500 bytes.
 * The default values of the `MaxSlrc` and `FragmentationThreshold` attributes in WifiRemoteStationManager were changed from 7 to 4 and from 2346 to 65535, respectively.
 
-Changes from ns-3.27 to ns-3.28
--------------------------------
+## Changes from ns-3.27 to ns-3.28
 
 ### New API
 
@@ -502,8 +1028,7 @@ Changes from ns-3.27 to ns-3.28
 * The CsmaNetDevice::PhyTxBeginTrace will trace all attempts to transmit, even those that result in drops. Previously, eventual channel drops were excluded from this trace.
 * The TCP congestion window trace now does not report on window inflation during fast recovery phase because it is no longer internally maintained as an inflated value (a separate trace called CongestionWindowInflated can be used to recover the old trace behavior).
 
-Changes from ns-3.26 to ns-3.27
--------------------------------
+## Changes from ns-3.26 to ns-3.27
 
 ### New API
 
@@ -518,12 +1043,12 @@ Changes from ns-3.26 to ns-3.27
 * A new standard value has been added that enables the new 11ax data rates.
 * A new 11ax preamble has been added.
 * A new attribute was added to configure the guard interval duration for High Efficiency (HE) PHY entities. This attribute can be set using the YansWifiPhyHelper.
-* A new information element has been added: HeCapabilities. This information element is added to the MAC frame header if the node is a HE node. This HeCapabilites information element is used to advertise the HE capabilities of the node to other nodes in the network.
+* A new information element has been added: HeCapabilities. This information element is added to the MAC frame header if the node is a HE node. This HeCapabilities information element is used to advertise the HE capabilities of the node to other nodes in the network.
 * A new class were added for the RRPAA WiFi rate control mechanism.
 * Included carrier aggregation feature in LTE module
 
 * LTE model is extended to support carrier aggregation feature according to 3GPP Release 10, for up to 5 component carriers.
-* InstallSingleEnbDevice and InstalSingeUeDevice functions of LteHelper are now constructing LteEnbDevice and LteUeDevice according to CA architecture. Each device, UE and eNodeB contains an instance of component carrier manager, and may have several component carrier instances.
+* InstallSingleEnbDevice and InstallSingleUeDevice functions of LteHelper are now constructing LteEnbDevice and LteUeDevice according to CA architecture. Each device, UE and eNodeB contains an instance of component carrier manager, and may have several component carrier instances.
 * SAP interfaces are extended to include CA message exchange functionality.
 * RRC connection procedure is extended to allow RRC connection reconfiguration for the configuration of the secondary carriers.
 * RRC measurement reporting is extended to allow measurement reporting from the secondary carriers.
@@ -579,8 +1104,7 @@ Changes from ns-3.26 to ns-3.27
 * The default value of the `EnableBeaconJitter` attribute in ApWifiMac was changed from false to true.
 * The NormalClose() callback of a TcpSocket object used to fire upon leaving `TIME_WAIT` state (`2*MSL` after FINs have been exchanged). It now fires upon entering `TIME_WAIT` state. Timing of the callback for the other path to state CLOSED (through `LAST_ACK`) has not been changed.
 
-Changes from ns-3.25 to ns-3.26
--------------------------------
+## Changes from ns-3.25 to ns-3.26
 
 ### New API
 
@@ -615,8 +1139,7 @@ This section is for behavioral changes to the models that were not due to a bug 
 * The relationship between Wi-Fi channel number, frequency, channel width, and Wi-Fi standard has been revised (see bug 2412). Previously, ChannelNumber and Frequency were attributes of class YansWifiPhy, and the frequency was defined as the start of the band. Now, Frequency has been redefined to be the center frequency of the channel, and the underlying device relies on the pair of frequency and channel width to control behavior; the channel number and Wi-Fi standard are used as attributes to configure frequency and channel width. The wifi module documentation discusses this change and the new behavior.
 * AODV now honors the TTL in RREQ/RREP and it uses a method compliant with [RFC 3561](http://www.ietf.org/rfc/rfc3561.txt). The node search radius is increased progressively. This could increase slightly the node search time, but it also decreases the network congestion.
 
-Changes from ns-3.24 to ns-3.25
--------------------------------
+## Changes from ns-3.24 to ns-3.25
 
 ### New API
 
@@ -666,8 +1189,7 @@ This section is for behavioral changes to the models that were not due to a bug 
 * 802.11n/ac MPDU aggregation is now enabled by default for both `AC_BE` and `AC_VI`.
 * The introduction of the traffic control layer leads to some additional buffering by default in the stack; when a device queue fills up, additional packets become enqueued at the traffic control layer.
 
-Changes from ns-3.23 to ns-3.24
--------------------------------
+## Changes from ns-3.23 to ns-3.24
 
 ### New API
 
@@ -675,7 +1197,7 @@ Changes from ns-3.23 to ns-3.24
 * A new helper (VhtWifiMacHelper) was added to set up a Very high throughput (VHT) MAC entity.
 * A new standard value has been added that enables the new 11ac data rates.
 * A new 11ac preamble has been added.
-* A new information element has been added: VhtCapabilities. This information element is added to the MAC frame header if the node is a VHT node. This VhtCapabilites information element is used to advertise the VHT capabilities of the node to other nodes in the network.
+* A new information element has been added: VhtCapabilities. This information element is added to the MAC frame header if the node is a VHT node. This VhtCapabilities information element is used to advertise the VHT capabilities of the node to other nodes in the network.
 * The ArpCache API was extended to allow the manual removal of ArpCache entries and the addition of permanent (static) entries for IPv4.
 * The SimpleChannel in the `network` module now allows per-NetDevice blacklists, in order to do hidden terminal testcases.
 
@@ -699,8 +1221,7 @@ Changes from ns-3.23 to ns-3.24
 
 This section is for behavioral changes to the models that were not due to a bug fix.
 
-Changes from ns-3.22 to ns-3.23
--------------------------------
+## Changes from ns-3.22 to ns-3.23
 
 ### New API
 
@@ -724,8 +1245,7 @@ This section is for behavioral changes to the models that were not due to a bug 
 * In Wi-Fi, HT stations (802.11n) now support two-level aggregation. The InterferenceHelper now distinguishes between the PLCP and regular payload reception, for higher fidelity modeling. ACKs are now sent using legacy rates and preambles. Access points now establish BSSBasicRateSet for control frame transmissions. PLCP header and PLCP payload reception have been decoupled to improve PHY layer modeling accuracy. RTS/CTS with A-MPDU is now fully supported.
 * The mesh module was made more compliant to the IEEE 802.11s-2012 standard and packet traces are now parseable by Wireshark.
 
-Changes from ns-3.21 to ns-3.22
--------------------------------
+## Changes from ns-3.21 to ns-3.22
 
 ### New API
 
@@ -761,14 +1281,13 @@ This section is for behavioral changes to the models that were not due to a bug 
 * The `LrWpanHelper` object was previously instantiating only a `LogDistancePropagationLossModel` on a `SingleModelSpectrumChannel`, but no `PropagationDelayModel`. The constructor now adds by default a `ConstantSpeedPropagationDelayModel`.
 * The Nix-vector routing implementation now uses a lazy flush mechanism, which dramatically speeds up the creation of large topologies.
 
-Changes from ns-3.20 to ns-3.21
--------------------------------
+## Changes from ns-3.20 to ns-3.21
 
 ### New API
 
 * New `const double& SpectrumValue::operator[] (size_t index) const`.
 * A new TraceSource has been added to TCP sockets: SlowStartThreshold.
-* New method CommandLine::AddValue (name, attibutePath) to provide a shorthand argument `name` for the Attribute `path`. This also has the effect of including the help string for the Attribute in the Usage message.
+* New method CommandLine::AddValue (name, attributePath) to provide a shorthand argument `name` for the Attribute `path`. This also has the effect of including the help string for the Attribute in the Usage message.
 * The GSoC 2014 project in the LTE module has brought some additional APIs:
   * a new abstract class LteFfrAlgorithm, which every future implementation of frequency reuse algorithm should inherit from
   * a new SAPs: one between MAC Scheduler and FrAlgorithm, one between RRC and FrAlgorithm
@@ -810,8 +1329,7 @@ Changes from ns-3.20 to ns-3.21
 
 * Behavior will be changed due to the list of bugs fixed (listed in [RELEASE_NOTES.md](RELEASE_NOTES.md)); users are requested to review that list as well.
 
-Changes from ns-3.19 to ns-3.20
--------------------------------
+## Changes from ns-3.19 to ns-3.20
 
 ### New API
 
@@ -841,8 +1359,7 @@ Changes from ns-3.19 to ns-3.20
 * IPv4 identification field value is now dependent on the protocol field.
 * Point-to-point trace sources now contain PPP headers
 
-Changes from ns-3.18.1 to ns-3.19
----------------------------------
+## Changes from ns-3.18.1 to ns-3.19
 
 ### New API
 
@@ -879,10 +1396,9 @@ Changes from ns-3.18.1 to ns-3.19
 * For the TapBridge device, in UseLocal mode there is a MAC learning function. TapBridge has been waiting for the first packet received from tap interface to set the address of the bridged device to the source address of the first packet. This has caused problems with WiFi. The new behavior is that after connection to the tap interface, ns-3 learns the MAC address of that interface with a system call and immediately sets the address of the bridged device to the learned one. See [bug 1777](https://www.nsnam.org/bugzilla/show_bug.cgi?id=1777) for more details.
 * TapBridge device now correctly implements IsLinkUp() method.
 * IPv6 addresses and routing tables are printed like in Linux `route -A inet6` command.
-* A change in `Ipv[4,6]Interface` enforces the correct behaviour of IP when a device do not support the minimum MTU requirements. This is set to 68 and 1280 octects respectively. IP simulations that may have run over devices with smaller MTUs than 68 or 1280, respectively, will no longer be able to use such devices.
+* A change in `Ipv[4,6]Interface` enforces the correct behaviour of IP when a device do not support the minimum MTU requirements. This is set to 68 and 1280 octets respectively. IP simulations that may have run over devices with smaller MTUs than 68 or 1280, respectively, will no longer be able to use such devices.
 
-Changes from ns-3.18 to ns-3.18.1
----------------------------------
+## Changes from ns-3.18 to ns-3.18.1
 
 ### New API
 
@@ -904,8 +1420,7 @@ Changes from ns-3.18 to ns-3.18.1
 
 * Wifi simulations have additional jitter on AP beaconing (see above) and some bug fixes have been applied to wifi module (see [RELEASE_NOTES.md](RELEASE_NOTES.md))
 
-Changes from ns-3.17 to ns-3.18
--------------------------------
+## Changes from ns-3.17 to ns-3.18
 
 ### New API
 
@@ -919,8 +1434,8 @@ Changes from ns-3.17 to ns-3.18
   * New attributes were added to help the user setup a High Throughput (HT) PHY entity. These attributes can be set using the YansWifiPhyHelper
   * A new standard value has been added that enables the new 11n data rates.
   * New 11n preambles has been added (Mixed format and greenfield). To be able to change Tx duration according to the preamble used, a new class TxVector has been added to carry the transmission parameters (mode, preamble, stbc,..). Several functions have been updated to allow the passage of TxVector instead of WifiMode in MacLow, WifiRemoteStationManager, WifiPhy, YansWifiPhy,..
-  * A new information element has been added: HTCapabilities. This information element is added to the MAC frame header if the node is an HT node. This HTCapabilites information element is used to advertise the HT capabilities of the node to other nodes in the network
-* InternetStackHelper has two new functions:SetIpv4ArpJitter (bool enable) and SetIpv6NsRsJitter (bool enable) to enable/disable the random jitter on the tranmission of IPv4 ARP Request and IPv6 NS/RS.
+  * A new information element has been added: HTCapabilities. This information element is added to the MAC frame header if the node is an HT node. This HTCapabilities information element is used to advertise the HT capabilities of the node to other nodes in the network
+* InternetStackHelper has two new functions:SetIpv4ArpJitter (bool enable) and SetIpv6NsRsJitter (bool enable) to enable/disable the random jitter on the transmission of IPv4 ARP Request and IPv6 NS/RS.
 * Bounds on valid time inputs for time attributes can now be enabled. See attribute-test-suite.cc for an example.
 * New generic hash function interface provided in the simulation core. Two hash functions are provided: murmur3 (default), and the venerable FNV1a. See the Hash Functions section in the ns-3 manual.
 * New Mac16Address has been added. It can be used with IPv6 to make an Autoconfigured address.
@@ -963,8 +1478,7 @@ Changes from ns-3.17 to ns-3.18
 * IPv4's ARP Request and IPv6's NS/RS are now transmitted with a random delay. The delay is, by default, a uniform random variable in time between 0 and 10ms. This is aimed at preventing reception errors due to collisions during wifi broadcasts when the sending behavior is synchronized (e.g. due to applications starting at the same time on several different nodes). This behaviour can be modified by using ArpL3Protocol's `RequestJitter` and Icmpv6L4Protocol's `SolicitationJitter` attributes or by using the new `InternetStackHelper` functions.
 * AODV Hellos are disabled by default. The performance with Hellos enabled and disabled are almost identical. With Hellos enabled, AODV will suppress hellos from transmission, if any recent broadcast such as RREQ was transmitted. The attribute n`s3::aodv::RoutingProtocol::EnableHello` can be used to enable/disable Hellos.
 
-Changes from ns-3.16 to ns-3.17
--------------------------------
+## Changes from ns-3.16 to ns-3.17
 
 ### New API
 
@@ -988,7 +1502,7 @@ Changes from ns-3.16 to ns-3.17
 * New DSR API
   * Added PassiveBuffer class to save maintenance packet entry for passive acknowledgment option
   * Added FindSourceEntry function in RreqTable class to keep track of route request entry received from same source node
-  * Added NotifyDataReciept function in DsrRouting class to notify the data receipt of the next hop from link layer. This is used for the link layer acknowledgment.
+  * Added NotifyDataReceipt function in DsrRouting class to notify the data receipt of the next hop from link layer. This is used for the link layer acknowledgment.
 * New Tag, PacketSocketTag, to carry the destination address of a packet and the packet type
 * New Tag, DeviceNameTag, to carry the ns-3 device name from where a packet is coming
 * New Error Model, BurstError model, to determine which bursts of packets are errored corresponding to an underlying distribution, burst rate, and burst size
@@ -1022,7 +1536,7 @@ Changes from ns-3.16 to ns-3.17
     * LteEnbPhy new methods GetLteEnbCphySapProvider, SetLteEnbCphySapUser, GetDlSpectrumPhy, GetUlSpectrumPhy, CreateSrsReport
     * LteEnbPhy methods DoSendMacPdu, DoSetTransmissionMode, DoSetSrsConfigurationIndex, DoGetMacChTtiDelay, DoSendLteControlMessage, AddUePhy, DeleteUePhy made private
     * LteEnbPhySapProvider removed methods SetBandwidth, SetTransmissionMode, SetSrsConfigurationIndex, SetCellId
-    * LteEnbPhySapUser added methods ReceiveRachPreamble, UlInfoListElementHarqFeeback, DlInfoListElementHarqFeeback
+    * LteEnbPhySapUser added methods ReceiveRachPreamble, UlInfoListElementHarqFeedback, DlInfoListElementHarqFeedback
     * LtePdcp added methods (Set/Get)Status
     * LtePdcp DoTransmitRrcPdu renamed DoTransmitPdcpSdu
     * LteUeRrc new enum State. New methods SetLteUeCphySapProvider, GetLteUeCphySapUser, SetLteUeRrcSapUser, GetLteUeRrcSapProvider, GetState, GetDlEarfcn, GetDlBandwidth, GetUlBandwidth, GetCellId, SetUseRlcSm . GetRnti made const.
@@ -1054,8 +1568,7 @@ Changes from ns-3.16 to ns-3.17
 
 * DSR link layer notification has changed. The model originally used `TxErrHeader` in Ptr to indicate the transmission error of a specific packet in link layer; however, it was not working correctly. The model now uses a different path to implement the link layer notification mechanism; specifically, looking into the trace file to find packet receive events. If the model finds one receive event for the data packet, it is used as the indicator for successful data delivery.
 
-Changes from ns-3.15 to ns-3.16
--------------------------------
+## Changes from ns-3.15 to ns-3.16
 
 ### New API
 
@@ -1082,8 +1595,7 @@ Changes from ns-3.15 to ns-3.16
 * Sending a packet through Ipv4RawSocket now supports checksum in the Ipv4Header. It is still not possible to manually put in arbitrary checksum as the checksum is automatically calculated at Ipv4L3Protocol. The user has to enable checksum globally for this to work. Simply calling Ipv4Header::EnableChecksum() for a single Ipv4Header will not work.
 * Now MultiModelSpectrumChannel allows a SpectrumPhy instance to change SpectrumModel at runtime by issuing a call to MultiModelSpectrumChannel::AddRx (). Previously, MultiModelSpectrumChannel required each SpectrumPhy instance to stick with the same SpectrumModel for the whole simulation.
 
-Changes from ns-3.14 to ns-3.15
--------------------------------
+## Changes from ns-3.14 to ns-3.15
 
 ### New API
 
@@ -1102,8 +1614,7 @@ Changes from ns-3.14 to ns-3.15
 
 * Programs using random variables or models that include random variables may exhibit changed output for a given run number or seed, due to a possible change in the order in which random variables are assigned to underlying pseudo-random sequences. Consult the manual for more information regarding this.
 
-Changes from ns-3.13 to ns-3.14
--------------------------------
+## Changes from ns-3.13 to ns-3.14
 
 ### New API
 
@@ -1170,8 +1681,7 @@ Changes from ns-3.13 to ns-3.14
   [*] Added --useIpv6 flag to switch between IPv4 and IPv6
   ```
 
-Changes from ns-3.12 to ns-3.13
--------------------------------
+## Changes from ns-3.12 to ns-3.13
 
 ### Changes to build system
 
@@ -1228,8 +1738,7 @@ Changes from ns-3.12 to ns-3.13
   * TcpNewReno supports limited transmit (RFC3042) if asserting boolean attribute `ns3::TcpNewReno::LimitedTransmit`
   * Nagle's algorithm supported. Default off, turn on by calling `TcpSocket::SetTcpNoDelay(true)`
 
-Changes from ns-3.11 to ns-3.12
--------------------------------
+## Changes from ns-3.11 to ns-3.12
 
 ### Changes to build system
 
@@ -1250,8 +1759,7 @@ Changes from ns-3.11 to ns-3.12
 
 * IPv4 fragmentation is now supported.
 
-Changes from ns-3.10 to ns-3.11
--------------------------------
+## Changes from ns-3.10 to ns-3.11
 
 ### Changes to build system
 
@@ -1259,13 +1767,13 @@ Changes from ns-3.10 to ns-3.11
 
   You can now make examples and tests be built in ns-3 in two ways.
 
-  1. Using `build.py` when ns-3 is built for the first time:
+  * Using `build.py` when ns-3 is built for the first time:
 
     ```shell
     ./build.py --enable-examples --enable-tests
     ```
 
-  2. Using `waf` once ns-3 has been built:
+  * Using `waf` once ns-3 has been built:
 
     ```shell
     ./waf configure --enable-examples --enable-tests
@@ -1328,8 +1836,7 @@ Changes from ns-3.10 to ns-3.11
 * If the data inside the TCP buffer is less than the available window, TCP tries to ask for more data to the application, in the hope of filling the usable transmission window. In some cases, this change allows sending bigger packets than the previous versions, optimizing the transmission.
 * In TCP, the ACK is now processed before invoking any routine that deals with the segment sending, except in case of retransmissions.
 
-Changes from ns-3.9 to ns-3.10
-------------------------------
+## Changes from ns-3.9 to ns-3.10
 
 ### Changes to build system
 
@@ -1399,8 +1906,7 @@ Changes from ns-3.9 to ns-3.10
 
   As part of the TCP socket refactoring, a new TCP implementation provides slightly different behavior than the previous TcpSocketImpl that provided only fast retransmit. The default behavior now is NewReno which provides fast retransmit and fast recovery with window inflation during recovery.
 
-Changes from ns-3.8 to ns-3.9
------------------------------
+## Changes from ns-3.8 to ns-3.9
 
 ### Changes to build system
 
@@ -1472,8 +1978,7 @@ Changes from ns-3.8 to ns-3.9
 * **Drop trace logged for Ipv4/6 forwarding failure:** Fixed bug 861; this will add ascii traces (drops) in Ipv4 and Ipv6 traces for forwarding failures
 * **Changed default WiFi error rate model for OFDM modulation types:** Adopted more conservative ErrorRateModel for OFDM modulation types (a/g). This will require 4 to 5 more dB of received power to get similar results as before, so users may observe a reduced WiFi range when using the defaults. See tracker issue 944 for more details.
 
-Changes from ns-3.7 to ns-3.8
------------------------------
+## Changes from ns-3.7 to ns-3.8
 
 ### Changes to build system
 
@@ -1489,7 +1994,7 @@ Changes from ns-3.7 to ns-3.8
 * **MPI Interface for distributed simulation:** Enables access to necessary MPI information such as MPI rank and size.
 * **Point-to-point remote channel:** Enables point-to-point connection between net-devices on different simulators, for use with distributed simulation.
 * **GetSystemId in simulator:** For use with distributed simulation, GetSystemId returns zero by non-distributed simulators. For the distributed simulator, it returns the MPI rank.
-* **Enhancements to src/core/random-variable.cc/h:** New Zeta random variable generator. The Zeta random distribution is tightly related to the Zipf distribution (already in ns-3.7). See the documentation, especially because sometimes the Zeta distribution is called Zipf and viceversa. Here we conform to the Wikipedia naming convention, i.e., Zipf is bounded while Zeta isn't.
+* **Enhancements to src/core/random-variable.cc/h:** New Zeta random variable generator. The Zeta random distribution is tightly related to the Zipf distribution (already in ns-3.7). See the documentation, especially because sometimes the Zeta distribution is called Zipf and vice-versa. Here we conform to the Wikipedia naming convention, i.e., Zipf is bounded while Zeta isn't.
 * **Two-ray ground propagation loss model:** Calculates the crossover distance under which Friis is used. The antenna height is set to the nodes z coordinate, but can be added to using the model parameter SetHeightAboveZ, which will affect ALL stations
 * **Pareto random variable** has two new constructors to specify scale and shape:
 
@@ -1579,8 +2084,7 @@ Changes from ns-3.7 to ns-3.8
 
 * None for this release.
 
-Changes from ns-3.6 to ns-3.7
------------------------------
+## Changes from ns-3.6 to ns-3.7
 
 ### Changes to build system
 
@@ -1714,8 +2218,7 @@ Changes from ns-3.6 to ns-3.7
 * Default TTL of IPv4 broadcast datagrams changed from 1 to 64.
 * Changed DcfManager::UpdateBackoff (): using flooring instead of rounding in calculation of remaining slots. [See bug 695.](http://www.nsnam.org/bugzilla/show_bug.cgi?id=695)
 
-Changes from ns-3.5 to ns-3.6
------------------------------
+## Changes from ns-3.5 to ns-3.6
 
 ### Changes to build system
 
@@ -1805,8 +2308,7 @@ Changes from ns-3.5 to ns-3.6
 
   Now each NetDevice subclasses have a `TracedCallback<>` object (list of callbacks) instead of `Callback<void>` ones.
 
-Changes from ns-3.4 to ns-3.5
------------------------------
+## Changes from ns-3.4 to ns-3.5
 
 ### Changes to build system
 
@@ -2064,8 +2566,7 @@ Changes from ns-3.4 to ns-3.5
 
 * None for this release.
 
-Changes from ns-3.3 to ns-3.4
------------------------------
+## Changes from ns-3.3 to ns-3.4
 
 ### Changes to build system
 
@@ -2097,8 +2598,7 @@ Changes from ns-3.3 to ns-3.4
 
 * The tracing system rework has introduced some significant changes in the behavior of some trace sources, specifically in the positioning of trace sources in the device code. For example, there were cases where the packet transmit trace source was hit before the packet was enqueued on the device transmit quueue. This now happens just before the packet is transmitted over the channel medium. The scope of the changes is too large to be included here. If you have concerns regarding trace semantics, please consult the net device documentation for details. As is usual, the ultimate source for documentation is the net device source code.
 
-Changes from ns-3.2 to ns-3.3
------------------------------
+## Changes from ns-3.2 to ns-3.3
 
 ### New API
 
@@ -2117,7 +2617,7 @@ Changes from ns-3.2 to ns-3.3
   * return type of `SetDataSentCallback ()` changed from `bool` to `void`
   * `Socket::Listen()` no longer takes a queueLimit argument
 * As part of the Wifi Phy rework, there have been several API changes at the low level and helper API level.
-* At the helper API level, the `WifiHelper` was split to three classes: a `WifiHelper`, a YansWifiChan`nel helper, and a`YansWifiPhy` helper. Some functions like Ascii and Pcap tracing functions were moved from class `WifiHelper` to class `YansWifiPhyHelper`.
+* At the helper API level, the `WifiHelper` was split to three classes: a `WifiHelper`, a `YansWifiChannel` helper, and a `YansWifiPhy` helper. Some functions like Ascii and Pcap tracing functions were moved from class `WifiHelper` to class `YansWifiPhyHelper`.
 * At the low-level API, there have been a number of changes to make the Phy more modular:
 * `composite-propagation-loss-model.h` is removed
 * `DcfManager::NotifyCcaBusyStartNow()` has changed name
@@ -2138,8 +2638,7 @@ Changes from ns-3.2 to ns-3.3
 * 17-11-2008; changeset [756887a9bbea](http://code.nsnam.org/ns-3-dev/rev/756887a9bbea)
 * Global routing supports bridge devices.
 
-Changes from ns-3.1 to ns-3.2
------------------------------
+## Changes from ns-3.1 to ns-3.2
 
 ### New API
 

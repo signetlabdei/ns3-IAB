@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2010 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #include "ns3tcp-socket-writer.h"
@@ -41,9 +30,9 @@ using namespace ns3;
 NS_LOG_COMPONENT_DEFINE("Ns3SocketTest");
 
 /**
- * \ingroup system-tests-tcp
+ * @ingroup system-tests-tcp
  *
- * \brief Tests of TCP implementations from the application/socket perspective
+ * @brief Tests of TCP implementations from the application/socket perspective
  * using point-to-point links.
  */
 class Ns3TcpSocketTestCaseP2P : public TestCase
@@ -61,9 +50,9 @@ class Ns3TcpSocketTestCaseP2P : public TestCase
 
     /**
      * Receive a TCP packet.
-     * \param path The callback context (unused).
-     * \param p The received packet.
-     * \param address The sender's address (unused).
+     * @param path The callback context (unused).
+     * @param p The received packet.
+     * @param address The sender's address (unused).
      */
     void SinkRx(std::string path, Ptr<const Packet> p, const Address& address);
 
@@ -123,7 +112,7 @@ Ns3TcpSocketTestCaseP2P::DoRun()
                           InetSocketAddress(Ipv4Address::GetAny(), sinkPort));
     ApplicationContainer apps = sink.Install(n1);
     // Start the sink application at time zero, and stop it at sinkStopTime
-    apps.Start(Seconds(0.0));
+    apps.Start(Seconds(0));
     apps.Stop(sinkStopTimeObj);
 
     Config::Connect("/NodeList/*/ApplicationList/*/$ns3::PacketSink/Rx",
@@ -166,9 +155,9 @@ Ns3TcpSocketTestCaseP2P::DoRun()
 }
 
 /**
- * \ingroup system-tests-tcp
+ * @ingroup system-tests-tcp
  *
- * \brief Tests of TCP implementations from the application/socket perspective
+ * @brief Tests of TCP implementations from the application/socket perspective
  * using CSMA links.
  */
 class Ns3TcpSocketTestCaseCsma : public TestCase
@@ -186,9 +175,9 @@ class Ns3TcpSocketTestCaseCsma : public TestCase
 
     /**
      * Receive a TCP packet.
-     * \param path The callback context (unused).
-     * \param p The received packet.
-     * \param address The sender's address (unused).
+     * @param path The callback context (unused).
+     * @param p The received packet.
+     * @param address The sender's address (unused).
      */
     void SinkRx(std::string path, Ptr<const Packet> p, const Address& address);
 
@@ -252,7 +241,7 @@ Ns3TcpSocketTestCaseCsma::DoRun()
                           InetSocketAddress(Ipv4Address::GetAny(), sinkPort));
     ApplicationContainer apps = sink.Install(n1);
     // Start the sink application at time zero, and stop it at sinkStopTime
-    apps.Start(Seconds(0.0));
+    apps.Start(Seconds(0));
     apps.Stop(sinkStopTimeObj);
 
     Config::Connect("/NodeList/*/ApplicationList/*/$ns3::PacketSink/Rx",
@@ -298,7 +287,7 @@ Ns3TcpSocketTestCaseCsma::DoRun()
 }
 
 /**
- * \ingroup system-tests-tcp
+ * @ingroup system-tests-tcp
  *
  * TCP implementations from the application/socket perspective TestSuite.
  */
@@ -309,10 +298,10 @@ class Ns3TcpSocketTestSuite : public TestSuite
 };
 
 Ns3TcpSocketTestSuite::Ns3TcpSocketTestSuite()
-    : TestSuite("ns3-tcp-socket", SYSTEM)
+    : TestSuite("ns3-tcp-socket", Type::SYSTEM)
 {
-    AddTestCase(new Ns3TcpSocketTestCaseP2P, TestCase::QUICK);
-    AddTestCase(new Ns3TcpSocketTestCaseCsma, TestCase::QUICK);
+    AddTestCase(new Ns3TcpSocketTestCaseP2P, TestCase::Duration::QUICK);
+    AddTestCase(new Ns3TcpSocketTestCaseCsma, TestCase::Duration::QUICK);
 }
 
 /// Do not forget to allocate an instance of this TestSuite.

@@ -1139,6 +1139,11 @@ LteUeRrc::DoRecvRrcConnectionSetup (LteRrcSap::RrcConnectionSetup msg)
       }
       break;
 
+    case CONNECTED_NORMALLY:
+      NS_LOG_WARN ("Ignoring duplicate RrcConnectionSetup: UE IMSI " << m_imsi
+                   << " is already connected (CONNECTED_NORMALLY)");
+      break;
+
     default:
       NS_FATAL_ERROR ("method unexpected in state " << ToString (m_state));
       break;
@@ -1720,7 +1725,7 @@ LteUeRrc::CopyRlcBuffers (Ptr<LteRlc> rlc, Ptr<LtePdcp> pdcp, uint16_t lcid)
                              << " Size = " << txonBufferSize);
 
           Ptr<Packet> segmentedRlcsdu = rlcAm->GetSegmentedRlcsdu ();
-          if (segmentedRlcsdu != NULL)
+          if (segmentedRlcsdu)
             {
               segmentedRlcsdu->PeekHeader (pdcpHeader);
               NS_LOG_DEBUG (this << "UE RRC: SegmentedRlcSdu = " << segmentedRlcsdu->GetSize ()
@@ -1741,7 +1746,7 @@ LteUeRrc::CopyRlcBuffers (Ptr<LteRlc> rlc, Ptr<LtePdcp> pdcp, uint16_t lcid)
           for (std::vector<Ptr<Packet>>::iterator it = rlcAmTxedSduBuffer.begin ();
                it != rlcAmTxedSduBuffer.end (); ++it)
             {
-              if ((*it) != NULL)
+              if ((*it))
                 {
                   (*it)->PeekHeader (pdcpHeader);
                   NS_LOG_DEBUG ("UE RRC: rlcAmTxedSduBuffer SEQ = "

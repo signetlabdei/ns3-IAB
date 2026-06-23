@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2007 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -62,6 +51,11 @@ RandomDirection2dMobilityModel::GetTypeId()
 RandomDirection2dMobilityModel::RandomDirection2dMobilityModel()
 {
     m_direction = CreateObject<UniformRandomVariable>();
+}
+
+RandomDirection2dMobilityModel::~RandomDirection2dMobilityModel()
+{
+    m_event.Cancel();
 }
 
 void
@@ -117,23 +111,36 @@ RandomDirection2dMobilityModel::SetDirectionAndSpeed(double direction)
 void
 RandomDirection2dMobilityModel::ResetDirectionAndSpeed()
 {
-    double direction = m_direction->GetValue(0, M_PI);
+    double direction = 0;
 
     m_helper.UpdateWithBounds(m_bounds);
     Vector position = m_helper.GetCurrentPosition();
-    switch (m_bounds.GetClosestSide(position))
+    switch (m_bounds.GetClosestSideOrCorner(position))
     {
-    case Rectangle::RIGHT:
+    case Rectangle::RIGHTSIDE:
+        direction = m_direction->GetValue(M_PI_2, M_PI + M_PI_2);
+        break;
+    case Rectangle::LEFTSIDE:
+        direction = m_direction->GetValue(-M_PI_2, M_PI - M_PI_2);
+        break;
+    case Rectangle::TOPSIDE:
+        direction = m_direction->GetValue(M_PI, 2 * M_PI);
+        break;
+    case Rectangle::BOTTOMSIDE:
+        direction = m_direction->GetValue(0, M_PI);
+        break;
+    case Rectangle::TOPRIGHTCORNER:
+        direction = m_direction->GetValue(M_PI, M_PI + M_PI_2);
+        break;
+    case Rectangle::TOPLEFTCORNER:
+        direction = m_direction->GetValue(M_PI + M_PI_2, 2 * M_PI);
+        break;
+    case Rectangle::BOTTOMRIGHTCORNER:
+        direction = m_direction->GetValue(0, M_PI_2);
         direction += M_PI / 2;
         break;
-    case Rectangle::LEFT:
-        direction += -M_PI / 2;
-        break;
-    case Rectangle::TOP:
-        direction += M_PI;
-        break;
-    case Rectangle::BOTTOM:
-        direction += 0.0;
+    case Rectangle::BOTTOMLEFTCORNER:
+        direction = m_direction->GetValue(M_PI_2, M_PI);
         break;
     }
     SetDirectionAndSpeed(direction);

@@ -3,18 +3,7 @@
  * Copyright (c) 2009 MIRKO BANCHI
  * Copyright (c) 2013 University of Surrey
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  *          Mirko Banchi <mk.banchi@gmail.com>
@@ -35,8 +24,8 @@ class SnrTag : public Tag
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
 
@@ -54,13 +43,13 @@ class SnrTag : public Tag
     /**
      * Set the SNR to the given value.
      *
-     * \param snr the value of the SNR to set in linear scale
+     * @param snr the value of the SNR to set in linear scale
      */
     void Set(double snr);
     /**
      * Return the SNR value.
      *
-     * \return the SNR value in linear scale
+     * @return the SNR value in linear scale
      */
     double Get() const;
 

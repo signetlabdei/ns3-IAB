@@ -1,25 +1,14 @@
 /*
  * Copyright (c) 2011 CTTC
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Nicola Baldo <nbaldo@cttc.es>
  */
 
-#include <ns3/isotropic-antenna-model.h>
-#include <ns3/log.h>
-#include <ns3/test.h>
+#include "ns3/isotropic-antenna-model.h"
+#include "ns3/log.h"
+#include "ns3/test.h"
 
 #include <cmath>
 #include <iostream>
@@ -29,23 +18,23 @@
 using namespace ns3;
 
 /**
- * \ingroup antenna-tests
+ * @ingroup antenna-tests
  *
- * \brief IsotropicAntennaModel Test
+ * @brief IsotropicAntennaModel Test
  */
 class IsotropicAntennaModelTestCase : public TestCase
 {
   public:
     /**
      * Build the test name
-     * \param a Antenna angle
-     * \return the test name
+     * @param a Antenna angle
+     * @return the test name
      */
     static std::string BuildNameString(Angles a);
     /**
      * Constructor
-     * \param a Antenna angle
-     * \param expectedGainDb Expected antenna gain
+     * @param a Antenna angle
+     * @param expectedGainDb Expected antenna gain
      */
     IsotropicAntennaModelTestCase(Angles a, double expectedGainDb);
 
@@ -83,9 +72,9 @@ IsotropicAntennaModelTestCase::DoRun()
 }
 
 /**
- * \ingroup antenna-tests
+ * @ingroup antenna-tests
  *
- * \brief IsotropicAntennaModel TestSuite
+ * @brief IsotropicAntennaModel TestSuite
  */
 class IsotropicAntennaModelTestSuite : public TestSuite
 {
@@ -94,18 +83,24 @@ class IsotropicAntennaModelTestSuite : public TestSuite
 };
 
 IsotropicAntennaModelTestSuite::IsotropicAntennaModelTestSuite()
-    : TestSuite("isotropic-antenna-model", UNIT)
+    : TestSuite("isotropic-antenna-model", Type::UNIT)
 {
-    AddTestCase(new IsotropicAntennaModelTestCase(Angles(0, 0), 0.0), TestCase::QUICK);
-    AddTestCase(new IsotropicAntennaModelTestCase(Angles(0, M_PI), 0.0), TestCase::QUICK);
-    AddTestCase(new IsotropicAntennaModelTestCase(Angles(0, M_PI_2), 0.0), TestCase::QUICK);
-    AddTestCase(new IsotropicAntennaModelTestCase(Angles(M_PI, 0), 0.0), TestCase::QUICK);
-    AddTestCase(new IsotropicAntennaModelTestCase(Angles(M_PI, M_PI), 0.0), TestCase::QUICK);
-    AddTestCase(new IsotropicAntennaModelTestCase(Angles(M_PI, M_PI_2), 0.0), TestCase::QUICK);
-    AddTestCase(new IsotropicAntennaModelTestCase(Angles(M_PI_2, 0), 0.0), TestCase::QUICK);
-    AddTestCase(new IsotropicAntennaModelTestCase(Angles(M_PI_2, M_PI), 0.0), TestCase::QUICK);
-    AddTestCase(new IsotropicAntennaModelTestCase(Angles(M_PI_2, M_PI_2), 0.0), TestCase::QUICK);
-};
+    AddTestCase(new IsotropicAntennaModelTestCase(Angles(0, 0), 0.0), TestCase::Duration::QUICK);
+    AddTestCase(new IsotropicAntennaModelTestCase(Angles(0, M_PI), 0.0), TestCase::Duration::QUICK);
+    AddTestCase(new IsotropicAntennaModelTestCase(Angles(0, M_PI_2), 0.0),
+                TestCase::Duration::QUICK);
+    AddTestCase(new IsotropicAntennaModelTestCase(Angles(M_PI, 0), 0.0), TestCase::Duration::QUICK);
+    AddTestCase(new IsotropicAntennaModelTestCase(Angles(M_PI, M_PI), 0.0),
+                TestCase::Duration::QUICK);
+    AddTestCase(new IsotropicAntennaModelTestCase(Angles(M_PI, M_PI_2), 0.0),
+                TestCase::Duration::QUICK);
+    AddTestCase(new IsotropicAntennaModelTestCase(Angles(M_PI_2, 0), 0.0),
+                TestCase::Duration::QUICK);
+    AddTestCase(new IsotropicAntennaModelTestCase(Angles(M_PI_2, M_PI), 0.0),
+                TestCase::Duration::QUICK);
+    AddTestCase(new IsotropicAntennaModelTestCase(Angles(M_PI_2, M_PI_2), 0.0),
+                TestCase::Duration::QUICK);
+}
 
 /// Static variable for test initialization
 static IsotropicAntennaModelTestSuite g_staticIsotropicAntennaModelTestSuiteInstance;

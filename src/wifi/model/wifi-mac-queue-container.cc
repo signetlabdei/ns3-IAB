@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2021 Universita' degli Studi di Napoli Federico II
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Stefano Avallone <stavallo@unina.it>
  */
@@ -24,6 +13,8 @@
 
 #include "ns3/mac48-address.h"
 #include "ns3/simulator.h"
+
+#include <vector>
 
 namespace ns3
 {
@@ -77,25 +68,44 @@ WifiMacQueueContainer::GetItem(const const_iterator it) const
 WifiContainerQueueId
 WifiMacQueueContainer::GetQueueId(Ptr<const WifiMpdu> mpdu)
 {
-    const WifiMacHeader& hdr = mpdu->GetHeader();
+    // the given MPDU may be an alias and we need its original version to correctly identify the
+    // container queue in which the MPDU is enqueued
+    const auto& hdr = mpdu->GetOriginal()->GetHeader();
+
+    WifiRcvAddr addrType;
+    std::optional<Mac48Address> addr1;
+    std::optional<Mac48Address> addr2;
+
+    if (hdr.GetAddr1().IsBroadcast())
+    {
+        addrType = WifiRcvAddr::BROADCAST;
+        addr2 = hdr.GetAddr2();
+    }
+    else if (hdr.GetAddr1().IsGroup())
+    {
+        addrType = WifiRcvAddr::GROUPCAST;
+        addr1 = hdr.IsQosAmsdu() ? mpdu->begin()->second.GetDestinationAddr() : hdr.GetAddr1();
+        addr2 = hdr.GetAddr2();
+    }
+    else
+    {
+        addrType = WifiRcvAddr::UNICAST;
+        addr1 = hdr.GetAddr1();
+    }
 
     if (hdr.IsCtl())
     {
-        return {WIFI_CTL_QUEUE, hdr.GetAddr2(), std::nullopt};
+        return {WIFI_CTL_QUEUE, addrType, addr1, addr2, std::nullopt};
     }
     if (hdr.IsMgt())
     {
-        return {WIFI_MGT_QUEUE, hdr.GetAddr2(), std::nullopt};
+        return {WIFI_MGT_QUEUE, addrType, addr1, addr2, std::nullopt};
     }
     if (hdr.IsQosData())
     {
-        if (hdr.GetAddr1().IsGroup())
-        {
-            return {WIFI_QOSDATA_BROADCAST_QUEUE, hdr.GetAddr2(), hdr.GetQosTid()};
-        }
-        return {WIFI_QOSDATA_UNICAST_QUEUE, hdr.GetAddr1(), hdr.GetQosTid()};
+        return {WIFI_QOSDATA_QUEUE, addrType, addr1, addr2, hdr.GetQosTid()};
     }
-    return {WIFI_DATA_QUEUE, hdr.GetAddr1(), std::nullopt};
+    return {WIFI_DATA_QUEUE, addrType, addr1, addr2, std::nullopt};
 }
 
 const WifiMacQueueContainer::ContainerQueue&
@@ -124,8 +134,8 @@ std::pair<WifiMacQueueContainer::iterator, WifiMacQueueContainer::iterator>
 WifiMacQueueContainer::DoExtractExpiredMpdus(ContainerQueue& queue) const
 {
     std::optional<std::pair<WifiMacQueueContainer::iterator, WifiMacQueueContainer::iterator>> ret;
-    iterator firstExpiredIt = queue.begin();
-    iterator lastExpiredIt = firstExpiredIt;
+    auto firstExpiredIt = queue.begin();
+    auto lastExpiredIt = firstExpiredIt;
     Time now = Simulator::Now();
 
     do
@@ -161,14 +171,16 @@ WifiMacQueueContainer::DoExtractExpiredMpdus(ContainerQueue& queue) const
             ++lastExpiredIt;
         }
 
-        if (lastExpiredIt != firstExpiredIt)
+        if (lastExpiredIt == firstExpiredIt)
         {
-            // transfer non-inflight MPDUs with expired lifetime to the tail of m_expiredQueue
-            m_expiredQueue.splice(m_expiredQueue.end(), queue, firstExpiredIt, lastExpiredIt);
-            ret->second = m_expiredQueue.end();
+            break;
         }
 
-    } while (lastExpiredIt != firstExpiredIt);
+        // transfer non-inflight MPDUs with expired lifetime to the tail of m_expiredQueue
+        m_expiredQueue.splice(m_expiredQueue.end(), queue, firstExpiredIt, lastExpiredIt);
+        ret->second = m_expiredQueue.end();
+
+    } while (true);
 
     return *ret;
 }
@@ -198,6 +210,59 @@ WifiMacQueueContainer::GetAllExpiredMpdus() const
     return {m_expiredQueue.begin(), m_expiredQueue.end()};
 }
 
+std::ostream&
+operator<<(std::ostream& os, WifiContainerQueueType queueType)
+{
+    switch (queueType)
+    {
+    case WIFI_CTL_QUEUE:
+        return os << "CTL_QUEUE";
+    case WIFI_MGT_QUEUE:
+        return os << "MGT_QUEUE";
+    case WIFI_QOSDATA_QUEUE:
+        return os << "QOSDATA_QUEUE";
+    case WIFI_DATA_QUEUE:
+        return os << "DATA_QUEUE";
+    }
+    return os << "UNKNOWN(" << static_cast<uint16_t>(queueType) << ")";
+}
+
+std::ostream&
+operator<<(std::ostream& os, WifiRcvAddr rcvAddrType)
+{
+    switch (rcvAddrType)
+    {
+    case WifiRcvAddr::UNICAST:
+        return os << "UNICAST";
+    case WifiRcvAddr::BROADCAST:
+        return os << "BROADCAST";
+    case WifiRcvAddr::GROUPCAST:
+        return os << "GROUPCAST";
+    case WifiRcvAddr::COUNT:
+        return os << "COUNT";
+    }
+    return os << "UNKNOWN(" << static_cast<uint16_t>(rcvAddrType) << ")";
+}
+
+std::ostream&
+operator<<(std::ostream& os, const WifiContainerQueueId& queueId)
+{
+    os << "{" << queueId.type << ", " << queueId.addrType;
+    if (const auto& addr1 = queueId.addr1)
+    {
+        os << ", addr1=" << addr1.value();
+    }
+    if (const auto& addr2 = queueId.addr2)
+    {
+        os << ", addr2=" << addr2.value();
+    }
+    if (const auto& tid = queueId.tid)
+    {
+        os << ", tid=" << +tid.value();
+    }
+    return os << "}";
+}
+
 } // namespace ns3
 
 /****************************************************
@@ -207,17 +272,27 @@ WifiMacQueueContainer::GetAllExpiredMpdus() const
 std::size_t
 std::hash<ns3::WifiContainerQueueId>::operator()(ns3::WifiContainerQueueId queueId) const
 {
-    auto [type, address, tid] = queueId;
-    const std::size_t size = tid.has_value() ? 8 : 7;
-
-    uint8_t buffer[size];
-    buffer[0] = type;
-    address.CopyTo(buffer + 1);
-    if (tid.has_value())
+    std::vector<uint8_t> buffer;
+    buffer.reserve(1 + 1 + 6 + 6 + 1); // reserve the maximum possible size of the buffer
+    buffer.emplace_back(queueId.type);
+    buffer.emplace_back(static_cast<uint8_t>(queueId.addrType));
+    if (queueId.addr1.has_value())
     {
-        buffer[7] = *tid;
+        const auto size = buffer.size();
+        buffer.resize(size + 6);
+        queueId.addr1.value().CopyTo(&buffer[size]);
+    }
+    if (queueId.addr2.has_value())
+    {
+        const auto size = buffer.size();
+        buffer.resize(size + 6);
+        queueId.addr2.value().CopyTo(&buffer[size]);
+    }
+    if (queueId.tid.has_value())
+    {
+        buffer.emplace_back(*queueId.tid);
     }
 
-    std::string s(buffer, buffer + size);
+    std::string s(buffer.begin(), buffer.end());
     return std::hash<std::string>{}(s);
 }

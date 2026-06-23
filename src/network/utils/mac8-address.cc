@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Leonard Tracy <lentracy@gmail.com>
  */
@@ -30,11 +19,6 @@ NS_LOG_COMPONENT_DEFINE("Mac8Address");
 
 uint8_t Mac8Address::m_allocationIndex = 0;
 
-Mac8Address::Mac8Address()
-{
-    m_address = 255;
-}
-
 Mac8Address::Mac8Address(uint8_t addr)
     : m_address(addr)
 {
@@ -47,7 +31,7 @@ Mac8Address::~Mac8Address()
 uint8_t
 Mac8Address::GetType()
 {
-    static uint8_t type = Address::Register();
+    static uint8_t type = Address::Register("MacAddress", 1);
     return type;
 }
 
@@ -72,7 +56,8 @@ Mac8Address::IsMatchingType(const Address& address)
     return address.CheckCompatible(GetType(), 1);
 }
 
-Mac8Address::operator Address() const
+Mac8Address::
+operator Address() const
 {
     return ConvertTo();
 }
@@ -122,28 +107,10 @@ Mac8Address::ResetAllocationIndex()
     m_allocationIndex = 0;
 }
 
-bool
-operator<(const Mac8Address& a, const Mac8Address& b)
-{
-    return a.m_address < b.m_address;
-}
-
-bool
-operator==(const Mac8Address& a, const Mac8Address& b)
-{
-    return a.m_address == b.m_address;
-}
-
-bool
-operator!=(const Mac8Address& a, const Mac8Address& b)
-{
-    return !(a == b);
-}
-
 std::ostream&
 operator<<(std::ostream& os, const Mac8Address& address)
 {
-    os << (int)address.m_address;
+    os << static_cast<uint32_t>(address.m_address);
     return os;
 }
 

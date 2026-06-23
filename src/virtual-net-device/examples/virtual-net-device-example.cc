@@ -1,16 +1,5 @@
 /*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Based on simple-global-routing.cc
  * The Tunnel class adds two tunnels, n0<=>n3 and n1<=>n3
@@ -58,7 +47,7 @@ using namespace ns3;
 NS_LOG_COMPONENT_DEFINE("VirtualNetDeviceExample");
 
 /**
- * \ingroup virtual-net-device
+ * @ingroup virtual-net-device
  *
  * Tunnel class - its goal is to create and manage the tunnels between endpoints.
  */
@@ -77,11 +66,11 @@ class Tunnel
 
     /**
      * Send a packet through the N0 VirtualNetDevice
-     * \param packet Packet to send
-     * \param source Source IPv4 address
-     * \param dest Destination IPv4 address
-     * \param protocolNumber Protocol number
-     * \return true (always)
+     * @param packet Packet to send
+     * @param source Source IPv4 address
+     * @param dest Destination IPv4 address
+     * @param protocolNumber Protocol number
+     * @return true (always)
      */
     bool N0VirtualSend(Ptr<Packet> packet,
                        const Address& source,
@@ -95,11 +84,11 @@ class Tunnel
 
     /**
      * Send a packet through the N1 VirtualNetDevice
-     * \param packet Packet to send
-     * \param source Source IPv4 address
-     * \param dest Destination IPv4 address
-     * \param protocolNumber Protocol number
-     * \return true (always)
+     * @param packet Packet to send
+     * @param source Source IPv4 address
+     * @param dest Destination IPv4 address
+     * @param protocolNumber Protocol number
+     * @return true (always)
      */
     bool N1VirtualSend(Ptr<Packet> packet,
                        const Address& source,
@@ -113,11 +102,11 @@ class Tunnel
 
     /**
      * Send a packet through the N3 VirtualNetDevice
-     * \param packet Packet to send
-     * \param source Source IPv4 address
-     * \param dest Destination IPv4 address
-     * \param protocolNumber Protocol number
-     * \return true (always)
+     * @param packet Packet to send
+     * @param source Source IPv4 address
+     * @param dest Destination IPv4 address
+     * @param protocolNumber Protocol number
+     * @return true (always)
      */
     bool N3VirtualSend(Ptr<Packet> packet,
                        const Address& source,
@@ -139,7 +128,7 @@ class Tunnel
 
     /**
      * Receive a packet on the N3 VirtualNetDevice
-     * \param socket Receiving socket
+     * @param socket Receiving socket
      */
     void N3SocketRecv(Ptr<Socket> socket)
     {
@@ -154,7 +143,7 @@ class Tunnel
 
     /**
      * Receive a packet on the N0 VirtualNetDevice
-     * \param socket Receiving socket
+     * @param socket Receiving socket
      */
     void N0SocketRecv(Ptr<Socket> socket)
     {
@@ -169,7 +158,7 @@ class Tunnel
 
     /**
      * Receive a packet on the N1 VirtualNetDevice
-     * \param socket Receiving socket
+     * @param socket Receiving socket
      */
     void N1SocketRecv(Ptr<Socket> socket)
     {
@@ -185,12 +174,12 @@ class Tunnel
   public:
     /**
      * Constructor
-     * \param n3 Pointer of Node 3
-     * \param n0 Pointer of Node 0
-     * \param n1 Pointer of Node 1
-     * \param n3Addr IPv4 address of Node 3
-     * \param n0Addr IPv4 address of Node 0
-     * \param n1Addr IPv4 address of Node 1
+     * @param n3 Pointer of Node 3
+     * @param n0 Pointer of Node 0
+     * @param n1 Pointer of Node 1
+     * @param n3Addr IPv4 address of Node 3
+     * @param n0Addr IPv4 address of Node 0
+     * @param n1Addr IPv4 address of Node 1
      */
     Tunnel(Ptr<Node> n3,
            Ptr<Node> n0,
@@ -325,21 +314,21 @@ main(int argc, char* argv[])
                       Address(InetSocketAddress(Ipv4Address("11.0.0.254"), port)));
     onoff.SetConstantRate(DataRate("448kb/s"));
     ApplicationContainer apps = onoff.Install(c.Get(0));
-    apps.Start(Seconds(1.0));
-    apps.Stop(Seconds(10.0));
+    apps.Start(Seconds(1));
+    apps.Stop(Seconds(10));
 
     // Create a packet sink to receive these packets
     PacketSinkHelper sink("ns3::UdpSocketFactory",
                           Address(InetSocketAddress(Ipv4Address::GetAny(), port)));
     apps = sink.Install(c.Get(3));
-    apps.Start(Seconds(1.0));
+    apps.Start(Seconds(1));
     // apps.Stop (Seconds (10.0));
 
     // Create a similar flow from n3 to n1, starting at time 1.1 seconds
     onoff.SetAttribute("Remote", AddressValue(InetSocketAddress(Ipv4Address("11.0.0.1"), port)));
     apps = onoff.Install(c.Get(3));
     apps.Start(Seconds(1.1));
-    apps.Stop(Seconds(10.0));
+    apps.Stop(Seconds(10));
 
     // Create a packet sink to receive these packets
     apps = sink.Install(c.Get(1));

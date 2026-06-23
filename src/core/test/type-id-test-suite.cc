@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2012 Lawrence Livermore National Laboratory
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Peter D. Barnes, Jr. <pdbarnes@llnl.gov>
  */
@@ -31,22 +20,22 @@
 
 using namespace ns3;
 
-/// \return A const string used to build the test name.
+/// @return A const string used to build the test name.
 const std::string suite("type-id: ");
 
 /**
- * \file
- * \ingroup typeid-tests
+ * @file
+ * @ingroup typeid-tests
  * TypeId test suite
  */
 
 /**
- * \ingroup core-tests
- * \defgroup typeid-tests TypeId class tests
+ * @ingroup core-tests
+ * @defgroup typeid-tests TypeId class tests
  */
 
 /**
- * \ingroup typeid-tests
+ * @ingroup typeid-tests
  *
  * Test for uniqueness of all TypeIds.
  */
@@ -59,10 +48,8 @@ class UniqueTypeIdTestCase : public TestCase
   private:
     void DoRun() override;
 
-    enum
-    {
-        HashChainFlag = 0x80000000
-    };
+    /// Hash chaining flag, copied from type-id.cc:IidManager
+    static constexpr auto HASH_CHAIN_FLAG{0x80000000};
 };
 
 UniqueTypeIdTestCase::UniqueTypeIdTestCase()
@@ -93,7 +80,7 @@ UniqueTypeIdTestCase::DoRun()
     {
         const TypeId tid = TypeId::GetRegistered(i);
         std::cout << suite << "" << std::setw(6) << tid.GetUid();
-        if (tid.GetHash() & HashChainFlag)
+        if (tid.GetHash() & HASH_CHAIN_FLAG)
         {
             std::cout << "  chain";
         }
@@ -108,9 +95,9 @@ UniqueTypeIdTestCase::DoRun()
                               TypeId::LookupByName(tid.GetName()).GetUid(),
                               "LookupByName returned different TypeId for " << tid.GetName());
 
-        // Mask off HashChainFlag in this test, since tid might have been chained
-        NS_TEST_ASSERT_MSG_EQ((tid.GetHash() & (~HashChainFlag)),
-                              (hasher.clear().GetHash32(tid.GetName()) & (~HashChainFlag)),
+        // Mask off HASH_CHAIN_FLAG in this test, since tid might have been chained
+        NS_TEST_ASSERT_MSG_EQ((tid.GetHash() & (~HASH_CHAIN_FLAG)),
+                              (hasher.clear().GetHash32(tid.GetName()) & (~HASH_CHAIN_FLAG)),
                               "TypeId .hash and Hash32 (.name) unequal for " << tid.GetName());
 
         NS_TEST_ASSERT_MSG_EQ(tid.GetUid(),
@@ -122,7 +109,7 @@ UniqueTypeIdTestCase::DoRun()
 }
 
 /**
- * \ingroup typeid-tests
+ * @ingroup typeid-tests
  *
  * Collision test.
  */
@@ -135,10 +122,8 @@ class CollisionTestCase : public TestCase
   private:
     void DoRun() override;
 
-    enum
-    {
-        HashChainFlag = 0x80000000
-    };
+    /// Hash chaining flag, copied from type-id.cc:IidManager
+    static constexpr auto HASH_CHAIN_FLAG{0x80000000};
 };
 
 CollisionTestCase::CollisionTestCase()
@@ -167,14 +152,14 @@ CollisionTestCase::DoRun()
     TypeId t2(t2Name);
 
     // Check that they are alphabetical: t1 name < t2 name
-    NS_TEST_ASSERT_MSG_EQ((t1.GetHash() & HashChainFlag),
+    NS_TEST_ASSERT_MSG_EQ((t1.GetHash() & HASH_CHAIN_FLAG),
                           0,
-                          "First and lesser TypeId has HashChainFlag set");
+                          "First and lesser TypeId has HASH_CHAIN_FLAG set");
     std::cout << suite << "collision: first,lesser  not chained: OK" << std::endl;
 
-    NS_TEST_ASSERT_MSG_NE((t2.GetHash() & HashChainFlag),
+    NS_TEST_ASSERT_MSG_NE((t2.GetHash() & HASH_CHAIN_FLAG),
                           0,
-                          "Second and greater TypeId does not have HashChainFlag set");
+                          "Second and greater TypeId does not have HASH_CHAIN_FLAG set");
     std::cout << suite << "collision: second,greater    chained: OK" << std::endl;
 
     // Register colliding types in reverse alphabetical order
@@ -188,14 +173,14 @@ CollisionTestCase::DoRun()
     TypeId t4(t4Name);
 
     // Check that they are alphabetical: t3 name > t4 name
-    NS_TEST_ASSERT_MSG_NE((t3.GetHash() & HashChainFlag),
+    NS_TEST_ASSERT_MSG_NE((t3.GetHash() & HASH_CHAIN_FLAG),
                           0,
-                          "First and greater TypeId does not have HashChainFlag set");
+                          "First and greater TypeId does not have HASH_CHAIN_FLAG set");
     std::cout << suite << "collision: first,greater     chained: OK" << std::endl;
 
-    NS_TEST_ASSERT_MSG_EQ((t4.GetHash() & HashChainFlag),
+    NS_TEST_ASSERT_MSG_EQ((t4.GetHash() & HASH_CHAIN_FLAG),
                           0,
-                          "Second and lesser TypeId has HashChainFlag set");
+                          "Second and lesser TypeId has HASH_CHAIN_FLAG set");
     std::cout << suite << "collision: second,lesser not chained: OK" << std::endl;
 
     /** TODO Extra credit:  register three types whose hashes collide
@@ -205,7 +190,7 @@ CollisionTestCase::DoRun()
 }
 
 /**
- * \ingroup typeid-tests
+ * @ingroup typeid-tests
  *
  * Class used to test deprecated Attributes.
  */
@@ -231,8 +216,8 @@ class DeprecatedAttribute : public Object
     }
 
     /**
-     * \brief Get the type ID.
-     * \return The object TypeId.
+     * @brief Get the type ID.
+     * @return The object TypeId.
      */
     static TypeId GetTypeId()
     {
@@ -252,7 +237,7 @@ class DeprecatedAttribute : public Object
                               IntegerValue(1),
                               MakeIntegerAccessor(&DeprecatedAttribute::m_attr),
                               MakeIntegerChecker<int>(),
-                              TypeId::DEPRECATED,
+                              TypeId::SupportLevel::DEPRECATED,
                               "use 'attribute' instead")
                 // Obsolete attribute, as an example
                 .AddAttribute("obsoleteAttribute",
@@ -260,7 +245,7 @@ class DeprecatedAttribute : public Object
                               EmptyAttributeValue(),
                               MakeEmptyAttributeAccessor(),
                               MakeEmptyAttributeChecker(),
-                              TypeId::OBSOLETE,
+                              TypeId::SupportLevel::OBSOLETE,
                               "refactor to use 'attribute'")
 
                 // The new trace source
@@ -273,14 +258,14 @@ class DeprecatedAttribute : public Object
                                 "the old trace source",
                                 MakeTraceSourceAccessor(&DeprecatedAttribute::m_trace),
                                 "ns3::TracedValueCallback::Double",
-                                TypeId::DEPRECATED,
+                                TypeId::SupportLevel::DEPRECATED,
                                 "use 'trace' instead")
                 // Obsolete trace source, as an example
                 .AddTraceSource("obsoleteTraceSource",
                                 "the obsolete trace source",
                                 MakeEmptyTraceSourceAccessor(),
                                 "ns3::TracedValueCallback::Void",
-                                TypeId::OBSOLETE,
+                                TypeId::SupportLevel::OBSOLETE,
                                 "refactor to use 'trace'");
 
         return tid;
@@ -288,7 +273,7 @@ class DeprecatedAttribute : public Object
 };
 
 /**
- * \ingroup typeid-tests
+ * @ingroup typeid-tests
  *
  * Check deprecated Attributes and TraceSources.
  */
@@ -321,34 +306,38 @@ DeprecatedAttributeTestCase::DoRun()
     std::cerr << suite << "DeprecatedAttribute TypeId: " << tid.GetUid() << std::endl;
 
     //  Try the lookups
-    struct TypeId::AttributeInformation ainfo;
+    TypeId::AttributeInformation ainfo;
     NS_TEST_ASSERT_MSG_EQ(tid.LookupAttributeByName("attribute", &ainfo),
                           true,
                           "lookup new attribute");
     std::cerr << suite << "lookup new attribute:"
-              << (ainfo.supportLevel == TypeId::SUPPORTED ? "supported" : "error") << std::endl;
+              << (ainfo.supportLevel == TypeId::SupportLevel::SUPPORTED ? "supported" : "error")
+              << std::endl;
 
     NS_TEST_ASSERT_MSG_EQ(tid.LookupAttributeByName("oldAttribute", &ainfo),
                           true,
                           "lookup old attribute");
     std::cerr << suite << "lookup old attribute:"
-              << (ainfo.supportLevel == TypeId::DEPRECATED ? "deprecated" : "error") << std::endl;
+              << (ainfo.supportLevel == TypeId::SupportLevel::DEPRECATED ? "deprecated" : "error")
+              << std::endl;
 
-    struct TypeId::TraceSourceInformation tinfo;
+    TypeId::TraceSourceInformation tinfo;
     Ptr<const TraceSourceAccessor> acc;
     acc = tid.LookupTraceSourceByName("trace", &tinfo);
     NS_TEST_ASSERT_MSG_NE(acc, nullptr, "lookup new trace source");
     std::cerr << suite << "lookup new trace source:"
-              << (tinfo.supportLevel == TypeId::SUPPORTED ? "supported" : "error") << std::endl;
+              << (tinfo.supportLevel == TypeId::SupportLevel::SUPPORTED ? "supported" : "error")
+              << std::endl;
 
     acc = tid.LookupTraceSourceByName("oldTrace", &tinfo);
     NS_TEST_ASSERT_MSG_NE(acc, nullptr, "lookup old trace source");
     std::cerr << suite << "lookup old trace source:"
-              << (tinfo.supportLevel == TypeId::DEPRECATED ? "deprecated" : "error") << std::endl;
+              << (tinfo.supportLevel == TypeId::SupportLevel::DEPRECATED ? "deprecated" : "error")
+              << std::endl;
 }
 
 /**
- * \ingroup typeid-tests
+ * @ingroup typeid-tests
  *
  * Performance test: measure average lookup time.
  */
@@ -363,15 +352,13 @@ class LookupTimeTestCase : public TestCase
     void DoSetup() override;
     /**
      * Report the performance test results.
-     * \param how How the TypeId is searched (name or hash).
-     * \param delta The time required for the lookup.
+     * @param how How the TypeId is searched (name or hash).
+     * @param delta The time required for the lookup.
      */
     void Report(const std::string how, const uint32_t delta) const;
 
-    enum
-    {
-        REPETITIONS = 100000
-    };
+    /// Number of repetitions
+    static constexpr uint32_t REPETITIONS{100000};
 };
 
 LookupTimeTestCase::LookupTimeTestCase()
@@ -438,7 +425,7 @@ LookupTimeTestCase::Report(const std::string how, const uint32_t delta) const
 }
 
 /**
- * \ingroup typeid-tests
+ * @ingroup typeid-tests
  *
  * TypeId test suites.
  */
@@ -449,7 +436,7 @@ class TypeIdTestSuite : public TestSuite
 };
 
 TypeIdTestSuite::TypeIdTestSuite()
-    : TestSuite("type-id", UNIT)
+    : TestSuite("type-id", Type::UNIT)
 {
     // Turn on logging, so we see the result of collisions
     LogComponentEnable("TypeId", ns3::LogLevel(LOG_ERROR | LOG_PREFIX_FUNC));
@@ -458,16 +445,16 @@ TypeIdTestSuite::TypeIdTestSuite()
     // UniqueIdTestCase, the artificial collisions added by
     // CollisionTestCase will show up in the list of TypeIds
     // as chained.
-    AddTestCase(new UniqueTypeIdTestCase, QUICK);
-    AddTestCase(new CollisionTestCase, QUICK);
-    AddTestCase(new DeprecatedAttributeTestCase, QUICK);
+    AddTestCase(new UniqueTypeIdTestCase, Duration::QUICK);
+    AddTestCase(new CollisionTestCase, Duration::QUICK);
+    AddTestCase(new DeprecatedAttributeTestCase, Duration::QUICK);
 }
 
 /// Static variable for test initialization.
 static TypeIdTestSuite g_TypeIdTestSuite;
 
 /**
- * \ingroup typeid-tests
+ * @ingroup typeid-tests
  *
  * TypeId performance test suites.
  */
@@ -478,9 +465,9 @@ class TypeIdPerformanceSuite : public TestSuite
 };
 
 TypeIdPerformanceSuite::TypeIdPerformanceSuite()
-    : TestSuite("type-id-perf", PERFORMANCE)
+    : TestSuite("type-id-perf", Type::PERFORMANCE)
 {
-    AddTestCase(new LookupTimeTestCase, QUICK);
+    AddTestCase(new LookupTimeTestCase, Duration::QUICK);
 }
 
 /// Static variable for test initialization.

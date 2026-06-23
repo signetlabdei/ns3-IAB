@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2014 ResiliNets, ITTC, University of Kansas
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Truc Anh N Nguyen <trucanh524@gmail.com>
  * Modified by:   Pasquale Imputato <p.imputato@gmail.com>
@@ -57,9 +46,9 @@ NS_LOG_COMPONENT_DEFINE("CoDelPfifoFastBasicTest");
 /**
  * Function called when Congestion Window is changed.
  *
- * \param stream Output stream.
- * \param oldval Old value.
- * \param newval New value.
+ * @param stream Output stream.
+ * @param oldval Old value.
+ * @param newval New value.
  */
 static void
 CwndTracer(Ptr<OutputStreamWrapper> stream, uint32_t oldval, uint32_t newval)
@@ -72,7 +61,7 @@ CwndTracer(Ptr<OutputStreamWrapper> stream, uint32_t oldval, uint32_t newval)
  *
  * Note that you can not hook to the trace before the socket is created.
  *
- * \param cwndTrFileName Name of the output file.
+ * @param cwndTrFileName Name of the output file.
  */
 static void
 TraceCwnd(std::string cwndTrFileName)

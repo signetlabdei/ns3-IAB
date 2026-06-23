@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2019 Lawrence Livermore National Laboratory
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathew Bielejeski <bielejeski1@llnl.gov>
  */
@@ -21,18 +10,14 @@
 
 #include "ns3/log.h"
 
-#include <algorithm>
 #include <cctype>
 #include <fstream>
-#include <iterator>
 #include <limits>
 #include <sstream>
-#include <vector>
 
 /**
- * \file
- * \ingroup core
- * \ingroup csvreader
+ * @file
+ * @ingroup csvreader
  *
  * ns3::CsvReader implementation
  */
@@ -48,11 +33,11 @@ namespace
  * Uses a stringstream to deserialize the value stored in \p input
  * to a value of type T and writes the deserialized value to \p output.
  *
- * \tparam T Data type of output.
- * \param input String containing serialized data.
- * \param output Place to store deserialized value.
+ * @tparam T Data type of output.
+ * @param input String containing serialized data.
+ * @param output Place to store deserialized value.
  *
- * \return \c true if deserialization was successful, \c false otherwise.
+ * @return \c true if deserialization was successful, \c false otherwise.
  */
 template <typename T>
 bool
@@ -180,7 +165,7 @@ CsvReader::GetValueAs(std::string input, signed char& value) const
 
     std::istringstream tempStream(input);
 
-    std::int16_t tempOutput = 0;
+    int16_t tempOutput = 0;
     tempStream >> tempOutput;
 
     if (tempOutput >= std::numeric_limits<byte_type>::min() &&
@@ -247,7 +232,7 @@ CsvReader::GetValueAs(std::string input, unsigned char& value) const
 
     std::istringstream tempStream(input);
 
-    std::uint16_t tempOutput = 0;
+    uint16_t tempOutput = 0;
     tempStream >> tempOutput;
 
     if (tempOutput >= std::numeric_limits<byte_type>::min() &&
@@ -460,7 +445,6 @@ CsvReader::ParseColumn(std::string::const_iterator begin, std::string::const_ite
         }
         break;
         case State::FIND_DELIMITER:
-            break;
         case State::END:
             break;
         }

@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2010 Adrian Sai-wah Tam
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Adrian Sai-wah Tam <adrian.sw.tam@gmail.com>
  */
@@ -172,7 +161,7 @@ TcpRxBuffer::Add(Ptr<Packet> p, const TcpHeader& tcph)
         }
     }
     // Remove overlapped bytes from packet
-    BufIterator i = m_data.begin();
+    auto i = m_data.begin();
     while (i != m_data.end() && i->first <= tailSeq)
     {
         SequenceNumber32 lastByteSeq = i->first + SequenceNumber32(i->second->GetSize());
@@ -204,7 +193,7 @@ TcpRxBuffer::Add(Ptr<Packet> p, const TcpHeader& tcph)
     else
     {
         uint32_t start = static_cast<uint32_t>(headSeq - tcph.GetSequenceNumber());
-        uint32_t length = static_cast<uint32_t>(tailSeq - headSeq);
+        auto length = static_cast<uint32_t>(tailSeq - headSeq);
         p = p->CreateFragment(start, length);
         NS_ASSERT(length == p->GetSize());
     }
@@ -292,7 +281,7 @@ TcpRxBuffer::UpdateSackList(const SequenceNumber32& head, const SequenceNumber32
     // We have inserted the block at the beginning of the list. Now, we should
     // check if any existing blocks overlap with that.
     bool updated = false;
-    TcpOptionSack::SackList::iterator it = m_sackList.begin();
+    auto it = m_sackList.begin();
     TcpOptionSack::SackBlock begin = *it;
     TcpOptionSack::SackBlock merged;
     ++it;
@@ -353,8 +342,7 @@ TcpRxBuffer::ClearSackList(const SequenceNumber32& seq)
 {
     NS_LOG_FUNCTION(this << seq);
 
-    TcpOptionSack::SackList::iterator it;
-    for (it = m_sackList.begin(); it != m_sackList.end();)
+    for (auto it = m_sackList.begin(); it != m_sackList.end();)
     {
         TcpOptionSack::SackBlock block = *it;
         NS_ASSERT(block.first < block.second);

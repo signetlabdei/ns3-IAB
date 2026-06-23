@@ -1,27 +1,19 @@
 /*
  * Copyright (c) 2011 CTTC
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Nicola Baldo <nbaldo@cttc.es>
  */
 
-#include <ns3/antenna-model.h>
-#include <ns3/log.h>
-#include <ns3/spectrum-phy.h>
-#include <ns3/spectrum-signal-parameters.h>
-#include <ns3/spectrum-value.h>
+#include "spectrum-signal-parameters.h"
+
+#include "spectrum-phy.h"
+#include "spectrum-value.h"
+
+#include "ns3/antenna-model.h"
+#include "ns3/log.h"
+#include "ns3/mobility-model.h"
 
 namespace ns3
 {
@@ -45,6 +37,10 @@ SpectrumSignalParameters::SpectrumSignalParameters(const SpectrumSignalParameter
     duration = p.duration;
     txPhy = p.txPhy;
     txAntenna = p.txAntenna;
+    spectrumChannelMatrix = p.spectrumChannelMatrix; // we do not need a deep copy, it will not be
+                                                     // changed once is created
+    precodingMatrix =
+        p.precodingMatrix; // we do not need a deep copy, it will not be changed once is created
 }
 
 Ptr<SpectrumSignalParameters>

@@ -1,22 +1,10 @@
-# -*- Mode:Python; -*-
-# /*
-#  * Copyright (c) 2010 INRIA
-#  *
-#  * This program is free software; you can redistribute it and/or modify
-#  * it under the terms of the GNU General Public License version 2 as
-#  * published by the Free Software Foundation;
-#  *
-#  * This program is distributed in the hope that it will be useful,
-#  * but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  * GNU General Public License for more details.
-#  *
-#  * You should have received a copy of the GNU General Public License
-#  * along with this program; if not, write to the Free Software
-#  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-#  *
-#  * Authors: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
-#  */
+#
+# Copyright (c) 2010 INRIA
+#
+# SPDX-License-Identifier: GPL-2.0-only
+#
+# Authors: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
+#
 #
 # Python version of sample-simulator.cc
 
@@ -25,21 +13,33 @@
 #  \ingroup simulator
 #  Python example program demonstrating use of various Schedule functions.
 
+## Import ns-3
+try:
+    from ns import ns
+except ModuleNotFoundError:
+    raise SystemExit(
+        "Error: ns3 Python module not found;"
+        " Python bindings may not be enabled"
+        " or your PYTHONPATH might not be properly configured"
+    )
 
-from ns import ns
 
 ## Example function - triggered at a random time.
 ## \return None.
 def RandomFunction():
-    print ("RandomFunction received event at", ns.core.Simulator.Now().GetSeconds(), "s")
+    print("RandomFunction received event at", ns.Simulator.Now().GetSeconds(), "s")
+
 
 ## Example function - triggered if an event is canceled (should not be called).
 ## \return None.
 def CancelledEvent():
-    print ("I should never be called... ")
+    print("I should never be called... ")
+
 
 ns.cppyy.cppdef("""
     #include "CPyCppyy/API.h"
+
+    #include <iostream>
 
     using namespace ns3;
     /** Simple model object to illustrate event handling. */
@@ -53,9 +53,9 @@ ns.cppyy.cppdef("""
       /**
        *  Simple event handler.
        *
-       * \param [in] eventValue Event argument.
+       * @param [in] eventValue Event argument.
        */
-      void HandleEvent (double eventValue);
+      void HandleEvent (Time eventValue);
     };
 
     void
@@ -63,18 +63,25 @@ ns.cppyy.cppdef("""
     {
       Simulator::Schedule (Seconds (10.0),
                            &MyModel::HandleEvent,
-                           this, Simulator::Now ().GetSeconds ());
+                           this, Simulator::Now());
+
+      Simulator::Schedule (Seconds (11.0), []() {
+        std::cout << "Lambda scheduled from within a class method at "
+                  << Simulator::Now().As(Time::S)
+                  << std::endl;
+      });
     }
+
     void
-    MyModel::HandleEvent (double value)
+    MyModel::HandleEvent (Time value)
     {
       std::cout << "Member method received event at "
-                << Simulator::Now ().GetSeconds ()
-                << "s started at " << value << "s" << std::endl;
+                << Simulator::Now().As(Time::S)
+                << " started at " << value.As(Time::S) << std::endl;
     }
 
     void ExampleFunction(MyModel& model){
-      std::cout << "ExampleFunction received event at " << Simulator::Now().GetSeconds() << "s" << std::endl;
+      std::cout << "ExampleFunction received event at " << Simulator::Now().As(Time::S) << std::endl;
       model.Start();
     };
 
@@ -108,24 +115,26 @@ def main(argv):
     cmd.Parse(argv)
 
     model = ns.cppyy.gbl.MyModel()
-    v = ns.CreateObject("UniformRandomVariable")
-    v.SetAttribute("Min", ns.core.DoubleValue(10))
-    v.SetAttribute("Max", ns.core.DoubleValue(20))
+    v = ns.CreateObject[ns.UniformRandomVariable]()
+    v.SetAttribute("Min", ns.DoubleValue(10))
+    v.SetAttribute("Max", ns.DoubleValue(20))
 
     ev = ns.cppyy.gbl.ExampleFunctionEvent(model)
-    ns.core.Simulator.Schedule(ns.core.Seconds(10.0), ev)
+    ns.Simulator.Schedule(ns.Seconds(10), ev)
 
     ev2 = ns.cppyy.gbl.RandomFunctionEvent(model)
-    ns.core.Simulator.Schedule(ns.core.Seconds(v.GetValue()), ev2)
+    ns.Simulator.Schedule(ns.Seconds(v.GetValue()), ev2)
 
     ev3 = ns.cppyy.gbl.CancelledFunctionEvent()
-    id = ns.core.Simulator.Schedule(ns.core.Seconds(30.0), ev3)
-    ns.core.Simulator.Cancel(id)
+    id = ns.Simulator.Schedule(ns.Seconds(30), ev3)
+    ns.Simulator.Cancel(id)
 
-    ns.core.Simulator.Run()
+    ns.Simulator.Run()
 
-    ns.core.Simulator.Destroy()
+    ns.Simulator.Destroy()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     import sys
+
     main(sys.argv)

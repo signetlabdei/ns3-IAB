@@ -2,18 +2,7 @@
  * Copyright (c) 2007 Georgia Tech Research Corporation
  * Copyright (c) 2009 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  *          Raj Bhattacharjea <raj.b@gatech.edu>
@@ -51,21 +40,21 @@ using namespace ns3;
 NS_LOG_COMPONENT_DEFINE("TcpTestSuite");
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief TCP Test - send string data from client to server and back.
+ * @brief TCP Test - send string data from client to server and back.
  */
 class TcpTestCase : public TestCase
 {
   public:
     /**
-     * \brief Constructor.
-     * \param totalStreamSize Total stream size (in bytes).
-     * \param sourceWriteSize Client data size when sending.
-     * \param sourceReadSize Client data size when receiving.
-     * \param serverWriteSize Server data size when sending.
-     * \param serverReadSize Server data size when receiving.
-     * \param useIpv6 Use IPv6 instead of IPv4.
+     * @brief Constructor.
+     * @param totalStreamSize Total stream size (in bytes).
+     * @param sourceWriteSize Client data size when sending.
+     * @param sourceReadSize Client data size when receiving.
+     * @param serverWriteSize Server data size when sending.
+     * @param serverReadSize Server data size when receiving.
+     * @param useIpv6 Use IPv6 instead of IPv4.
      */
     TcpTestCase(uint32_t totalStreamSize,
                 uint32_t sourceWriteSize,
@@ -79,70 +68,70 @@ class TcpTestCase : public TestCase
     void DoTeardown() override;
 
     /**
-     * \brief Setup the test (IPv4 version).
+     * @brief Setup the test (IPv4 version).
      */
     void SetupDefaultSim();
     /**
-     * \brief Setup the test (IPv6 version).
+     * @brief Setup the test (IPv6 version).
      */
     void SetupDefaultSim6();
 
     /**
-     * \brief Create a node with the Internet stack (IPv4 version).
-     * \returns The new node.
+     * @brief Create a node with the Internet stack (IPv4 version).
+     * @returns The new node.
      */
     Ptr<Node> CreateInternetNode();
     /**
-     * \brief Create a node with the Internet stack (IPv6 version).
-     * \returns The new node.
+     * @brief Create a node with the Internet stack (IPv6 version).
+     * @returns The new node.
      */
     Ptr<Node> CreateInternetNode6();
 
     /**
-     * \brief Add a SimpleNetDevice to a node (IPv4 version).
-     * \param node The target node.
-     * \param ipaddr the SimpleNetDevice IPv4 address.
-     * \param netmask the SimpleNetDevice IPv4 address netmask.
-     * \returns The new SimpleNetDevice.
+     * @brief Add a SimpleNetDevice to a node (IPv4 version).
+     * @param node The target node.
+     * @param ipaddr the SimpleNetDevice IPv4 address.
+     * @param netmask the SimpleNetDevice IPv4 address netmask.
+     * @returns The new SimpleNetDevice.
      */
     Ptr<SimpleNetDevice> AddSimpleNetDevice(Ptr<Node> node,
                                             const char* ipaddr,
                                             const char* netmask);
     /**
-     * \brief Add a SimpleNetDevice to a node (IPv6 version).
-     * \param node The target node.
-     * \param ipaddr the SimpleNetDevice IPv6 address.
-     * \param prefix the SimpleNetDevice IP6 address prefix.
-     * \returns The new SimpleNetDevice.
+     * @brief Add a SimpleNetDevice to a node (IPv6 version).
+     * @param node The target node.
+     * @param ipaddr the SimpleNetDevice IPv6 address.
+     * @param prefix the SimpleNetDevice IP6 address prefix.
+     * @returns The new SimpleNetDevice.
      */
     Ptr<SimpleNetDevice> AddSimpleNetDevice6(Ptr<Node> node, Ipv6Address ipaddr, Ipv6Prefix prefix);
 
     /**
-     * \brief Server: Handle connection created.
-     * \param s The socket.
-     * \param addr The other party address.
+     * @brief Server: Handle connection created.
+     * @param s The socket.
+     * @param addr The other party address.
      */
     void ServerHandleConnectionCreated(Ptr<Socket> s, const Address& addr);
     /**
-     * \brief Server: Receive data.
-     * \param sock The socket.
+     * @brief Server: Receive data.
+     * @param sock The socket.
      */
     void ServerHandleRecv(Ptr<Socket> sock);
     /**
-     * \brief Server: Send data.
-     * \param sock The socket.
-     * \param available Unused in the test.
+     * @brief Server: Send data.
+     * @param sock The socket.
+     * @param available Unused in the test.
      */
     void ServerHandleSend(Ptr<Socket> sock, uint32_t available);
     /**
-     * \brief Client: Send data.
-     * \param sock The socket.
-     * \param available Unused in the test.
+     * @brief Client: Send data.
+     * @param sock The socket.
+     * @param available Unused in the test.
      */
     void SourceHandleSend(Ptr<Socket> sock, uint32_t available);
     /**
-     * \brief Client: Receive data.
-     * \param sock The socket.
+     * @brief Client: Receive data.
+     * @param sock The socket.
      */
     void SourceHandleRecv(Ptr<Socket> sock);
 
@@ -220,13 +209,13 @@ TcpTestCase::DoRun()
     m_serverRxPayload = new uint8_t[m_totalBytes];
     for (uint32_t i = 0; i < m_totalBytes; ++i)
     {
-        uint8_t m = (uint8_t)(97 + (i % 26));
+        auto m = (uint8_t)(97 + (i % 26));
         m_sourceTxPayload[i] = m;
     }
     memset(m_sourceRxPayload, 0, m_totalBytes);
     memset(m_serverRxPayload, 0, m_totalBytes);
 
-    if (m_useIpv6 == true)
+    if (m_useIpv6)
     {
         SetupDefaultSim6();
     }
@@ -443,9 +432,9 @@ TcpTestCase::SetupDefaultSim()
 void
 TcpTestCase::SetupDefaultSim6()
 {
-    Ipv6Prefix prefix = Ipv6Prefix(64);
-    Ipv6Address ipaddr0 = Ipv6Address("2001:0100:f00d:cafe::1");
-    Ipv6Address ipaddr1 = Ipv6Address("2001:0100:f00d:cafe::2");
+    auto prefix = Ipv6Prefix(64);
+    auto ipaddr0 = Ipv6Address("2001:0100:f00d:cafe::1");
+    auto ipaddr1 = Ipv6Address("2001:0100:f00d:cafe::2");
     Ptr<Node> node0 = CreateInternetNode6();
     Ptr<Node> node1 = CreateInternetNode6();
     Ptr<SimpleNetDevice> dev0 = AddSimpleNetDevice6(node0, ipaddr0, prefix);
@@ -535,27 +524,27 @@ TcpTestCase::AddSimpleNetDevice6(Ptr<Node> node, Ipv6Address ipaddr, Ipv6Prefix 
 }
 
 /**
- * \ingroup internet-test
+ * @ingroup internet-test
  *
- * \brief TCP TestSuite - send string data from client to server and back.
+ * @brief TCP TestSuite - send string data from client to server and back.
  */
 class TcpTestSuite : public TestSuite
 {
   public:
     TcpTestSuite()
-        : TestSuite("tcp", UNIT)
+        : TestSuite("tcp", Type::UNIT)
     {
         // Arguments to these test cases are 1) totalStreamSize,
         // 2) source write size, 3) source read size
         // 4) server write size, and 5) server read size
         // with units of bytes
-        AddTestCase(new TcpTestCase(13, 200, 200, 200, 200, false), TestCase::QUICK);
-        AddTestCase(new TcpTestCase(13, 1, 1, 1, 1, false), TestCase::QUICK);
-        AddTestCase(new TcpTestCase(100000, 100, 50, 100, 20, false), TestCase::QUICK);
+        AddTestCase(new TcpTestCase(13, 200, 200, 200, 200, false), TestCase::Duration::QUICK);
+        AddTestCase(new TcpTestCase(13, 1, 1, 1, 1, false), TestCase::Duration::QUICK);
+        AddTestCase(new TcpTestCase(100000, 100, 50, 100, 20, false), TestCase::Duration::QUICK);
 
-        AddTestCase(new TcpTestCase(13, 200, 200, 200, 200, true), TestCase::QUICK);
-        AddTestCase(new TcpTestCase(13, 1, 1, 1, 1, true), TestCase::QUICK);
-        AddTestCase(new TcpTestCase(100000, 100, 50, 100, 20, true), TestCase::QUICK);
+        AddTestCase(new TcpTestCase(13, 200, 200, 200, 200, true), TestCase::Duration::QUICK);
+        AddTestCase(new TcpTestCase(13, 1, 1, 1, 1, true), TestCase::Duration::QUICK);
+        AddTestCase(new TcpTestCase(100000, 100, 50, 100, 20, true), TestCase::Duration::QUICK);
     }
 };
 

@@ -380,9 +380,9 @@ public:
   LteIpv6RoutingTestSuite ();
 };
 
-LteIpv6RoutingTestSuite::LteIpv6RoutingTestSuite () : TestSuite ("lte-ipv6-routing-test", UNIT)
+LteIpv6RoutingTestSuite::LteIpv6RoutingTestSuite () : TestSuite ("lte-ipv6-routing-test", TestSuite::Type::UNIT)
 {
-  AddTestCase (new LteIpv6RoutingTestCase, TestCase::QUICK);
+  AddTestCase (new LteIpv6RoutingTestCase, TestCase::Duration::QUICK);
 }
 
 static LteIpv6RoutingTestSuite lteipv6testsuite;

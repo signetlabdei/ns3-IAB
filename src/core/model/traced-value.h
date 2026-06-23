@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2005,2006,2007 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -27,8 +16,8 @@
 #include "uinteger.h"
 
 /**
- * \file
- * \ingroup tracing
+ * @file
+ * @ingroup tracing
  * ns3::TracedValue declaration and template implementation.
  */
 
@@ -36,12 +25,12 @@
  * Logging macro for TracedValue.
  *
  * No NS_LOG_... here.  When logging is needed use something like
- * \code
+ * @code
  *   #define TRACED_VALUE_DEBUG(x)                  \
  *     std::cout << __FILE__ << ":" << __FUNCTION__    \
  *               << "(" << __LINE__ << ") "           \
  *               << x << std::endl
- * \endcode
+ * @endcode
  */
 #define TRACED_VALUE_DEBUG(x)
 
@@ -49,9 +38,9 @@ namespace ns3
 {
 
 /**
- * \ingroup core
- * \defgroup tracing Tracing
- * \brief Publish/subscribe tools to collect and report changes to any
+ * @ingroup core
+ * @defgroup tracing Tracing
+ * @brief Publish/subscribe tools to collect and report changes to any
  *        values used by the various model components.
  *
  * Additional callback function signatures defined elsewhere:
@@ -62,22 +51,22 @@ namespace ns3
  */
 
 /**
- * \ingroup tracing
+ * @ingroup tracing
  *
- * \brief TracedValue Callback function types.
+ * @brief TracedValue Callback function types.
  */
 namespace TracedValueCallback
 {
 
 /**
- * \name TracedValueCallback Signatures for POD.
+ * @name TracedValueCallback Signatures for POD.
  * @{
  */
 /**
  *  TracedValue Callback signature for POD.
  * @{
- * \param [in] oldValue original value of the traced variable
- * \param [in] newValue new value of the traced variable
+ * @param [in] oldValue original value of the traced variable
+ * @param [in] newValue new value of the traced variable
  */
 typedef void (*Bool)(bool oldValue, bool newValue);
 typedef void (*Int8)(int8_t oldValue, int8_t newValue);
@@ -97,9 +86,9 @@ typedef void (*Void)();
 } // namespace TracedValueCallback
 
 /**
- * \ingroup tracing
+ * @ingroup tracing
  *
- * \brief Trace classes with value semantics
+ * @brief Trace classes with value semantics
  *
  * If you want to trace the change of value of a class or
  * primitive type which have value semantics (they _must_
@@ -109,7 +98,7 @@ typedef void (*Void)();
  * and will define Connect/DisconnectWithoutContext methods to work
  * with MakeTraceSourceAccessor.
  *
- * \tparam T \explicit The type of the underlying value being traced.
+ * @tparam T \explicit The type of the underlying value being traced.
  */
 template <typename T>
 class TracedValue
@@ -123,7 +112,7 @@ class TracedValue
 
     /**
      * Copy constructor.
-     * \param [in] o The value to copy.
+     * @param [in] o The value to copy.
      */
     TracedValue(const TracedValue& o)
         : m_v(o.m_v)
@@ -132,7 +121,7 @@ class TracedValue
 
     /**
      * Construct from an explicit variable.
-     * \param [in] v The variable to trace.
+     * @param [in] v The variable to trace.
      */
     TracedValue(const T& v)
         : m_v(v)
@@ -141,7 +130,7 @@ class TracedValue
 
     /**
      * Cast to the underlying type.
-     * \returns The underlying value.
+     * @returns The underlying value.
      */
     operator T() const
     {
@@ -150,8 +139,8 @@ class TracedValue
 
     /**
      * Assignment.
-     * \param [in] o The value to assign to this instance.
-     * \return This TracedValue.
+     * @param [in] o The value to assign to this instance.
+     * @return This TracedValue.
      */
     TracedValue& operator=(const TracedValue& o)
     {
@@ -162,8 +151,8 @@ class TracedValue
 
     /**
      * Copy from a TracedValue of a compatible type.
-     * \tparam U \deduced The underlying type of the other TracedValue.
-     * \param [in] other The other TracedValuet to copy.
+     * @tparam U \deduced The underlying type of the other TracedValue.
+     * @param [in] other The other TracedValue to copy.
      */
     template <typename U>
     TracedValue(const TracedValue<U>& other)
@@ -173,8 +162,8 @@ class TracedValue
 
     /**
      * Copy from a variable type compatible with this underlying type.
-     * \tparam U \deduced Type of the other variable.
-     * \param [in] other The other variable to copy.
+     * @tparam U \deduced Type of the other variable.
+     * @param [in] other The other variable to copy.
      */
     template <typename U>
     TracedValue(const U& other)
@@ -185,7 +174,7 @@ class TracedValue
     /**
      * Connect a Callback (without context.)
      *
-     * \param [in] cb The callback to connect.
+     * @param [in] cb The callback to connect.
      */
     void ConnectWithoutContext(const CallbackBase& cb)
     {
@@ -198,8 +187,8 @@ class TracedValue
      * The context string will be provided as the first argument to the
      * Callback function.
      *
-     * \param [in] cb The Callback to connect to the target trace source.
-     * \param [in] path The context to bind to the user callback.
+     * @param [in] cb The Callback to connect to the target trace source.
+     * @param [in] path The context to bind to the user callback.
      */
     void Connect(const CallbackBase& cb, std::string path)
     {
@@ -209,7 +198,7 @@ class TracedValue
     /**
      * Disconnect a Callback which was connected without context.
      *
-     * \param [in] cb The Callback to disconnect.
+     * @param [in] cb The Callback to disconnect.
      */
     void DisconnectWithoutContext(const CallbackBase& cb)
     {
@@ -219,8 +208,8 @@ class TracedValue
     /**
      * Disconnect a Callback which was connected with context.
      *
-     * \param [in] cb The Callback to disconnect.
-     * \param [in] path The context to bind to the user callback.
+     * @param [in] cb The Callback to disconnect.
+     * @param [in] path The context to bind to the user callback.
      */
     void Disconnect(const CallbackBase& cb, std::string path)
     {
@@ -231,7 +220,7 @@ class TracedValue
      * Set the value of the underlying variable.
      *
      * If the new value differs from the old, the Callback will be invoked.
-     * \param [in] v The new value.
+     * @param [in] v The new value.
      */
     void Set(const T& v)
     {
@@ -244,7 +233,7 @@ class TracedValue
 
     /**
      * Get the underlying value.
-     * \returns The value.
+     * @returns The value.
      */
     T Get() const
     {
@@ -255,7 +244,7 @@ class TracedValue
      * Pre/post- increment/decrement operator.
      *
      * This invokes the Callback.
-     * \returns This TracedValue.
+     * @returns This TracedValue.
      */
     /**@{*/
     TracedValue& operator++()
@@ -310,7 +299,7 @@ class TracedValue
  ********************************************************************/
 
 /**
- * \ingroup tracing
+ * @ingroup tracing
  */
 /**@{*/
 /**
@@ -318,10 +307,10 @@ class TracedValue
  *
  * The underlying value will be written to the stream.
  *
- * \tparam T \deduced The underlying type of the TracedValue.
- * \param [in,out] os The output stream.
- * \param [in] rhs The TracedValue to stream.
- * \returns The stream.
+ * @tparam T \deduced The underlying type of the TracedValue.
+ * @param [in,out] os The output stream.
+ * @param [in] rhs The TracedValue to stream.
+ * @returns The stream.
  */
 template <typename T>
 std::ostream&
@@ -332,12 +321,13 @@ operator<<(std::ostream& os, const TracedValue<T>& rhs)
 
 /**
  * Boolean operator for TracedValue.
- * \tparam T \deduced The underlying type held by the left-hand argument.
- * \tparam U \deduced The underlying type held by the right-hand argument.
- * \param [in] lhs The left-hand argument.
- * \param [in] rhs The right-hand argument.
- * \returns The Boolean result of comparing the underlying values.
+ * @tparam T \deduced The underlying type held by the left-hand argument.
+ * @tparam U \deduced The underlying type held by the right-hand argument.
+ * @param [in] lhs The left-hand argument.
+ * @param [in] rhs The right-hand argument.
+ * @returns The Boolean result of comparing the underlying values.
  */
+/**@{*/
 template <typename T, typename U>
 bool
 operator==(const TracedValue<T>& lhs, const TracedValue<U>& rhs)
@@ -346,7 +336,6 @@ operator==(const TracedValue<T>& lhs, const TracedValue<U>& rhs)
     return lhs.Get() == rhs.Get();
 }
 
-/** \copydoc operator==(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 bool
 operator==(const TracedValue<T>& lhs, const U& rhs)
@@ -355,7 +344,6 @@ operator==(const TracedValue<T>& lhs, const U& rhs)
     return lhs.Get() == rhs;
 }
 
-/** \copydoc operator==(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 bool
 operator==(const U& lhs, const TracedValue<T>& rhs)
@@ -364,7 +352,6 @@ operator==(const U& lhs, const TracedValue<T>& rhs)
     return lhs == rhs.Get();
 }
 
-/** \copydoc operator==(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 bool
 operator!=(const TracedValue<T>& lhs, const TracedValue<U>& rhs)
@@ -373,7 +360,6 @@ operator!=(const TracedValue<T>& lhs, const TracedValue<U>& rhs)
     return lhs.Get() != rhs.Get();
 }
 
-/** \copydoc operator==(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 bool
 operator!=(const TracedValue<T>& lhs, const U& rhs)
@@ -382,7 +368,6 @@ operator!=(const TracedValue<T>& lhs, const U& rhs)
     return lhs.Get() != rhs;
 }
 
-/** \copydoc operator==(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 bool
 operator!=(const U& lhs, const TracedValue<T>& rhs)
@@ -391,7 +376,6 @@ operator!=(const U& lhs, const TracedValue<T>& rhs)
     return lhs != rhs.Get();
 }
 
-/** \copydoc operator==(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 bool
 operator<=(const TracedValue<T>& lhs, const TracedValue<U>& rhs)
@@ -400,7 +384,6 @@ operator<=(const TracedValue<T>& lhs, const TracedValue<U>& rhs)
     return lhs.Get() <= rhs.Get();
 }
 
-/** \copydoc operator==(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 bool
 operator<=(const TracedValue<T>& lhs, const U& rhs)
@@ -409,7 +392,6 @@ operator<=(const TracedValue<T>& lhs, const U& rhs)
     return lhs.Get() <= rhs;
 }
 
-/** \copydoc operator==(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 bool
 operator<=(const U& lhs, const TracedValue<T>& rhs)
@@ -418,7 +400,6 @@ operator<=(const U& lhs, const TracedValue<T>& rhs)
     return lhs <= rhs.Get();
 }
 
-/** \copydoc operator==(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 bool
 operator>=(const TracedValue<T>& lhs, const TracedValue<U>& rhs)
@@ -427,7 +408,6 @@ operator>=(const TracedValue<T>& lhs, const TracedValue<U>& rhs)
     return lhs.Get() >= rhs.Get();
 }
 
-/** \copydoc operator==(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 bool
 operator>=(const TracedValue<T>& lhs, const U& rhs)
@@ -436,7 +416,6 @@ operator>=(const TracedValue<T>& lhs, const U& rhs)
     return lhs.Get() >= rhs;
 }
 
-/** \copydoc operator==(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 bool
 operator>=(const U& lhs, const TracedValue<T>& rhs)
@@ -445,7 +424,6 @@ operator>=(const U& lhs, const TracedValue<T>& rhs)
     return lhs >= rhs.Get();
 }
 
-/** \copydoc operator==(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 bool
 operator<(const TracedValue<T>& lhs, const TracedValue<U>& rhs)
@@ -454,7 +432,6 @@ operator<(const TracedValue<T>& lhs, const TracedValue<U>& rhs)
     return lhs.Get() < rhs.Get();
 }
 
-/** \copydoc operator==(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 bool
 operator<(const TracedValue<T>& lhs, const U& rhs)
@@ -463,7 +440,6 @@ operator<(const TracedValue<T>& lhs, const U& rhs)
     return lhs.Get() < rhs;
 }
 
-/** \copydoc operator==(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 bool
 operator<(const U& lhs, const TracedValue<T>& rhs)
@@ -472,7 +448,6 @@ operator<(const U& lhs, const TracedValue<T>& rhs)
     return lhs < rhs.Get();
 }
 
-/** \copydoc operator==(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 bool
 operator>(const TracedValue<T>& lhs, const TracedValue<U>& rhs)
@@ -481,7 +456,6 @@ operator>(const TracedValue<T>& lhs, const TracedValue<U>& rhs)
     return lhs.Get() > rhs.Get();
 }
 
-/** \copydoc operator==(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 bool
 operator>(const TracedValue<T>& lhs, const U& rhs)
@@ -490,7 +464,6 @@ operator>(const TracedValue<T>& lhs, const U& rhs)
     return lhs.Get() > rhs;
 }
 
-/** \copydoc operator==(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 bool
 operator>(const U& lhs, const TracedValue<T>& rhs)
@@ -499,19 +472,21 @@ operator>(const U& lhs, const TracedValue<T>& rhs)
     return lhs > rhs.Get();
 }
 
+/**@}*/
+
 /**
  * Infix arithmetic operator for TracedValue.
  *
  * This returns the arithmetic result in a new TracedValue,
  * which has no Callback connected.
  *
- * \tparam T \deduced The underlying type held by the left-hand argument.
- * \tparam U \deduced The underlying type held by the right-hand argument.
- * \param [in] lhs The left-hand argument.
- * \param [in] rhs The right-hand argument.
- * \returns The result of doing the operator on
- *     the underlying values.
+ * @tparam T \deduced The underlying type held by the left-hand argument.
+ * @tparam U \deduced The underlying type held by the right-hand argument.
+ * @param [in] lhs The left-hand argument.
+ * @param [in] rhs The right-hand argument.
+ * @returns The result of doing the operator on the underlying values.
  */
+/**@{*/
 template <typename T, typename U>
 auto
 operator+(const TracedValue<T>& lhs, const TracedValue<U>& rhs)
@@ -521,7 +496,6 @@ operator+(const TracedValue<T>& lhs, const TracedValue<U>& rhs)
     return TracedValue<decltype(lhs.Get() + rhs.Get())>(lhs.Get() + rhs.Get());
 }
 
-/** \copydoc operator+(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 auto
 operator+(const TracedValue<T>& lhs, const U& rhs) -> TracedValue<decltype(lhs.Get() + rhs)>
@@ -530,7 +504,6 @@ operator+(const TracedValue<T>& lhs, const U& rhs) -> TracedValue<decltype(lhs.G
     return TracedValue<decltype(lhs.Get() + rhs)>(lhs.Get() + rhs);
 }
 
-/** \copydoc operator+(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 auto
 operator+(const U& lhs, const TracedValue<T>& rhs) -> TracedValue<decltype(lhs + rhs.Get())>
@@ -539,7 +512,6 @@ operator+(const U& lhs, const TracedValue<T>& rhs) -> TracedValue<decltype(lhs +
     return TracedValue<decltype(lhs + rhs.Get())>(lhs + rhs.Get());
 }
 
-/** \copydoc operator+(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 auto
 operator-(const TracedValue<T>& lhs, const TracedValue<U>& rhs)
@@ -549,7 +521,6 @@ operator-(const TracedValue<T>& lhs, const TracedValue<U>& rhs)
     return TracedValue<decltype(lhs.Get() - rhs.Get())>(lhs.Get() - rhs.Get());
 }
 
-/** \copydoc operator+(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 auto
 operator-(const TracedValue<T>& lhs, const U& rhs) -> TracedValue<decltype(lhs.Get() - rhs)>
@@ -558,7 +529,6 @@ operator-(const TracedValue<T>& lhs, const U& rhs) -> TracedValue<decltype(lhs.G
     return TracedValue<decltype(lhs.Get() - rhs)>(lhs.Get() - rhs);
 }
 
-/** \copydoc operator+(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 auto
 operator-(const U& lhs, const TracedValue<T>& rhs) -> TracedValue<decltype(lhs - rhs.Get())>
@@ -567,7 +537,6 @@ operator-(const U& lhs, const TracedValue<T>& rhs) -> TracedValue<decltype(lhs -
     return TracedValue<decltype(lhs - rhs.Get())>(lhs - rhs.Get());
 }
 
-/** \copydoc operator+(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 auto
 operator*(const TracedValue<T>& lhs, const TracedValue<U>& rhs)
@@ -577,7 +546,6 @@ operator*(const TracedValue<T>& lhs, const TracedValue<U>& rhs)
     return TracedValue<decltype(lhs.Get() * rhs.Get())>(lhs.Get() * rhs.Get());
 }
 
-/** \copydoc operator+(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 auto
 operator*(const TracedValue<T>& lhs, const U& rhs) -> TracedValue<decltype(lhs.Get() * rhs)>
@@ -586,7 +554,6 @@ operator*(const TracedValue<T>& lhs, const U& rhs) -> TracedValue<decltype(lhs.G
     return TracedValue<decltype(lhs.Get() * rhs)>(lhs.Get() * rhs);
 }
 
-/** \copydoc operator+(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 auto
 operator*(const U& lhs, const TracedValue<T>& rhs) -> TracedValue<decltype(lhs + rhs.Get())>
@@ -595,7 +562,6 @@ operator*(const U& lhs, const TracedValue<T>& rhs) -> TracedValue<decltype(lhs +
     return TracedValue<decltype(lhs + rhs.Get())>(lhs * rhs.Get());
 }
 
-/** \copydoc operator+(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 auto
 operator/(const TracedValue<T>& lhs, const TracedValue<U>& rhs)
@@ -605,7 +571,6 @@ operator/(const TracedValue<T>& lhs, const TracedValue<U>& rhs)
     return TracedValue<decltype(lhs.Get() / rhs.Get())>(lhs.Get() / rhs.Get());
 }
 
-/** \copydoc operator+(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 auto
 operator/(const TracedValue<T>& lhs, const U& rhs) -> TracedValue<decltype(lhs.Get() / rhs)>
@@ -614,7 +579,6 @@ operator/(const TracedValue<T>& lhs, const U& rhs) -> TracedValue<decltype(lhs.G
     return TracedValue<decltype(lhs.Get() / rhs)>(lhs.Get() / rhs);
 }
 
-/** \copydoc operator+(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 auto
 operator/(const U& lhs, const TracedValue<T>& rhs) -> TracedValue<decltype(lhs / rhs.Get())>
@@ -623,7 +587,6 @@ operator/(const U& lhs, const TracedValue<T>& rhs) -> TracedValue<decltype(lhs /
     return TracedValue<decltype(lhs / rhs.Get())>(lhs / rhs.Get());
 }
 
-/** \copydoc operator+(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 auto
 operator%(const TracedValue<T>& lhs, const TracedValue<U>& rhs)
@@ -633,7 +596,6 @@ operator%(const TracedValue<T>& lhs, const TracedValue<U>& rhs)
     return TracedValue<decltype(lhs.Get() % rhs.Get())>(lhs.Get() % rhs.Get());
 }
 
-/** \copydoc operator+(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 auto
 operator%(const TracedValue<T>& lhs, const U& rhs) -> TracedValue<decltype(lhs.Get() % rhs)>
@@ -642,7 +604,6 @@ operator%(const TracedValue<T>& lhs, const U& rhs) -> TracedValue<decltype(lhs.G
     return TracedValue<decltype(lhs.Get() % rhs)>(lhs.Get() % rhs);
 }
 
-/** \copydoc operator+(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 auto
 operator%(const U& lhs, const TracedValue<T>& rhs) -> TracedValue<decltype(lhs % rhs.Get())>
@@ -651,7 +612,6 @@ operator%(const U& lhs, const TracedValue<T>& rhs) -> TracedValue<decltype(lhs %
     return TracedValue<decltype(lhs % rhs.Get())>(lhs % rhs.Get());
 }
 
-/** \copydoc operator+(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 auto
 operator^(const TracedValue<T>& lhs, const TracedValue<U>& rhs)
@@ -661,7 +621,6 @@ operator^(const TracedValue<T>& lhs, const TracedValue<U>& rhs)
     return TracedValue<decltype(lhs.Get() ^ rhs.Get())>(lhs.Get() ^ rhs.Get());
 }
 
-/** \copydoc operator+(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 auto
 operator^(const TracedValue<T>& lhs, const U& rhs) -> TracedValue<decltype(lhs.Get() ^ rhs)>
@@ -670,7 +629,6 @@ operator^(const TracedValue<T>& lhs, const U& rhs) -> TracedValue<decltype(lhs.G
     return TracedValue<decltype(lhs.Get() ^ rhs)>(lhs.Get() ^ rhs);
 }
 
-/** \copydoc operator+(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 auto
 operator^(const U& lhs, const TracedValue<T>& rhs) -> TracedValue<decltype(lhs ^ rhs.Get())>
@@ -679,7 +637,6 @@ operator^(const U& lhs, const TracedValue<T>& rhs) -> TracedValue<decltype(lhs ^
     return TracedValue<decltype(lhs ^ rhs.Get())>(lhs ^ rhs.Get());
 }
 
-/** \copydoc operator+(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 auto
 operator|(const TracedValue<T>& lhs, const TracedValue<U>& rhs)
@@ -689,7 +646,6 @@ operator|(const TracedValue<T>& lhs, const TracedValue<U>& rhs)
     return TracedValue<decltype(lhs.Get() | rhs.Get())>(lhs.Get() | rhs.Get());
 }
 
-/** \copydoc operator+(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 auto
 operator|(const TracedValue<T>& lhs, const U& rhs) -> TracedValue<decltype(lhs.Get() | rhs)>
@@ -698,7 +654,6 @@ operator|(const TracedValue<T>& lhs, const U& rhs) -> TracedValue<decltype(lhs.G
     return TracedValue<decltype(lhs.Get() | rhs)>(lhs.Get() | rhs);
 }
 
-/** \copydoc operator+(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 auto
 operator|(const U& lhs, const TracedValue<T>& rhs) -> TracedValue<decltype(lhs | rhs.Get())>
@@ -707,7 +662,6 @@ operator|(const U& lhs, const TracedValue<T>& rhs) -> TracedValue<decltype(lhs |
     return TracedValue<decltype(lhs | rhs.Get())>(lhs | rhs.Get());
 }
 
-/** \copydoc operator+(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 auto
 operator&(const TracedValue<T>& lhs, const TracedValue<U>& rhs)
@@ -717,7 +671,6 @@ operator&(const TracedValue<T>& lhs, const TracedValue<U>& rhs)
     return TracedValue<decltype(lhs.Get() & rhs.Get())>(lhs.Get() & rhs.Get());
 }
 
-/** \copydoc operator+(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 auto
 operator&(const TracedValue<T>& lhs, const U& rhs) -> TracedValue<decltype(lhs.Get() & rhs)>
@@ -726,7 +679,6 @@ operator&(const TracedValue<T>& lhs, const U& rhs) -> TracedValue<decltype(lhs.G
     return TracedValue<decltype(lhs.Get() & rhs)>(lhs.Get() & rhs);
 }
 
-/** \copydoc operator+(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 auto
 operator&(const U& lhs, const TracedValue<T>& rhs) -> TracedValue<decltype(lhs & rhs.Get())>
@@ -735,7 +687,6 @@ operator&(const U& lhs, const TracedValue<T>& rhs) -> TracedValue<decltype(lhs &
     return TracedValue<decltype(lhs & rhs.Get())>(lhs & rhs.Get());
 }
 
-/** \copydoc operator+(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 auto
 operator<<(const TracedValue<T>& lhs, const TracedValue<U>& rhs)
@@ -745,7 +696,6 @@ operator<<(const TracedValue<T>& lhs, const TracedValue<U>& rhs)
     return TracedValue<decltype(lhs.Get() << rhs.Get())>(lhs.Get() << rhs.Get());
 }
 
-/** \copydoc operator+(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 auto
 operator<<(const TracedValue<T>& lhs, const U& rhs) -> TracedValue<decltype(lhs.Get() << rhs)>
@@ -754,7 +704,6 @@ operator<<(const TracedValue<T>& lhs, const U& rhs) -> TracedValue<decltype(lhs.
     return TracedValue<decltype(lhs.Get() << rhs)>(lhs.Get() << rhs);
 }
 
-/** \copydoc operator+(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 auto
 operator<<(const U& lhs, const TracedValue<T>& rhs) -> TracedValue<decltype(lhs << rhs.Get())>
@@ -763,7 +712,6 @@ operator<<(const U& lhs, const TracedValue<T>& rhs) -> TracedValue<decltype(lhs 
     return TracedValue<decltype(lhs << rhs.Get())>(lhs << rhs.Get());
 }
 
-/** \copydoc operator+(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 auto
 operator>>(const TracedValue<T>& lhs, const TracedValue<U>& rhs)
@@ -773,7 +721,6 @@ operator>>(const TracedValue<T>& lhs, const TracedValue<U>& rhs)
     return TracedValue<decltype(lhs.Get() >> rhs.Get())>(lhs.Get() >> rhs.Get());
 }
 
-/** \copydoc operator+(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 auto
 operator>>(const TracedValue<T>& lhs, const U& rhs) -> TracedValue<decltype(lhs.Get() >> rhs)>
@@ -782,7 +729,6 @@ operator>>(const TracedValue<T>& lhs, const U& rhs) -> TracedValue<decltype(lhs.
     return TracedValue<decltype(lhs.Get() >> rhs)>(lhs.Get() >> rhs);
 }
 
-/** \copydoc operator+(const TracedValue<T>&lhs,const TracedValue<U>&rhs) */
 template <typename T, typename U>
 auto
 operator>>(const U& lhs, const TracedValue<T>& rhs) -> TracedValue<decltype(lhs >> rhs.Get())>
@@ -791,6 +737,8 @@ operator>>(const U& lhs, const TracedValue<T>& rhs) -> TracedValue<decltype(lhs 
     return TracedValue<decltype(lhs >> rhs.Get())>(lhs >> rhs.Get());
 }
 
+/**@}*/
+
 /**
  * Operator assignment for TracedValue.
  *
@@ -798,13 +746,13 @@ operator>>(const U& lhs, const TracedValue<T>& rhs) -> TracedValue<decltype(lhs 
  * is assigned to the \c lhs TracedValue.  If the new value
  * is different, the Callback will be invoked.
  *
- * \tparam T \deduced The underlying type held by the left-hand argument.
- * \tparam U \deduced The underlying type held by the right-hand argument.
- * \param [in] lhs The left-hand argument.
- * \param [in] rhs The right-hand argument.
- * \returns The result of doing the operator on
- *     the underlying values.
+ * @tparam T \deduced The underlying type held by the left-hand argument.
+ * @tparam U \deduced The underlying type held by the right-hand argument.
+ * @param [in] lhs The left-hand argument.
+ * @param [in] rhs The right-hand argument.
+ * @returns The result of doing the operator on the underlying values.
  */
+/**@{*/
 template <typename T, typename U>
 TracedValue<T>&
 operator+=(TracedValue<T>& lhs, const U& rhs)
@@ -816,7 +764,6 @@ operator+=(TracedValue<T>& lhs, const U& rhs)
     return lhs;
 }
 
-/** \copydoc operator+=(TracedValue<T>&lhs,const U&rhs) */
 template <typename T, typename U>
 TracedValue<T>&
 operator-=(TracedValue<T>& lhs, const U& rhs)
@@ -828,7 +775,6 @@ operator-=(TracedValue<T>& lhs, const U& rhs)
     return lhs;
 }
 
-/** \copydoc operator+=(TracedValue<T>&lhs,const U&rhs) */
 template <typename T, typename U>
 TracedValue<T>&
 operator*=(TracedValue<T>& lhs, const U& rhs)
@@ -840,7 +786,6 @@ operator*=(TracedValue<T>& lhs, const U& rhs)
     return lhs;
 }
 
-/** \copydoc operator+=(TracedValue<T>&lhs,const U&rhs) */
 template <typename T, typename U>
 TracedValue<T>&
 operator/=(TracedValue<T>& lhs, const U& rhs)
@@ -852,7 +797,6 @@ operator/=(TracedValue<T>& lhs, const U& rhs)
     return lhs;
 }
 
-/** \copydoc operator+=(TracedValue<T>&lhs,const U&rhs) */
 template <typename T, typename U>
 TracedValue<T>&
 operator%=(TracedValue<T>& lhs, const U& rhs)
@@ -864,7 +808,6 @@ operator%=(TracedValue<T>& lhs, const U& rhs)
     return lhs;
 }
 
-/** \copydoc operator+=(TracedValue<T>&lhs,const U&rhs) */
 template <typename T, typename U>
 TracedValue<T>&
 operator<<=(TracedValue<T>& lhs, const U& rhs)
@@ -876,7 +819,6 @@ operator<<=(TracedValue<T>& lhs, const U& rhs)
     return lhs;
 }
 
-/** \copydoc operator+=(TracedValue<T>&lhs,const U&rhs) */
 template <typename T, typename U>
 TracedValue<T>&
 operator>>=(TracedValue<T>& lhs, const U& rhs)
@@ -888,7 +830,6 @@ operator>>=(TracedValue<T>& lhs, const U& rhs)
     return lhs;
 }
 
-/** \copydoc operator+=(TracedValue<T>&lhs,const U&rhs) */
 template <typename T, typename U>
 TracedValue<T>&
 operator&=(TracedValue<T>& lhs, const U& rhs)
@@ -900,7 +841,6 @@ operator&=(TracedValue<T>& lhs, const U& rhs)
     return lhs;
 }
 
-/** \copydoc operator+=(TracedValue<T>&lhs,const U&rhs) */
 template <typename T, typename U>
 TracedValue<T>&
 operator|=(TracedValue<T>& lhs, const U& rhs)
@@ -912,7 +852,6 @@ operator|=(TracedValue<T>& lhs, const U& rhs)
     return lhs;
 }
 
-/** \copydoc operator+=(TracedValue<T>&lhs,const U&rhs) */
 template <typename T, typename U>
 TracedValue<T>&
 operator^=(TracedValue<T>& lhs, const U& rhs)
@@ -924,14 +863,16 @@ operator^=(TracedValue<T>& lhs, const U& rhs)
     return lhs;
 }
 
+/**@}*/
+
 /**
  * Unary arithmetic operator for TracedValue.
  *
- * \tparam T \deduced The underlying type held by the TracedValue.
- * \param [in] lhs The TracedValue.
- * \returns The result of doing the operator on
- *     the underlying values.
+ * @tparam T \deduced The underlying type held by the TracedValue.
+ * @param [in] lhs The TracedValue.
+ * @returns The result of doing the operator on the underlying values.
  */
+/**@{*/
 template <typename T>
 TracedValue<T>
 operator+(const TracedValue<T>& lhs)
@@ -940,7 +881,6 @@ operator+(const TracedValue<T>& lhs)
     return TracedValue<T>(+lhs.Get());
 }
 
-/** \copydoc operator+(const TracedValue<T>&lhs) */
 template <typename T>
 TracedValue<T>
 operator-(const TracedValue<T>& lhs)
@@ -949,7 +889,6 @@ operator-(const TracedValue<T>& lhs)
     return TracedValue<T>(-lhs.Get());
 }
 
-/** \copydoc operator+(const TracedValue<T>&lhs) */
 template <typename T>
 TracedValue<T>
 operator~(const TracedValue<T>& lhs)
@@ -958,7 +897,6 @@ operator~(const TracedValue<T>& lhs)
     return TracedValue<T>(~lhs.Get());
 }
 
-/** \copydoc operator+(const TracedValue<T>&lhs) */
 template <typename T>
 TracedValue<T>
 operator!(const TracedValue<T>& lhs)
@@ -966,6 +904,8 @@ operator!(const TracedValue<T>& lhs)
     TRACED_VALUE_DEBUG("(!x)");
     return TracedValue<T>(!lhs.Get());
 }
+
+/**@}*/
 
 /**@}*/ // \ingroup tracing
 

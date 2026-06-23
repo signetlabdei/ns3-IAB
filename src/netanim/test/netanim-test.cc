@@ -1,25 +1,15 @@
 /*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: John Abraham <john.abraham@gatech.edu>
  * Contributions: Eugene Kalishenko <ydginster@gmail.com> (Open Source and Linux Laboratory
- * http://dev.osll.ru/)
+ * http://wiki.osll.ru/doku.php/start)
  */
 
+#ifndef __WIN32__
 #include "unistd.h"
+#endif
 
-#include "ns3/applications-module.h"
 #include "ns3/basic-energy-source.h"
 #include "ns3/core-module.h"
 #include "ns3/internet-module.h"
@@ -28,32 +18,34 @@
 #include "ns3/point-to-point-layout-module.h"
 #include "ns3/point-to-point-module.h"
 #include "ns3/simple-device-energy-model.h"
+#include "ns3/udp-echo-helper.h"
 
 #include <iostream>
 
 using namespace ns3;
+using namespace ns3::energy;
 
 /**
- * \ingroup netanim
- * \ingroup tests
- * \defgroup netanim-test animation module tests
+ * @ingroup netanim
+ * @ingroup tests
+ * @defgroup netanim-test animation module tests
  */
 
 /**
- * \ingroup netanim-test
+ * @ingroup netanim-test
  *
- * \brief Abstract Animation Interface Test Case
+ * @brief Abstract Animation Interface Test Case
  */
 class AbstractAnimationInterfaceTestCase : public TestCase
 {
   public:
     /**
-     * \brief Constructor.
-     * \param name testcase name
+     * @brief Constructor.
+     * @param name testcase name
      */
     AbstractAnimationInterfaceTestCase(std::string name);
     /**
-     * \brief Destructor.
+     * @brief Destructor.
      */
 
     ~AbstractAnimationInterfaceTestCase() override;
@@ -107,19 +99,19 @@ AbstractAnimationInterfaceTestCase::CheckFileExistence()
     FILE* fp = fopen(m_traceFileName, "r");
     NS_TEST_ASSERT_MSG_NE(fp, nullptr, "Trace file was not created");
     fclose(fp);
-    unlink(m_traceFileName);
+    remove(m_traceFileName);
 }
 
 /**
- * \ingroup netanim-test
+ * @ingroup netanim-test
  *
- * \brief Animation Interface Test Case
+ * @brief Animation Interface Test Case
  */
 class AnimationInterfaceTestCase : public AbstractAnimationInterfaceTestCase
 {
   public:
     /**
-     * \brief Constructor.
+     * @brief Constructor.
      */
     AnimationInterfaceTestCase();
 
@@ -159,17 +151,17 @@ AnimationInterfaceTestCase::PrepareNetwork()
     UdpEchoServerHelper echoServer(9);
 
     ApplicationContainer serverApps = echoServer.Install(m_nodes.Get(1));
-    serverApps.Start(Seconds(1.0));
-    serverApps.Stop(Seconds(10.0));
+    serverApps.Start(Seconds(1));
+    serverApps.Stop(Seconds(10));
 
     UdpEchoClientHelper echoClient(interfaces.GetAddress(1), 9);
     echoClient.SetAttribute("MaxPackets", UintegerValue(100));
-    echoClient.SetAttribute("Interval", TimeValue(Seconds(1.0)));
+    echoClient.SetAttribute("Interval", TimeValue(Seconds(1)));
     echoClient.SetAttribute("PacketSize", UintegerValue(1024));
 
     ApplicationContainer clientApps = echoClient.Install(m_nodes.Get(0));
-    clientApps.Start(Seconds(2.0));
-    clientApps.Stop(Seconds(10.0));
+    clientApps.Start(Seconds(2));
+    clientApps.Stop(Seconds(10));
 }
 
 void
@@ -179,15 +171,15 @@ AnimationInterfaceTestCase::CheckLogic()
 }
 
 /**
- * \ingroup netanim-test
+ * @ingroup netanim-test
  *
- * \brief Animation Remaining Energy Test Case
+ * @brief Animation Remaining Energy Test Case
  */
 class AnimationRemainingEnergyTestCase : public AbstractAnimationInterfaceTestCase
 {
   public:
     /**
-     * \brief Constructor.
+     * @brief Constructor.
      */
     AnimationRemainingEnergyTestCase();
 
@@ -240,17 +232,17 @@ AnimationRemainingEnergyTestCase::CheckLogic()
 }
 
 /**
- * \ingroup netanim-test
+ * @ingroup netanim-test
  *
- * \brief Animation Interface Test Suite
+ * @brief Animation Interface Test Suite
  */
 static class AnimationInterfaceTestSuite : public TestSuite
 {
   public:
     AnimationInterfaceTestSuite()
-        : TestSuite("animation-interface", UNIT)
+        : TestSuite("animation-interface", Type::UNIT)
     {
-        AddTestCase(new AnimationInterfaceTestCase(), TestCase::QUICK);
-        AddTestCase(new AnimationRemainingEnergyTestCase(), TestCase::QUICK);
+        AddTestCase(new AnimationInterfaceTestCase(), TestCase::Duration::QUICK);
+        AddTestCase(new AnimationRemainingEnergyTestCase(), TestCase::Duration::QUICK);
     }
 } g_animationInterfaceTestSuite; ///< the test suite

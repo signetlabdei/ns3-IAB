@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2008 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -277,7 +266,7 @@ CsmaHelper::Install(const NodeContainer& c, Ptr<CsmaChannel> channel) const
 {
     NetDeviceContainer devs;
 
-    for (NodeContainer::Iterator i = c.Begin(); i != c.End(); i++)
+    for (auto i = c.Begin(); i != c.End(); i++)
     {
         devs.Add(InstallPriv(*i, channel));
     }
@@ -297,7 +286,7 @@ CsmaHelper::AssignStreams(NetDeviceContainer c, int64_t stream)
 {
     int64_t currentStream = stream;
     Ptr<NetDevice> netDevice;
-    for (NetDeviceContainer::Iterator i = c.Begin(); i != c.End(); ++i)
+    for (auto i = c.Begin(); i != c.End(); ++i)
     {
         netDevice = (*i);
         Ptr<CsmaNetDevice> csma = DynamicCast<CsmaNetDevice>(netDevice);

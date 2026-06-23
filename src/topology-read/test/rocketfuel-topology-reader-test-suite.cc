@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2010 Hajime Tazaki
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Hajime Tazaki (tazaki@sfc.wide.ad.jp)
  */
@@ -33,21 +22,21 @@
 using namespace ns3;
 
 /**
- * \defgroup topology-test Topology module tests
- * \ingroup topology
- * \ingroup tests
+ * @defgroup topology-test Topology module tests
+ * @ingroup topology
+ * @ingroup tests
  */
 
 /**
- * \file
- * \ingroup topology-test
+ * @file
+ * @ingroup topology-test
  * ns3::RockefuelTopologyReader test suite.
  */
 
 /**
- * \ingroup topology-test
+ * @ingroup topology-test
 
- * \brief Rocketfuel Topology Reader Weights Test
+ * @brief Rocketfuel Topology Reader Weights Test
  */
 class RocketfuelTopologyReaderWeightsTest : public TestCase
 {
@@ -89,8 +78,8 @@ RocketfuelTopologyReaderWeightsTest::DoRun()
 }
 
 /**
- * \ingroup topology-test
- * \brief Rocketfuel Topology Reader Maps Test
+ * @ingroup topology-test
+ * @brief Rocketfuel Topology Reader Maps Test
  */
 class RocketfuelTopologyReaderMapsTest : public TestCase
 {
@@ -132,9 +121,9 @@ RocketfuelTopologyReaderMapsTest::DoRun()
 }
 
 /**
- * \ingroup topology-test
+ * @ingroup topology-test
  *
- * \brief Rocketfuel Topology Reader TestSuite
+ * @brief Rocketfuel Topology Reader TestSuite
  */
 class RocketfuelTopologyReaderTestSuite : public TestSuite
 {
@@ -145,14 +134,14 @@ class RocketfuelTopologyReaderTestSuite : public TestSuite
 };
 
 RocketfuelTopologyReaderTestSuite::RocketfuelTopologyReaderTestSuite()
-    : TestSuite("rocketfuel-topology-reader", UNIT)
+    : TestSuite("rocketfuel-topology-reader", Type::UNIT)
 {
-    AddTestCase(new RocketfuelTopologyReaderWeightsTest(), TestCase::QUICK);
-    AddTestCase(new RocketfuelTopologyReaderMapsTest(), TestCase::QUICK);
+    AddTestCase(new RocketfuelTopologyReaderWeightsTest(), TestCase::Duration::QUICK);
+    AddTestCase(new RocketfuelTopologyReaderMapsTest(), TestCase::Duration::QUICK);
 }
 
 /**
- * \ingroup topology-test
+ * @ingroup topology-test
  * Static variable for test initialization
  */
 static RocketfuelTopologyReaderTestSuite g_rocketfuelTopologyReaderTestSuite;

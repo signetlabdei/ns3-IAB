@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2016 ResiliNets, ITTC, University of Kansas
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Truc Anh N. Nguyen <annguyen@ittc.ku.edu>
  *          Keerthi Ganta <keerthig@ittc.ku.edu>
@@ -37,9 +26,9 @@ namespace ns3
 class TcpSocketState;
 
 /**
- * \ingroup congestionOps
+ * @ingroup congestionOps
  *
- * \brief An implementation of TCP Scalable
+ * @brief An implementation of TCP Scalable
  *
  * Scalable improves TCP performance to better utilize the available bandwidth
  * of a highspeed wide area network by altering NewReno congestion window
@@ -65,8 +54,8 @@ class TcpScalable : public TcpNewReno
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
 
@@ -76,8 +65,8 @@ class TcpScalable : public TcpNewReno
     TcpScalable();
 
     /**
-     * \brief Copy constructor
-     * \param sock the object to copy
+     * @brief Copy constructor
+     * @param sock the object to copy
      */
     TcpScalable(const TcpScalable& sock);
     ~TcpScalable() override;
@@ -85,12 +74,12 @@ class TcpScalable : public TcpNewReno
     std::string GetName() const override;
 
     /**
-     * \brief Get slow start threshold following Scalable principle (Equation 2)
+     * @brief Get slow start threshold following Scalable principle (Equation 2)
      *
-     * \param tcb internal congestion state
-     * \param bytesInFlight bytes in flight
+     * @param tcb internal congestion state
+     * @param bytesInFlight bytes in flight
      *
-     * \return the slow start threshold value
+     * @return the slow start threshold value
      */
     uint32_t GetSsThresh(Ptr<const TcpSocketState> tcb, uint32_t bytesInFlight) override;
 
@@ -98,10 +87,10 @@ class TcpScalable : public TcpNewReno
 
   protected:
     /**
-     * \brief Congestion avoidance of TcpScalable (Equation 1)
+     * @brief Congestion avoidance of TcpScalable (Equation 1)
      *
-     * \param tcb internal congestion state
-     * \param segmentsAcked count of segments acked
+     * @param tcb internal congestion state
+     * @param segmentsAcked count of segments acked
      */
     void CongestionAvoidance(Ptr<TcpSocketState> tcb, uint32_t segmentsAcked) override;
 

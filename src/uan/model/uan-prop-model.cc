@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Leonard Tracy <lentracy@gmail.com>
  */
@@ -33,7 +22,7 @@ operator<<(std::ostream& os, const UanPdp& pdp)
     os << pdp.GetNTaps() << '|';
     os << pdp.GetResolution().GetSeconds() << '|';
 
-    UanPdp::Iterator it = pdp.m_taps.begin();
+    auto it = pdp.m_taps.begin();
     for (; it != pdp.m_taps.end(); it++)
     {
         os << (*it).GetAmp() << '|';
@@ -79,7 +68,7 @@ operator>>(std::istream& is, UanPdp& pdp)
 
 Tap::Tap()
     : m_amplitude(0.0),
-      m_delay(Seconds(0))
+      m_delay()
 {
 }
 
@@ -115,7 +104,7 @@ UanPdp::UanPdp(std::vector<std::complex<double>> amps, Time resolution)
     : m_resolution(resolution)
 {
     m_taps.resize(amps.size());
-    Time arrTime = Seconds(0);
+    Time arrTime;
     for (uint32_t index = 0; index < amps.size(); index++)
     {
         m_taps[index] = Tap(arrTime, amps[index]);
@@ -127,7 +116,7 @@ UanPdp::UanPdp(std::vector<double> amps, Time resolution)
     : m_resolution(resolution)
 {
     m_taps.resize(amps.size());
-    Time arrTime = Seconds(0);
+    Time arrTime;
     for (uint32_t index = 0; index < amps.size(); index++)
     {
         m_taps[index] = Tap(arrTime, amps[index]);
@@ -198,7 +187,7 @@ UanPdp::GetResolution() const
 std::complex<double>
 UanPdp::SumTapsFromMaxC(Time delay, Time duration) const
 {
-    if (m_resolution <= Seconds(0))
+    if (m_resolution.IsNegative())
     {
         NS_ASSERT_MSG(GetNTaps() == 1,
                       "Attempted to sum taps over time interval in "
@@ -236,7 +225,7 @@ UanPdp::SumTapsFromMaxC(Time delay, Time duration) const
 double
 UanPdp::SumTapsFromMaxNc(Time delay, Time duration) const
 {
-    if (m_resolution <= Seconds(0))
+    if (m_resolution.IsNegative())
     {
         NS_ASSERT_MSG(GetNTaps() == 1,
                       "Attempted to sum taps over time interval in "
@@ -276,13 +265,13 @@ UanPdp::SumTapsFromMaxNc(Time delay, Time duration) const
 double
 UanPdp::SumTapsNc(Time begin, Time end) const
 {
-    if (m_resolution <= Seconds(0))
+    if (m_resolution.IsNegative())
     {
         NS_ASSERT_MSG(GetNTaps() == 1,
                       "Attempted to sum taps over time interval in "
                       "UanPdp with resolution 0 and multiple taps");
 
-        if (begin <= Seconds(0.0) && end >= Seconds(0.0))
+        if (begin.IsNegative() && end.IsPositive())
         {
             return std::abs(m_taps[0].GetAmp());
         }
@@ -307,13 +296,13 @@ UanPdp::SumTapsNc(Time begin, Time end) const
 std::complex<double>
 UanPdp::SumTapsC(Time begin, Time end) const
 {
-    if (m_resolution <= Seconds(0))
+    if (m_resolution.IsNegative())
     {
         NS_ASSERT_MSG(GetNTaps() == 1,
                       "Attempted to sum taps over time interval in "
                       "UanPdp with resolution 0 and multiple taps");
 
-        if (begin <= Seconds(0.0) && end >= Seconds(0.0))
+        if (begin.IsNegative() && end.IsPositive())
         {
             return m_taps[0].GetAmp();
         }
@@ -341,6 +330,7 @@ UanPdp::NormalizeToSumNc() const
 {
     double sumNc = 0.0;
     std::vector<Tap> newTaps;
+    newTaps.reserve(GetNTaps());
 
     for (uint32_t i = 0; i < GetNTaps(); i++)
     {

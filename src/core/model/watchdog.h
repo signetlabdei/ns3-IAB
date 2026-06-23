@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2007 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -23,19 +12,24 @@
 #include "nstime.h"
 
 /**
- * \file
- * \ingroup timer
+ * @file
+ * @ingroup timer
  * ns3::Watchdog timer class declaration.
  */
 
 namespace ns3
 {
 
+namespace internal
+{
+
 class TimerImpl;
 
+} // namespace internal
+
 /**
- * \ingroup timer
- * \brief A very simple watchdog operating in virtual time.
+ * @ingroup timer
+ * @brief A very simple watchdog operating in virtual time.
  *
  * The watchdog timer is started by calling Ping with a delay value.
  * Once started the timer cannot be suspended, cancelled or shortened.
@@ -51,7 +45,7 @@ class TimerImpl;
  * If you don't ping the watchdog sufficiently often, it triggers its
  * listening function.
  *
- * \see Timer for a more sophisticated general purpose timer.
+ * @see Timer for a more sophisticated general purpose timer.
  */
 class Watchdog
 {
@@ -64,7 +58,7 @@ class Watchdog
     /**
      * Delay the timer.
      *
-     * \param [in] delay The watchdog delay
+     * @param [in] delay The watchdog delay
      *
      * After a call to this method, the watchdog will not be triggered
      * until the delay specified has been expired. This operation is
@@ -75,8 +69,8 @@ class Watchdog
     /**
      * Set the function to execute when the timer expires.
      *
-     * \tparam FN \deduced The type of the function.
-     * \param [in] fn The function
+     * @tparam FN \deduced The type of the function.
+     * @param [in] fn The function
      *
      * Store this function in this Timer for later use by Timer::Schedule.
      */
@@ -86,10 +80,10 @@ class Watchdog
     /**
      * Set the function to execute when the timer expires.
      *
-     * \tparam MEM_PTR \deduced Class method function type.
-     * \tparam OBJ_PTR \deduced Class type containing the function.
-     * \param [in] memPtr The member function pointer
-     * \param [in] objPtr The pointer to object
+     * @tparam MEM_PTR \deduced Class method function type.
+     * @tparam OBJ_PTR \deduced Class type containing the function.
+     * @param [in] memPtr The member function pointer
+     * @param [in] objPtr The pointer to object
      *
      * Store this function and object in this Timer for later use by Timer::Schedule.
      */
@@ -101,8 +95,8 @@ class Watchdog
      */
     /**@{*/
     /**
-     * \tparam Ts \deduced Argument types.
-     * \param [in] args arguments
+     * @tparam Ts \deduced Argument types.
+     * @param [in] args arguments
      */
     template <typename... Ts>
     void SetArguments(Ts&&... args);
@@ -115,7 +109,7 @@ class Watchdog
      * The timer implementation, which contains the bound callback
      * function and arguments.
      */
-    TimerImpl* m_impl;
+    internal::TimerImpl* m_impl;
     /** The future event scheduled to expire the timer. */
     EventId m_event;
     /** The absolute time when the timer will expire. */
@@ -138,7 +132,7 @@ void
 Watchdog::SetFunction(FN fn)
 {
     delete m_impl;
-    m_impl = MakeTimerImpl(fn);
+    m_impl = internal::MakeTimerImpl(fn);
 }
 
 template <typename MEM_PTR, typename OBJ_PTR>
@@ -146,7 +140,7 @@ void
 Watchdog::SetFunction(MEM_PTR memPtr, OBJ_PTR objPtr)
 {
     delete m_impl;
-    m_impl = MakeTimerImpl(memPtr, objPtr);
+    m_impl = internal::MakeTimerImpl(memPtr, objPtr);
 }
 
 template <typename... Ts>

@@ -701,7 +701,7 @@ public:
 };
 
 LteX2HandoverMeasuresTestSuite::LteX2HandoverMeasuresTestSuite ()
-    : TestSuite ("lte-x2-handover-measures", SYSTEM)
+    : TestSuite ("lte-x2-handover-measures", TestSuite::Type::SYSTEM)
 {
   Time checkInterval = Seconds (1);
 
@@ -731,31 +731,31 @@ LteX2HandoverMeasuresTestSuite::LteX2HandoverMeasuresTestSuite ()
       //                                          nEnbs, nUes, nDBearers, celist, name, useUdp, sched, ho, admitHo, idealRrc
       AddTestCase (new LteX2HandoverMeasuresTestCase (2, 1, 0, cel1, cel1name, true, sched, ho,
                                                       true, useIdealRrc),
-                   TestCase::TAKES_FOREVER);
+                   TestCase::Duration::TAKES_FOREVER);
       AddTestCase (new LteX2HandoverMeasuresTestCase (2, 1, 1, cel1, cel1name, true, sched, ho,
                                                       true, useIdealRrc),
-                   TestCase::QUICK);
+                   TestCase::Duration::QUICK);
       AddTestCase (new LteX2HandoverMeasuresTestCase (2, 1, 2, cel1, cel1name, true, sched, ho,
                                                       true, useIdealRrc),
-                   TestCase::TAKES_FOREVER);
+                   TestCase::Duration::TAKES_FOREVER);
       AddTestCase (new LteX2HandoverMeasuresTestCase (3, 1, 0, cel2, cel2name, true, sched, ho,
                                                       true, useIdealRrc),
-                   TestCase::TAKES_FOREVER);
+                   TestCase::Duration::TAKES_FOREVER);
       AddTestCase (new LteX2HandoverMeasuresTestCase (3, 1, 1, cel2, cel2name, true, sched, ho,
                                                       true, useIdealRrc),
-                   TestCase::TAKES_FOREVER);
+                   TestCase::Duration::TAKES_FOREVER);
       AddTestCase (new LteX2HandoverMeasuresTestCase (3, 1, 2, cel2, cel2name, true, sched, ho,
                                                       true, useIdealRrc),
-                   TestCase::EXTENSIVE);
+                   TestCase::Duration::EXTENSIVE);
       AddTestCase (new LteX2HandoverMeasuresTestCase (4, 1, 0, cel3, cel3name, true, sched, ho,
                                                       true, useIdealRrc),
-                   TestCase::EXTENSIVE);
+                   TestCase::Duration::EXTENSIVE);
       AddTestCase (new LteX2HandoverMeasuresTestCase (4, 1, 1, cel3, cel3name, true, sched, ho,
                                                       true, useIdealRrc),
-                   TestCase::TAKES_FOREVER);
+                   TestCase::Duration::TAKES_FOREVER);
       AddTestCase (new LteX2HandoverMeasuresTestCase (4, 1, 2, cel3, cel3name, true, sched, ho,
                                                       true, useIdealRrc),
-                   TestCase::TAKES_FOREVER);
+                   TestCase::Duration::TAKES_FOREVER);
     }
 
   sched = "ns3::RrFfMacScheduler";
@@ -764,13 +764,13 @@ LteX2HandoverMeasuresTestSuite::LteX2HandoverMeasuresTestSuite ()
       //                                          nEnbs, nUes, nDBearers, celist, name, useUdp, sched, admitHo, idealRrc
       AddTestCase (new LteX2HandoverMeasuresTestCase (2, 1, 0, cel1, cel1name, true, sched, ho,
                                                       true, useIdealRrc),
-                   TestCase::EXTENSIVE);
+                   TestCase::Duration::EXTENSIVE);
       AddTestCase (new LteX2HandoverMeasuresTestCase (3, 1, 0, cel2, cel2name, true, sched, ho,
                                                       true, useIdealRrc),
-                   TestCase::TAKES_FOREVER);
+                   TestCase::Duration::TAKES_FOREVER);
       AddTestCase (new LteX2HandoverMeasuresTestCase (4, 1, 0, cel3, cel3name, true, sched, ho,
                                                       true, useIdealRrc),
-                   TestCase::TAKES_FOREVER);
+                   TestCase::Duration::TAKES_FOREVER);
     }
 
   ho = "ns3::A3RsrpHandoverAlgorithm";
@@ -780,13 +780,13 @@ LteX2HandoverMeasuresTestSuite::LteX2HandoverMeasuresTestSuite ()
       //                                          nEnbs, nUes, nDBearers, celist, name, useUdp, sched, admitHo, idealRrc
       AddTestCase (new LteX2HandoverMeasuresTestCase (2, 1, 0, cel1, cel1name, true, sched, ho,
                                                       true, useIdealRrc),
-                   TestCase::EXTENSIVE);
+                   TestCase::Duration::EXTENSIVE);
       AddTestCase (new LteX2HandoverMeasuresTestCase (3, 1, 0, cel2, cel2name, true, sched, ho,
                                                       true, useIdealRrc),
-                   TestCase::TAKES_FOREVER);
+                   TestCase::Duration::TAKES_FOREVER);
       AddTestCase (new LteX2HandoverMeasuresTestCase (4, 1, 0, cel3, cel3name, true, sched, ho,
                                                       true, useIdealRrc),
-                   TestCase::TAKES_FOREVER);
+                   TestCase::Duration::TAKES_FOREVER);
     }
 
   sched = "ns3::RrFfMacScheduler";
@@ -795,13 +795,13 @@ LteX2HandoverMeasuresTestSuite::LteX2HandoverMeasuresTestSuite ()
       //                                          nEnbs, nUes, nDBearers, celist, name, useUdp, sched, admitHo, idealRrc
       AddTestCase (new LteX2HandoverMeasuresTestCase (2, 1, 0, cel1, cel1name, true, sched, ho,
                                                       true, useIdealRrc),
-                   TestCase::QUICK);
+                   TestCase::Duration::QUICK);
       AddTestCase (new LteX2HandoverMeasuresTestCase (3, 1, 0, cel2, cel2name, true, sched, ho,
                                                       true, useIdealRrc),
-                   TestCase::TAKES_FOREVER);
+                   TestCase::Duration::TAKES_FOREVER);
       AddTestCase (new LteX2HandoverMeasuresTestCase (4, 1, 0, cel3, cel3name, true, sched, ho,
                                                       true, useIdealRrc),
-                   TestCase::EXTENSIVE);
+                   TestCase::Duration::EXTENSIVE);
     }
 
 } // end of LteX2HandoverMeasuresTestSuite ()

@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2008-2009 Strasbourg University
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: David Gross <gdavid.devel@gmail.com>
  *         Sebastien Vincent <vincent@clarinet.u-strasbg.fr>
@@ -30,7 +19,6 @@
 #include "ns3/applications-module.h"
 #include "ns3/core-module.h"
 #include "ns3/csma-module.h"
-#include "ns3/internet-apps-module.h"
 #include "ns3/internet-module.h"
 #include "ns3/ipv6-routing-table-entry.h"
 #include "ns3/ipv6-static-routing-helper.h"
@@ -103,13 +91,13 @@ main(int argc, char** argv)
     echoClient.SetAttribute("PacketSize", UintegerValue(packetSize));
     echoClient.SetAttribute("MaxPackets", UintegerValue(maxPacketCount));
     ApplicationContainer clientApps = echoClient.Install(net1.Get(0));
-    clientApps.Start(Seconds(2.0));
-    clientApps.Stop(Seconds(20.0));
+    clientApps.Start(Seconds(2));
+    clientApps.Stop(Seconds(20));
 
     UdpEchoServerHelper echoServer(42);
     ApplicationContainer serverApps = echoServer.Install(net2.Get(1));
-    serverApps.Start(Seconds(0.0));
-    serverApps.Stop(Seconds(30.0));
+    serverApps.Start(Seconds(0));
+    serverApps.Stop(Seconds(30));
 
     AsciiTraceHelper ascii;
     csma.EnableAsciiAll(ascii.CreateFileStream("fragmentation-ipv6.tr"));

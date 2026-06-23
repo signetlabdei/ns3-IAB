@@ -1,16 +1,5 @@
 /*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 // Network topology
@@ -52,7 +41,7 @@
 //
 // 1) Ping one of the simulated nodes on the left side of the topology.
 //
-//    ./ns3 run tap-wifi-dumbbell&
+//    ./ns3 run --enable-sudo tap-wifi-dumbbell&
 //    ping 10.1.1.3
 //
 // 2) Configure a route in the linux host and ping once of the nodes on the
@@ -60,8 +49,8 @@
 //    delays due to CBR background traffic on the point-to-point (see next
 //    item).
 //
-//    ./ns3 run tap-wifi-dumbbell&
-//    sudo route add -net 10.1.3.0 netmask 255.255.255.0 dev thetap gw 10.1.1.2
+//    ./ns3 run --enable-sudo tap-wifi-dumbbell&
+//    sudo ip route add 10.1.3.0/24 dev thetap via 10.1.1.2
 //    ping 10.1.3.4
 //
 //    Take a look at the pcap traces and note that the timing reflects the
@@ -76,22 +65,25 @@
 //    reflected in large delays seen by ping.  You can crank down the CBR
 //    traffic data rate and watch the ping timing change dramatically.
 //
-//    ./ns3 run "tap-wifi-dumbbell --ns3::OnOffApplication::DataRate=100kb/s"&
-//    sudo route add -net 10.1.3.0 netmask 255.255.255.0 dev thetap gw 10.1.1.2
+//    ./ns3 run --enable-sudo "tap-wifi-dumbbell --ns3::OnOffApplication::DataRate=100kb/s"&
+//    sudo ip route add 10.1.3.0/24 dev thetap via 10.1.1.2
 //    ping 10.1.3.4
 //
 // 4) Try to run this in UseBridge mode.  This allows you to bridge an ns-3
 //    simulation to an existing pre-configured bridge.  This uses tap devices
 //    just for illustration, you can create your own bridge if you want.
+//    The "--enable-sudo" option to "./ns3 run" is not needed in this case
+//    because devices are being created outside of ns-3 execution.
 //
-//    sudo tunctl -t mytap1
-//    sudo ifconfig mytap1 0.0.0.0 promisc up
-//    sudo tunctl -t mytap2
-//    sudo ifconfig mytap2 0.0.0.0 promisc up
-//    sudo brctl addbr mybridge
-//    sudo brctl addif mybridge mytap1
-//    sudo brctl addif mybridge mytap2
-//    sudo ifconfig mybridge 10.1.1.5 netmask 255.255.255.0 up
+//    sudo ip tuntap add mode tap mytap1
+//    sudo ip link set mytap1 promisc on up
+//    sudo ip tuntap add mode tap mytap2
+//    sudo ip link set mytap2 promisc on up
+//    sudo ip link add mybridge type bridge
+//    sudo ip link set dev mytap1 master mybridge
+//    sudo ip link set dev mytap2 master mybridge
+//    sudo ip address add 10.1.1.5/24 dev mybridge
+//    sudo ip link set dev mybridge up
 //    ./ns3 run "tap-wifi-dumbbell --mode=UseBridge --tapName=mytap2"&
 //    ping 10.1.1.3
 
@@ -141,7 +133,7 @@ main(int argc, char* argv[])
     Ssid ssid = Ssid("left");
     WifiHelper wifi;
     WifiMacHelper wifiMac;
-    wifi.SetRemoteStationManager("ns3::ArfWifiManager");
+    wifi.SetStandard(WIFI_STANDARD_80211a);
 
     wifiMac.SetType("ns3::ApWifiMac", "Ssid", SsidValue(ssid));
     NetDeviceContainer devicesLeft = wifi.Install(wifiPhy, wifiMac, nodesLeft.Get(0));
@@ -166,7 +158,7 @@ main(int argc, char* argv[])
     ipv4Left.SetBase("10.1.1.0", "255.255.255.0");
     Ipv4InterfaceContainer interfacesLeft = ipv4Left.Assign(devicesLeft);
 
-    TapBridgeHelper tapBridge(interfacesLeft.GetAddress(1));
+    TapBridgeHelper tapBridge;
     tapBridge.SetAttribute("Mode", StringValue(mode));
     tapBridge.SetAttribute("DeviceName", StringValue(tapName));
     tapBridge.Install(nodesLeft.Get(0), devicesLeft.Get(0));
@@ -212,13 +204,13 @@ main(int argc, char* argv[])
     onoff.SetConstantRate(DataRate("500kb/s"));
 
     ApplicationContainer apps = onoff.Install(nodesLeft.Get(3));
-    apps.Start(Seconds(1.0));
+    apps.Start(Seconds(1));
 
     // Create a packet sink to receive these packets
     PacketSinkHelper sink("ns3::UdpSocketFactory", InetSocketAddress(Ipv4Address::GetAny(), port));
 
     apps = sink.Install(nodesRight.Get(0));
-    apps.Start(Seconds(1.0));
+    apps.Start(Seconds(1));
 
     wifiPhy.EnablePcapAll("tap-wifi-dumbbell");
 

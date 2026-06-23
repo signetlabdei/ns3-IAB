@@ -2,18 +2,7 @@
  * Copyright (c) 2019 SIGNET Lab, Department of Information Engineering,
  * University of Padova
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #include "ns3/abort.h"
@@ -30,8 +19,7 @@ using namespace ns3;
 NS_LOG_COMPONENT_DEFINE("BuildingsChannelConditionModelsTest");
 
 /**
- * \ingroup building-test
- * \ingroup tests
+ * @ingroup building-test
  *
  * Test case for the class BuildingsChannelConditionModel. It checks if the
  * channel condition is correctly determined when a building is deployed in the
@@ -116,11 +104,12 @@ BuildingsChannelConditionModelTestCase::DoRun()
 
     Ptr<BuildingsChannelConditionModel> condModel = CreateObject<BuildingsChannelConditionModel>();
 
-    Ptr<Building> building = Create<Building>();
+    auto building = CreateObject<Building>();
     building->SetNRoomsX(1);
     building->SetNRoomsY(1);
     building->SetNFloors(1);
     building->SetBoundaries(Box(0.0, 10.0, 0.0, 10.0, 0.0, 5.0));
+    building->SetExtWallsType(Building::ExtWallsType_t::Wood);
 
     BuildingsHelper::Install(nodes);
 
@@ -146,8 +135,7 @@ BuildingsChannelConditionModelTestCase::DoRun()
 }
 
 /**
- * \ingroup building-test
- * \ingroup tests
+ * @ingroup building-test
  * Test suite for the buildings channel condition model
  */
 class BuildingsChannelConditionModelsTestSuite : public TestSuite
@@ -157,9 +145,9 @@ class BuildingsChannelConditionModelsTestSuite : public TestSuite
 };
 
 BuildingsChannelConditionModelsTestSuite::BuildingsChannelConditionModelsTestSuite()
-    : TestSuite("buildings-channel-condition-model", UNIT)
+    : TestSuite("buildings-channel-condition-model", Type::UNIT)
 {
-    AddTestCase(new BuildingsChannelConditionModelTestCase, TestCase::QUICK);
+    AddTestCase(new BuildingsChannelConditionModelTestCase, TestCase::Duration::QUICK);
 }
 
 /// Static variable for test initialization

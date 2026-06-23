@@ -481,9 +481,8 @@ UeManager::SetupDataRadioBearer (EpsBearer bearer, uint32_t bearerId, uint32_t g
       pdcp->SetLtePdcpSapUser (m_drbPdcpSapUser);
       pdcp->SetLteRlcSapProvider (rlc->GetLteRlcSapProvider ());
       if (m_rrc->m_bap != nullptr // Skip this for LTE devices
-          &&
-          m_rrc
-              ->m_s1SapProvider) // Skip this is the EPC is not used as the target of the callback resides in the EpcEnbApplication
+          && m_rrc->m_s1SapProvider // Skip if EPC is not used
+          && !m_rrc->m_bapAddressFromImsiCallback.IsNull ()) // Skip for standalone root IAB DU
         {
           NS_ASSERT (m_rrc->m_rntiImsiMap.find (m_rnti) != m_rrc->m_rntiImsiMap.end ());
 
@@ -539,11 +538,9 @@ UeManager::SetupDataRadioBearer (EpsBearer bearer, uint32_t bearerId, uint32_t g
     }
 
   if (m_rrc->m_bap != nullptr // Skip this for LTE devices
-      &&
-      m_rrc
-          ->m_s1SapProvider) // Skip this is the EPC is not used as the target of the callback resides in the EpcEnbApplication
+      && m_rrc->m_s1SapProvider // Skip if EPC is not used
+      && !m_rrc->m_bapAddressFromImsiCallback.IsNull ()) // Skip for standalone root IAB DU
     {
-      NS_ASSERT (!m_rrc->m_bapAddressFromImsiCallback.IsNull ());
       NS_ASSERT (m_rrc->m_rntiImsiMap.find (m_rnti) != m_rrc->m_rntiImsiMap.end ());
 
       uint64_t imsiUe = m_rrc->m_rntiImsiMap.find (m_rnti)->second;
@@ -1097,7 +1094,7 @@ UeManager::ForwardRlcBuffers (Ptr<LteRlc> rlc, Ptr<LtePdcp> pdcp, uint32_t gtpTe
                              << " Size = " << txonBufferSize);
 
           Ptr<Packet> segmentedRlcsdu = rlcAm->GetSegmentedRlcsdu ();
-          if (segmentedRlcsdu != NULL)
+          if (segmentedRlcsdu)
             {
               segmentedRlcsdu->PeekHeader (pdcpHeader);
               NS_LOG_DEBUG (this << "SegmentedRlcSdu = " << segmentedRlcsdu->GetSize ()
@@ -1117,7 +1114,7 @@ UeManager::ForwardRlcBuffers (Ptr<LteRlc> rlc, Ptr<LtePdcp> pdcp, uint32_t gtpTe
           for (std::vector<Ptr<Packet>>::iterator it = rlcAmTxedSduBuffer.begin ();
                it != rlcAmTxedSduBuffer.end (); ++it)
             {
-              if ((*it) != NULL)
+              if ((*it))
                 {
                   (*it)->PeekHeader (pdcpHeader);
                   NS_LOG_DEBUG ("rlcAmTxedSduBuffer SEQ = " << pdcpHeader.GetSequenceNumber ()
@@ -1316,7 +1313,7 @@ UeManager::SendData (uint32_t bid, Ptr<Packet> p)
         if (it != m_drbMap.end ())
           {
             Ptr<LteDataRadioBearerInfo> bearerInfo = GetDataRadioBearerInfo (drbid);
-            if (bearerInfo != NULL)
+            if (bearerInfo)
               {
                 LtePdcpSapProvider *pdcpSapProvider = bearerInfo->m_pdcp->GetLtePdcpSapProvider ();
                 pdcpSapProvider->TransmitPdcpSdu (params);
@@ -1631,6 +1628,20 @@ UeManager::RecvRrcConnectionRequest (LteRrcSap::RrcConnectionRequest msg)
         if (m_rrc->m_admitRrcConnectionRequest == true)
           {
             m_imsi = msg.ueIdentity;
+            uint16_t staleRnti = m_rrc->GetRntiFromImsi (m_imsi);
+            if (staleRnti != 0 && staleRnti != m_rnti && m_rrc->HasUeManager (staleRnti))
+              {
+                Ptr<UeManager> staleUeManager = m_rrc->GetUeManager (staleRnti);
+                if (staleUeManager->GetState () == UeManager::CONNECTION_SETUP)
+                  {
+                    NS_LOG_WARN ("UeManager: new RrcConnectionRequest from IMSI "
+                                 << m_imsi << " (RNTI " << m_rnti
+                                 << ") while stale UeManager exists for RNTI " << staleRnti
+                                 << " in CONNECTION_SETUP -- removing stale entry"
+                                 << " (likely RACH retry after T300 timeout)");
+                    m_rrc->RemoveUe (staleRnti);
+                  }
+              }
             m_rrc->RegisterImsiToRnti (m_imsi, m_rnti);
             m_rrc->m_mmWaveCellSetupCompleted[m_imsi] = false;
             NS_LOG_DEBUG ("For imsi " << m_imsi << " m_rrc->m_mmWaveCellSetupCompleted[m_imsi] "
@@ -3044,7 +3055,7 @@ LteEnbRrc::GetTypeId (void)
           .AddAttribute (
               "EpsBearerToRlcMapping",
               "Specify which type of RLC will be used for each type of EPS bearer. ",
-              EnumValue (RLC_SM_ALWAYS), MakeEnumAccessor (&LteEnbRrc::m_epsBearerToRlcMapping),
+              EnumValue (RLC_SM_ALWAYS), MakeEnumAccessor<LteEnbRrc::LteEpsBearerToRlcMapping_t> (&LteEnbRrc::m_epsBearerToRlcMapping),
               MakeEnumChecker (RLC_SM_ALWAYS, "RlcSmAlways", RLC_UM_ALWAYS, "RlcUmAlways",
                                RLC_AM_ALWAYS, "RlcAmAlways", PER_BASED, "PacketErrorRateBased",
                                RLC_UM_LOWLAT_ALWAYS, "MmwRlcUmAlways"))
@@ -3166,7 +3177,7 @@ LteEnbRrc::GetTypeId (void)
               DoubleValue (3), MakeDoubleAccessor (&LteEnbRrc::m_sinrThresholdDifference),
               MakeDoubleChecker<double> ())
           .AddAttribute ("SecondaryCellHandoverMode", "Select the secondary cell handover mode",
-                         EnumValue (DYNAMIC_TTT), MakeEnumAccessor (&LteEnbRrc::m_handoverMode),
+                         EnumValue (DYNAMIC_TTT), MakeEnumAccessor<LteEnbRrc::HandoverMode> (&LteEnbRrc::m_handoverMode),
                          MakeEnumChecker (FIXED_TTT, "FixedTtt", DYNAMIC_TTT, "DynamicTtt",
                                           THRESHOLD, "Threshold"))
           .AddAttribute ("FixedTttValue", "The value of TTT in case of fixed TTT handover (in ms)",
@@ -4858,6 +4869,12 @@ void
 LteEnbRrc::ConnectionSetupTimeout (uint16_t rnti)
 {
   NS_LOG_FUNCTION (this << rnti);
+  if (!HasUeManager (rnti))
+    {
+      NS_LOG_WARN ("LteEnbRrc::ConnectionSetupTimeout: RNTI " << rnti
+                   << " already removed (proactively cleaned up during RACH retry)");
+      return;
+    }
   NS_ASSERT_MSG (GetUeManager (rnti)->GetState () == UeManager::CONNECTION_SETUP,
                  "ConnectionSetupTimeout in unexpected state "
                      << ToString (GetUeManager (rnti)->GetState ()));
@@ -5493,6 +5510,20 @@ LteEnbRrc::RemoveUe (uint16_t rnti)
   NS_ASSERT_MSG (it != m_ueMap.end (), "request to remove UE info with unknown rnti " << rnti);
   uint16_t srsCi = (*it).second->GetSrsConfigurationIndex ();
   bool isMc = it->second->GetIsMc ();
+
+  auto rntiImsiIt = m_rntiImsiMap.find (rnti);
+  if (rntiImsiIt != m_rntiImsiMap.end ())
+    {
+      uint64_t imsi = rntiImsiIt->second;
+      m_rntiImsiMap.erase (rntiImsiIt);
+      auto imsiRntiIt = m_imsiRntiMap.find (imsi);
+      if (imsiRntiIt != m_imsiRntiMap.end () && imsiRntiIt->second == rnti)
+        {
+          m_imsiRntiMap.erase (imsiRntiIt);
+        }
+      NS_LOG_WARN ("LteEnbRrc::RemoveUe: cleaned RNTI/IMSI maps for RNTI " << rnti
+                   << " IMSI " << imsi);
+    }
 
   m_ueMap.erase (it);
   for (uint8_t i = 0; i < m_numberOfComponentCarriers; i++)

@@ -336,10 +336,15 @@ void
 Bap::AddPairRlcMap (uint16_t destAddress, LteRlcSapProvider *rlcSapProvider)
 {
   NS_LOG_FUNCTION (this);
-  NS_ASSERT (m_bapAddressRlcMap.find (destAddress) == 
-             m_bapAddressRlcMap.end ());
+  if (m_bapAddressRlcMap.find (destAddress) != m_bapAddressRlcMap.end ())
+    {
+      NS_LOG_WARN ("Overwriting existing RLC MAP entry for BAP address " << destAddress
+                   << " (RACH retry / concurrent attachment)");
+      m_bapAddressRlcMap[destAddress] = rlcSapProvider;
+      return;
+    }
 
-  NS_LOG_DEBUG ("At BAP with address " << m_localAddress 
+  NS_LOG_DEBUG ("At BAP with address " << m_localAddress
                 << " stored RLC MAP entry " << rlcSapProvider
                 << " for address: "  << destAddress);
   m_bapAddressRlcMap.insert ({destAddress, rlcSapProvider});

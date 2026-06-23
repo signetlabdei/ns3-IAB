@@ -58,7 +58,7 @@ NS_LOG_COMPONENT_DEFINE ("LteFadingTest");
 * This TestSuite tests the fading model...
 */
 
-LteFadingTestSuite::LteFadingTestSuite () : TestSuite ("lte-fading-model", SYSTEM)
+LteFadingTestSuite::LteFadingTestSuite () : TestSuite ("lte-fading-model", TestSuite::Type::SYSTEM)
 {
 
   // -------------- COMPOUND TESTS ----------------------------------
@@ -113,7 +113,7 @@ LteFadingTestSuite::LteFadingTestSuite () : TestSuite ("lte-fading-model", SYSTE
   Ptr<BuildingsMobilityModel> mm2 = ueNodes.Get (0)->GetObject<BuildingsMobilityModel> ();
   mm2->SetPosition (Vector (distance, 0.0, hm));
 
-  AddTestCase (new LteFadingTestCase (mm1, mm2, 137.93, "OH Urban Large city"), TestCase::QUICK);
+  AddTestCase (new LteFadingTestCase (mm1, mm2, 137.93, "OH Urban Large city"), TestCase::Duration::QUICK);
 }
 
 static LteFadingTestSuite lteFadingTestSuite;

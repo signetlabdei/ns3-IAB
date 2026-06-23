@@ -1,17 +1,9 @@
 /*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
+ * Copyright (c) 2012 The Georgia Institute of Technology
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * SPDX-License-Identifier: GPL-2.0-only
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
+ * Author: Brian Swenson <bswenson3@gatech.edu>
  */
 
 #include "Brite.h"
@@ -122,8 +114,8 @@ main(int argc, char* argv[])
 
     UdpEchoServerHelper echoServer(9);
     ApplicationContainer serverApps = echoServer.Install(server.Get(0));
-    serverApps.Start(Seconds(1.0));
-    serverApps.Stop(Seconds(5.0));
+    serverApps.Start(Seconds(1));
+    serverApps.Stop(Seconds(5));
 
     UdpEchoClientHelper echoClient(serverInterfaces.GetAddress(0), 9);
     echoClient.SetAttribute("MaxPackets", UintegerValue(1));
@@ -131,8 +123,8 @@ main(int argc, char* argv[])
     echoClient.SetAttribute("PacketSize", UintegerValue(1024));
 
     ApplicationContainer clientApps = echoClient.Install(client.Get(0));
-    clientApps.Start(Seconds(2.0));
-    clientApps.Stop(Seconds(5.0));
+    clientApps.Start(Seconds(2));
+    clientApps.Stop(Seconds(5));
 
     if (!nix)
     {
@@ -145,7 +137,7 @@ main(int argc, char* argv[])
         p2p.EnableAsciiAll(ascii.CreateFileStream("briteLeaves.tr"));
     }
     // Run the simulator
-    Simulator::Stop(Seconds(6.0));
+    Simulator::Stop(Seconds(6));
     Simulator::Run();
     Simulator::Destroy();
 

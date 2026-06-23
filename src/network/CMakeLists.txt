@@ -1,5 +1,6 @@
 set(source_files
     helper/application-container.cc
+    helper/application-helper.cc
     helper/delay-jitter-estimation.cc
     helper/net-device-container.cc
     helper/node-container.cc
@@ -73,6 +74,7 @@ set(source_files
 
 set(header_files
     helper/application-container.h
+    helper/application-helper.h
     helper/delay-jitter-estimation.h
     helper/net-device-container.h
     helper/node-container.h
@@ -99,7 +101,6 @@ set(header_files
     model/tag-buffer.h
     model/tag.h
     model/trailer.h
-    test/header-serialization-test.h
     utils/address-utils.h
     utils/bit-deserializer.h
     utils/bit-serializer.h
@@ -113,6 +114,7 @@ set(header_files
     utils/ethernet-trailer.h
     utils/flow-id-tag.h
     utils/generic-phy.h
+    utils/header-serialization-test.h
     utils/inet-socket-address.h
     utils/inet6-socket-address.h
     utils/ipv4-address.h
@@ -154,9 +156,9 @@ build_lib(
   LIBNAME network
   SOURCE_FILES ${source_files}
   HEADER_FILES ${header_files}
-  LIBRARIES_TO_LINK ${libcore}
-                    ${libstats}
+  LIBRARIES_TO_LINK ${libstats}
   TEST_SOURCES
+    test/address-test.cc
     test/bit-serializer-test.cc
     test/buffer-test.cc
     test/drop-tail-queue-test-suite.cc

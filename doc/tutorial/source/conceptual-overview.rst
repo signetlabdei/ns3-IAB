@@ -150,10 +150,9 @@ into an easy to use model for your convenience.
 
 A First ns-3 Script
 *******************
-If you downloaded the system as was suggested above, you will have a release
-of |ns3| in a directory called ``workspace`` under your home
-directory.  Change into that release directory, and you should find a
-directory structure something like the following:
+Change into the *ns-3* or *ns-3.<version>* directory that you downloaded by one of
+the various methods described in the getting started chapter, and you should find
+a directory structure something like the following:
 
 .. sourcecode:: bash
 
@@ -168,30 +167,8 @@ point-to-point link between two nodes and echo a single packet between the
 nodes.  Let's take a look at that script line by line, so go ahead and open
 ``first.cc`` in your favorite editor.
 
-Boilerplate
-+++++++++++
-The first line in the file is an emacs mode line.  This tells emacs about the
-formatting conventions (coding style) we use in our source code.
-
-::
-
-  /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
-
-This is always a somewhat controversial subject, so we might as well get it
-out of the way immediately.  The |ns3| project, like most large
-projects, has adopted a coding style to which all contributed code must
-adhere.  If you want to contribute your code to the project, you will
-eventually have to conform to the |ns3| coding standard as described
-in the file ``doc/contributing/source/coding-style.rst`` or shown on the project web page
-`here
-<https://www.nsnam.org/docs/contributing/html/coding-style.html>`_.
-
-We recommend that you, well, just get used to the look and feel of |ns3|
-code and adopt this standard whenever you are working with our code.  All of
-the development team and contributors have done so with various amounts of
-grumbling.  The emacs mode line above makes it easier to get the formatting
-correct if you use the emacs editor.
-
+Copyright
++++++++++
 The |ns3| simulator is licensed using the GNU General Public
 License version 2.  You will see the appropriate GNU legalese at the head of every file
 in the |ns3| distribution.  Often you will see a copyright notice for
@@ -201,18 +178,7 @@ text and an author listed below.
 ::
 
   /*
-   * This program is free software; you can redistribute it and/or modify
-   * it under the terms of the GNU General Public License version 2 as
-   * published by the Free Software Foundation;
-   *
-   * This program is distributed in the hope that it will be useful,
-   * but WITHOUT ANY WARRANTY; without even the implied warranty of
-   * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   * GNU General Public License for more details.
-   *
-   * You should have received a copy of the GNU General Public License
-   * along with this program; if not, write to the Free Software
-   * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+   * SPDX-License-Identifier: GPL-2.0-only
    */
 
 Module Includes
@@ -237,14 +203,12 @@ is not the most efficient approach but it certainly makes writing scripts much
 easier.
 
 Each of the |ns3| include files is placed in a directory called
-``ns3`` (under the build directory) during the build process to help avoid
+``build/include/ns3`` during the build process to help avoid
 include file name collisions.  The ``ns3/core-module.h`` file corresponds
 to the ns-3 module you will find in the directory ``src/core`` in your
 downloaded release distribution.  If you list this directory you will find a
 large number of header files.  When you do a build, ns3 will place public
-header files in an ``ns3`` directory under the appropriate
-``build/debug`` or ``build/optimized`` directory depending on your
-configuration.  CMake will also automatically generate a module include file to
+header files in an ``build/include/ns3`` directory.  CMake will also automatically generate a module include file to
 load all of the public header files.
 
 Since you are, of course, following this tutorial religiously, you will
@@ -587,8 +551,8 @@ created.
     UdpEchoServerHelper echoServer(9);
 
     ApplicationContainer serverApps = echoServer.Install(nodes.Get(1));
-    serverApps.Start(Seconds(1.0));
-    serverApps.Stop(Seconds(10.0));
+    serverApps.Start(Seconds(1));
+    serverApps.Stop(Seconds(10));
 
 The first line of code in the above snippet declares the
 ``UdpEchoServerHelper``.  As usual, this isn't the application itself, it
@@ -633,8 +597,8 @@ converted for you.  The two lines,
 
 ::
 
-    serverApps.Start(Seconds(1.0));
-    serverApps.Stop(Seconds(10.0));
+    serverApps.Start(Seconds(1));
+    serverApps.Stop(Seconds(10));
 
 will cause the echo server application to ``Start`` (enable itself) at one
 second into the simulation and to ``Stop`` (disable itself) at ten seconds
@@ -653,12 +617,12 @@ that is managed by an ``UdpEchoClientHelper``.
 
     UdpEchoClientHelper echoClient(interfaces.GetAddress(1), 9);
     echoClient.SetAttribute("MaxPackets", UintegerValue(1));
-    echoClient.SetAttribute("Interval", TimeValue(Seconds(1.0)));
+    echoClient.SetAttribute("Interval", TimeValue(Seconds(1)));
     echoClient.SetAttribute("PacketSize", UintegerValue(1024));
 
     ApplicationContainer clientApps = echoClient.Install(nodes.Get(0));
-    clientApps.Start(Seconds(2.0));
-    clientApps.Stop(Seconds(10.0));
+    clientApps.Start(Seconds(2));
+    clientApps.Stop(Seconds(10));
 
 For the echo client, however, we need to set five different ``Attributes``.
 The first two ``Attributes`` are set during construction of the
@@ -701,11 +665,11 @@ When we previously called the methods,
 
 ::
 
-    serverApps.Start(Seconds(1.0));
-    serverApps.Stop(Seconds(10.0));
+    serverApps.Start(Seconds(1));
+    serverApps.Stop(Seconds(10));
     ...
-    clientApps.Start(Seconds(2.0));
-    clientApps.Stop(Seconds(10.0));
+    clientApps.Start(Seconds(2));
+    clientApps.Stop(Seconds(10));
 
 we actually scheduled events in the simulator at 1.0 seconds, 2.0 seconds and
 two events at 10.0 seconds.  When ``Simulator::Run`` is called, the system
@@ -791,7 +755,7 @@ in the first example program will schedule an explicit stop at 11 seconds:
 
 ::
 
-  +  Simulator::Stop(Seconds(11.0));
+  +  Simulator::Stop(Seconds(11));
      Simulator::Run();
      Simulator::Destroy();
      return 0;

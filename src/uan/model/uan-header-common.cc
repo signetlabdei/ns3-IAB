@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Leonard Tracy <lentracy@gmail.com>
  */
@@ -24,6 +13,7 @@
 static const uint16_t ARP_PROT_NUMBER = 0x0806;
 static const uint16_t IPV4_PROT_NUMBER = 0x0800;
 static const uint16_t IPV6_PROT_NUMBER = 0x86DD;
+static const uint16_t SIXLOWPAN_PROT_NUMBER = 0xA0ED;
 
 namespace ns3
 {
@@ -103,6 +93,10 @@ UanHeaderCommon::SetProtocolNumber(uint16_t protocolNumber)
     {
         m_uanProtocolBits.m_protocolNumber = 3;
     }
+    else if (protocolNumber == SIXLOWPAN_PROT_NUMBER)
+    {
+        m_uanProtocolBits.m_protocolNumber = 4;
+    }
     else
     {
         NS_ASSERT_MSG(false, "UanHeaderCommon::SetProtocolNumber(): Protocol not supported");
@@ -141,6 +135,10 @@ UanHeaderCommon::GetProtocolNumber() const
     if (m_uanProtocolBits.m_protocolNumber == 3)
     {
         return IPV6_PROT_NUMBER;
+    }
+    if (m_uanProtocolBits.m_protocolNumber == 4)
+    {
+        return SIXLOWPAN_PROT_NUMBER;
     }
     return 0;
 }

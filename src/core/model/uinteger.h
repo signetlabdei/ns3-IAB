@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2008 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -26,8 +15,8 @@
 #include <stdint.h>
 
 /**
- * \file
- * \ingroup attribute_Uinteger
+ * @file
+ * @ingroup attribute_Uinteger
  * ns3::UintegerValue attribute value declarations and template implementations.
  */
 
@@ -53,9 +42,9 @@ Ptr<const AttributeChecker> MakeUintegerChecker();
  *
  * The minimum value is included in the allowed range.
  *
- * \param [in] min The minimum value.
- * \returns The AttributeChecker.
- * \see AttributeChecker
+ * @param [in] min The minimum value.
+ * @returns The AttributeChecker.
+ * @see AttributeChecker
  */
 template <typename T>
 Ptr<const AttributeChecker> MakeUintegerChecker(uint64_t min);
@@ -65,10 +54,10 @@ Ptr<const AttributeChecker> MakeUintegerChecker(uint64_t min);
  *
  * The minimum and maximum values are included in the allowed range.
  *
- * \param [in] min The minimum value.
- * \param [in] max The maximum value.
- * \returns The AttributeChecker.
- * \see AttributeChecker
+ * @param [in] min The minimum value.
+ * @param [in] max The maximum value.
+ * @returns The AttributeChecker.
+ * @see AttributeChecker
  */
 template <typename T>
 Ptr<const AttributeChecker> MakeUintegerChecker(uint64_t min, uint64_t max);

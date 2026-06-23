@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2013 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mitch Watrous (watrous@u.washington.edu)
  */
@@ -107,7 +96,7 @@ GnuplotHelper::PlotProbe(const std::string& typeId,
                          const std::string& path,
                          const std::string& probeTraceSource,
                          const std::string& title,
-                         enum GnuplotAggregator::KeyLocation keyLocation)
+                         GnuplotAggregator::KeyLocation keyLocation)
 {
     NS_LOG_FUNCTION(this << typeId << path << probeTraceSource << title << keyLocation);
 
@@ -118,7 +107,7 @@ GnuplotHelper::PlotProbe(const std::string& typeId,
     aggregator->SetTitle(m_title + " \\n\\nTrace Source Path: " + path);
 
     // Set the default dataset plotting style for the values.
-    aggregator->Set2dDatasetDefaultStyle(Gnuplot2dDataset::LINES_POINTS);
+    GnuplotAggregator::Set2dDatasetDefaultStyle(Gnuplot2dDataset::LINES_POINTS);
 
     // Set the location of the key in the plot.
     aggregator->SetKeyLocation(keyLocation);
@@ -257,8 +246,7 @@ Ptr<Probe>
 GnuplotHelper::GetProbe(std::string probeName) const
 {
     // Look for the probe.
-    std::map<std::string, std::pair<Ptr<Probe>, std::string>>::const_iterator mapIterator =
-        m_probeMap.find(probeName);
+    auto mapIterator = m_probeMap.find(probeName);
 
     // Return the probe if it has been added.
     if (mapIterator != m_probeMap.end())
@@ -334,7 +322,8 @@ GnuplotHelper::ConnectProbeToAggregator(const std::string& typeId,
     AddTimeSeriesAdaptor(probeContext);
 
     // Connect the probe to the adaptor.
-    if (m_probeMap[probeName].second == "ns3::DoubleProbe")
+    if (m_probeMap[probeName].second == "ns3::DoubleProbe" ||
+        m_probeMap[probeName].second == "ns3::TimeProbe")
     {
         m_probeMap[probeName].first->TraceConnectWithoutContext(
             probeTraceSource,
@@ -348,28 +337,11 @@ GnuplotHelper::ConnectProbeToAggregator(const std::string& typeId,
             MakeCallback(&TimeSeriesAdaptor::TraceSinkBoolean,
                          m_timeSeriesAdaptorMap[probeContext]));
     }
-    else if (m_probeMap[probeName].second == "ns3::PacketProbe")
-    {
-        m_probeMap[probeName].first->TraceConnectWithoutContext(
-            probeTraceSource,
-            MakeCallback(&TimeSeriesAdaptor::TraceSinkUinteger32,
-                         m_timeSeriesAdaptorMap[probeContext]));
-    }
-    else if (m_probeMap[probeName].second == "ns3::ApplicationPacketProbe")
-    {
-        m_probeMap[probeName].first->TraceConnectWithoutContext(
-            probeTraceSource,
-            MakeCallback(&TimeSeriesAdaptor::TraceSinkUinteger32,
-                         m_timeSeriesAdaptorMap[probeContext]));
-    }
-    else if (m_probeMap[probeName].second == "ns3::Ipv4PacketProbe")
-    {
-        m_probeMap[probeName].first->TraceConnectWithoutContext(
-            probeTraceSource,
-            MakeCallback(&TimeSeriesAdaptor::TraceSinkUinteger32,
-                         m_timeSeriesAdaptorMap[probeContext]));
-    }
-    else if (m_probeMap[probeName].second == "ns3::Ipv6PacketProbe")
+    else if (m_probeMap[probeName].second == "ns3::Uinteger32Probe" ||
+             m_probeMap[probeName].second == "ns3::PacketProbe" ||
+             m_probeMap[probeName].second == "ns3::ApplicationPacketProbe" ||
+             m_probeMap[probeName].second == "ns3::Ipv4PacketProbe" ||
+             m_probeMap[probeName].second == "ns3::Ipv6PacketProbe")
     {
         m_probeMap[probeName].first->TraceConnectWithoutContext(
             probeTraceSource,
@@ -388,20 +360,6 @@ GnuplotHelper::ConnectProbeToAggregator(const std::string& typeId,
         m_probeMap[probeName].first->TraceConnectWithoutContext(
             probeTraceSource,
             MakeCallback(&TimeSeriesAdaptor::TraceSinkUinteger16,
-                         m_timeSeriesAdaptorMap[probeContext]));
-    }
-    else if (m_probeMap[probeName].second == "ns3::Uinteger32Probe")
-    {
-        m_probeMap[probeName].first->TraceConnectWithoutContext(
-            probeTraceSource,
-            MakeCallback(&TimeSeriesAdaptor::TraceSinkUinteger32,
-                         m_timeSeriesAdaptorMap[probeContext]));
-    }
-    else if (m_probeMap[probeName].second == "ns3::TimeProbe")
-    {
-        m_probeMap[probeName].first->TraceConnectWithoutContext(
-            probeTraceSource,
-            MakeCallback(&TimeSeriesAdaptor::TraceSinkDouble,
                          m_timeSeriesAdaptorMap[probeContext]));
     }
     else

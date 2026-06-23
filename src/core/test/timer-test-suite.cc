@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2007 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -22,46 +11,40 @@
 #include "ns3/timer.h"
 
 /**
- * \file
- * \ingroup timer-tests
+ * @file
+ * @ingroup timer-tests
  * Timer test suite
  */
 
 /**
- * \ingroup core-tests
- * \defgroup timer-tests Timer tests
+ * @ingroup core-tests
+ * @defgroup timer-tests Timer tests
  */
 
 namespace
 {
-
-// clang-format off
-
 /// Function with one int parameter.
-void bari (int) {};
+void bari(int) {};
 /// Function with two int parameters.
-void bar2i (int, int) {};
+void bar2i(int, int) {};
 /// Function with three int parameters.
-void bar3i (int, int, int) {};
+void bar3i(int, int, int) {};
 /// Function with four int parameters.
-void bar4i (int, int, int, int) {};
+void bar4i(int, int, int, int) {};
 /// Function with five int parameters.
-void bar5i (int, int, int, int, int) {};
+void bar5i(int, int, int, int, int) {};
 /// Function with one const int reference parameter.
-void barcir (const int &) {};
+void barcir(const int&) {};
 /// Function with one int reference parameter.
-void barir (int &) {};
-
-// clang-format on
-
+void barir(int&) {};
 } // anonymous namespace
 
 using namespace ns3;
 
 /**
- * \ingroup timer-tests
+ * @ingroup timer-tests
  *
- * \brief Check correct state transitions.
+ * @brief Check correct state transitions.
  */
 class TimerStateTestCase : public TestCase
 {
@@ -82,7 +65,7 @@ TimerStateTestCase::DoRun()
 
     timer.SetFunction(&bari);
     timer.SetArguments(1);
-    timer.SetDelay(Seconds(10.0));
+    timer.SetDelay(Seconds(10));
     NS_TEST_ASSERT_MSG_EQ(!timer.IsRunning(), true, "");
     NS_TEST_ASSERT_MSG_EQ(timer.IsExpired(), true, "");
     NS_TEST_ASSERT_MSG_EQ(!timer.IsSuspended(), true, "");
@@ -110,9 +93,9 @@ TimerStateTestCase::DoRun()
 }
 
 /**
- * \ingroup timer-tests
+ * @ingroup timer-tests
  *
- * \brief Check that Timer template magic is working.
+ * @brief Check that Timer template magic is working.
  */
 class TimerTemplateTestCase : public TestCase
 {
@@ -122,25 +105,25 @@ class TimerTemplateTestCase : public TestCase
     void DoTeardown() override;
 
     /// Member function with one int parameter.
-    void bazi(int){};
+    void bazi(int) {};
     /// Member function with two int parameters.
-    void baz2i(int, int){};
+    void baz2i(int, int) {};
     /// Member function with three int parameters.
-    void baz3i(int, int, int){};
+    void baz3i(int, int, int) {};
     /// Member function with four int parameters.
-    void baz4i(int, int, int, int){};
+    void baz4i(int, int, int, int) {};
     /// Member function with five int parameters.
-    void baz5i(int, int, int, int, int){};
+    void baz5i(int, int, int, int, int) {};
     /// Member function with six int parameters.
-    void baz6i(int, int, int, int, int, int){};
+    void baz6i(int, int, int, int, int, int) {};
     /// Member function with one const int reference parameter.
-    void bazcir(const int&){};
+    void bazcir(const int&) {};
     /// Member function with one int reference parameter.
-    void bazir(int&){};
+    void bazir(int&) {};
     /// Member function with one int pointer parameter.
-    void bazip(int*){};
+    void bazip(int*) {};
     /// Member function with one const int pointer parameter.
-    void bazcip(const int*){};
+    void bazcip(const int*) {};
 };
 
 TimerTemplateTestCase::TimerTemplateTestCase()
@@ -175,7 +158,7 @@ TimerTemplateTestCase::DoRun()
     // the following call cannot possibly work and is flagged by
     // a runtime error.
     // timer.SetArguments (0.0);
-    timer.SetDelay(Seconds(1.0));
+    timer.SetDelay(Seconds(1));
     timer.Schedule();
 
     timer.SetFunction(&TimerTemplateTestCase::bazi, this);
@@ -221,18 +204,18 @@ TimerTemplateTestCase::DoTeardown()
 }
 
 /**
- * \ingroup timer-tests
+ * @ingroup timer-tests
  *
- * \brief The timer Test Suite.
+ * @brief The timer Test Suite.
  */
 class TimerTestSuite : public TestSuite
 {
   public:
     TimerTestSuite()
-        : TestSuite("timer", UNIT)
+        : TestSuite("timer", Type::UNIT)
     {
-        AddTestCase(new TimerStateTestCase(), TestCase::QUICK);
-        AddTestCase(new TimerTemplateTestCase(), TestCase::QUICK);
+        AddTestCase(new TimerStateTestCase(), TestCase::Duration::QUICK);
+        AddTestCase(new TimerTemplateTestCase(), TestCase::Duration::QUICK);
     }
 };
 

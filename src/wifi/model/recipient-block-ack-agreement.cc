@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2020 Universita' degli Studi di Napoli Federico II
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Stefano Avallone <stavallo@unina.it>
  */
@@ -170,8 +159,10 @@ RecipientBlockAckAgreement::NotifyReceivedMpdu(Ptr<const WifiMpdu> mpdu)
         // MAC process in order of increasing Sequence Number subfield value. Gaps may
         // exist in the Sequence Number subfield values of the MSDUs or A-MSDUs that are
         // passed up to the next MAC process.
-        PassBufferedMpdusWithSeqNumberLessThan(mpdu->GetHeader().GetSequenceNumber() - m_winSizeB +
-                                               1);
+        const uint16_t newWinStartB =
+            (mpdu->GetHeader().GetSequenceNumber() - m_winSizeB + 1 + SEQNO_SPACE_SIZE) %
+            SEQNO_SPACE_SIZE;
+        PassBufferedMpdusWithSeqNumberLessThan(newWinStartB);
 
         // 5. Pass MSDUs or A-MSDUs stored in the buffer up to the next MAC process in
         // order of increasing value of the Sequence Number subfield starting with
@@ -229,20 +220,20 @@ RecipientBlockAckAgreement::NotifyReceivedBar(uint16_t startingSequenceNumber)
 }
 
 void
-RecipientBlockAckAgreement::FillBlockAckBitmap(CtrlBAckResponseHeader* blockAckHeader,
+RecipientBlockAckAgreement::FillBlockAckBitmap(CtrlBAckResponseHeader& blockAckHeader,
                                                std::size_t index) const
 {
     NS_LOG_FUNCTION(this << blockAckHeader << index);
-    if (blockAckHeader->IsBasic())
+    if (blockAckHeader.IsBasic())
     {
         NS_FATAL_ERROR("Basic block ack is not supported.");
     }
-    else if (blockAckHeader->IsMultiTid())
+    else if (blockAckHeader.IsMultiTid())
     {
         NS_FATAL_ERROR("Multi-tid block ack is not supported.");
     }
-    else if (blockAckHeader->IsCompressed() || blockAckHeader->IsExtendedCompressed() ||
-             blockAckHeader->IsMultiSta())
+    else if (blockAckHeader.IsCompressed() || blockAckHeader.IsExtendedCompressed() ||
+             blockAckHeader.IsMultiSta() || blockAckHeader.IsGcr())
     {
         // The Starting Sequence Number subfield of the Block Ack Starting Sequence
         // Control subfield of the BlockAck frame shall be set to any value in the
@@ -250,14 +241,14 @@ RecipientBlockAckAgreement::FillBlockAckBitmap(CtrlBAckResponseHeader* blockAckH
         // We set it to WinStartR
         uint16_t ssn = m_scoreboard.GetWinStart();
         NS_LOG_DEBUG("SSN=" << ssn);
-        blockAckHeader->SetStartingSequence(ssn, index);
-        blockAckHeader->ResetBitmap(index);
+        blockAckHeader.SetStartingSequence(ssn, index);
+        blockAckHeader.ResetBitmap(index);
 
         for (std::size_t i = 0; i < m_scoreboard.GetWinSize(); i++)
         {
             if (m_scoreboard.At(i))
             {
-                blockAckHeader->SetReceivedPacket((ssn + i) % SEQNO_SPACE_SIZE, index);
+                blockAckHeader.SetReceivedPacket((ssn + i) % SEQNO_SPACE_SIZE, index);
             }
         }
     }

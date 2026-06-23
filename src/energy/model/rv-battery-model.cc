@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2010 Network Security Lab, University of Washington, Seattle.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Sidharth Nabar <snabar@uw.edu>, He Wu <mdzz@u.washington.edu>
  */
@@ -29,22 +18,24 @@
 
 namespace ns3
 {
+namespace energy
+{
 
 NS_LOG_COMPONENT_DEFINE("RvBatteryModel");
-
 NS_OBJECT_ENSURE_REGISTERED(RvBatteryModel);
 
 TypeId
 RvBatteryModel::GetTypeId()
 {
     static TypeId tid =
-        TypeId("ns3::RvBatteryModel")
+        TypeId("ns3::energy::RvBatteryModel")
+            .AddDeprecatedName("ns3::RvBatteryModel")
             .SetParent<EnergySource>()
             .SetGroupName("Energy")
             .AddConstructor<RvBatteryModel>()
             .AddAttribute("RvBatteryModelPeriodicEnergyUpdateInterval",
                           "RV battery model sampling interval.",
-                          TimeValue(Seconds(1.0)),
+                          TimeValue(Seconds(1)),
                           MakeTimeAccessor(&RvBatteryModel::SetSamplingInterval,
                                            &RvBatteryModel::GetSamplingInterval),
                           MakeTimeChecker())
@@ -99,7 +90,7 @@ RvBatteryModel::RvBatteryModel()
     m_timeStamps.push_back(m_lastSampleTime);
     m_previousLoad = -1.0;
     m_batteryLevel = 1; // fully charged
-    m_lifetime = Seconds(0.0);
+    m_lifetime = Seconds(0);
 }
 
 RvBatteryModel::~RvBatteryModel()
@@ -345,7 +336,7 @@ RvBatteryModel::Discharge(double load, Time t)
     if (m_timeStamps.size() == 1)
     {
         // constant load
-        calculatedAlpha = m_load[0] * RvModelAFunction(t, t, Seconds(0.0), m_beta);
+        calculatedAlpha = m_load[0] * RvModelAFunction(t, t, Seconds(0), m_beta);
     }
     else
     {
@@ -379,4 +370,5 @@ RvBatteryModel::RvModelAFunction(Time t, Time sk, Time sk_1, double beta)
     return delta + 2 * sum;
 }
 
+} // namespace energy
 } // namespace ns3

@@ -1,27 +1,15 @@
 /*
  * Copyright (c) 2018 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Sébastien Deronne <sebastien.deronne@gmail.com>
  */
 
 #include "obss-pd-algorithm.h"
 
-#include "he-phy.h"
-
 #include "ns3/double.h"
+#include "ns3/eht-phy.h"
 #include "ns3/log.h"
 #include "ns3/wifi-net-device.h"
 #include "ns3/wifi-phy.h"
@@ -45,27 +33,27 @@ ObssPdAlgorithm::GetTypeId()
                           DoubleValue(-82.0),
                           MakeDoubleAccessor(&ObssPdAlgorithm::SetObssPdLevel,
                                              &ObssPdAlgorithm::GetObssPdLevel),
-                          MakeDoubleChecker<double>(-101, -62))
+                          MakeDoubleChecker<dBm_u>(-101, -62))
             .AddAttribute("ObssPdLevelMin",
                           "Minimum value (dBm) of OBSS PD level.",
                           DoubleValue(-82.0),
                           MakeDoubleAccessor(&ObssPdAlgorithm::m_obssPdLevelMin),
-                          MakeDoubleChecker<double>(-101, -62))
+                          MakeDoubleChecker<dBm_u>(-101, -62))
             .AddAttribute("ObssPdLevelMax",
                           "Maximum value (dBm) of OBSS PD level.",
                           DoubleValue(-62.0),
                           MakeDoubleAccessor(&ObssPdAlgorithm::m_obssPdLevelMax),
-                          MakeDoubleChecker<double>(-101, -62))
+                          MakeDoubleChecker<dBm_u>(-101, -62))
             .AddAttribute("TxPowerRefSiso",
                           "The SISO reference TX power level (dBm).",
                           DoubleValue(21),
                           MakeDoubleAccessor(&ObssPdAlgorithm::m_txPowerRefSiso),
-                          MakeDoubleChecker<double>())
+                          MakeDoubleChecker<dBm_u>())
             .AddAttribute("TxPowerRefMimo",
                           "The MIMO reference TX power level (dBm).",
                           DoubleValue(25),
                           MakeDoubleAccessor(&ObssPdAlgorithm::m_txPowerRefMimo),
-                          MakeDoubleChecker<double>())
+                          MakeDoubleChecker<dBm_u>())
             .AddTraceSource("Reset",
                             "Trace CCA Reset event",
                             MakeTraceSourceAccessor(&ObssPdAlgorithm::m_resetEvent),
@@ -85,7 +73,16 @@ ObssPdAlgorithm::ConnectWifiNetDevice(const Ptr<WifiNetDevice> device)
 {
     NS_LOG_FUNCTION(this << device);
     m_device = device;
-    auto hePhy = DynamicCast<HePhy>(device->GetPhy()->GetPhyEntity(WIFI_MOD_CLASS_HE));
+    auto phy = device->GetPhy();
+    if (phy->GetStandard() >= WIFI_STANDARD_80211be)
+    {
+        auto ehtPhy =
+            std::dynamic_pointer_cast<EhtPhy>(device->GetPhy()->GetPhyEntity(WIFI_MOD_CLASS_EHT));
+        NS_ASSERT(ehtPhy);
+        ehtPhy->SetObssPdAlgorithm(this);
+    }
+    auto hePhy =
+        std::dynamic_pointer_cast<HePhy>(device->GetPhy()->GetPhyEntity(WIFI_MOD_CLASS_HE));
     NS_ASSERT(hePhy);
     hePhy->SetObssPdAlgorithm(this);
 }
@@ -93,13 +90,13 @@ ObssPdAlgorithm::ConnectWifiNetDevice(const Ptr<WifiNetDevice> device)
 void
 ObssPdAlgorithm::ResetPhy(HeSigAParameters params)
 {
-    double txPowerMaxSiso = 0;
-    double txPowerMaxMimo = 0;
+    dBm_u txPowerMaxSiso{0};
+    dBm_u txPowerMaxMimo{0};
     bool powerRestricted = false;
     // Fetch my BSS color
     Ptr<HeConfiguration> heConfiguration = m_device->GetHeConfiguration();
     NS_ASSERT(heConfiguration);
-    uint8_t bssColor = heConfiguration->GetBssColor();
+    uint8_t bssColor = heConfiguration->m_bssColor;
     NS_LOG_DEBUG("My BSS color " << (uint16_t)bssColor << " received frame "
                                  << (uint16_t)params.bssColor);
 
@@ -110,18 +107,18 @@ ObssPdAlgorithm::ResetPhy(HeSigAParameters params)
         txPowerMaxMimo = m_txPowerRefMimo - (m_obssPdLevel - m_obssPdLevelMin);
         powerRestricted = true;
     }
-    m_resetEvent(bssColor, WToDbm(params.rssiW), powerRestricted, txPowerMaxSiso, txPowerMaxMimo);
+    m_resetEvent(bssColor, params.rssi, powerRestricted, txPowerMaxSiso, txPowerMaxMimo);
     phy->ResetCca(powerRestricted, txPowerMaxSiso, txPowerMaxMimo);
 }
 
 void
-ObssPdAlgorithm::SetObssPdLevel(double level)
+ObssPdAlgorithm::SetObssPdLevel(dBm_u level)
 {
     NS_LOG_FUNCTION(this << level);
     m_obssPdLevel = level;
 }
 
-double
+dBm_u
 ObssPdAlgorithm::GetObssPdLevel() const
 {
     return m_obssPdLevel;

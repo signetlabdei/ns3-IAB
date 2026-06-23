@@ -1,16 +1,5 @@
 /*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Vikas Pushkar (Adapted from third.cc)
  */
@@ -30,6 +19,7 @@
 #include "ns3/yans-wifi-helper.h"
 
 using namespace ns3;
+using namespace ns3::energy;
 
 NS_LOG_COMPONENT_DEFINE("WirelessAnimationExample");
 
@@ -149,18 +139,18 @@ main(int argc, char* argv[])
 
     UdpEchoServerHelper echoServer(9);
     ApplicationContainer serverApps = echoServer.Install(csmaNodes.Get(1));
-    serverApps.Start(Seconds(1.0));
-    serverApps.Stop(Seconds(15.0));
+    serverApps.Start(Seconds(1));
+    serverApps.Stop(Seconds(15));
     UdpEchoClientHelper echoClient(csmaInterfaces.GetAddress(1), 9);
     echoClient.SetAttribute("MaxPackets", UintegerValue(10));
     echoClient.SetAttribute("Interval", TimeValue(Seconds(1.)));
     echoClient.SetAttribute("PacketSize", UintegerValue(1024));
     ApplicationContainer clientApps = echoClient.Install(wifiStaNodes);
-    clientApps.Start(Seconds(2.0));
-    clientApps.Stop(Seconds(15.0));
+    clientApps.Start(Seconds(2));
+    clientApps.Stop(Seconds(15));
 
     Ipv4GlobalRoutingHelper::PopulateRoutingTables();
-    Simulator::Stop(Seconds(15.0));
+    Simulator::Stop(Seconds(15));
 
     AnimationInterface anim("wireless-animation.xml"); // Mandatory
     for (uint32_t i = 0; i < wifiStaNodes.GetN(); ++i)

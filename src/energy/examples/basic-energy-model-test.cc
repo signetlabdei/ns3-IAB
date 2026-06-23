@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2010 Network Security Lab, University of Washington, Seattle.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: He Wu <mdzz@u.washington.edu>
  */
@@ -34,6 +23,7 @@
 #include <cmath>
 
 using namespace ns3;
+using namespace ns3::energy;
 
 NS_LOG_COMPONENT_DEFINE("BasicEnergyModelTestSuite");
 
@@ -49,14 +39,14 @@ class BasicEnergyUpdateTest
 
     /**
      * Performs some tests involving state updates and the relative energy consumption
-     * \return true is some error happened.
+     * @return true is some error happened.
      */
     bool DoRun();
 
   private:
     /**
-     * \param state Radio state to switch to.
-     * \return False if no error occurs.
+     * @param state Radio state to switch to.
+     * @return False if no error occurs.
      *
      * Runs simulation for a while, check if final state & remaining energy is
      * correctly updated.
@@ -91,35 +81,35 @@ BasicEnergyUpdateTest::DoRun()
     // run state switch tests
     if (StateSwitchTest(WifiPhyState::IDLE))
     {
-        return 1;
+        return true;
         std::cerr << "Problem with state switch test (WifiPhy idle)." << std::endl;
     }
     if (StateSwitchTest(WifiPhyState::CCA_BUSY))
     {
-        return 1;
+        return true;
         std::cerr << "Problem with state switch test (WifiPhy cca busy)." << std::endl;
     }
     if (StateSwitchTest(WifiPhyState::TX))
     {
-        return 1;
+        return true;
         std::cerr << "Problem with state switch test (WifiPhy tx)." << std::endl;
     }
     if (StateSwitchTest(WifiPhyState::RX))
     {
-        return 1;
+        return true;
         std::cerr << "Problem with state switch test (WifiPhy rx)." << std::endl;
     }
     if (StateSwitchTest(WifiPhyState::SWITCHING))
     {
-        return 1;
+        return true;
         std::cerr << "Problem with state switch test (WifiPhy switching)." << std::endl;
     }
     if (StateSwitchTest(WifiPhyState::SLEEP))
     {
-        return 1;
+        return true;
         std::cerr << "Problem with state switch test (WifiPhy sleep)." << std::endl;
     }
-    return 0;
+    return false;
 }
 
 bool
@@ -145,7 +135,7 @@ BasicEnergyUpdateTest::StateSwitchTest(WifiPhyState state)
     // retrieve device energy model from energy source
     DeviceEnergyModelContainer models = source->FindDeviceEnergyModels("ns3::WifiRadioEnergyModel");
     // check list
-    if ((models.GetN() == 0))
+    if (models.GetN() == 0)
     {
         std::cerr << "Model list is empty!." << std::endl;
         return true;
@@ -165,7 +155,10 @@ BasicEnergyUpdateTest::StateSwitchTest(WifiPhyState state)
      */
 
     // schedule change of state
-    Simulator::Schedule(Seconds(m_timeS), &WifiRadioEnergyModel::ChangeState, devModel, state);
+    Simulator::Schedule(Seconds(m_timeS),
+                        &WifiRadioEnergyModel::ChangeState,
+                        devModel,
+                        static_cast<int>(state));
 
     // Calculate remaining energy at simulation stop time
     Simulator::Schedule(Seconds(m_timeS * 2), &BasicEnergySource::UpdateEnergySource, source);
@@ -256,7 +249,7 @@ class BasicEnergyDepletionTest
 
     /**
      * Performs some tests involving energy depletion
-     * \return true is some error happened.
+     * @return true is some error happened.
      */
     bool DoRun();
 
@@ -267,9 +260,9 @@ class BasicEnergyDepletionTest
     void DepletionHandler();
 
     /**
-     * \param simTimeS Simulation time, in seconds.
-     * \param updateIntervalS Device model update interval, in seconds.
-     * \return False if all is good.
+     * @param simTimeS Simulation time, in seconds.
+     * @param updateIntervalS Device model update interval, in seconds.
+     * @return False if all is good.
      *
      * Runs simulation with specified simulation time and update interval.
      */
@@ -302,7 +295,7 @@ BasicEnergyDepletionTest::DoRun()
     /*
      * Run simulation with different simulation time and update interval.
      */
-    uint8_t ret = 0;
+    bool ret = false;
 
     for (double simTimeS = 0.0; simTimeS <= m_simTimeS; simTimeS += m_timeStepS)
     {
@@ -311,7 +304,7 @@ BasicEnergyDepletionTest::DoRun()
         {
             if (DepletionTestCase(simTimeS, updateIntervalS))
             {
-                ret = 1;
+                ret = true;
                 std::cerr << "Depletion test case problem." << std::endl;
             }
             // reset callback count

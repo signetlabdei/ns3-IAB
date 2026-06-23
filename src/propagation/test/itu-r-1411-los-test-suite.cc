@@ -1,39 +1,28 @@
 /*
  * Copyright (c) 2011,2012 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Marco Miozzo <marco.miozzo@cttc.es>
  *         Nicola Baldo <nbaldo@cttc.es>
  */
 
-#include <ns3/constant-position-mobility-model.h>
-#include <ns3/double.h>
-#include <ns3/enum.h>
-#include <ns3/itu-r-1411-los-propagation-loss-model.h>
-#include <ns3/log.h>
-#include <ns3/string.h>
-#include <ns3/test.h>
+#include "ns3/constant-position-mobility-model.h"
+#include "ns3/double.h"
+#include "ns3/enum.h"
+#include "ns3/itu-r-1411-los-propagation-loss-model.h"
+#include "ns3/log.h"
+#include "ns3/string.h"
+#include "ns3/test.h"
 
 using namespace ns3;
 
 NS_LOG_COMPONENT_DEFINE("ItuR1411LosPropagationLossModelTest");
 
 /**
- * \ingroup propagation-tests
+ * @ingroup propagation-tests
  *
- * \brief ItuR1411LosPropagationLossModel Test Case
+ * @brief ItuR1411LosPropagationLossModel Test Case
  *
  */
 class ItuR1411LosPropagationLossModelTestCase : public TestCase
@@ -42,12 +31,12 @@ class ItuR1411LosPropagationLossModelTestCase : public TestCase
     /**
      * Constructor
      *
-     * \param freq carrier frequency in Hz
-     * \param dist 2D distance between UT and BS in meters
-     * \param hb height of BS in meters
-     * \param hm height of UT in meters
-     * \param refValue reference loss value
-     * \param name TestCase name
+     * @param freq carrier frequency in Hz
+     * @param dist 2D distance between UT and BS in meters
+     * @param hb height of BS in meters
+     * @param hm height of UT in meters
+     * @param refValue reference loss value
+     * @param name TestCase name
      */
     ItuR1411LosPropagationLossModelTestCase(double freq,
                                             double dist,
@@ -62,8 +51,8 @@ class ItuR1411LosPropagationLossModelTestCase : public TestCase
 
     /**
      * Create a MobilityModel
-     * \param index mobility model index
-     * \return a new MobilityModel
+     * @param index mobility model index
+     * @return a new MobilityModel
      */
     Ptr<MobilityModel> CreateMobilityModel(uint16_t index);
 
@@ -117,9 +106,9 @@ ItuR1411LosPropagationLossModelTestCase::DoRun()
 }
 
 /**
- * \ingroup propagation-tests
+ * @ingroup propagation-tests
  *
- * \brief ItuR1411LosPropagationLossModel TestSuite
+ * @brief ItuR1411LosPropagationLossModel TestSuite
  *
  */
 class ItuR1411LosPropagationLossModelTestSuite : public TestSuite
@@ -129,7 +118,7 @@ class ItuR1411LosPropagationLossModelTestSuite : public TestSuite
 };
 
 ItuR1411LosPropagationLossModelTestSuite::ItuR1411LosPropagationLossModelTestSuite()
-    : TestSuite("itu-r-1411-los", SYSTEM)
+    : TestSuite("itu-r-1411-los", Type::SYSTEM)
 {
     LogComponentEnable("ItuR1411LosPropagationLossModelTest", LOG_LEVEL_ALL);
 
@@ -140,14 +129,14 @@ ItuR1411LosPropagationLossModelTestSuite::ItuR1411LosPropagationLossModelTestSui
                                                             1,
                                                             81.005,
                                                             "freq=2114MHz, dist=100m"),
-                TestCase::QUICK);
+                TestCase::Duration::QUICK);
     AddTestCase(new ItuR1411LosPropagationLossModelTestCase(1999e6,
                                                             200,
                                                             30,
                                                             1,
                                                             87.060,
                                                             "freq=1999MHz, dist=200m"),
-                TestCase::QUICK);
+                TestCase::Duration::QUICK);
 }
 
 /// Static variable for test initialization

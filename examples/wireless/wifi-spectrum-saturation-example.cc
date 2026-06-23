@@ -2,18 +2,7 @@
  * Copyright (c) 2009 MIRKO BANCHI
  * Copyright (c) 2015 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Mirko Banchi <mk.banchi@gmail.com>
  *          Sebastien Deronne <sebastien.deronne@gmail.com>
@@ -36,6 +25,7 @@
 #include "ns3/ssid.h"
 #include "ns3/string.h"
 #include "ns3/udp-client-server-helper.h"
+#include "ns3/udp-server.h"
 #include "ns3/uinteger.h"
 #include "ns3/yans-wifi-channel.h"
 #include "ns3/yans-wifi-helper.h"
@@ -59,7 +49,7 @@
 // Users may vary the following command-line arguments in addition to the
 // attributes, global values, and default values typically available:
 //
-//    --simulationTime:  Simulation time in seconds [10]
+//    --simulationTime:  Simulation time [10s]
 //    --distance:        meters separation between nodes [1]
 //    --index:           restrict index to single value between 0 and 31 [256]
 //    --wifiType:        select ns3::SpectrumWifiPhy or ns3::YansWifiPhy [ns3::SpectrumWifiPhy]
@@ -99,16 +89,16 @@ NS_LOG_COMPONENT_DEFINE("WifiSpectrumSaturationExample");
 int
 main(int argc, char* argv[])
 {
-    double distance = 1;
-    double simulationTime = 10; // seconds
-    uint16_t index = 256;
-    uint32_t channelWidth = 0;
-    std::string wifiType = "ns3::SpectrumWifiPhy";
-    std::string errorModelType = "ns3::NistErrorRateModel";
-    bool enablePcap = false;
+    meter_u distance{1};
+    Time simulationTime{"10s"};
+    uint16_t index{256};
+    uint32_t channelWidth{0};
+    std::string wifiType{"ns3::SpectrumWifiPhy"};
+    std::string errorModelType{"ns3::NistErrorRateModel"};
+    bool enablePcap{false};
 
     CommandLine cmd(__FILE__);
-    cmd.AddValue("simulationTime", "Simulation time in seconds", simulationTime);
+    cmd.AddValue("simulationTime", "Simulation time", simulationTime);
     cmd.AddValue("distance", "meters separation between nodes", distance);
     cmd.AddValue("index", "restrict index to single value between 0 and 63", index);
     cmd.AddValue("wifiType", "select ns3::SpectrumWifiPhy or ns3::YansWifiPhy", wifiType);
@@ -140,40 +130,22 @@ main(int argc, char* argv[])
         NodeContainer wifiApNode;
         wifiApNode.Create(1);
 
-        YansWifiPhyHelper phy;
+        YansWifiPhyHelper yansPhy;
         SpectrumWifiPhyHelper spectrumPhy;
         if (wifiType == "ns3::YansWifiPhy")
         {
             YansWifiChannelHelper channel;
             channel.AddPropagationLoss("ns3::FriisPropagationLossModel");
             channel.SetPropagationDelay("ns3::ConstantSpeedPropagationDelayModel");
-            phy.SetChannel(channel.Create());
-            phy.Set("TxPowerStart", DoubleValue(1));
-            phy.Set("TxPowerEnd", DoubleValue(1));
+            yansPhy.SetChannel(channel.Create());
+            yansPhy.Set("TxPowerStart", DoubleValue(1));
+            yansPhy.Set("TxPowerEnd", DoubleValue(1));
 
-            if (i > 31 && i <= 39)
+            if (i > 31 && i <= 63)
             {
-                phy.Set("Antennas", UintegerValue(2));
-                phy.Set("MaxSupportedTxSpatialStreams", UintegerValue(2));
-                phy.Set("MaxSupportedRxSpatialStreams", UintegerValue(2));
-            }
-            else if (i > 39 && i <= 47)
-            {
-                phy.Set("Antennas", UintegerValue(2));
-                phy.Set("MaxSupportedTxSpatialStreams", UintegerValue(2));
-                phy.Set("MaxSupportedRxSpatialStreams", UintegerValue(2));
-            }
-            else if (i > 47 && i <= 55)
-            {
-                phy.Set("Antennas", UintegerValue(2));
-                phy.Set("MaxSupportedTxSpatialStreams", UintegerValue(2));
-                phy.Set("MaxSupportedRxSpatialStreams", UintegerValue(2));
-            }
-            else if (i > 55 && i <= 63)
-            {
-                phy.Set("Antennas", UintegerValue(2));
-                phy.Set("MaxSupportedTxSpatialStreams", UintegerValue(2));
-                phy.Set("MaxSupportedRxSpatialStreams", UintegerValue(2));
+                yansPhy.Set("Antennas", UintegerValue(2));
+                yansPhy.Set("MaxSupportedTxSpatialStreams", UintegerValue(2));
+                yansPhy.Set("MaxSupportedRxSpatialStreams", UintegerValue(2));
             }
         }
         else if (wifiType == "ns3::SpectrumWifiPhy")
@@ -192,25 +164,7 @@ main(int argc, char* argv[])
             spectrumPhy.Set("TxPowerStart", DoubleValue(1));
             spectrumPhy.Set("TxPowerEnd", DoubleValue(1));
 
-            if (i > 31 && i <= 39)
-            {
-                spectrumPhy.Set("Antennas", UintegerValue(2));
-                spectrumPhy.Set("MaxSupportedTxSpatialStreams", UintegerValue(2));
-                spectrumPhy.Set("MaxSupportedRxSpatialStreams", UintegerValue(2));
-            }
-            else if (i > 39 && i <= 47)
-            {
-                spectrumPhy.Set("Antennas", UintegerValue(2));
-                spectrumPhy.Set("MaxSupportedTxSpatialStreams", UintegerValue(2));
-                spectrumPhy.Set("MaxSupportedRxSpatialStreams", UintegerValue(2));
-            }
-            else if (i > 47 && i <= 55)
-            {
-                spectrumPhy.Set("Antennas", UintegerValue(2));
-                spectrumPhy.Set("MaxSupportedTxSpatialStreams", UintegerValue(2));
-                spectrumPhy.Set("MaxSupportedRxSpatialStreams", UintegerValue(2));
-            }
-            else if (i > 55 && i <= 63)
+            if (i > 31 && i <= 63)
             {
                 spectrumPhy.Set("Antennas", UintegerValue(2));
                 spectrumPhy.Set("MaxSupportedTxSpatialStreams", UintegerValue(2));
@@ -570,47 +524,28 @@ main(int argc, char* argv[])
         if (wifiType == "ns3::YansWifiPhy")
         {
             mac.SetType("ns3::StaWifiMac", "Ssid", SsidValue(ssid));
-            phy.Set("ChannelSettings", StringValue(channelStr));
+            yansPhy.Set("ChannelSettings", StringValue(channelStr));
 
-            staDevice = wifi.Install(phy, mac, wifiStaNode);
+            staDevice = wifi.Install(yansPhy, mac, wifiStaNode);
             mac.SetType("ns3::ApWifiMac", "Ssid", SsidValue(ssid));
-            phy.Set("ChannelSettings", StringValue(channelStr));
-            apDevice = wifi.Install(phy, mac, wifiApNode);
+            yansPhy.Set("ChannelSettings", StringValue(channelStr));
+            apDevice = wifi.Install(yansPhy, mac, wifiApNode);
         }
         else if (wifiType == "ns3::SpectrumWifiPhy")
         {
             mac.SetType("ns3::StaWifiMac", "Ssid", SsidValue(ssid));
-            phy.Set("ChannelSettings", StringValue(channelStr));
+            spectrumPhy.Set("ChannelSettings", StringValue(channelStr));
             staDevice = wifi.Install(spectrumPhy, mac, wifiStaNode);
             mac.SetType("ns3::ApWifiMac", "Ssid", SsidValue(ssid));
-            phy.Set("ChannelSettings", StringValue(channelStr));
+            spectrumPhy.Set("ChannelSettings", StringValue(channelStr));
             apDevice = wifi.Install(spectrumPhy, mac, wifiApNode);
         }
 
-        if ((i <= 7) || (i > 31 && i <= 39))
-        {
-            Config::Set("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/HtConfiguration/"
-                        "ShortGuardIntervalSupported",
-                        BooleanValue(false));
-        }
-        else if ((i > 7 && i <= 15) || (i > 39 && i <= 47))
-        {
-            Config::Set("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/HtConfiguration/"
-                        "ShortGuardIntervalSupported",
-                        BooleanValue(true));
-        }
-        else if ((i > 15 && i <= 23) || (i > 47 && i <= 55))
-        {
-            Config::Set("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/HtConfiguration/"
-                        "ShortGuardIntervalSupported",
-                        BooleanValue(false));
-        }
-        else
-        {
-            Config::Set("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/HtConfiguration/"
-                        "ShortGuardIntervalSupported",
-                        BooleanValue(true));
-        }
+        bool shortGuardIntervalSupported =
+            (i > 7 && i <= 15) || (i > 23 && i <= 31) || (i > 39 && i <= 47) || (i > 55);
+        Config::Set("/NodeList/*/DeviceList/*/$ns3::WifiNetDevice/HtConfiguration/"
+                    "ShortGuardIntervalSupported",
+                    BooleanValue(shortGuardIntervalSupported));
 
         // mobility.
         MobilityHelper mobility;
@@ -642,32 +577,35 @@ main(int argc, char* argv[])
         uint16_t port = 9;
         UdpServerHelper server(port);
         ApplicationContainer serverApp = server.Install(wifiStaNode.Get(0));
-        serverApp.Start(Seconds(0.0));
-        serverApp.Stop(Seconds(simulationTime + 1));
+        serverApp.Start(Seconds(0));
+        serverApp.Stop(simulationTime + Seconds(1));
+        const auto packetInterval = payloadSize * 8.0 / (datarate * 1e6);
 
         UdpClientHelper client(staNodeInterface.GetAddress(0), port);
         client.SetAttribute("MaxPackets", UintegerValue(4294967295U));
-        client.SetAttribute("Interval", TimeValue(Time("0.0001"))); // packets/s
+        client.SetAttribute("Interval", TimeValue(Seconds(packetInterval)));
         client.SetAttribute("PacketSize", UintegerValue(payloadSize));
         ApplicationContainer clientApp = client.Install(wifiApNode.Get(0));
-        clientApp.Start(Seconds(1.0));
-        clientApp.Stop(Seconds(simulationTime + 1));
+        clientApp.Start(Seconds(1));
+        clientApp.Stop(simulationTime + Seconds(1));
 
         if (enablePcap)
         {
+            auto& phy =
+                (wifiType == "ns3::YansWifiPhy" ? dynamic_cast<WifiPhyHelper&>(yansPhy)
+                                                : dynamic_cast<WifiPhyHelper&>(spectrumPhy));
             phy.SetPcapDataLinkType(WifiPhyHelper::DLT_IEEE802_11_RADIO);
             std::stringstream ss;
             ss << "wifi-spectrum-saturation-example-" << i;
             phy.EnablePcap(ss.str(), apDevice);
         }
 
-        Simulator::Stop(Seconds(simulationTime + 1));
+        Simulator::Stop(simulationTime + Seconds(1));
         Simulator::Run();
 
-        double throughput;
-        uint64_t totalPacketsThrough;
-        totalPacketsThrough = DynamicCast<UdpServer>(serverApp.Get(0))->GetReceived();
-        throughput = totalPacketsThrough * payloadSize * 8 / (simulationTime * 1000000.0); // Mbit/s
+        double totalPacketsThrough = DynamicCast<UdpServer>(serverApp.Get(0))->GetReceived();
+        auto throughput =
+            totalPacketsThrough * payloadSize * 8 / simulationTime.GetMicroSeconds(); // Mbit/s
         std::cout << std::setw(5) << i << std::setw(6) << (i % 8) + 8 * (i / 32) << std::setw(8)
                   << channelWidth << std::setw(10) << datarate << std::setw(12) << throughput
                   << std::setw(8) << totalPacketsThrough << std::endl;

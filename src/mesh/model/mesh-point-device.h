@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2008,2009 IITP RAS
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Kirill Andreev <andreev@iitp.ru>
  *          Pavel Boyko <boyko@iitp.ru>
@@ -21,9 +10,10 @@
 #ifndef L2ROUTING_NET_DEVICE_H
 #define L2ROUTING_NET_DEVICE_H
 
+#include "mesh-l2-routing-protocol.h"
+
 #include "ns3/bridge-channel.h"
 #include "ns3/mac48-address.h"
-#include "ns3/mesh-l2-routing-protocol.h"
 #include "ns3/net-device.h"
 #include "ns3/node.h"
 #include "ns3/random-variable-stream.h"
@@ -32,9 +22,9 @@ namespace ns3
 {
 
 /**
- * \ingroup mesh
+ * @ingroup mesh
  *
- * \brief Virtual net device modeling mesh point.
+ * @brief Virtual net device modeling mesh point.
  *
  * Mesh point is a virtual net device which is responsible for
  *   - Aggregating and coordinating 1..* real devices -- mesh interfaces, see MeshInterfaceDevice
@@ -53,8 +43,8 @@ class MeshPointDevice : public NetDevice
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
     /// C-tor create empty (without interfaces and protocols) mesh point
@@ -62,43 +52,43 @@ class MeshPointDevice : public NetDevice
     /// D-tor
     ~MeshPointDevice() override;
 
-    /// \name Interfaces
+    /// @name Interfaces
     ///@{
     /**
-     * \brief Attach new interface to the station. Interface must support 48-bit MAC address and
+     * @brief Attach new interface to the station. Interface must support 48-bit MAC address and
      * SendFrom method.
-     * \param port the port used
+     * @param port the port used
      *
-     * \attention Only MeshPointDevice can have IP address, but not individual interfaces.
+     * @attention Only MeshPointDevice can have IP address, but not individual interfaces.
      */
     void AddInterface(Ptr<NetDevice> port);
     /**
-     * \return number of interfaces
+     * @return number of interfaces
      */
     uint32_t GetNInterfaces() const;
     /**
-     * \return interface device by its index (aka ID)
-     * \param id is interface id, 0 <= id < GetNInterfaces
+     * @return interface device by its index (aka ID)
+     * @param id is interface id, 0 <= id < GetNInterfaces
      */
     Ptr<NetDevice> GetInterface(uint32_t id) const;
     /**
-     * \return vector of interfaces
+     * @return vector of interfaces
      */
     std::vector<Ptr<NetDevice>> GetInterfaces() const;
     ///@}
 
-    /// \name Protocols
+    /// @name Protocols
     ///@{
     /**
      * Register routing protocol to be used. Protocol must be already installed on this mesh point.
      *
-     * \param protocol the routing protocol
+     * @param protocol the routing protocol
      */
     void SetRoutingProtocol(Ptr<MeshL2RoutingProtocol> protocol);
     /**
      * Access current routing protocol
      *
-     * \return the current routing protocol
+     * @return the current routing protocol
      */
     Ptr<MeshL2RoutingProtocol> GetRoutingProtocol() const;
     ///@}
@@ -133,11 +123,11 @@ class MeshPointDevice : public NetDevice
     Address GetMulticast(Ipv6Address addr) const override;
     void DoDispose() override;
 
-    /// \name Statistics
+    /// @name Statistics
     ///@{
     /**
      *  Print statistics counters
-     *  \param os the output stream
+     *  @param os the output stream
      */
     void Report(std::ostream& os) const;
     /// Reset statistics counters
@@ -149,8 +139,8 @@ class MeshPointDevice : public NetDevice
      * used by this model.  Return the number of streams (possibly zero) that
      * have been assigned.
      *
-     * \param stream first stream index to use
-     * \return the number of stream indices assigned by this model
+     * @param stream first stream index to use
+     * @return the number of stream indices assigned by this model
      */
     int64_t AssignStreams(int64_t stream);
 
@@ -158,7 +148,7 @@ class MeshPointDevice : public NetDevice
      * Return a (random) forwarding delay value from the random variable
      * ForwardingDelay attribute.
      *
-     * \return A Time value from the ForwardingDelay random variable
+     * @return A Time value from the ForwardingDelay random variable
      */
     Time GetForwardingDelay() const;
 
@@ -166,12 +156,12 @@ class MeshPointDevice : public NetDevice
     /**
      * Receive packet from interface
      *
-     * \param device the device to receive from
-     * \param packet the received packet
-     * \param protocol the protocol
-     * \param source the source address
-     * \param destination the destination address
-     * \param packetType the packet type
+     * @param device the device to receive from
+     * @param packet the received packet
+     * @param protocol the protocol
+     * @param source the source address
+     * @param destination the destination address
+     * @param packetType the packet type
      */
     void ReceiveFromDevice(Ptr<NetDevice> device,
                            Ptr<const Packet> packet,
@@ -182,11 +172,11 @@ class MeshPointDevice : public NetDevice
     /**
      * Forward packet down to interfaces
      *
-     * \param incomingPort the incoming port
-     * \param packet the packet to forward
-     * \param protocol the protocol
-     * \param src the source MAC address
-     * \param dst the destination MAC address
+     * @param incomingPort the incoming port
+     * @param packet the packet to forward
+     * @param protocol the protocol
+     * @param src the source MAC address
+     * @param dst the destination MAC address
      */
     void Forward(Ptr<NetDevice> incomingPort,
                  Ptr<const Packet> packet,
@@ -194,15 +184,15 @@ class MeshPointDevice : public NetDevice
                  const Mac48Address src,
                  const Mac48Address dst);
     /**
-     * \brief Response callback for L2 routing protocol. This will be executed when routing
+     * @brief Response callback for L2 routing protocol. This will be executed when routing
      * information is ready.
      *
-     * \param success     True is route found.
-     * \param packet      Packet to send
-     * \param src         Source MAC address
-     * \param dst         Destination MAC address
-     * \param protocol    Protocol ID
-     * \param iface       Interface to use (ID) for send (decided by routing protocol). All
+     * @param success     True is route found.
+     * @param packet      Packet to send
+     * @param src         Source MAC address
+     * @param dst         Destination MAC address
+     * @param protocol    Protocol ID
+     * @param iface       Interface to use (ID) for send (decided by routing protocol). All
      * interfaces will be used if outIface = 0xffffffff \todo diagnose routing errors
      */
     void DoSend(bool success,

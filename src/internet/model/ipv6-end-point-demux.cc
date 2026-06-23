@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2007-2009 Strasbourg University
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Sebastien Vincent <vincent@clarinet.u-strasbg.fr>
  */
@@ -39,7 +28,7 @@ Ipv6EndPointDemux::Ipv6EndPointDemux()
 Ipv6EndPointDemux::~Ipv6EndPointDemux()
 {
     NS_LOG_FUNCTION(this);
-    for (EndPointsI i = m_endPoints.begin(); i != m_endPoints.end(); i++)
+    for (auto i = m_endPoints.begin(); i != m_endPoints.end(); i++)
     {
         Ipv6EndPoint* endPoint = *i;
         delete endPoint;
@@ -51,7 +40,7 @@ bool
 Ipv6EndPointDemux::LookupPortLocal(uint16_t port)
 {
     NS_LOG_FUNCTION(this << port);
-    for (EndPointsI i = m_endPoints.begin(); i != m_endPoints.end(); i++)
+    for (auto i = m_endPoints.begin(); i != m_endPoints.end(); i++)
     {
         if ((*i)->GetLocalPort() == port)
         {
@@ -65,7 +54,7 @@ bool
 Ipv6EndPointDemux::LookupLocal(Ptr<NetDevice> boundNetDevice, Ipv6Address addr, uint16_t port)
 {
     NS_LOG_FUNCTION(this << addr << port);
-    for (EndPointsI i = m_endPoints.begin(); i != m_endPoints.end(); i++)
+    for (auto i = m_endPoints.begin(); i != m_endPoints.end(); i++)
     {
         if ((*i)->GetLocalPort() == port && (*i)->GetLocalAddress() == addr &&
             (*i)->GetBoundNetDevice() == boundNetDevice)
@@ -86,7 +75,7 @@ Ipv6EndPointDemux::Allocate()
         NS_LOG_WARN("Ephemeral port allocation failed.");
         return nullptr;
     }
-    Ipv6EndPoint* endPoint = new Ipv6EndPoint(Ipv6Address::GetAny(), port);
+    auto endPoint = new Ipv6EndPoint(Ipv6Address::GetAny(), port);
     m_endPoints.push_back(endPoint);
     NS_LOG_DEBUG("Now have >>" << m_endPoints.size() << "<< endpoints.");
     return endPoint;
@@ -102,7 +91,7 @@ Ipv6EndPointDemux::Allocate(Ipv6Address address)
         NS_LOG_WARN("Ephemeral port allocation failed.");
         return nullptr;
     }
-    Ipv6EndPoint* endPoint = new Ipv6EndPoint(address, port);
+    auto endPoint = new Ipv6EndPoint(address, port);
     m_endPoints.push_back(endPoint);
     NS_LOG_DEBUG("Now have >>" << m_endPoints.size() << "<< endpoints.");
     return endPoint;
@@ -125,7 +114,7 @@ Ipv6EndPointDemux::Allocate(Ptr<NetDevice> boundNetDevice, Ipv6Address address, 
         NS_LOG_WARN("Duplicated endpoint.");
         return nullptr;
     }
-    Ipv6EndPoint* endPoint = new Ipv6EndPoint(address, port);
+    auto endPoint = new Ipv6EndPoint(address, port);
     m_endPoints.push_back(endPoint);
     NS_LOG_DEBUG("Now have >>" << m_endPoints.size() << "<< endpoints.");
     return endPoint;
@@ -139,7 +128,7 @@ Ipv6EndPointDemux::Allocate(Ptr<NetDevice> boundNetDevice,
                             uint16_t peerPort)
 {
     NS_LOG_FUNCTION(this << boundNetDevice << localAddress << localPort << peerAddress << peerPort);
-    for (EndPointsI i = m_endPoints.begin(); i != m_endPoints.end(); i++)
+    for (auto i = m_endPoints.begin(); i != m_endPoints.end(); i++)
     {
         if ((*i)->GetLocalPort() == localPort && (*i)->GetLocalAddress() == localAddress &&
             (*i)->GetPeerPort() == peerPort && (*i)->GetPeerAddress() == peerAddress &&
@@ -149,7 +138,7 @@ Ipv6EndPointDemux::Allocate(Ptr<NetDevice> boundNetDevice,
             return nullptr;
         }
     }
-    Ipv6EndPoint* endPoint = new Ipv6EndPoint(localAddress, localPort);
+    auto endPoint = new Ipv6EndPoint(localAddress, localPort);
     endPoint->SetPeer(peerAddress, peerPort);
     m_endPoints.push_back(endPoint);
 
@@ -162,7 +151,7 @@ void
 Ipv6EndPointDemux::DeAllocate(Ipv6EndPoint* endPoint)
 {
     NS_LOG_FUNCTION(this);
-    for (EndPointsI i = m_endPoints.begin(); i != m_endPoints.end(); i++)
+    for (auto i = m_endPoints.begin(); i != m_endPoints.end(); i++)
     {
         if (*i == endPoint)
         {
@@ -193,7 +182,7 @@ Ipv6EndPointDemux::Lookup(Ipv6Address daddr,
     EndPoints retval4; /* Exact match on all 4 */
 
     NS_LOG_DEBUG("Looking up endpoint for destination address " << daddr);
-    for (EndPointsI i = m_endPoints.begin(); i != m_endPoints.end(); i++)
+    for (auto i = m_endPoints.begin(); i != m_endPoints.end(); i++)
     {
         Ipv6EndPoint* endP = *i;
 
@@ -313,7 +302,7 @@ Ipv6EndPointDemux::SimpleLookup(Ipv6Address dst, uint16_t dport, Ipv6Address src
     uint32_t genericity = 3;
     Ipv6EndPoint* generic = nullptr;
 
-    for (EndPointsI i = m_endPoints.begin(); i != m_endPoints.end(); i++)
+    for (auto i = m_endPoints.begin(); i != m_endPoints.end(); i++)
     {
         uint32_t tmp = 0;
 

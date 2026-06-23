@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2020 Orange Labs
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Rediet <getachew.redieteab@orange.com>
  *         Muhammad Iqbal Rochman <muhiqbalcr@uchicago.edu>
@@ -24,6 +13,7 @@
 #include "ofdm-phy.h"
 
 #include "ns3/log.h"
+#include "ns3/wifi-phy-operating-channel.h"
 #include "ns3/wifi-phy.h"
 #include "ns3/wifi-psdu.h"
 
@@ -34,15 +24,13 @@ NS_LOG_COMPONENT_DEFINE("OfdmPpdu");
 
 OfdmPpdu::OfdmPpdu(Ptr<const WifiPsdu> psdu,
                    const WifiTxVector& txVector,
-                   uint16_t txCenterFreq,
-                   WifiPhyBand band,
+                   const WifiPhyOperatingChannel& channel,
                    uint64_t uid,
                    bool instantiateLSig /* = true */)
-    : WifiPpdu(psdu, txVector, txCenterFreq, uid),
-      m_band(band),
-      m_channelWidth(txVector.IsNonHtDuplicate() ? 20 : txVector.GetChannelWidth())
+    : WifiPpdu(psdu, txVector, channel, uid),
+      m_channelWidth(txVector.IsNonHtDuplicate() ? MHz_u{20} : txVector.GetChannelWidth())
 {
-    NS_LOG_FUNCTION(this << psdu << txVector << txCenterFreq << band << uid);
+    NS_LOG_FUNCTION(this << psdu << txVector << channel << uid);
     if (instantiateLSig)
     {
         SetPhyHeaders(txVector, psdu->GetSize());
@@ -53,14 +41,7 @@ void
 OfdmPpdu::SetPhyHeaders(const WifiTxVector& txVector, std::size_t psduSize)
 {
     NS_LOG_FUNCTION(this << txVector << psduSize);
-
-#ifdef NS3_BUILD_PROFILE_DEBUG
-    LSigHeader lSig;
-    SetLSigHeader(lSig, txVector, psduSize);
-    m_phyHeaders->AddHeader(lSig);
-#else
     SetLSigHeader(m_lSig, txVector, psduSize);
-#endif
 }
 
 void
@@ -75,26 +56,14 @@ OfdmPpdu::DoGetTxVector() const
 {
     WifiTxVector txVector;
     txVector.SetPreambleType(m_preamble);
-
-#ifdef NS3_BUILD_PROFILE_DEBUG
-    LSigHeader lSig;
-    if (m_phyHeaders->PeekHeader(lSig) == 0)
-    {
-        NS_FATAL_ERROR("Missing L-SIG in PPDU");
-    }
-
-    SetTxVectorFromLSigHeader(txVector, lSig);
-#else
     SetTxVectorFromLSigHeader(txVector, m_lSig);
-#endif
-
     return txVector;
 }
 
 void
 OfdmPpdu::SetTxVectorFromLSigHeader(WifiTxVector& txVector, const LSigHeader& lSig) const
 {
-    NS_ASSERT(m_channelWidth <= 20);
+    NS_ASSERT(m_channelWidth <= MHz_u{20});
     // OFDM uses 20 MHz, unless PHY channel width is 5 MHz or 10 MHz
     txVector.SetMode(OfdmPhy::GetOfdmRate(lSig.GetRate(m_channelWidth), m_channelWidth));
     txVector.SetChannelWidth(m_channelWidth);
@@ -103,16 +72,10 @@ OfdmPpdu::SetTxVectorFromLSigHeader(WifiTxVector& txVector, const LSigHeader& lS
 Time
 OfdmPpdu::GetTxDuration() const
 {
-    const WifiTxVector& txVector = GetTxVector();
-    uint16_t length = 0;
-#ifdef NS3_BUILD_PROFILE_DEBUG
-    LSigHeader lSig;
-    m_phyHeaders->PeekHeader(lSig);
-    length = lSig.GetLength();
-#else
-    length = m_lSig.GetLength();
-#endif
-    return WifiPhy::CalculateTxDuration(length, txVector, m_band);
+    const auto& txVector = GetTxVector();
+    const auto length = m_lSig.GetLength();
+    NS_ASSERT(m_operatingChannel.IsSet());
+    return WifiPhy::CalculateTxDuration(length, txVector, m_operatingChannel.GetPhyBand());
 }
 
 Ptr<WifiPpdu>
@@ -127,42 +90,14 @@ OfdmPpdu::LSigHeader::LSigHeader()
 {
 }
 
-TypeId
-OfdmPpdu::LSigHeader::GetTypeId()
-{
-    static TypeId tid = TypeId("ns3::LSigHeader")
-                            .SetParent<Header>()
-                            .SetGroupName("Wifi")
-                            .AddConstructor<LSigHeader>();
-    return tid;
-}
-
-TypeId
-OfdmPpdu::LSigHeader::GetInstanceTypeId() const
-{
-    return GetTypeId();
-}
-
 void
-OfdmPpdu::LSigHeader::Print(std::ostream& os) const
+OfdmPpdu::LSigHeader::SetRate(uint64_t rate, MHz_u channelWidth)
 {
-    os << "SIGNAL=" << GetRate() << " LENGTH=" << m_length;
-}
-
-uint32_t
-OfdmPpdu::LSigHeader::GetSerializedSize() const
-{
-    return 3;
-}
-
-void
-OfdmPpdu::LSigHeader::SetRate(uint64_t rate, uint16_t channelWidth)
-{
-    if (channelWidth == 5)
+    if (channelWidth == MHz_u{5})
     {
         rate *= 4; // corresponding 20 MHz rate if 5 MHz is used
     }
-    else if (channelWidth == 10)
+    else if (channelWidth == MHz_u{10})
     {
         rate *= 2; // corresponding 20 MHz rate if 10 MHz is used
     }
@@ -209,7 +144,7 @@ OfdmPpdu::LSigHeader::SetRate(uint64_t rate, uint16_t channelWidth)
 }
 
 uint64_t
-OfdmPpdu::LSigHeader::GetRate(uint16_t channelWidth) const
+OfdmPpdu::LSigHeader::GetRate(MHz_u channelWidth) const
 {
     uint64_t rate = 0;
     switch (m_rate)
@@ -242,11 +177,11 @@ OfdmPpdu::LSigHeader::GetRate(uint16_t channelWidth) const
         NS_ASSERT_MSG(false, "Invalid rate");
         break;
     }
-    if (channelWidth == 5)
+    if (channelWidth == MHz_u{5})
     {
         rate /= 4; // compute corresponding 5 MHz rate
     }
-    else if (channelWidth == 10)
+    else if (channelWidth == MHz_u{10})
     {
         rate /= 2; // compute corresponding 10 MHz rate
     }
@@ -264,35 +199,6 @@ uint16_t
 OfdmPpdu::LSigHeader::GetLength() const
 {
     return m_length;
-}
-
-void
-OfdmPpdu::LSigHeader::Serialize(Buffer::Iterator start) const
-{
-    uint8_t byte = 0;
-    uint16_t bytes = 0;
-
-    byte |= m_rate;
-    byte |= (m_length & 0x07) << 5;
-    start.WriteU8(byte);
-
-    bytes |= (m_length & 0x0ff8) >> 3;
-    start.WriteU16(bytes);
-}
-
-uint32_t
-OfdmPpdu::LSigHeader::Deserialize(Buffer::Iterator start)
-{
-    Buffer::Iterator i = start;
-
-    uint8_t byte = i.ReadU8();
-    m_rate = byte & 0x0f;
-    m_length = (byte >> 5) & 0x07;
-
-    uint16_t bytes = i.ReadU16();
-    m_length |= (bytes << 3) & 0x0ff8;
-
-    return i.GetDistanceFrom(start);
 }
 
 } // namespace ns3

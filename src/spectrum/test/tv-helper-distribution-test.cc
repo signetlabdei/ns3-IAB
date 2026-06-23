@@ -1,32 +1,21 @@
 /*
  * Copyright (c) 2014 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Benjamin Cizdziel <ben.cizdziel@gmail.com>
  */
 
-#include <ns3/log.h>
-#include <ns3/test.h>
-#include <ns3/tv-spectrum-transmitter-helper.h>
+#include "ns3/log.h"
+#include "ns3/test.h"
+#include "ns3/tv-spectrum-transmitter-helper.h"
 
 NS_LOG_COMPONENT_DEFINE("TvHelperDistributionTest");
 
 using namespace ns3;
 
 /**
- * \ingroup spectrum-tests
+ * @ingroup spectrum-tests
  *
  * This test verifies the accuracy of the private GetRandomNumTransmitters()
  * method in the TvSpectrumTransmitterHelper class. The method generates a
@@ -51,7 +40,7 @@ class TvHelperDistributionTestCase : public TestCase
     /**
      * Constructor
      *
-     * \param maxNumTransmitters maximum number of transmitters.
+     * @param maxNumTransmitters maximum number of transmitters.
      */
     TvHelperDistributionTestCase(uint32_t maxNumTransmitters);
     ~TvHelperDistributionTestCase() override;
@@ -60,8 +49,8 @@ class TvHelperDistributionTestCase : public TestCase
     void DoRun() override;
     /**
      * Build the test name
-     * \param maxNumTransmitters maximum number of transmitters.
-     * \return The test name
+     * @param maxNumTransmitters maximum number of transmitters.
+     * @return The test name
      */
     static std::string Name(uint32_t maxNumTransmitters);
     uint32_t m_maxNumTransmitters; //!< Maximum number of transmitters.
@@ -133,7 +122,7 @@ TvHelperDistributionTestCase::DoRun()
 }
 
 /**
- * \ingroup spectrum-tests
+ * @ingroup spectrum-tests
  *
  * Test suite for the TvSpectrumTransmitterHelper class
  */
@@ -144,12 +133,13 @@ class TvHelperDistributionTestSuite : public TestSuite
 };
 
 TvHelperDistributionTestSuite::TvHelperDistributionTestSuite()
-    : TestSuite("tv-helper-distribution", UNIT)
+    : TestSuite("tv-helper-distribution", Type::UNIT)
 {
     NS_LOG_INFO("creating TvHelperDistributionTestSuite");
     for (uint32_t maxNumTransmitters = 3; maxNumTransmitters <= 203; maxNumTransmitters += 10)
     {
-        AddTestCase(new TvHelperDistributionTestCase(maxNumTransmitters), TestCase::QUICK);
+        AddTestCase(new TvHelperDistributionTestCase(maxNumTransmitters),
+                    TestCase::Duration::QUICK);
     }
 }
 

@@ -2,18 +2,7 @@
  * Copyright (c) 2006 Georgia Tech Research Corporation
  *               2007 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: George F. Riley<riley@ece.gatech.edu>
  *          Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
@@ -22,10 +11,10 @@
 #include "socket.h"
 
 #include "node.h"
+#include "packet.h"
 #include "socket-factory.h"
 
 #include "ns3/log.h"
-#include "ns3/packet.h"
 
 #include <limits>
 
@@ -73,9 +62,11 @@ Socket::CreateSocket(Ptr<Node> node, TypeId tid)
 {
     NS_LOG_FUNCTION(node << tid);
     Ptr<Socket> s;
-    NS_ASSERT(node);
+    NS_ASSERT_MSG(node, "CreateSocket: node is null.");
     Ptr<SocketFactory> socketFactory = node->GetObject<SocketFactory>(tid);
-    NS_ASSERT(socketFactory);
+    NS_ASSERT_MSG(socketFactory,
+                  "CreateSocket: can not create a "
+                      << tid.GetName() << " - perhaps the node is missing the required protocol.");
     s = socketFactory->CreateSocket();
     NS_ASSERT(s);
     return s;

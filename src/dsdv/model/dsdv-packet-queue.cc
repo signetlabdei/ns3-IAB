@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2010 Hemanth Narra
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Hemanth Narra <hemanth@ittc.ku.com>
  *
@@ -56,7 +45,7 @@ PacketQueue::Enqueue(QueueEntry& entry)
     NS_LOG_FUNCTION("Enqueuing packet destined for" << entry.GetIpv4Header().GetDestination());
     Purge();
     uint32_t numPacketswithdst;
-    for (std::vector<QueueEntry>::const_iterator i = m_queue.begin(); i != m_queue.end(); ++i)
+    for (auto i = m_queue.begin(); i != m_queue.end(); ++i)
     {
         if ((i->GetPacket()->GetUid() == entry.GetPacket()->GetUid()) &&
             (i->GetIpv4Header().GetDestination() == entry.GetIpv4Header().GetDestination()))
@@ -86,7 +75,7 @@ PacketQueue::DropPacketWithDst(Ipv4Address dst)
 {
     NS_LOG_FUNCTION("Dropping packet to " << dst);
     Purge();
-    for (std::vector<QueueEntry>::iterator i = m_queue.begin(); i != m_queue.end(); ++i)
+    for (auto i = m_queue.begin(); i != m_queue.end(); ++i)
     {
         if (i->GetIpv4Header().GetDestination() == dst)
         {
@@ -104,7 +93,7 @@ PacketQueue::Dequeue(Ipv4Address dst, QueueEntry& entry)
 {
     NS_LOG_FUNCTION("Dequeueing packet destined for" << dst);
     Purge();
-    for (std::vector<QueueEntry>::iterator i = m_queue.begin(); i != m_queue.end(); ++i)
+    for (auto i = m_queue.begin(); i != m_queue.end(); ++i)
     {
         if (i->GetIpv4Header().GetDestination() == dst)
         {
@@ -119,7 +108,7 @@ PacketQueue::Dequeue(Ipv4Address dst, QueueEntry& entry)
 bool
 PacketQueue::Find(Ipv4Address dst)
 {
-    for (std::vector<QueueEntry>::const_iterator i = m_queue.begin(); i != m_queue.end(); ++i)
+    for (auto i = m_queue.begin(); i != m_queue.end(); ++i)
     {
         if (i->GetIpv4Header().GetDestination() == dst)
         {
@@ -134,7 +123,7 @@ uint32_t
 PacketQueue::GetCountForPacketsWithDst(Ipv4Address dst)
 {
     uint32_t count = 0;
-    for (std::vector<QueueEntry>::const_iterator i = m_queue.begin(); i != m_queue.end(); ++i)
+    for (auto i = m_queue.begin(); i != m_queue.end(); ++i)
     {
         if (i->GetIpv4Header().GetDestination() == dst)
         {
@@ -150,14 +139,14 @@ PacketQueue::GetCountForPacketsWithDst(Ipv4Address dst)
 struct IsExpired
 {
     /**
-     * \brief Check for expired entry
-     * \param e QueueEntry to check
-     * \return true if expired
+     * @brief Check for expired entry
+     * @param e QueueEntry to check
+     * @return true if expired
      */
     bool operator()(const QueueEntry& e) const
     {
         // NS_LOG_DEBUG("Expire time for packet in req queue: "<<e.GetExpireTime ());
-        return (e.GetExpireTime() < Seconds(0));
+        return (e.GetExpireTime().IsStrictlyNegative());
     }
 };
 
@@ -166,7 +155,7 @@ PacketQueue::Purge()
 {
     // NS_LOG_DEBUG("Purging Queue");
     IsExpired pred;
-    for (std::vector<QueueEntry>::iterator i = m_queue.begin(); i != m_queue.end(); ++i)
+    for (auto i = m_queue.begin(); i != m_queue.end(); ++i)
     {
         if (pred(*i))
         {

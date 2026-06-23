@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2008 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -20,7 +9,6 @@
 #include "command-line.h"
 
 #include "config.h"
-#include "des-metrics.h"
 #include "environment-variable.h"
 #include "global-value.h"
 #include "log.h"
@@ -32,17 +20,22 @@
 #include "version.h"
 #endif
 
+#ifdef ENABLE_DES_METRICS
+#include "des-metrics.h"
+#endif
+
 #include <algorithm> // transform
 #include <cctype>    // tolower
 #include <cstdlib>   // exit
 #include <cstring>   // strlen
-#include <iomanip>   // setw, boolalpha
+#include <fstream>
+#include <iomanip> // setw, boolalpha
 #include <set>
 #include <sstream>
 
 /**
- * \file
- * \ingroup commandline
+ * @file
+ * @ingroup commandline
  * ns3::CommandLine implementation.
  */
 
@@ -54,8 +47,8 @@ namespace
  * Usage and help strings, which are intended for text-only display,
  * can contain illegal characters for HTML.  This function
  * encodes '&', '\"', '\'',  and '<'.
- * \param [in] source The original string.
- * \returns The HTML-encoded version.
+ * @param [in] source The original string.
+ * @returns The HTML-encoded version.
  */
 std::string
 Encode(const std::string& source)
@@ -484,7 +477,7 @@ CommandLine::PrintDoxygenUsage() const
 
     std::fstream os(outf, std::fstream::out);
 
-    os << "/**\n \\file " << m_shortName << ".cc\n"
+    os << "/**\n @file " << m_shortName << ".cc\n"
        << "<h3>Usage</h3>\n"
        << "<code>$ ./ns3 run \"" << m_shortName << (!m_options.empty() ? " [Program Options]" : "")
        << (!nonOptions.empty() ? " [Program Arguments]" : "") << "\"</code>\n";
@@ -512,12 +505,12 @@ CommandLine::PrintDoxygenUsage() const
 
     if (!m_options.empty())
     {
-        listOptions("Program Options", m_options, "\\c --");
+        listOptions("Program Options", m_options, "@c --");
     }
 
     if (!nonOptions.empty())
     {
-        listOptions("Program Arguments", nonOptions, "\\c ");
+        listOptions("Program Arguments", nonOptions, "@c ");
     }
 
     os << "*/" << std::endl;
@@ -572,7 +565,7 @@ CommandLine::PrintAttributeList(std::ostream& os, const TypeId tid, std::strings
     {
         std::stringstream ss;
         ss << "    --" << tid.GetAttributeFullName(i) << "=[";
-        struct TypeId::AttributeInformation info = tid.GetAttribute(i);
+        TypeId::AttributeInformation info = tid.GetAttribute(i);
         ss << info.initialValue->SerializeToString(info.checker) << "]\n"
            << "        " << info.help << "\n";
         attributes.push_back(ss.str());
@@ -749,6 +742,7 @@ CommandLine::AddValue(const std::string& name,
                       std::size_t num)
 {
     NS_LOG_FUNCTION(this << name << help << value << num);
+    TestForDuplicateOption(name);
     auto item = std::make_shared<CharStarItem>();
     item->m_name = name;
     item->m_help = help;
@@ -766,6 +760,7 @@ CommandLine::AddValue(const std::string& name,
 
 {
     NS_LOG_FUNCTION(this << &name << &help << &callback);
+    TestForDuplicateOption(name);
     auto item = std::make_shared<CallbackItem>();
     item->m_name = name;
     item->m_help = help;
@@ -778,6 +773,7 @@ void
 CommandLine::AddValue(const std::string& name, const std::string& attributePath)
 {
     NS_LOG_FUNCTION(this << name << attributePath);
+    TestForDuplicateOption(name);
     // Attribute name is last token
     std::size_t colon = attributePath.rfind("::");
     const std::string typeName = attributePath.substr(0, colon);
@@ -790,7 +786,7 @@ CommandLine::AddValue(const std::string& name, const std::string& attributePath)
     }
 
     const std::string attrName = attributePath.substr(colon + 2);
-    struct TypeId::AttributeInformation info;
+    TypeId::AttributeInformation info;
     if (!tid.LookupAttributeByName(attrName, &info))
     {
         NS_FATAL_ERROR("Attribute not found: " << attributePath);
@@ -838,6 +834,31 @@ CommandLine::HandleAttribute(const std::string& name, const std::string& value)
 {
     return Config::SetGlobalFailSafe(name, StringValue(value)) ||
            Config::SetDefaultFailSafe(name, StringValue(value));
+}
+
+void
+CommandLine::CheckForDuplicateItemNameError(std::string name,
+                                            std::string optType,
+                                            const Items& items)
+{
+    // Check for existing parameter name
+    auto existingNameIt = std::find_if(items.begin(), items.end(), [name](const auto& itemPtr) {
+        return itemPtr->m_name == name;
+    });
+    NS_ABORT_MSG_IF(existingNameIt != items.end(),
+                    "Duplicate " << optType << " CommandLine argument named: " << name);
+}
+
+void
+CommandLine::TestForDuplicateOption(std::string name)
+{
+    CheckForDuplicateItemNameError(name, "option", m_options);
+}
+
+void
+CommandLine::TestForDuplicateNonOption(std::string name)
+{
+    CheckForDuplicateItemNameError(name, "non-option", m_nonOptions);
 }
 
 bool

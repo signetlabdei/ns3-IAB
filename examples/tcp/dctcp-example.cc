@@ -2,18 +2,7 @@
  * Copyright (c) 2017-20 NITK Surathkal
  * Copyright (c) 2020 Tom Henderson (better alignment with experiment)
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Shravya K.S. <shravya.ks0@gmail.com>
  *          Apoorva Bhargava <apoorvabhargava13@gmail.com>
@@ -298,10 +287,8 @@ main(int argc, char* argv[])
 
     Config::SetDefault("ns3::TcpL4Protocol::SocketType", StringValue("ns3::" + tcpTypeId));
 
-    Time startTime = Seconds(0);
+    Time startTime{0};
     Time stopTime = flowStartupWindow + convergenceTime + measurementWindow;
-
-    Time clientStartTime = startTime;
 
     rxS1R1Bytes.reserve(10);
     rxS2R2Bytes.reserve(20);
@@ -493,7 +480,7 @@ main(int argc, char* argv[])
         AddressValue remoteAddress(InetSocketAddress(ipR2T2[i].GetAddress(0), port));
         clientHelper1.SetAttribute("Remote", remoteAddress);
         clientApps1.Add(clientHelper1.Install(S2.Get(i)));
-        clientApps1.Start(i * flowStartupWindow / 20 + clientStartTime + MilliSeconds(i * 5));
+        clientApps1.Start(i * flowStartupWindow / 20 + startTime + MilliSeconds(i * 5));
         clientApps1.Stop(stopTime);
     }
 
@@ -534,13 +521,12 @@ main(int argc, char* argv[])
         if (i < 10)
         {
             clientApps1.Add(clientHelper1.Install(S1.Get(i)));
-            clientApps1.Start(i * flowStartupWindow / 10 + clientStartTime + MilliSeconds(i * 5));
+            clientApps1.Start(i * flowStartupWindow / 10 + startTime + MilliSeconds(i * 5));
         }
         else
         {
             clientApps1.Add(clientHelper1.Install(S3.Get(i - 10)));
-            clientApps1.Start((i - 10) * flowStartupWindow / 10 + clientStartTime +
-                              MilliSeconds(i * 5));
+            clientApps1.Start((i - 10) * flowStartupWindow / 10 + startTime + MilliSeconds(i * 5));
         }
 
         clientApps1.Stop(stopTime);

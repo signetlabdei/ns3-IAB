@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2004,2005,2006 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Federico Maguolo <maguolof@dei.unipd.it>
  */
@@ -32,7 +21,7 @@ namespace ns3
 NS_LOG_COMPONENT_DEFINE("AarfcdWifiManager");
 
 /**
- * \brief hold per-remote-station state for AARF-CD Wifi manager.
+ * @brief hold per-remote-station state for AARF-CD Wifi manager.
  *
  * This struct extends from WifiRemoteStation struct to hold additional
  * information required by the AARF-CD Wifi manager
@@ -151,7 +140,7 @@ WifiRemoteStation*
 AarfcdWifiManager::DoCreateStation() const
 {
     NS_LOG_FUNCTION(this);
-    AarfcdWifiRemoteStation* station = new AarfcdWifiRemoteStation();
+    auto station = new AarfcdWifiRemoteStation();
 
     // AARF fields below
     station->m_successThreshold = m_minSuccessThreshold;
@@ -182,7 +171,7 @@ void
 AarfcdWifiManager::DoReportDataFailed(WifiRemoteStation* st)
 {
     NS_LOG_FUNCTION(this << st);
-    AarfcdWifiRemoteStation* station = static_cast<AarfcdWifiRemoteStation*>(st);
+    auto station = static_cast<AarfcdWifiRemoteStation*>(st);
     station->m_timer++;
     station->m_failed++;
     station->m_success = 0;
@@ -269,7 +258,7 @@ AarfcdWifiManager::DoReportRtsOk(WifiRemoteStation* st,
                                  double rtsSnr)
 {
     NS_LOG_FUNCTION(this << st << ctsSnr << ctsMode << rtsSnr);
-    AarfcdWifiRemoteStation* station = static_cast<AarfcdWifiRemoteStation*>(st);
+    auto station = static_cast<AarfcdWifiRemoteStation*>(st);
     NS_LOG_DEBUG("station=" << station << " rts ok");
     station->m_rtsCounter--;
 }
@@ -279,11 +268,11 @@ AarfcdWifiManager::DoReportDataOk(WifiRemoteStation* st,
                                   double ackSnr,
                                   WifiMode ackMode,
                                   double dataSnr,
-                                  uint16_t dataChannelWidth,
+                                  MHz_u dataChannelWidth,
                                   uint8_t dataNss)
 {
     NS_LOG_FUNCTION(this << st << ackSnr << ackMode << dataSnr << dataChannelWidth << +dataNss);
-    AarfcdWifiRemoteStation* station = static_cast<AarfcdWifiRemoteStation*>(st);
+    auto station = static_cast<AarfcdWifiRemoteStation*>(st);
     station->m_timer++;
     station->m_success++;
     station->m_failed = 0;
@@ -325,14 +314,14 @@ AarfcdWifiManager::DoReportFinalDataFailed(WifiRemoteStation* station)
 }
 
 WifiTxVector
-AarfcdWifiManager::DoGetDataTxVector(WifiRemoteStation* st, uint16_t allowedWidth)
+AarfcdWifiManager::DoGetDataTxVector(WifiRemoteStation* st, MHz_u allowedWidth)
 {
     NS_LOG_FUNCTION(this << st << allowedWidth);
-    AarfcdWifiRemoteStation* station = static_cast<AarfcdWifiRemoteStation*>(st);
-    uint16_t channelWidth = GetChannelWidth(station);
-    if (channelWidth > 20 && channelWidth != 22)
+    auto station = static_cast<AarfcdWifiRemoteStation*>(st);
+    auto channelWidth = GetChannelWidth(station);
+    if (channelWidth > MHz_u{20} && channelWidth != MHz_u{22})
     {
-        channelWidth = 20;
+        channelWidth = MHz_u{20};
     }
     WifiMode mode = GetSupported(station, station->m_rate);
     uint64_t rate = mode.GetDataRate(channelWidth);
@@ -345,7 +334,7 @@ AarfcdWifiManager::DoGetDataTxVector(WifiRemoteStation* st, uint16_t allowedWidt
         mode,
         GetDefaultTxPowerLevel(),
         GetPreambleForTransmission(mode.GetModulationClass(), GetShortPreambleEnabled()),
-        800,
+        NanoSeconds(800),
         1,
         1,
         0,
@@ -357,16 +346,16 @@ WifiTxVector
 AarfcdWifiManager::DoGetRtsTxVector(WifiRemoteStation* st)
 {
     NS_LOG_FUNCTION(this << st);
-    /// \todo we could/should implement the AARF algorithm for
+    /// @todo we could/should implement the AARF algorithm for
     /// RTS only by picking a single rate within the BasicRateSet.
-    AarfcdWifiRemoteStation* station = static_cast<AarfcdWifiRemoteStation*>(st);
-    uint16_t channelWidth = GetChannelWidth(station);
-    if (channelWidth > 20 && channelWidth != 22)
+    auto station = static_cast<AarfcdWifiRemoteStation*>(st);
+    auto channelWidth = GetChannelWidth(station);
+    if (channelWidth > MHz_u{20} && channelWidth != MHz_u{22})
     {
-        channelWidth = 20;
+        channelWidth = MHz_u{20};
     }
     WifiMode mode;
-    if (GetUseNonErpProtection() == false)
+    if (!GetUseNonErpProtection())
     {
         mode = GetSupported(station, 0);
     }
@@ -378,7 +367,7 @@ AarfcdWifiManager::DoGetRtsTxVector(WifiRemoteStation* st)
         mode,
         GetDefaultTxPowerLevel(),
         GetPreambleForTransmission(mode.GetModulationClass(), GetShortPreambleEnabled()),
-        800,
+        NanoSeconds(800),
         1,
         1,
         0,
@@ -390,7 +379,7 @@ bool
 AarfcdWifiManager::DoNeedRts(WifiRemoteStation* st, uint32_t size, bool normally)
 {
     NS_LOG_FUNCTION(this << st << size << normally);
-    AarfcdWifiRemoteStation* station = static_cast<AarfcdWifiRemoteStation*>(st);
+    auto station = static_cast<AarfcdWifiRemoteStation*>(st);
     NS_LOG_INFO("" << station << " rate=" << station->m_rate
                    << " rts=" << (station->m_rtsOn ? "RTS" : "BASIC")
                    << " rtsCounter=" << station->m_rtsCounter);

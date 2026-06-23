@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2015 ResiliNets, ITTC, University of Kansas
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * by: Amir Modarresi <amodarresi@ittc.ku.edu>
  *
@@ -34,9 +23,9 @@ namespace ns3
 class TcpSocketState;
 
 /**
- * \ingroup congestionOps
+ * @ingroup congestionOps
  *
- * \brief An implementation of the H-TCP variant of TCP.
+ * @brief An implementation of the H-TCP variant of TCP.
  *
  * This class contains the H-TCP implementation of TCP, according to
  * Internet-Draft draft-leith-tcp-htcp-03 and its related paper,
@@ -50,8 +39,8 @@ class TcpHtcp : public TcpNewReno
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
     /**
@@ -59,8 +48,8 @@ class TcpHtcp : public TcpNewReno
      */
     TcpHtcp();
     /**
-     * \brief Copy constructor
-     * \param sock the object to copy
+     * @brief Copy constructor
+     * @param sock the object to copy
      */
     TcpHtcp(const TcpHtcp& sock);
     ~TcpHtcp() override;
@@ -75,12 +64,12 @@ class TcpHtcp : public TcpNewReno
 
   private:
     /**
-     * \brief Updates the additive increase parameter for H-TCP
+     * @brief Updates the additive increase parameter for H-TCP
      */
     void UpdateAlpha();
 
     /**
-     * \brief Updates the multiplicative decrease factor beta for H-TCP
+     * @brief Updates the multiplicative decrease factor beta for H-TCP
      */
     void UpdateBeta();
 

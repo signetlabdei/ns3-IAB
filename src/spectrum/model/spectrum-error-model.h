@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2009 CTTC
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Nicola Baldo <nbaldo@cttc.es>
  */
@@ -20,17 +9,18 @@
 #ifndef SPECTRUM_ERROR_MODEL_H
 #define SPECTRUM_ERROR_MODEL_H
 
-#include <ns3/nstime.h>
-#include <ns3/object.h>
-#include <ns3/packet.h>
-#include <ns3/ptr.h>
-#include <ns3/spectrum-value.h>
+#include "spectrum-value.h"
+
+#include "ns3/nstime.h"
+#include "ns3/object.h"
+#include "ns3/packet.h"
+#include "ns3/ptr.h"
 
 namespace ns3
 {
 
 /**
- * \ingroup spectrum
+ * @ingroup spectrum
  *
  */
 class SpectrumErrorModel : public Object
@@ -38,33 +28,33 @@ class SpectrumErrorModel : public Object
   public:
     /**
      * Register this type.
-     * \return The TypeId.
+     * @return The TypeId.
      */
     static TypeId GetTypeId();
     ~SpectrumErrorModel() override;
 
     /**
      * Start a packet reception
-     * \param p the packet
+     * @param p the packet
      */
     virtual void StartRx(Ptr<const Packet> p) = 0;
 
     /**
      * Evaluates a chunk
-     * \param sinr the SpectrumValue experienced by the Chunk
-     * \param duration the Chunk length
+     * @param sinr the SpectrumValue experienced by the Chunk
+     * @param duration the Chunk length
      */
     virtual void EvaluateChunk(const SpectrumValue& sinr, Time duration) = 0;
 
     /**
      * Checks if the packet being received is correct
-     * \returns true if the packet is correct.
+     * @returns true if the packet is correct.
      */
     virtual bool IsRxCorrect() = 0;
 };
 
 /**
- * \ingroup spectrum
+ * @ingroup spectrum
  *
  * This class implements the error model described in this paper:
  * N. Baldo and M. Miozzo, "Spectrum-aware Channel and PHY layer modeling
@@ -79,7 +69,7 @@ class ShannonSpectrumErrorModel : public SpectrumErrorModel
   public:
     /**
      * Register this type.
-     * \return The TypeId.
+     * @return The TypeId.
      */
     static TypeId GetTypeId();
     // inherited from SpectrumErrorModel

@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2015
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Sébastien Deronne <sebastien.deronne@gmail.com>
  */
@@ -34,7 +23,7 @@
 // The program can be configured at run-time by passing command-line arguments.
 // It enables to configure the delay between the transmission from station A
 // and the transmission from station B (--delay option). It is also possible to
-// select the tx power level (--txPowerA and --txPowerB options), the packet size
+// select the tx power (--txPowerA and --txPowerB options), the packet size
 // (--packetSizeA and --packetSizeB options) and the modulation (--txModeA and
 // --txModeB options) used for the respective transmissions.
 //
@@ -44,7 +33,7 @@
 // Note that the program checks the consistency between the selected standard
 // the selected preamble type.
 //
-// The output of the program displays InterfenceHelper and SpectrumWifiPhy trace
+// The output of the program displays InterferenceHelper and SpectrumWifiPhy trace
 // logs associated to the chosen scenario.
 //
 
@@ -84,37 +73,37 @@ class InterferenceExperiment
     {
         Input();
         Time interval;         ///< interval
-        double xA;             ///< x A
-        double xB;             ///< x B
+        meter_u xA;            ///< x A
+        meter_u xB;            ///< x B
         std::string txModeA;   ///< transmit mode A
         std::string txModeB;   ///< transmit mode B
-        double txPowerLevelA;  ///< transmit power level A
-        double txPowerLevelB;  ///< transmit power level B
+        dBm_u txPowerA;        ///< transmit power A
+        dBm_u txPowerB;        ///< transmit power B
         uint32_t packetSizeA;  ///< packet size A
         uint32_t packetSizeB;  ///< packet size B
-        uint16_t channelA;     ///< channel number A
-        uint16_t channelB;     ///< channel number B
-        uint16_t widthA;       ///< channel width A
-        uint16_t widthB;       ///< channel width B
+        uint8_t channelA;      ///< channel number A
+        uint8_t channelB;      ///< channel number B
+        MHz_u widthA;          ///< channel width A
+        MHz_u widthB;          ///< channel width B
         WifiStandard standard; ///< standard
         WifiPhyBand band;      ///< band
         WifiPreamble preamble; ///< preamble
         bool captureEnabled;   ///< whether physical layer capture is enabled
-        double captureMargin;  ///< margin used for physical layer capture
+        dB_u captureMargin;    ///< margin used for physical layer capture
     };
 
     InterferenceExperiment();
     /**
      * Run function
-     * \param input the interference experiment data
+     * @param input the interference experiment data
      */
-    void Run(struct InterferenceExperiment::Input input);
+    void Run(InterferenceExperiment::Input input);
 
   private:
     /**
      * Function triggered when a packet is dropped
-     * \param packet the packet that was dropped
-     * \param reason the reason why it was dropped
+     * @param packet the packet that was dropped
+     * @param reason the reason why it was dropped
      */
     void PacketDropped(Ptr<const Packet> packet, WifiPhyRxfailureReason reason);
     /// Send A function
@@ -140,7 +129,7 @@ InterferenceExperiment::SendA() const
     m_uidA = p->GetUid();
     Ptr<WifiPsdu> psdu = Create<WifiPsdu>(p, hdr);
     WifiTxVector txVector;
-    txVector.SetTxPowerLevel(0); // only one TX power level
+    txVector.SetTxPowerLevel(WIFI_MIN_TX_PWR_LEVEL);
     txVector.SetMode(WifiMode(m_input.txModeA));
     txVector.SetChannelWidth(m_input.widthA);
     txVector.SetPreambleType(m_input.preamble);
@@ -157,7 +146,7 @@ InterferenceExperiment::SendB() const
     m_uidB = p->GetUid();
     Ptr<WifiPsdu> psdu = Create<WifiPsdu>(p, hdr);
     WifiTxVector txVector;
-    txVector.SetTxPowerLevel(0); // only one TX power level
+    txVector.SetTxPowerLevel(WIFI_MIN_TX_PWR_LEVEL);
     txVector.SetMode(WifiMode(m_input.txModeB));
     txVector.SetChannelWidth(m_input.widthB);
     txVector.SetPreambleType(m_input.preamble);
@@ -191,34 +180,34 @@ InterferenceExperiment::InterferenceExperiment()
 }
 
 InterferenceExperiment::Input::Input()
-    : interval(MicroSeconds(0)),
+    : interval(),
       xA(-5),
       xB(5),
       txModeA("OfdmRate54Mbps"),
       txModeB("OfdmRate54Mbps"),
-      txPowerLevelA(16.0206),
-      txPowerLevelB(16.0206),
+      txPowerA(dBm_u{16.0206}),
+      txPowerB(dBm_u{16.0206}),
       packetSizeA(1500),
       packetSizeB(1500),
       channelA(36),
       channelB(36),
-      widthA(20),
-      widthB(20),
+      widthA(MHz_u{20}),
+      widthB(MHz_u{20}),
       standard(WIFI_STANDARD_80211a),
       band(WIFI_PHY_BAND_5GHZ),
       preamble(WIFI_PREAMBLE_LONG),
       captureEnabled(false),
-      captureMargin(0)
+      captureMargin(dB_u{0})
 {
 }
 
 void
-InterferenceExperiment::Run(struct InterferenceExperiment::Input input)
+InterferenceExperiment::Run(InterferenceExperiment::Input input)
 {
     m_input = input;
 
-    double range = std::max(std::abs(input.xA), input.xB);
-    Config::SetDefault("ns3::RangePropagationLossModel::MaxRange", DoubleValue(range));
+    double maxRange = std::max(std::abs(input.xA), input.xB);
+    Config::SetDefault("ns3::RangePropagationLossModel::MaxRange", DoubleValue(maxRange));
 
     Ptr<SingleModelSpectrumChannel> channel = CreateObject<SingleModelSpectrumChannel>();
     channel->SetPropagationDelayModel(CreateObject<ConstantSpeedPropagationDelayModel>());
@@ -235,23 +224,20 @@ InterferenceExperiment::Run(struct InterferenceExperiment::Input input)
     Ptr<Node> nodeA = CreateObject<Node>();
     Ptr<WifiNetDevice> devA = CreateObject<WifiNetDevice>();
     m_txA = CreateObject<SpectrumWifiPhy>();
-    m_txA->CreateWifiSpectrumPhyInterface(devA);
     m_txA->SetDevice(devA);
-    m_txA->SetTxPowerStart(input.txPowerLevelA);
-    m_txA->SetTxPowerEnd(input.txPowerLevelA);
+    m_txA->SetTxPowerStart(input.txPowerA);
+    m_txA->SetTxPowerEnd(input.txPowerA);
 
     Ptr<Node> nodeB = CreateObject<Node>();
     Ptr<WifiNetDevice> devB = CreateObject<WifiNetDevice>();
     m_txB = CreateObject<SpectrumWifiPhy>();
-    m_txB->CreateWifiSpectrumPhyInterface(devB);
     m_txB->SetDevice(devB);
-    m_txB->SetTxPowerStart(input.txPowerLevelB);
-    m_txB->SetTxPowerEnd(input.txPowerLevelB);
+    m_txB->SetTxPowerStart(input.txPowerB);
+    m_txB->SetTxPowerEnd(input.txPowerB);
 
     Ptr<Node> nodeRx = CreateObject<Node>();
     Ptr<WifiNetDevice> devRx = CreateObject<WifiNetDevice>();
     Ptr<SpectrumWifiPhy> rx = CreateObject<SpectrumWifiPhy>();
-    rx->CreateWifiSpectrumPhyInterface(devRx);
     rx->SetDevice(devRx);
 
     Ptr<InterferenceHelper> interferenceTxA = CreateObject<InterferenceHelper>();
@@ -266,9 +252,9 @@ InterferenceExperiment::Run(struct InterferenceExperiment::Input input)
     rx->SetInterferenceHelper(interferenceRx);
     Ptr<ErrorRateModel> errorRx = CreateObject<NistErrorRateModel>();
     rx->SetErrorRateModel(errorRx);
-    m_txA->SetChannel(channel);
-    m_txB->SetChannel(channel);
-    rx->SetChannel(channel);
+    m_txA->AddChannel(channel);
+    m_txB->AddChannel(channel);
+    rx->AddChannel(channel);
     m_txA->SetMobility(posTxA);
     m_txB->SetMobility(posTxB);
     rx->SetMobility(posRx);
@@ -290,10 +276,10 @@ InterferenceExperiment::Run(struct InterferenceExperiment::Input input)
     devRx->SetPhy(rx);
     nodeRx->AddDevice(devRx);
 
-    m_txA->SetOperatingChannel(WifiPhy::ChannelTuple{input.channelA, 0, (int)(input.band), 0});
-    m_txB->SetOperatingChannel(WifiPhy::ChannelTuple{input.channelB, 0, (int)(input.band), 0});
+    m_txA->SetOperatingChannel(WifiPhy::ChannelTuple{input.channelA, 0, input.band, 0});
+    m_txB->SetOperatingChannel(WifiPhy::ChannelTuple{input.channelB, 0, input.band, 0});
     rx->SetOperatingChannel(
-        WifiPhy::ChannelTuple{std::max(input.channelA, input.channelB), 0, (int)(input.band), 0});
+        WifiPhy::ChannelTuple{std::max(input.channelA, input.channelB), 0, input.band, 0});
 
     rx->TraceConnectWithoutContext("PhyRxDrop",
                                    MakeCallback(&InterferenceExperiment::PacketDropped, this));
@@ -320,19 +306,19 @@ main(int argc, char* argv[])
     InterferenceExperiment::Input input;
     std::string str_standard = "WIFI_PHY_STANDARD_80211a";
     std::string str_preamble = "WIFI_PREAMBLE_LONG";
-    uint64_t delay = 0; // microseconds
+    Time delay{"0us"};
 
     CommandLine cmd(__FILE__);
-    cmd.AddValue("delay",
-                 "Delay in microseconds between frame transmission from sender A and frame "
-                 "transmission from sender B",
-                 delay);
+    cmd.AddValue(
+        "delay",
+        "Delay between frame transmission from sender A and frame transmission from sender B",
+        delay);
     cmd.AddValue("xA", "The position of transmitter A (< 0)", input.xA);
     cmd.AddValue("xB", "The position of transmitter B (> 0)", input.xB);
     cmd.AddValue("packetSizeA", "Packet size in bytes of transmitter A", input.packetSizeA);
     cmd.AddValue("packetSizeB", "Packet size in bytes of transmitter B", input.packetSizeB);
-    cmd.AddValue("txPowerA", "TX power level of transmitter A", input.txPowerLevelA);
-    cmd.AddValue("txPowerB", "TX power level of transmitter B", input.txPowerLevelB);
+    cmd.AddValue("txPowerA", "TX power of transmitter A", input.txPowerA);
+    cmd.AddValue("txPowerB", "TX power of transmitter B", input.txPowerB);
     cmd.AddValue("txModeA", "Wifi mode used for payload transmission of sender A", input.txModeA);
     cmd.AddValue("txModeB", "Wifi mode used for payload transmission of sender B", input.txModeB);
     cmd.AddValue("channelA", "The selected channel number of sender A", input.channelA);
@@ -352,7 +338,7 @@ main(int argc, char* argv[])
                  expectRxBSuccessful);
     cmd.Parse(argc, argv);
 
-    input.interval = MicroSeconds(delay);
+    input.interval = delay;
 
     if (input.xA >= 0 || input.xB <= 0)
     {

@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2008,2009 IITP RAS
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Kirill Andreev <andreev@iitp.ru>
  */
@@ -259,16 +248,14 @@ IePreq::SerializeInformationField(Buffer::Iterator i) const
     i.WriteU8(m_flags);
     i.WriteU8(m_hopCount);
     i.WriteU8(m_ttl);
-    i.WriteHtolsbU32(m_preqId);
+    i.WriteU32(m_preqId);
     WriteTo(i, m_originatorAddress);
-    i.WriteHtolsbU32(m_originatorSeqNumber);
-    i.WriteHtolsbU32(m_lifetime);
-    i.WriteHtolsbU32(m_metric);
+    i.WriteU32(m_originatorSeqNumber);
+    i.WriteU32(m_lifetime);
+    i.WriteU32(m_metric);
     i.WriteU8(m_destCount);
     int written = 0;
-    for (std::vector<Ptr<DestinationAddressUnit>>::const_iterator j = m_destinations.begin();
-         j != m_destinations.end();
-         j++)
+    for (auto j = m_destinations.begin(); j != m_destinations.end(); j++)
     {
         uint8_t flags = 0;
         if ((*j)->IsDo())
@@ -285,7 +272,7 @@ IePreq::SerializeInformationField(Buffer::Iterator i) const
         }
         i.WriteU8(flags);
         WriteTo(i, (*j)->GetDestinationAddress());
-        i.WriteHtolsbU32((*j)->GetDestSeqNumber());
+        i.WriteU32((*j)->GetDestSeqNumber());
         written++;
         if (written > m_maxSize)
         {
@@ -301,11 +288,11 @@ IePreq::DeserializeInformationField(Buffer::Iterator start, uint16_t length)
     m_flags = i.ReadU8();
     m_hopCount = i.ReadU8();
     m_ttl = i.ReadU8();
-    m_preqId = i.ReadLsbtohU32();
+    m_preqId = i.ReadU32();
     ReadFrom(i, m_originatorAddress);
-    m_originatorSeqNumber = i.ReadLsbtohU32();
-    m_lifetime = i.ReadLsbtohU32();
-    m_metric = i.ReadLsbtohU32();
+    m_originatorSeqNumber = i.ReadU32();
+    m_lifetime = i.ReadU32();
+    m_metric = i.ReadU32();
     m_destCount = i.ReadU8();
     for (int j = 0; j < m_destCount; j++)
     {
@@ -330,7 +317,7 @@ IePreq::DeserializeInformationField(Buffer::Iterator start, uint16_t length)
         Mac48Address addr;
         ReadFrom(i, addr);
         new_element->SetDestinationAddress(addr);
-        new_element->SetDestSeqNumber(i.ReadLsbtohU32());
+        new_element->SetDestSeqNumber(i.ReadU32());
         m_destinations.push_back(new_element);
         NS_ASSERT(28 + j * 11 < length);
     }
@@ -386,16 +373,14 @@ IePreq::AddDestinationAddressElement(bool doFlag,
                                      Mac48Address dest_address,
                                      uint32_t dest_seq_number)
 {
-    for (std::vector<Ptr<DestinationAddressUnit>>::const_iterator i = m_destinations.begin();
-         i != m_destinations.end();
-         i++)
+    for (auto i = m_destinations.begin(); i != m_destinations.end(); i++)
     {
         if ((*i)->GetDestinationAddress() == dest_address)
         {
             return;
         }
     }
-    /// \todo check overflow
+    /// @todo check overflow
     Ptr<DestinationAddressUnit> new_element = Create<DestinationAddressUnit>();
     new_element->SetFlags(doFlag, rfFlag, (dest_seq_number == 0));
     new_element->SetDestinationAddress(dest_address);
@@ -407,9 +392,7 @@ IePreq::AddDestinationAddressElement(bool doFlag,
 void
 IePreq::DelDestinationAddressElement(Mac48Address dest_address)
 {
-    for (std::vector<Ptr<DestinationAddressUnit>>::iterator i = m_destinations.begin();
-         i != m_destinations.end();
-         i++)
+    for (auto i = m_destinations.begin(); i != m_destinations.end(); i++)
     {
         if ((*i)->GetDestinationAddress() == dest_address)
         {
@@ -423,9 +406,7 @@ IePreq::DelDestinationAddressElement(Mac48Address dest_address)
 void
 IePreq::ClearDestinationAddressElements()
 {
-    for (std::vector<Ptr<DestinationAddressUnit>>::iterator j = m_destinations.begin();
-         j != m_destinations.end();
-         j++)
+    for (auto j = m_destinations.begin(); j != m_destinations.end(); j++)
     {
         (*j) = nullptr;
     }

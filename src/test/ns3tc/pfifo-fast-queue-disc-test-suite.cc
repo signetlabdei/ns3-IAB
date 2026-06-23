@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2014 University of Washington
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  */
 
@@ -31,7 +20,7 @@
 using namespace ns3;
 
 /**
- * \ingroup system-tests-tc
+ * @ingroup system-tests-tc
  *
  * This class tests that each possible TOS is enqueued in the right band
  */
@@ -46,9 +35,9 @@ class PfifoFastQueueDiscTosPrioritization : public TestCase
     /**
      * Enqueue a packet and checks that it's added to the proper band.
      *
-     * \param queue The queue disc.
-     * \param tos The TOS of the packet.
-     * \param band Expected band.
+     * @param queue The queue disc.
+     * @param tos The TOS of the packet.
+     * @param band Expected band.
      */
     void TestTosValue(Ptr<PfifoFastQueueDisc> queue, uint8_t tos, uint32_t band);
 };
@@ -121,7 +110,7 @@ PfifoFastQueueDiscTosPrioritization::DoRun()
 }
 
 /**
- * \ingroup system-tests-tc
+ * @ingroup system-tests-tc
  *
  * This class tests that each possible DSCP is enqueued in the right band.
  */
@@ -136,9 +125,9 @@ class PfifoFastQueueDiscDscpPrioritization : public TestCase
     /**
      * Enqueue a packet and checks that it's added to the proper band.
      *
-     * \param queue The queue disc.
-     * \param dscp The DSCP of the packet.
-     * \param band Expected band.
+     * @param queue The queue disc.
+     * @param dscp The DSCP of the packet.
+     * @param band Expected band.
      */
     void TestDscpValue(Ptr<PfifoFastQueueDisc> queue, Ipv4Header::DscpType dscp, uint32_t band);
 };
@@ -216,7 +205,7 @@ PfifoFastQueueDiscDscpPrioritization::DoRun()
 }
 
 /**
- * \ingroup system-tests-tc
+ * @ingroup system-tests-tc
  *
  * This class tests that each band is txqueuelen deep.
  */
@@ -231,8 +220,8 @@ class PfifoFastQueueDiscOverflow : public TestCase
     /**
      * Enqueue a packet.
      *
-     * \param queue The queue disc.
-     * \param dscp The DSCP of the packet.
+     * @param queue The queue disc.
+     * @param dscp The DSCP of the packet.
      */
     void AddPacket(Ptr<PfifoFastQueueDisc> queue, Ipv4Header::DscpType dscp);
 };
@@ -313,7 +302,7 @@ PfifoFastQueueDiscOverflow::DoRun()
 }
 
 /**
- * \ingroup system-tests-tc
+ * @ingroup system-tests-tc
  *
  * This class tests that packets without a priority tag are handled by placing
  * them into band 1.
@@ -369,7 +358,7 @@ PfifoFastQueueDiscNoPriority::DoRun()
                           2,
                           "unexpected queue depth");
     p = Create<Packet>(100);
-    uint8_t* buf = new uint8_t[100];
+    auto buf = new uint8_t[100];
     uint8_t counter = 0;
     for (uint32_t i = 0; i < 100; i++)
     {
@@ -386,7 +375,7 @@ PfifoFastQueueDiscNoPriority::DoRun()
 }
 
 /**
- * \ingroup system-tests-tc
+ * @ingroup system-tests-tc
  *
  * PfifoFast queue disc test suite.
  */
@@ -397,12 +386,12 @@ class PfifoFastQueueDiscTestSuite : public TestSuite
 };
 
 PfifoFastQueueDiscTestSuite::PfifoFastQueueDiscTestSuite()
-    : TestSuite("pfifo-fast-queue-disc", UNIT)
+    : TestSuite("pfifo-fast-queue-disc", Type::UNIT)
 {
-    AddTestCase(new PfifoFastQueueDiscTosPrioritization, TestCase::QUICK);
-    AddTestCase(new PfifoFastQueueDiscDscpPrioritization, TestCase::QUICK);
-    AddTestCase(new PfifoFastQueueDiscOverflow, TestCase::QUICK);
-    AddTestCase(new PfifoFastQueueDiscNoPriority, TestCase::QUICK);
+    AddTestCase(new PfifoFastQueueDiscTosPrioritization, TestCase::Duration::QUICK);
+    AddTestCase(new PfifoFastQueueDiscDscpPrioritization, TestCase::Duration::QUICK);
+    AddTestCase(new PfifoFastQueueDiscOverflow, TestCase::Duration::QUICK);
+    AddTestCase(new PfifoFastQueueDiscNoPriority, TestCase::Duration::QUICK);
 }
 
 /// Do not forget to allocate an instance of this TestSuite.

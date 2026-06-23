@@ -1,35 +1,24 @@
 /*
  *  Copyright 2013. Lawrence Livermore National Security, LLC.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Steven Smith <smith84@llnl.gov>
  */
 
 /**
- * \file
- * \ingroup mpi
+ * @file
+ * @ingroup mpi
  * Declaration of class ns3::NullMessageSimulatorImpl.
  */
 
 #ifndef NULLMESSAGE_SIMULATOR_IMPL_H
 #define NULLMESSAGE_SIMULATOR_IMPL_H
 
-#include <ns3/event-impl.h>
-#include <ns3/ptr.h>
-#include <ns3/scheduler.h>
-#include <ns3/simulator-impl.h>
+#include "ns3/event-impl.h"
+#include "ns3/ptr.h"
+#include "ns3/scheduler.h"
+#include "ns3/simulator-impl.h"
 
 #include <fstream>
 #include <iostream>
@@ -43,16 +32,16 @@ class NullMessageMpiInterface;
 class RemoteChannelBundle;
 
 /**
- * \ingroup mpi
+ * @ingroup mpi
  *
- * \brief Simulator implementation using MPI and a Null Message algorithm.
+ * @brief Simulator implementation using MPI and a Null Message algorithm.
  */
 class NullMessageSimulatorImpl : public SimulatorImpl
 {
   public:
     /**
      *  Register this type.
-     *  \return The object TypeId.
+     *  @return The object TypeId.
      */
     static TypeId GetTypeId();
 
@@ -66,7 +55,7 @@ class NullMessageSimulatorImpl : public SimulatorImpl
     void Destroy() override;
     bool IsFinished() const override;
     void Stop() override;
-    void Stop(const Time& delay) override;
+    EventId Stop(const Time& delay) override;
     EventId Schedule(const Time& delay, EventImpl* event) override;
     void ScheduleWithContext(uint32_t context, const Time& delay, EventImpl* event) override;
     EventId ScheduleNow(EventImpl* event) override;
@@ -85,7 +74,7 @@ class NullMessageSimulatorImpl : public SimulatorImpl
     uint64_t GetEventCount() const override;
 
     /**
-     * \return singleton instance
+     * @return singleton instance
      *
      * Singleton accessor.
      */
@@ -120,7 +109,7 @@ class NullMessageSimulatorImpl : public SimulatorImpl
     void ProcessOneEvent();
 
     /**
-     * \return next local event time.
+     * @return next local event time.
      */
     Time Next() const;
 
@@ -133,46 +122,46 @@ class NullMessageSimulatorImpl : public SimulatorImpl
      * Get the current SafeTime; the maximum time that events can
      * be processed based on information received from neighboring
      * MPI tasks.
-     * \return the current SafeTime
+     * @return the current SafeTime
      */
     Time GetSafeTime();
 
     /**
-     * \param bundle Bundle to schedule Null Message event for
+     * @param bundle Bundle to schedule Null Message event for
      *
      * Schedule Null Message event for the specified RemoteChannelBundle.
      */
     void ScheduleNullMessageEvent(Ptr<RemoteChannelBundle> bundle);
 
     /**
-     * \param bundle Bundle to reschedule Null Message event for
+     * @param bundle Bundle to reschedule Null Message event for
      *
      * Reschedule Null Message event for the specified
-     * RemoteChannelBundel.  Existing event will be canceled.
+     * RemoteChannelBundle.  Existing event will be canceled.
      */
     void RescheduleNullMessageEvent(Ptr<RemoteChannelBundle> bundle);
 
     /**
-     * \param nodeSysId SystemID to reschedule null event for
+     * @param nodeSysId SystemID to reschedule null event for
      *
-     * Reschedule Null Message event for the RemoteChannelBundel to the
+     * Reschedule Null Message event for the RemoteChannelBundle to the
      * task nodeSysId.  Existing event will be canceled.
      */
     void RescheduleNullMessageEvent(uint32_t nodeSysId);
 
     /**
-     * \param systemId SystemID to compute guarantee time for
+     * @param systemId SystemID to compute guarantee time for
      *
-     * \return Guarantee time
+     * @return Guarantee time
      *
-     * Calculate the guarantee time for incoming RemoteChannelBundel
+     * Calculate the guarantee time for incoming RemoteChannelBundle
      * from task nodeSysId.  No message should arrive from task
      * nodeSysId with a receive time less than the guarantee time.
      */
     Time CalculateGuaranteeTime(uint32_t systemId);
 
     /**
-     * \param bundle remote channel bundle to schedule an event for.
+     * @param bundle remote channel bundle to schedule an event for.
      *
      * Null message event handler.   Scheduled to send a null message
      * for the specified bundle at regular intervals.   Will canceled

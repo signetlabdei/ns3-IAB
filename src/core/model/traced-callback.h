@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2005,2006,2007 INRIA
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
@@ -25,8 +14,8 @@
 #include <list>
 
 /**
- * \file
- * \ingroup tracing
+ * @file
+ * @ingroup tracing
  * ns3::TracedCallback declaration and template implementation.
  */
 
@@ -34,8 +23,8 @@ namespace ns3
 {
 
 /**
- * \ingroup tracing
- * \brief Forward calls to a chain of Callback
+ * @ingroup tracing
+ * @brief Forward calls to a chain of Callback
  *
  * A TracedCallback has almost exactly the same API as a normal
  * Callback but instead of forwarding calls to a single function
@@ -47,7 +36,10 @@ namespace ns3
  * calling the \c operator() form with the appropriate
  * number of arguments.
  *
- * \tparam Ts \explicit Types of the functor arguments.
+ * @tparam Ts \explicit Types of the functor arguments.
+ *
+ * Inheritance graph was not generated because of its size.
+ * @hideinheritancegraph
  */
 template <typename... Ts>
 class TracedCallback
@@ -58,7 +50,7 @@ class TracedCallback
     /**
      * Append a Callback to the chain (without a context).
      *
-     * \param [in] callback Callback to add to chain.
+     * @param [in] callback Callback to add to chain.
      */
     void ConnectWithoutContext(const CallbackBase& callback);
     /**
@@ -67,39 +59,39 @@ class TracedCallback
      * The context string will be provided as the first argument
      * to the Callback.
      *
-     * \param [in] callback Callback to add to chain.
-     * \param [in] path Context string to provide when invoking the Callback.
+     * @param [in] callback Callback to add to chain.
+     * @param [in] path Context string to provide when invoking the Callback.
      */
     void Connect(const CallbackBase& callback, std::string path);
     /**
      * Remove from the chain a Callback which was connected without a context.
      *
-     * \param [in] callback Callback to remove from the chain.
+     * @param [in] callback Callback to remove from the chain.
      */
     void DisconnectWithoutContext(const CallbackBase& callback);
     /**
      * Remove from the chain a Callback which was connected with a context.
      *
-     * \param [in] callback Callback to remove from the chain.
-     * \param [in] path Context path which was used to connect the Callback.
+     * @param [in] callback Callback to remove from the chain.
+     * @param [in] path Context path which was used to connect the Callback.
      */
     void Disconnect(const CallbackBase& callback, std::string path);
     /**
-     * \brief Functor which invokes the chain of Callbacks.
-     * \tparam Ts \deduced Types of the functor arguments.
-     * \param [in] args The arguments to the functor
+     * @brief Functor which invokes the chain of Callbacks.
+     * @tparam Ts \deduced Types of the functor arguments.
+     * @param [in] args The arguments to the functor
      */
     void operator()(Ts... args) const;
     /**
-     * \brief Checks if the Callbacks list is empty.
-     * \return true if the Callbacks list is empty.
+     * @brief Checks if the Callbacks list is empty.
+     * @return true if the Callbacks list is empty.
      */
     bool IsEmpty() const;
 
     /**
      *  TracedCallback signature for POD.
      *
-     * \param [in] value Value of the traced variable.
+     * @param [in] value Value of the traced variable.
      * @{
      */
     // Uint32Callback appears to be the only one used at the moment.
@@ -111,7 +103,7 @@ class TracedCallback
     /**
      * Container type for holding the chain of Callbacks.
      *
-     * \tparam Ts \deduced Types of the functor arguments.
+     * @tparam Ts \deduced Types of the functor arguments.
      */
     typedef std::list<Callback<void, Ts...>> CallbackList;
     /** The chain of Callbacks. */
@@ -162,8 +154,7 @@ template <typename... Ts>
 void
 TracedCallback<Ts...>::DisconnectWithoutContext(const CallbackBase& callback)
 {
-    for (typename CallbackList::iterator i = m_callbackList.begin(); i != m_callbackList.end();
-         /* empty */)
+    for (auto i = m_callbackList.begin(); i != m_callbackList.end(); /* empty */)
     {
         if ((*i).IsEqual(callback))
         {
@@ -193,9 +184,7 @@ template <typename... Ts>
 void
 TracedCallback<Ts...>::operator()(Ts... args) const
 {
-    for (typename CallbackList::const_iterator i = m_callbackList.begin();
-         i != m_callbackList.end();
-         i++)
+    for (auto i = m_callbackList.begin(); i != m_callbackList.end(); i++)
     {
         (*i)(args...);
     }

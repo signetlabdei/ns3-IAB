@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2022 Lawrence Livermore National Laboratory
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Peter D. Barnes, Jr. <pdbarnes@llnl.gov>
  */
@@ -21,13 +10,13 @@
 // It should *NOT* be included in the build.
 
 /**
- * \ingroup system
- * \defgroup core-environ Environment Variables
+ * @ingroup system
+ * @defgroup core-environ Environment Variables
  */
 
 /**
- * \ingroup core-environ
- * \brief Initialize an ns3::Attribute
+ * @ingroup core-environ
+ * @brief Initialize an ns3::Attribute
  *
  * Sets a new default \pname{value} for an Attribute.
  * This is invoked if the ns3::Object being constructed has an Attribute
@@ -64,8 +53,8 @@
 const char* NS_ATTRIBUTE_DEFAULT = "name=value[;...]";
 
 /**
- * \ingroup core-environ
- * \brief Write the ns3::CommandLine::Usage message, in Doxygen format,
+ * @ingroup core-environ
+ * @brief Write the ns3::CommandLine::Usage message, in Doxygen format,
  * to the referenced location.
  *
  * Set the directory where ns3::CommandLine instances should write their Usage
@@ -92,8 +81,8 @@ const char* NS_ATTRIBUTE_DEFAULT = "name=value[;...]";
 const char* NS_COMMANDLINE_INTROSPECTION = "path";
 
 /**
- * \ingroup core-environ
- * \brief Initialize a ns3::GlobalValue.
+ * @ingroup core-environ
+ * @brief Initialize a ns3::GlobalValue.
  *
  * Initialize the ns3::GlobalValue \pname{name} from \pname{value}.
  *
@@ -125,8 +114,8 @@ const char* NS_COMMANDLINE_INTROSPECTION = "path";
 const char* NS_GLOBAL_VALUE = "name=value[;...]";
 
 /**
- * \ingroup core-environ
- * \brief Control which logging components are enabled.
+ * @ingroup core-environ
+ * @brief Control which logging components are enabled.
  *
  * Enable logging from specific \pname{component}s, with specified \pname{option}s.
  * See the \ref logging module, or the Logging chapter
@@ -159,8 +148,8 @@ const char* NS_GLOBAL_VALUE = "name=value[;...]";
 const char* NS_LOG = "component=option[|option...][:...]";
 
 /**
- * \ingroup core-environ
- * \brief Where to make temporary directories.
+ * @ingroup core-environ
+ * @brief Where to make temporary directories.
  *
  * The absolute path where ns-3 should make temporary directories.
  *

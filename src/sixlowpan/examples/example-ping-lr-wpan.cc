@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2013 Universita' di Firenze, Italy
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Tommaso Pecorella <tommaso.pecorella@unifi.it>
  */
@@ -30,6 +19,8 @@
 
 using namespace ns3;
 
+NS_LOG_COMPONENT_DEFINE("ExamplePingLrWpan");
+
 int
 main(int argc, char** argv)
 {
@@ -37,6 +28,7 @@ main(int argc, char** argv)
     bool disablePcap = false;
     bool disableAsciiTrace = false;
     bool enableLSixlowLogLevelInfo = false;
+    int64_t streamNumber = 1;
 
     CommandLine cmd(__FILE__);
     cmd.AddValue("verbose", "turn on log components", verbose);
@@ -78,8 +70,16 @@ main(int argc, char** argv)
     mobility.Install(nodes);
 
     LrWpanHelper lrWpanHelper;
+    lrWpanHelper.SetPropagationDelayModel("ns3::ConstantSpeedPropagationDelayModel");
+    lrWpanHelper.AddPropagationLossModel("ns3::LogDistancePropagationLossModel");
     // Add and install the LrWpanNetDevice for each node
     NetDeviceContainer lrwpanDevices = lrWpanHelper.Install(nodes);
+    auto streamsUsed = lrWpanHelper.AssignStreams(lrwpanDevices, streamNumber);
+    NS_LOG_DEBUG("Random variable streams used by lrWpanHelper: " << streamsUsed);
+    streamNumber += 1000; // Increment the stream number without chaining the output
+    streamsUsed = lrWpanHelper.GetChannel()->AssignStreams(streamNumber);
+    NS_LOG_DEBUG("Random variable streams used by spectrum channel: " << streamsUsed);
+    streamNumber += 1000;
 
     // Manual PAN association and extended and short address assignment.
     // Association using the MAC functions can also be used instead of this step.
@@ -87,9 +87,15 @@ main(int argc, char** argv)
 
     InternetStackHelper internetv6;
     internetv6.Install(nodes);
+    streamsUsed = internetv6.AssignStreams(nodes, streamNumber);
+    NS_LOG_DEBUG("Random variable streams used by internetv6: " << streamsUsed);
+    streamNumber += 1000;
 
     SixLowPanHelper sixlowpan;
     NetDeviceContainer devices = sixlowpan.Install(lrwpanDevices);
+    streamsUsed = sixlowpan.AssignStreams(devices, streamNumber);
+    NS_LOG_DEBUG("Random variable streams used by sixlowpan: " << streamsUsed);
+    streamNumber += 1000;
 
     Ipv6AddressHelper ipv6;
     ipv6.SetBase(Ipv6Address("2001:2::"), Ipv6Prefix(64));
@@ -116,8 +122,8 @@ main(int argc, char** argv)
     ping.SetAttribute("Size", UintegerValue(packetSize));
     ApplicationContainer apps = ping.Install(nodes.Get(0));
 
-    apps.Start(Seconds(2.0));
-    apps.Stop(Seconds(20.0));
+    apps.Start(Seconds(2));
+    apps.Stop(Seconds(20));
 
     if (!disableAsciiTrace)
     {

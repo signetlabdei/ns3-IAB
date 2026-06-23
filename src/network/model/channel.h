@@ -1,16 +1,5 @@
 /*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #ifndef NS3_CHANNEL_H
@@ -28,12 +17,12 @@ namespace ns3
 class NetDevice;
 
 /**
- * \ingroup network
- * \defgroup channel Channel
+ * @ingroup network
+ * @defgroup channel Channel
  */
 /**
- * \ingroup channel
- * \brief Abstract Channel Base Class.
+ * @ingroup channel
+ * @brief Abstract Channel Base Class.
  *
  * A channel is a logical path over which information flows.  The path can
  * be as simple as a short piece of wire, or as complicated as space-time.
@@ -45,8 +34,8 @@ class Channel : public Object
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
 
@@ -54,7 +43,7 @@ class Channel : public Object
     ~Channel() override;
 
     /**
-     * \returns the unique id of this channel
+     * @returns the unique id of this channel
      *
      * This unique id happens to be also the index of the Channel into
      * the ChannelList.
@@ -62,14 +51,14 @@ class Channel : public Object
     uint32_t GetId() const;
 
     /**
-     * \returns the number of NetDevices connected to this Channel.
+     * @returns the number of NetDevices connected to this Channel.
      *
      * This method must be implemented by subclasses.
      */
     virtual std::size_t GetNDevices() const = 0;
     /**
-     * \param i index of NetDevice to retrieve
-     * \returns one of the NetDevices connected to this channel.
+     * @param i index of NetDevice to retrieve
+     * @returns one of the NetDevices connected to this channel.
      *
      * This method must be implemented by subclasses.
      */

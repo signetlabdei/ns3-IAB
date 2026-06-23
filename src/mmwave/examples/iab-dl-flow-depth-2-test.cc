@@ -155,8 +155,7 @@ PrintIabTopologyInformation (Ptr<OutputStreamWrapper> stream, Ptr<EpcEnbApplicat
 }
 
 static void
-RxSinkHeader (Ptr<OutputStreamWrapper> stream, Ptr<const Packet> packet, const Address &from,
-              const Address &to, const SeqTsSizeHeader &header)
+RxSinkHeader (Ptr<OutputStreamWrapper> stream, Ptr<const Packet> packet, const Address &from)
 {
   AppReceptionCallback (packet->GetSize ());
 }
@@ -186,7 +185,7 @@ InstallUdpPacketSink (Ptr<OutputStreamWrapper> traceStream, Ipv4Address srcAddre
   PacketSinkHelper packetSinkHelper ("ns3::UdpSocketFactory",
                                      InetSocketAddress (srcAddress, params.basePort));
   app.Add (packetSinkHelper.Install (targetNode));
-  app.Get (0)->TraceConnectWithoutContext ("RxWithSeqTsSize",
+  app.Get (0)->TraceConnectWithoutContext ("Rx",
                                            MakeBoundCallback (RxSinkHeader, traceStream));
   app.Start (Seconds (0));
   app.Stop (params.simTime);
@@ -231,7 +230,7 @@ main (int argc, char *argv[])
                       UintegerValue (numSymResvUlCtrl));
 
   Config::SetDefault ("ns3::MmWavePhyMacCommon::Numerology",
-                      EnumValue(3));
+                      StringValue ("NrNumerology3"));
   Config::SetDefault ("ns3::PhasedArrayModel::AntennaElement",
                       PointerValue (CreateObject<ThreeGppAntennaModel> ()));
   Config::SetDefault ("ns3::ThreeGppPropagationLossModel::ShadowingEnabled", BooleanValue (false));
@@ -242,9 +241,7 @@ main (int argc, char *argv[])
 
 
 
-  // Enable additional APP-level headers to retrieve delay
-  Config::SetDefault ("ns3::UdpClient::EnableSeqTsSizeHeader", BooleanValue (true));
-  Config::SetDefault ("ns3::PacketSink::EnableSeqTsSizeHeader", BooleanValue (true));
+  // SeqTsSizeHeader not supported by UdpClient in ns-3.48 — removed
 
   Config::SetDefault("ns3::MmWavePhyMacCommon::CenterFreq", DoubleValue (fc));
   Config::SetDefault("ns3::MmWavePhyMacCommon::Bandwidth", DoubleValue (bw));
@@ -255,9 +252,7 @@ main (int argc, char *argv[])
 
   Ptr<MmWaveHelper> mmwaveHelper = CreateObject<MmWaveHelper> ();
 
-  Config::SetDefault ("ns3::TwoRayPropagationLossModel::RainRate", DoubleValue (rainRate));
-  Config::SetDefault("ns3::TwoRayPropagationLossModel::Frequency", DoubleValue (fc));
-  mmwaveHelper->SetPathlossModelType ("ns3::TwoRayPropagationLossModel");
+  mmwaveHelper->SetPathlossModelType ("ns3::ThreeGppUmaPropagationLossModel");
   mmwaveHelper->SetChannelConditionModelType ("ns3::AlwaysLosChannelConditionModel");
 
   Config::SetDefault ("ns3::MmWaveEnbPhy::TxPower", DoubleValue (powerTx));

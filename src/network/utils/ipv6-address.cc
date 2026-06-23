@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2007-2008 Louis Pasteur University
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Sebastien Vincent <vincent@clarinet.u-strasbg.fr>
  */
@@ -26,6 +15,7 @@
 #include "ns3/assert.h"
 #include "ns3/log.h"
 
+#include <algorithm>
 #include <iomanip>
 #include <memory>
 
@@ -33,6 +23,7 @@
 #include <WS2tcpip.h>
 #else
 #include <arpa/inet.h>
+#include <sys/socket.h>
 #endif
 
 namespace ns3
@@ -40,192 +31,67 @@ namespace ns3
 
 NS_LOG_COMPONENT_DEFINE("Ipv6Address");
 
-#ifdef __cplusplus
-extern "C"
-{ /* } */
-#endif
-
-    /**
-     * \brief Get a hash key.
-     * \param k the key
-     * \param length the length of the key
-     * \param level the previous hash, or an arbitrary value
-     * \return hash
-     * \note Adapted from Jens Jakobsen implementation (chillispot).
-     */
-    static uint32_t lookuphash(unsigned char* k, uint32_t length, uint32_t level)
-    {
-        NS_LOG_FUNCTION(k << length << level);
-#define mix(a, b, c)                                                                               \
-    ({                                                                                             \
-        (a) -= (b);                                                                                \
-        (a) -= (c);                                                                                \
-        (a) ^= ((c) >> 13);                                                                        \
-        (b) -= (c);                                                                                \
-        (b) -= (a);                                                                                \
-        (b) ^= ((a) << 8);                                                                         \
-        (c) -= (a);                                                                                \
-        (c) -= (b);                                                                                \
-        (c) ^= ((b) >> 13);                                                                        \
-        (a) -= (b);                                                                                \
-        (a) -= (c);                                                                                \
-        (a) ^= ((c) >> 12);                                                                        \
-        (b) -= (c);                                                                                \
-        (b) -= (a);                                                                                \
-        (b) ^= ((a) << 16);                                                                        \
-        (c) -= (a);                                                                                \
-        (c) -= (b);                                                                                \
-        (c) ^= ((b) >> 5);                                                                         \
-        (a) -= (b);                                                                                \
-        (a) -= (c);                                                                                \
-        (a) ^= ((c) >> 3);                                                                         \
-        (b) -= (c);                                                                                \
-        (b) -= (a);                                                                                \
-        (b) ^= ((a) << 10);                                                                        \
-        (c) -= (a);                                                                                \
-        (c) -= (b);                                                                                \
-        (c) ^= ((b) >> 15);                                                                        \
-    })
-
-        typedef uint32_t ub4; /* unsigned 4-byte quantities */
-        uint32_t a = 0;
-        uint32_t b = 0;
-        uint32_t c = 0;
-        uint32_t len = 0;
-
-        /* Set up the internal state */
-        len = length;
-        a = b = 0x9e3779b9; /* the golden ratio; an arbitrary value */
-        c = level;          /* the previous hash value */
-
-        /* handle most of the key */
-        while (len >= 12)
-        {
-            a += (k[0] + ((ub4)k[1] << 8) + ((ub4)k[2] << 16) + ((ub4)k[3] << 24));
-            b += (k[4] + ((ub4)k[5] << 8) + ((ub4)k[6] << 16) + ((ub4)k[7] << 24));
-            c += (k[8] + ((ub4)k[9] << 8) + ((ub4)k[10] << 16) + ((ub4)k[11] << 24));
-            mix(a, b, c);
-            k += 12;
-            len -= 12;
-        }
-
-        /* handle the last 11 bytes */
-        c += length;
-        switch (len) /* all the case statements fall through */
-        {
-        case 11:
-            c += ((ub4)k[10] << 24);
-        case 10:
-            c += ((ub4)k[9] << 16);
-        case 9:
-            c += ((ub4)k[8] << 8); /* the first byte of c is reserved for the length */
-        case 8:
-            b += ((ub4)k[7] << 24);
-        case 7:
-            b += ((ub4)k[6] << 16);
-        case 6:
-            b += ((ub4)k[5] << 8);
-        case 5:
-            b += k[4];
-        case 4:
-            a += ((ub4)k[3] << 24);
-        case 3:
-            a += ((ub4)k[2] << 16);
-        case 2:
-            a += ((ub4)k[1] << 8);
-        case 1:
-            a += k[0];
-            /* case 0: nothing left to add */
-        }
-        mix(a, b, c);
-
-#undef mix
-
-        /* report the result */
-        return c;
-    }
-
-#ifdef __cplusplus
-}
-#endif
-
-Ipv6Address::Ipv6Address()
-{
-    NS_LOG_FUNCTION(this);
-    memset(m_address, 0x00, 16);
-    m_initialized = false;
-}
-
-Ipv6Address::Ipv6Address(const Ipv6Address& addr)
-{
-    // Do not add function logging here, to avoid stack overflow
-    memcpy(m_address, addr.m_address, 16);
-    m_initialized = true;
-}
-
-Ipv6Address::Ipv6Address(const Ipv6Address* addr)
-{
-    // Do not add function logging here, to avoid stack overflow
-    memcpy(m_address, addr->m_address, 16);
-    m_initialized = true;
-}
-
 Ipv6Address::Ipv6Address(const char* address)
 {
     NS_LOG_FUNCTION(this << address);
 
-    if (inet_pton(AF_INET6, address, m_address) <= 0)
+    if (inet_pton(AF_INET6, address, m_address.data()) <= 0)
     {
-        memset(m_address, 0x00, 16);
-        NS_LOG_LOGIC("Error, can not build an IPv6 address from an invalid string: " << address);
-        m_initialized = false;
+        m_address.fill(0x00);
+        NS_ABORT_MSG("Error, can not build an IPv6 address from an invalid string: " << address);
         return;
     }
-    m_initialized = true;
+    m_hash.reset();
+}
+
+bool
+Ipv6Address::CheckCompatible(const std::string& addressStr)
+{
+    NS_LOG_FUNCTION(addressStr);
+
+    uint8_t buffer[16];
+
+    if (inet_pton(AF_INET6, addressStr.c_str(), &buffer) <= 0)
+    {
+        NS_LOG_WARN("Error, can not build an IPv6 address from an invalid string: " << addressStr);
+        return false;
+    }
+    return true;
 }
 
 Ipv6Address::Ipv6Address(uint8_t address[16])
 {
     NS_LOG_FUNCTION(this << &address);
-    /* 128 bit => 16 bytes */
-    memcpy(m_address, address, 16);
-    m_initialized = true;
-}
-
-Ipv6Address::~Ipv6Address()
-{
-    /* do nothing */
-    NS_LOG_FUNCTION(this);
+    std::copy(address, address + 16, m_address.begin());
+    m_hash.reset();
 }
 
 void
 Ipv6Address::Set(const char* address)
 {
     NS_LOG_FUNCTION(this << address);
-    if (inet_pton(AF_INET6, address, m_address) <= 0)
+    if (inet_pton(AF_INET6, address, m_address.data()) <= 0)
     {
-        memset(m_address, 0x00, 16);
-        NS_LOG_LOGIC("Error, can not build an IPv6 address from an invalid string: " << address);
-        m_initialized = false;
+        m_address.fill(0x00);
+        NS_ABORT_MSG("Error, can not set an IPv6 address from an invalid string: " << address);
         return;
     }
-    m_initialized = true;
+    m_hash.reset();
 }
 
 void
 Ipv6Address::Set(uint8_t address[16])
 {
-    /* 128 bit => 16 bytes */
     NS_LOG_FUNCTION(this << &address);
-    memcpy(m_address, address, 16);
-    m_initialized = true;
+    std::copy(address, address + 16, m_address.begin());
+    m_hash.reset();
 }
 
 void
 Ipv6Address::Serialize(uint8_t buf[16]) const
 {
     NS_LOG_FUNCTION(this << &buf);
-    memcpy(buf, m_address, 16);
+    std::copy(m_address.begin(), m_address.end(), buf);
 }
 
 Ipv6Address
@@ -233,7 +99,6 @@ Ipv6Address::Deserialize(const uint8_t buf[16])
 {
     NS_LOG_FUNCTION(&buf);
     Ipv6Address ipv6((uint8_t*)buf);
-    ipv6.m_initialized = true;
     return ipv6;
 }
 
@@ -241,26 +106,13 @@ Ipv6Address
 Ipv6Address::MakeIpv4MappedAddress(Ipv4Address addr)
 {
     NS_LOG_FUNCTION(addr);
-    uint8_t buf[16] = {
-        0x00,
-        0x00,
-        0x00,
-        0x00,
-        0x00,
-        0x00,
-        0x00,
-        0x00,
-        0x00,
-        0x00,
-        0xff,
-        0xff,
-        0x00,
-        0x00,
-        0x00,
-        0x00,
-    };
+    uint8_t buf[16] = {0};
+
+    buf[10] = 0xff;
+    buf[11] = 0xff;
+
     addr.Serialize(&buf[12]);
-    return (Ipv6Address(buf));
+    return Ipv6Address(buf);
 }
 
 Ipv4Address
@@ -272,7 +124,7 @@ Ipv6Address::GetIpv4MappedAddress() const
 
     Serialize(buf);
     v4Addr = Ipv4Address::Deserialize(&buf[12]);
-    return (v4Addr);
+    return v4Addr;
 }
 
 Ipv6Address
@@ -534,7 +386,7 @@ Ipv6Address::Print(std::ostream& os) const
 
     char str[INET6_ADDRSTRLEN];
 
-    if (inet_ntop(AF_INET6, m_address, str, INET6_ADDRSTRLEN))
+    if (inet_ntop(AF_INET6, m_address.data(), str, INET6_ADDRSTRLEN))
     {
         os << str;
     }
@@ -552,35 +404,23 @@ bool
 Ipv6Address::IsMulticast() const
 {
     NS_LOG_FUNCTION(this);
-    if (m_address[0] == 0xff)
-    {
-        return true;
-    }
-    return false;
+    return m_address[0] == 0xff;
 }
 
 bool
 Ipv6Address::IsLinkLocalMulticast() const
 {
     NS_LOG_FUNCTION(this);
-    if (m_address[0] == 0xff && m_address[1] == 0x02)
-    {
-        return true;
-    }
-    return false;
+    return m_address[0] == 0xff && m_address[1] == 0x02;
 }
 
 bool
 Ipv6Address::IsIpv4MappedAddress() const
 {
     NS_LOG_FUNCTION(this);
-    static uint8_t v4MappedPrefix[12] =
+    static std::array<uint8_t, 12> v4MappedPrefix =
         {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff};
-    if (memcmp(m_address, v4MappedPrefix, sizeof(v4MappedPrefix)) == 0)
-    {
-        return (true);
-    }
-    return (false);
+    return std::equal(v4MappedPrefix.begin(), v4MappedPrefix.end(), m_address.begin());
 }
 
 Ipv6Address
@@ -592,10 +432,9 @@ Ipv6Address::CombinePrefix(const Ipv6Prefix& prefix) const
     uint8_t pref[16];
     unsigned int i = 0;
 
-    memcpy(addr, m_address, 16);
+    std::copy(m_address.begin(), m_address.end(), addr);
     ((Ipv6Prefix)prefix).GetBytes(pref);
 
-    /* a little bit ugly... */
     for (i = 0; i < 16; i++)
     {
         addr[i] = addr[i] & pref[i];
@@ -610,11 +449,7 @@ Ipv6Address::IsSolicitedMulticast() const
     NS_LOG_FUNCTION(this);
 
     static Ipv6Address documentation("ff02::1:ff00:0");
-    if (CombinePrefix(Ipv6Prefix(104)) == documentation)
-    {
-        return true;
-    }
-    return false;
+    return CombinePrefix(Ipv6Prefix(104)) == documentation;
 }
 
 bool
@@ -652,11 +487,7 @@ Ipv6Address::IsDocumentation() const
 {
     NS_LOG_FUNCTION(this);
     static Ipv6Address documentation("2001:db8::0");
-    if (CombinePrefix(Ipv6Prefix(32)) == documentation)
-    {
-        return true;
-    }
-    return false;
+    return CombinePrefix(Ipv6Prefix(32)) == documentation;
 }
 
 bool
@@ -667,7 +498,7 @@ Ipv6Address::HasPrefix(const Ipv6Prefix& prefix) const
     Ipv6Address masked = CombinePrefix(prefix);
     Ipv6Address reference = Ipv6Address::GetOnes().CombinePrefix(prefix);
 
-    return (masked == reference);
+    return masked == reference;
 }
 
 bool
@@ -677,7 +508,8 @@ Ipv6Address::IsMatchingType(const Address& address)
     return address.CheckCompatible(GetType(), 16);
 }
 
-Ipv6Address::operator Address() const
+Ipv6Address::
+operator Address() const
 {
     return ConvertTo();
 }
@@ -705,7 +537,7 @@ uint8_t
 Ipv6Address::GetType()
 {
     NS_LOG_FUNCTION_NOARGS();
-    static uint8_t type = Address::Register();
+    static uint8_t type = Address::Register("IpAddress", 16);
     return type;
 }
 
@@ -769,7 +601,7 @@ void
 Ipv6Address::GetBytes(uint8_t buf[16]) const
 {
     NS_LOG_FUNCTION(this << &buf);
-    memcpy(buf, m_address, 16);
+    std::copy(m_address.begin(), m_address.end(), buf);
 }
 
 bool
@@ -777,18 +609,75 @@ Ipv6Address::IsLinkLocal() const
 {
     NS_LOG_FUNCTION(this);
     static Ipv6Address linkLocal("fe80::0");
-    if (CombinePrefix(Ipv6Prefix(64)) == linkLocal)
-    {
-        return true;
-    }
-    return false;
+    return CombinePrefix(Ipv6Prefix(64)) == linkLocal;
 }
 
 bool
 Ipv6Address::IsInitialized() const
 {
     NS_LOG_FUNCTION(this);
-    return (m_initialized);
+    return true;
+}
+
+void
+Ipv6Address::MixHashKey(uint32_t& a, uint32_t& b, uint32_t& c)
+{
+    auto mix = [](uint32_t x, uint32_t y, uint32_t z, int shift) -> uint32_t {
+        x -= y + z;
+        x ^= (shift > 0) ? (z << shift) : (z >> (-shift));
+        return x;
+    };
+
+    a = mix(a, b, c, -13);
+    b = mix(b, c, a, 8);
+    c = mix(c, a, b, -13);
+    a = mix(a, b, c, -12);
+    b = mix(b, c, a, 16);
+    c = mix(c, a, b, -5);
+    a = mix(a, b, c, -3);
+    b = mix(b, c, a, 10);
+    c = mix(c, a, b, -15);
+}
+
+uint32_t
+Ipv6Address::GenerateHash() const
+{
+    NS_LOG_FUNCTION(this);
+
+    uint32_t a = 0x9e3779b9; /* the golden ratio; an arbitrary value */
+    uint32_t b = 0x9e3779b9; /* the golden ratio; an arbitrary value */
+    uint32_t c = 0;
+
+    auto fold = [](const uint8_t* a) -> uint32_t {
+        auto f = static_cast<uint32_t>(a[0]);
+        f += static_cast<uint32_t>(a[1]) << 8;
+        f += static_cast<uint32_t>(a[2]) << 16;
+        f += static_cast<uint32_t>(a[3]) << 24;
+        return f;
+    };
+
+    a += fold(&m_address[0]);
+    b += fold(&m_address[4]);
+    c += fold(&m_address[8]);
+    MixHashKey(a, b, c);
+
+    c += 16;
+    a += fold(&m_address[12]);
+    MixHashKey(a, b, c);
+
+    /* set the hash and report the result */
+    m_hash = c;
+    return c;
+}
+
+uint32_t
+Ipv6Address::GetHash() const
+{
+    if (m_hash)
+    {
+        return m_hash.value();
+    }
+    return GenerateHash();
 }
 
 std::ostream&
@@ -807,17 +696,10 @@ operator>>(std::istream& is, Ipv6Address& address)
     return is;
 }
 
-Ipv6Prefix::Ipv6Prefix()
-{
-    NS_LOG_FUNCTION(this);
-    memset(m_prefix, 0x00, 16);
-    m_prefixLength = 64;
-}
-
 Ipv6Prefix::Ipv6Prefix(const char* prefix)
 {
     NS_LOG_FUNCTION(this << prefix);
-    if (inet_pton(AF_INET6, prefix, m_prefix) <= 0)
+    if (inet_pton(AF_INET6, prefix, m_prefix.data()) <= 0)
     {
         NS_ABORT_MSG("Error, can not build an IPv6 prefix from an invalid string: " << prefix);
     }
@@ -827,14 +709,14 @@ Ipv6Prefix::Ipv6Prefix(const char* prefix)
 Ipv6Prefix::Ipv6Prefix(uint8_t prefix[16])
 {
     NS_LOG_FUNCTION(this << &prefix);
-    memcpy(m_prefix, prefix, 16);
+    std::copy(prefix, prefix + 16, m_prefix.begin());
     m_prefixLength = GetMinimumPrefixLength();
 }
 
 Ipv6Prefix::Ipv6Prefix(const char* prefix, uint8_t prefixLength)
 {
     NS_LOG_FUNCTION(this << prefix);
-    if (inet_pton(AF_INET6, prefix, m_prefix) <= 0)
+    if (inet_pton(AF_INET6, prefix, m_prefix.data()) <= 0)
     {
         NS_ABORT_MSG("Error, can not build an IPv6 prefix from an invalid string: " << prefix);
     }
@@ -849,7 +731,7 @@ Ipv6Prefix::Ipv6Prefix(const char* prefix, uint8_t prefixLength)
 Ipv6Prefix::Ipv6Prefix(uint8_t prefix[16], uint8_t prefixLength)
 {
     NS_LOG_FUNCTION(this << &prefix);
-    memcpy(m_prefix, prefix, 16);
+    std::copy(prefix, prefix + 16, m_prefix.begin());
 
     uint8_t autoLength = GetMinimumPrefixLength();
     NS_ASSERT_MSG(autoLength <= prefixLength,
@@ -866,7 +748,7 @@ Ipv6Prefix::Ipv6Prefix(uint8_t prefix)
     unsigned int mod = 0;
     unsigned int i = 0;
 
-    memset(m_prefix, 0x00, 16);
+    m_prefix.fill(0x00);
     m_prefixLength = prefix;
 
     NS_ASSERT(prefix <= 128);
@@ -878,7 +760,7 @@ Ipv6Prefix::Ipv6Prefix(uint8_t prefix)
     // __warn_memset_zero_len compiler errors in some gcc>4.5.x
     if (nb > 0)
     {
-        memset(m_prefix, 0xff, nb);
+        memset(m_prefix.data(), 0xff, nb);
     }
     if (mod)
     {
@@ -893,24 +775,6 @@ Ipv6Prefix::Ipv6Prefix(uint8_t prefix)
             m_prefix[i] = 0x00;
         }
     }
-}
-
-Ipv6Prefix::Ipv6Prefix(const Ipv6Prefix& prefix)
-{
-    memcpy(m_prefix, prefix.m_prefix, 16);
-    m_prefixLength = prefix.m_prefixLength;
-}
-
-Ipv6Prefix::Ipv6Prefix(const Ipv6Prefix* prefix)
-{
-    memcpy(m_prefix, prefix->m_prefix, 16);
-    m_prefixLength = prefix->m_prefixLength;
-}
-
-Ipv6Prefix::~Ipv6Prefix()
-{
-    /* do nothing */
-    NS_LOG_FUNCTION(this);
 }
 
 bool
@@ -971,16 +835,16 @@ void
 Ipv6Prefix::GetBytes(uint8_t buf[16]) const
 {
     NS_LOG_FUNCTION(this << &buf);
-    memcpy(buf, m_prefix, 16);
+    memcpy(buf, m_prefix.data(), 16);
 }
 
 Ipv6Address
 Ipv6Prefix::ConvertToIpv6Address() const
 {
     uint8_t prefixBytes[16];
-    memcpy(prefixBytes, m_prefix, 16);
+    memcpy(prefixBytes, m_prefix.data(), 16);
 
-    Ipv6Address convertedPrefix = Ipv6Address(prefixBytes);
+    auto convertedPrefix = Ipv6Address(prefixBytes);
     return convertedPrefix;
 }
 
@@ -1046,11 +910,7 @@ operator>>(std::istream& is, Ipv6Prefix& prefix)
 size_t
 Ipv6AddressHash::operator()(const Ipv6Address& x) const
 {
-    uint8_t buf[16];
-
-    x.GetBytes(buf);
-
-    return lookuphash(buf, sizeof(buf), 0);
+    return x.GetHash();
 }
 
 ATTRIBUTE_HELPER_CPP(Ipv6Address);

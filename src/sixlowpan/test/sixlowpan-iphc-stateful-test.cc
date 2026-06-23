@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2020 Universita' di Firenze, Italy
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Tommaso Pecorella <tommaso.pecorella@unifi.it>
  */
@@ -41,14 +30,14 @@
 using namespace ns3;
 
 /**
- * \ingroup sixlowpan-tests
+ * @ingroup sixlowpan-tests
  *
- * \brief 6LoWPAN IPHC stateful compression Test
+ * @brief 6LoWPAN IPHC stateful compression Test
  */
 class SixlowpanIphcStatefulImplTest : public TestCase
 {
     /**
-     * \brief Structure to hold the Rx/Tx packets.
+     * @brief Structure to hold the Rx/Tx packets.
      */
     struct Data
     {
@@ -62,13 +51,13 @@ class SixlowpanIphcStatefulImplTest : public TestCase
 
     /**
      * Receive from a MockDevice.
-     * \param device a pointer to the net device which is calling this function
-     * \param packet the packet received
-     * \param protocol the 16 bit protocol number associated with this packet.
-     * \param source the address of the sender
-     * \param destination the address of the receiver
-     * \param packetType type of packet received (broadcast/multicast/unicast/otherhost)
-     * \returns true.
+     * @param device a pointer to the net device which is calling this function
+     * @param packet the packet received
+     * @param protocol the 16 bit protocol number associated with this packet.
+     * @param source the address of the sender
+     * @param destination the address of the receiver
+     * @param packetType type of packet received (broadcast/multicast/unicast/otherhost)
+     * @returns true.
      */
     bool ReceiveFromMockDevice(Ptr<NetDevice> device,
                                Ptr<const Packet> packet,
@@ -79,13 +68,13 @@ class SixlowpanIphcStatefulImplTest : public TestCase
 
     /**
      * Promiscuous receive from a SixLowPanNetDevice.
-     * \param device a pointer to the net device which is calling this function
-     * \param packet the packet received
-     * \param protocol the 16 bit protocol number associated with this packet.
-     * \param source the address of the sender
-     * \param destination the address of the receiver
-     * \param packetType type of packet received (broadcast/multicast/unicast/otherhost)
-     * \returns true.
+     * @param device a pointer to the net device which is calling this function
+     * @param packet the packet received
+     * @param protocol the 16 bit protocol number associated with this packet.
+     * @param source the address of the sender
+     * @param destination the address of the receiver
+     * @param packetType type of packet received (broadcast/multicast/unicast/otherhost)
+     * @returns true.
      */
     bool PromiscReceiveFromSixLowPanDevice(Ptr<NetDevice> device,
                                            Ptr<const Packet> packet,
@@ -96,9 +85,9 @@ class SixlowpanIphcStatefulImplTest : public TestCase
 
     /**
      * Send one packet.
-     * \param device the device to send from
-     * \param from sender address
-     * \param to destination address
+     * @param device the device to send from
+     * @param from sender address
+     * @param to destination address
      */
     void SendOnePacket(Ptr<NetDevice> device, Ipv6Address from, Ipv6Address to);
 
@@ -377,9 +366,9 @@ SixlowpanIphcStatefulImplTest::DoRun()
 }
 
 /**
- * \ingroup sixlowpan-tests
+ * @ingroup sixlowpan-tests
  *
- * \brief 6LoWPAN IPHC TestSuite
+ * @brief 6LoWPAN IPHC TestSuite
  */
 class SixlowpanIphcStatefulTestSuite : public TestSuite
 {
@@ -390,9 +379,9 @@ class SixlowpanIphcStatefulTestSuite : public TestSuite
 };
 
 SixlowpanIphcStatefulTestSuite::SixlowpanIphcStatefulTestSuite()
-    : TestSuite("sixlowpan-iphc-stateful", UNIT)
+    : TestSuite("sixlowpan-iphc-stateful", Type::UNIT)
 {
-    AddTestCase(new SixlowpanIphcStatefulImplTest(), TestCase::QUICK);
+    AddTestCase(new SixlowpanIphcStatefulImplTest(), TestCase::Duration::QUICK);
 }
 
 static SixlowpanIphcStatefulTestSuite

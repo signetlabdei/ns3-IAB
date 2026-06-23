@@ -2,18 +2,7 @@
  * Copyright (c) 2005, 2009 INRIA
  * Copyright (c) 2009 MIRKO BANCHI
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  *          Mirko Banchi <mk.banchi@gmail.com>
@@ -30,12 +19,12 @@
 #include "ns3/queue.h"
 
 #include <functional>
+#include <optional>
 #include <unordered_map>
 
 namespace ns3
 {
 
-class QosBlockedDestinations;
 class WifiMacQueueScheduler;
 
 // The following explicit template instantiation declaration prevents modules
@@ -46,7 +35,7 @@ class WifiMacQueueScheduler;
 extern template class Queue<WifiMpdu, ns3::WifiMacQueueContainer>;
 
 /**
- * \ingroup wifi
+ * @ingroup wifi
  *
  * This queue implements the timeout procedure described in
  * (Section 9.19.2.6 "Retransmit procedures" paragraph 6; IEEE 802.11-2012).
@@ -67,15 +56,15 @@ class WifiMacQueue : public Queue<WifiMpdu, ns3::WifiMacQueueContainer>
 {
   public:
     /**
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
 
     /**
      * Constructor
      *
-     * \param ac the Access Category of the packets stored in this queue
+     * @param ac the Access Category of the packets stored in this queue
      */
     WifiMacQueue(AcIndex ac = AC_UNDEF);
 
@@ -91,80 +80,85 @@ class WifiMacQueue : public Queue<WifiMpdu, ns3::WifiMacQueueContainer>
     /**
      * Get the Access Category of the packets stored in this queue
      *
-     * \return the Access Category of the packets stored in this queue
+     * @return the Access Category of the packets stored in this queue
      */
     AcIndex GetAc() const;
 
     /**
      * Set the wifi MAC queue scheduler
      *
-     * \param scheduler the wifi MAC queue scheduler
+     * @param scheduler the wifi MAC queue scheduler
      */
     void SetScheduler(Ptr<WifiMacQueueScheduler> scheduler);
 
     /**
      * Set the maximum delay before the packet is discarded.
      *
-     * \param delay the maximum delay
+     * @param delay the maximum delay
      */
     void SetMaxDelay(Time delay);
     /**
      * Return the maximum delay before the packet is discarded.
      *
-     * \return the maximum delay
+     * @return the maximum delay
      */
     Time GetMaxDelay() const;
 
     /**
      * Enqueue the given Wifi MAC queue item at the <i>end</i> of the queue.
      *
-     * \param item the Wifi MAC queue item to be enqueued at the end
-     * \return true if success, false if the packet has been dropped
+     * @param item the Wifi MAC queue item to be enqueued at the end
+     * @return true if success, false if the packet has been dropped
      */
     bool Enqueue(Ptr<WifiMpdu> item) override;
     /**
      * Dequeue the packet in the front of the queue.
      *
-     * \return the packet
+     * @return the packet
      */
     Ptr<WifiMpdu> Dequeue() override;
     /**
      * Dequeue the given MPDUs if they are stored in this queue.
      *
-     * \param mpdus the given MPDUs
+     * @param mpdus the given MPDUs
      */
     void DequeueIfQueued(const std::list<Ptr<const WifiMpdu>>& mpdus);
     /**
      * Peek the packet in the front of the queue. The packet is not removed.
      *
-     * \return the packet
+     * @return the packet
      */
     Ptr<const WifiMpdu> Peek() const override;
     /**
      * Peek the packet in the front of the queue for transmission on the given
-     * link. The packet is not removed.
+     * link (if any). The packet is not removed.
      *
-     * \param linkId the ID of the link onto which we can transmit a packet
-     * \return the packet
+     * @param linkId the ID of the link onto which we can transmit a packet
+     * @return the packet
      */
-    Ptr<WifiMpdu> Peek(uint8_t linkId) const;
+    Ptr<WifiMpdu> Peek(std::optional<uint8_t> linkId) const;
     /**
-     * Search and return, if present in the queue, the first packet having the
-     * receiver address equal to <i>dest</i>, and TID equal to <i>tid</i>.
-     * If <i>item</i> is not a null pointer, the search starts from the packet
-     * following <i>item</i> in the queue; otherwise, the search starts from the
-     * head of the queue. This method does not remove the packet from the queue.
-     * It is typically used by ns3::QosTxop in order to perform correct MSDU aggregation
-     * (A-MSDU).
+     * Search and return, if present in the queue, the first packet having the receiver address
+     * equal to <i>dest</i>, the transmitter address equal to <i>src</i> ONLY in case the receiver
+     * is a group address, and TID equal to <i>tid</i>. If <i>item</i> is not a null pointer, the
+     * search starts from the packet following <i>item</i> in the queue; otherwise, the search
+     * starts from the head of the queue. This method does not remove the packet from the queue. It
+     * is typically used by ns3::QosTxop in order to perform correct MSDU aggregation (A-MSDU).
      *
-     * \param tid the given TID
-     * \param dest the given destination
-     * \param item the item after which the search starts from
+     * Note that the source address is a link address and is required for group addressed packets
+     * because group addressed packets are duplicated for every link, hence the source address is
+     * needed to identify the correct queue from which the packet should be peeked.
      *
-     * \return the peeked packet or nullptr if no packet was found
+     * @param tid the given TID
+     * @param dest the given destination
+     * @param src the given source link address, checked ONLY if the destination is a group address
+     * @param item the item after which the search starts from
+     *
+     * @return the peeked packet or nullptr if no packet was found
      */
     Ptr<WifiMpdu> PeekByTidAndAddress(uint8_t tid,
                                       Mac48Address dest,
+                                      std::optional<Mac48Address> src = std::nullopt,
                                       Ptr<const WifiMpdu> item = nullptr) const;
     /**
      * Search and return the first packet present in the container queue identified
@@ -176,9 +170,9 @@ class WifiMacQueue : public Queue<WifiMpdu, ns3::WifiMacQueueContainer>
      * expired lifetime because we assume that a previous call was made with a null
      * pointer as argument, which removed the MPDUs with expired lifetime).
      *
-     * \param queueId the given queue ID
-     * \param item the item after which the search starts from
-     * \return the peeked packet or nullptr if no packet was found
+     * @param queueId the given queue ID
+     * @param item the item after which the search starts from
+     * @return the peeked packet or nullptr if no packet was found
      */
     Ptr<WifiMpdu> PeekByQueueId(const WifiContainerQueueId& queueId,
                                 Ptr<const WifiMpdu> item = nullptr) const;
@@ -189,20 +183,16 @@ class WifiMacQueue : public Queue<WifiMpdu, ns3::WifiMacQueueContainer>
      * in the queue; otherwise, the search starts from the head of the queue.
      * The packet is not removed from queue.
      *
-     * \param linkId the ID of the given link
-     * \param blockedPackets the destination address & TID pairs that are waiting for a
-     * BlockAck response
-     * \param item the item after which the search starts from
+     * @param linkId the ID of the given link
+     * @param item the item after which the search starts from
      *
-     * \return the peeked packet or nullptr if no packet was found
+     * @return the peeked packet or nullptr if no packet was found
      */
-    Ptr<WifiMpdu> PeekFirstAvailable(uint8_t linkId,
-                                     const Ptr<QosBlockedDestinations> blockedPackets = nullptr,
-                                     Ptr<const WifiMpdu> item = nullptr) const;
+    Ptr<WifiMpdu> PeekFirstAvailable(uint8_t linkId, Ptr<const WifiMpdu> item = nullptr) const;
     /**
      * Remove the packet in the front of the queue.
      *
-     * \return the packet
+     * @return the packet
      */
     Ptr<WifiMpdu> Remove() override;
     /**
@@ -211,18 +201,23 @@ class WifiMacQueue : public Queue<WifiMpdu, ns3::WifiMacQueueContainer>
      * true, all the items in the queue from the head to the given position are
      * removed if their lifetime expired.
      *
-     * \param item the item to be removed
-     * \return the removed item
+     * @param item the item to be removed
+     * @return the removed item
      */
     Ptr<WifiMpdu> Remove(Ptr<const WifiMpdu> item);
+
+    /**
+     * Flush the queue.
+     */
+    void Flush();
 
     /**
      * Replace the given current item with the given new item. Actually, the current
      * item is dequeued and the new item is enqueued in its place. In this way,
      * statistics about queue size (in terms of bytes) are correctly updated.
      *
-     * \param currentItem the given current item
-     * \param newItem the given new item
+     * @param currentItem the given current item
+     * @param newItem the given new item
      */
     void Replace(Ptr<const WifiMpdu> currentItem, Ptr<WifiMpdu> newItem);
 
@@ -230,8 +225,8 @@ class WifiMacQueue : public Queue<WifiMpdu, ns3::WifiMacQueueContainer>
      * Get the number of MPDUs currently stored in the container queue identified
      * by the given queue ID.
      *
-     * \param queueId the given queue ID
-     * \return the number of MPDUs currently stored in the container queue
+     * @param queueId the given queue ID
+     * @return the number of MPDUs currently stored in the container queue
      */
     uint32_t GetNPackets(const WifiContainerQueueId& queueId) const;
 
@@ -239,8 +234,8 @@ class WifiMacQueue : public Queue<WifiMpdu, ns3::WifiMacQueueContainer>
      * Get the amount of bytes currently stored in the container queue identified
      * by the given queue ID.
      *
-     * \param queueId the given queue ID
-     * \return the amount of bytes currently stored in the container queue
+     * @param queueId the given queue ID
+     * @return the amount of bytes currently stored in the container queue
      */
     uint32_t GetNBytes(const WifiContainerQueueId& queueId) const;
 
@@ -248,9 +243,9 @@ class WifiMacQueue : public Queue<WifiMpdu, ns3::WifiMacQueueContainer>
      * Remove the given item if it has been in the queue for too long. Return true
      * if the item is removed, false otherwise.
      *
-     * \param item the item whose lifetime is checked
-     * \param now a copy of Simulator::Now()
-     * \return true if the item is removed, false otherwise
+     * @param item the item whose lifetime is checked
+     * @param now a copy of Simulator::Now()
+     * @return true if the item is removed, false otherwise
      */
     bool TtlExceeded(Ptr<const WifiMpdu> item, const Time& now);
 
@@ -259,11 +254,11 @@ class WifiMacQueue : public Queue<WifiMpdu, ns3::WifiMacQueueContainer>
      * given queue ID to the container queue storing MPDUs with expired lifetime.
      * Each MPDU that is found to have an expired lifetime feeds the "Expired"
      * trace source and is notified to the scheduler.
-     * \note that such MPDUs are not removed from the WifiMacQueue (and hence are
+     * @note that such MPDUs are not removed from the WifiMacQueue (and hence are
      * still accounted for in the overall statistics kept by the Queue base class)
      * in order to make this method const.
      *
-     * \param queueId the given queue ID
+     * @param queueId the given queue ID
      */
     void ExtractExpiredMpdus(const WifiContainerQueueId& queueId) const;
     /**
@@ -271,7 +266,7 @@ class WifiMacQueue : public Queue<WifiMpdu, ns3::WifiMacQueueContainer>
      * container queue storing MPDUs with expired lifetime. Each MPDU that is found
      * to have an expired lifetime feeds the "Expired" trace source and is notified
      * to the scheduler.
-     * \note that such MPDUs are not removed from the WifiMacQueue (and hence are
+     * @note that such MPDUs are not removed from the WifiMacQueue (and hence are
      * still accounted for in the overall statistics kept by the Queue base class)
      * in order to make this method const.
      */
@@ -285,10 +280,18 @@ class WifiMacQueue : public Queue<WifiMpdu, ns3::WifiMacQueueContainer>
      * Unlike the GetOriginal() method of WifiMpdu, this method returns a non-const
      * pointer to the original copy of the given MPDU.
      *
-     * \param mpdu the given MPDU
-     * \return the original copy of the given MPDU
+     * @param mpdu the given MPDU
+     * @return the original copy of the given MPDU
      */
     Ptr<WifiMpdu> GetOriginal(Ptr<WifiMpdu> mpdu);
+
+    /**
+     * @param mpdu the given MPDU
+     * @param linkId the ID of the given link
+     * @return the alias of the given MPDU that is inflight on the given link, if any, or
+     *         a null pointer, otherwise
+     */
+    Ptr<WifiMpdu> GetAlias(Ptr<const WifiMpdu> mpdu, uint8_t linkId);
 
   protected:
     using Queue<WifiMpdu, WifiMacQueueContainer>::GetContainer;
@@ -297,17 +300,17 @@ class WifiMacQueue : public Queue<WifiMpdu, ns3::WifiMacQueueContainer>
 
   private:
     /**
-     * \param mpdu the given MPDU
-     * \return the queue iterator stored by the given MPDU
+     * @param mpdu the given MPDU
+     * @return the queue iterator stored by the given MPDU
      */
     Iterator GetIt(Ptr<const WifiMpdu> mpdu) const;
 
     /**
      * Enqueue the given Wifi MAC queue item before the given position.
      *
-     * \param pos the position before which the item is to be inserted
-     * \param item the Wifi MAC queue item to be enqueued
-     * \return true if success, false if the packet has been dropped
+     * @param pos the position before which the item is to be inserted
+     * @param item the Wifi MAC queue item to be enqueued
+     * @return true if success, false if the packet has been dropped
      */
     bool Insert(ConstIterator pos, Ptr<WifiMpdu> item);
     /**
@@ -315,9 +318,9 @@ class WifiMacQueue : public Queue<WifiMpdu, ns3::WifiMacQueueContainer>
      * sets the iterator field of the item and updates internal statistics, if
      * insertion succeeded.
      *
-     * \param pos the position before where the item will be inserted
-     * \param item the item to enqueue
-     * \return true if success, false if the packet has been dropped.
+     * @param pos the position before where the item will be inserted
+     * @param item the item to enqueue
+     * @return true if success, false if the packet has been dropped.
      */
     bool DoEnqueue(ConstIterator pos, Ptr<WifiMpdu> item);
     /**
@@ -325,7 +328,7 @@ class WifiMacQueue : public Queue<WifiMpdu, ns3::WifiMacQueueContainer>
      * resets the iterator field of the dequeued items and notifies the scheduler, if
      * any item was dequeued.
      *
-     * \param iterators the list of iterators pointing to the items to dequeue
+     * @param iterators the list of iterators pointing to the items to dequeue
      */
     void DoDequeue(const std::list<ConstIterator>& iterators);
     /**
@@ -333,8 +336,8 @@ class WifiMacQueue : public Queue<WifiMpdu, ns3::WifiMacQueueContainer>
      * resets the iterator field of the item and notifies the scheduleer, if an
      * item was dropped.
      *
-     * \param pos the position of the item to drop
-     * \return the dropped item.
+     * @param pos the position of the item to drop
+     * @return the dropped item.
      */
     Ptr<WifiMpdu> DoRemove(ConstIterator pos);
 

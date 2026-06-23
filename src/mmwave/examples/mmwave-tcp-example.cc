@@ -113,7 +113,7 @@ MyApp::StopApplication (void)
 {
   m_running = false;
 
-  if (m_sendEvent.IsRunning ())
+  if (m_sendEvent.IsPending ())
     {
       Simulator::Cancel (m_sendEvent);
     }

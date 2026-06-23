@@ -3,18 +3,7 @@
  * University of Padova
  * Copyright (c) 2020 Centre Tecnologic de Telecomunicacions de Catalunya (CTTC)
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  */
 
 #ifndef THREE_GPP_V2V_CHANNEL_CONDITION_MODEL
@@ -32,9 +21,10 @@ namespace ns3
 class MobilityModel;
 
 /**
- * \ingroup buildings
+ * @ingroup buildings
+ * @ingroup propagation
  *
- * \brief Computes the channel condition for the V2V Urban scenario
+ * @brief Computes the channel condition for the V2V Urban scenario
  *
  * Computes the channel condition following the specifications for the
  * V2V Urban scenario reported in Table 6.2-1 of 3GPP TR 37.885.
@@ -53,8 +43,8 @@ class ThreeGppV2vUrbanChannelConditionModel : public ThreeGppChannelConditionMod
   public:
     /**
      * Get the type ID.
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
 
@@ -73,9 +63,9 @@ class ThreeGppV2vUrbanChannelConditionModel : public ThreeGppChannelConditionMod
      * Compute the LOS probability as specified in Table Table 6.2-1 of 3GPP TR 37.885
      * for the V2V Urban scenario.
      *
-     * \param a tx mobility model
-     * \param b rx mobility model
-     * \return the LOS probability
+     * @param a tx mobility model
+     * @param b rx mobility model
+     * @return the LOS probability
      */
     double ComputePlos(Ptr<const MobilityModel> a, Ptr<const MobilityModel> b) const override;
 
@@ -84,9 +74,9 @@ class ThreeGppV2vUrbanChannelConditionModel : public ThreeGppChannelConditionMod
      * between the tx and the rx based on the buildings deployed in the scenario.
      * It returns 1 if the LOS path is obstructed, 0 otherwise.
      *
-     * \param a tx mobility model
-     * \param b rx mobility model
-     * \return the NLOS probability
+     * @param a tx mobility model
+     * @param b rx mobility model
+     * @return the NLOS probability
      */
     double ComputePnlos(Ptr<const MobilityModel> a, Ptr<const MobilityModel> b) const override;
 
@@ -95,9 +85,9 @@ class ThreeGppV2vUrbanChannelConditionModel : public ThreeGppChannelConditionMod
 };
 
 /**
- * \ingroup buildings
+ * @ingroup buildings
  *
- * \brief Computes the channel condition for the V2V Highway scenario
+ * @brief Computes the channel condition for the V2V Highway scenario
  *
  * Computes the channel condition following the specifications for the
  * V2V Highway scenario reported in Table 6.2-1 of 3GPP TR 37.885.
@@ -116,8 +106,8 @@ class ThreeGppV2vHighwayChannelConditionModel : public ThreeGppChannelConditionM
   public:
     /**
      * Get the type ID.
-     * \brief Get the type ID.
-     * \return the object TypeId
+     * @brief Get the type ID.
+     * @return the object TypeId
      */
     static TypeId GetTypeId();
 
@@ -136,9 +126,9 @@ class ThreeGppV2vHighwayChannelConditionModel : public ThreeGppChannelConditionM
      * Compute the LOS probability as specified in Table Table 6.2-1 of 3GPP TR 37.885
      * for the V2V Highway scenario.
      *
-     * \param a tx mobility model
-     * \param b rx mobility model
-     * \return the LOS probability
+     * @param a tx mobility model
+     * @param b rx mobility model
+     * @return the LOS probability
      */
     double ComputePlos(Ptr<const MobilityModel> a, Ptr<const MobilityModel> b) const override;
 
@@ -147,22 +137,22 @@ class ThreeGppV2vHighwayChannelConditionModel : public ThreeGppChannelConditionM
      * between the tx and the rx based on the buildings deployed in the scenario.
      * It returns 1 if the LOS path is obstructed, 0 otherwise.
      *
-     * \param a tx mobility model
-     * \param b rx mobility model
-     * \return the NLOS probability
+     * @param a tx mobility model
+     * @param b rx mobility model
+     * @return the NLOS probability
      */
     double ComputePnlos(Ptr<const MobilityModel> a, Ptr<const MobilityModel> b) const override;
 
     /**
-     * \brief The callback which is hooked to a method to compute channel condition.
+     * @brief The callback which is hooked to a method to compute channel condition.
      *
      * This callback is implemented to make this model robust against the
      * presence and absence of buildings in a highway scenario. If there are
      * buildings in a scenario, this model will use
-     * \link BuildingsChannelConditionModel \endlink, which requires
-     * \link MobilityBuildingInfo \endlink aggregated to the nodes to compute
+     * @link BuildingsChannelConditionModel \endlink, which requires
+     * @link MobilityBuildingInfo \endlink aggregated to the nodes to compute
      * LOS and NLOS. Otherwise, the callback is hooked to a local method
-     * \link GetChCondWithNoBuildings \endlink
+     * @link GetChCondWithNoBuildings \endlink
      * , which construct the ChannelCondtion object and set the condition to
      * outdoor to outdoor with LOS.
      */
@@ -170,39 +160,39 @@ class ThreeGppV2vHighwayChannelConditionModel : public ThreeGppChannelConditionM
         ComputeChCond;
 
     /**
-     * \brief Get the channel condition and redirect the callback
-     * \link ComputeChCond \endlink to \link GetChCondWithBuildings \endlink
+     * @brief Get the channel condition and redirect the callback
+     * @link ComputeChCond \endlink to @link GetChCondWithBuildings \endlink
      * or to \link GetChCondWithNoBuildings \endlink depending on if there are
      * buildings in the scenario or not.
      *
-     * \param a tx mobility model
-     * \param b rx mobility model
-     * \return the the condition of the channel between \p a and \p b
+     * @param a tx mobility model
+     * @param b rx mobility model
+     * @return the the condition of the channel between \p a and \p b
      */
     Ptr<ChannelCondition> GetChCondAndFixCallback(Ptr<const MobilityModel> a,
                                                   Ptr<const MobilityModel> b);
 
     /**
-     * \brief Get the channel condition between \p a and \p b
+     * @brief Get the channel condition between \p a and \p b
      *        using BuildingsChannelConditionModel.
      *
      * This method will be called for the scenarios with buildings
      *
-     * \param a tx mobility model
-     * \param b rx mobility model
-     * \return the condition of the channel between \p a and \p b
+     * @param a tx mobility model
+     * @param b rx mobility model
+     * @return the condition of the channel between \p a and \p b
      */
     Ptr<ChannelCondition> GetChCondWithBuildings(Ptr<const MobilityModel> a,
                                                  Ptr<const MobilityModel> b) const;
 
     /**
-     * \brief Get the channel condition between \p a and \p b
+     * @brief Get the channel condition between \p a and \p b
      *
      * This method will be called for the scenarios without buildings
      *
-     * \param a tx mobility model
-     * \param b rx mobility model
-     * \return the condition of the channel between \p a and \p b
+     * @param a tx mobility model
+     * @param b rx mobility model
+     * @return the condition of the channel between \p a and \p b
      */
     Ptr<ChannelCondition> GetChCondWithNoBuildings(Ptr<const MobilityModel> a,
                                                    Ptr<const MobilityModel> b) const;

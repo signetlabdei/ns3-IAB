@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2022 Tokushima University, Japan
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Authors: Alberto Gallegos Ramonet <alramonet@is.tokushima-u.ac.jp>
  *          Tommaso Pecorella <tommaso.pecorella@unifi.it>
@@ -34,15 +23,16 @@
 
 */
 
-#include <ns3/core-module.h>
-#include <ns3/gnuplot.h>
-#include <ns3/lr-wpan-module.h>
-#include <ns3/mobility-module.h>
-#include <ns3/network-module.h>
-#include <ns3/propagation-module.h>
-#include <ns3/spectrum-module.h>
+#include "ns3/core-module.h"
+#include "ns3/gnuplot.h"
+#include "ns3/lr-wpan-module.h"
+#include "ns3/mobility-module.h"
+#include "ns3/network-module.h"
+#include "ns3/propagation-module.h"
+#include "ns3/spectrum-module.h"
 
 using namespace ns3;
+using namespace ns3::lrwpan;
 
 uint32_t g_packetsReceived = 0; //!< number of packets received
 
@@ -50,8 +40,8 @@ NS_LOG_COMPONENT_DEFINE("LrWpanErrorDistancePlot");
 
 /**
  * Function called when a Data indication is invoked
- * \param params MCPS data indication parameters
- * \param p packet
+ * @param params MCPS data indication parameters
+ * @param p packet
  */
 void
 PacketReceivedCallback(McpsDataIndicationParams params, Ptr<Packet> p)
@@ -86,7 +76,7 @@ main(int argc, char* argv[])
 
     Gnuplot perplot = Gnuplot("802.15.4-per-vs-rxSignal.eps");
     Gnuplot2dDataset perdatasetExperimental("Experimental");
-    Gnuplot2dDataset perdatasetTheorical("Theoretical");
+    Gnuplot2dDataset perdatasetTheoretical("Theoretical");
 
     Ptr<Node> n0 = CreateObject<Node>();
     Ptr<Node> n1 = CreateObject<Node>();
@@ -214,7 +204,7 @@ main(int argc, char* argv[])
             sensThreshold = false;
         }
 
-        perdatasetTheorical.Add(j, perTheoretical);
+        perdatasetTheoretical.Add(j, perTheoretical);
     }
 
     std::cout << "_____________________________________________________________________________\n";
@@ -229,7 +219,7 @@ main(int argc, char* argv[])
        << "Rx Sensitivity (Theo) = " << sensitivityTheo << " dBm";
 
     perplot.AddDataset(perdatasetExperimental);
-    perplot.AddDataset(perdatasetTheorical);
+    perplot.AddDataset(perdatasetTheoretical);
 
     perplot.SetTitle(os.str());
     perplot.SetTerminal("postscript eps color enh \"Times-BoldItalic\"");

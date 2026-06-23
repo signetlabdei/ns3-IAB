@@ -1,18 +1,7 @@
 /*
  * Copyright (c) 2014 Universita' di Firenze, Italy
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation;
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier: GPL-2.0-only
  *
  * Author: Tommaso Pecorella <tommaso.pecorella@unifi.it>
  */
@@ -82,7 +71,7 @@ main(int argc, char** argv)
     cmd.AddValue("printRoutingTables",
                  "Print routing tables at 30, 60 and 90 seconds",
                  printRoutingTables);
-    cmd.AddValue("showPings", "Show Ping6 reception", showPings);
+    cmd.AddValue("showPings", "Show Ping reception", showPings);
     cmd.AddValue("splitHorizonStrategy",
                  "Split Horizon strategy to use (NoSplitHorizon, SplitHorizon, PoisonReverse)",
                  SplitHorizon);
@@ -220,25 +209,25 @@ main(int argc, char** argv)
     {
         Ptr<OutputStreamWrapper> routingStream = Create<OutputStreamWrapper>(&std::cout);
 
-        Ipv6RoutingHelper::PrintRoutingTableAt(Seconds(30.0), a, routingStream);
-        Ipv6RoutingHelper::PrintRoutingTableAt(Seconds(30.0), b, routingStream);
-        Ipv6RoutingHelper::PrintRoutingTableAt(Seconds(30.0), c, routingStream);
-        Ipv6RoutingHelper::PrintRoutingTableAt(Seconds(30.0), d, routingStream);
+        Ipv6RoutingHelper::PrintRoutingTableAt(Seconds(30), a, routingStream);
+        Ipv6RoutingHelper::PrintRoutingTableAt(Seconds(30), b, routingStream);
+        Ipv6RoutingHelper::PrintRoutingTableAt(Seconds(30), c, routingStream);
+        Ipv6RoutingHelper::PrintRoutingTableAt(Seconds(30), d, routingStream);
 
-        Ipv6RoutingHelper::PrintRoutingTableAt(Seconds(60.0), a, routingStream);
-        Ipv6RoutingHelper::PrintRoutingTableAt(Seconds(60.0), b, routingStream);
-        Ipv6RoutingHelper::PrintRoutingTableAt(Seconds(60.0), c, routingStream);
-        Ipv6RoutingHelper::PrintRoutingTableAt(Seconds(60.0), d, routingStream);
+        Ipv6RoutingHelper::PrintRoutingTableAt(Seconds(60), a, routingStream);
+        Ipv6RoutingHelper::PrintRoutingTableAt(Seconds(60), b, routingStream);
+        Ipv6RoutingHelper::PrintRoutingTableAt(Seconds(60), c, routingStream);
+        Ipv6RoutingHelper::PrintRoutingTableAt(Seconds(60), d, routingStream);
 
-        Ipv6RoutingHelper::PrintRoutingTableAt(Seconds(90.0), a, routingStream);
-        Ipv6RoutingHelper::PrintRoutingTableAt(Seconds(90.0), b, routingStream);
-        Ipv6RoutingHelper::PrintRoutingTableAt(Seconds(90.0), c, routingStream);
-        Ipv6RoutingHelper::PrintRoutingTableAt(Seconds(90.0), d, routingStream);
+        Ipv6RoutingHelper::PrintRoutingTableAt(Seconds(90), a, routingStream);
+        Ipv6RoutingHelper::PrintRoutingTableAt(Seconds(90), b, routingStream);
+        Ipv6RoutingHelper::PrintRoutingTableAt(Seconds(90), c, routingStream);
+        Ipv6RoutingHelper::PrintRoutingTableAt(Seconds(90), d, routingStream);
     }
 
     NS_LOG_INFO("Create Applications.");
     uint32_t packetSize = 1024;
-    Time interPacketInterval = Seconds(1.0);
+    Time interPacketInterval = Seconds(1);
     PingHelper ping(iic7.GetAddress(1, 1));
 
     ping.SetAttribute("Interval", TimeValue(interPacketInterval));
@@ -248,8 +237,8 @@ main(int argc, char** argv)
         ping.SetAttribute("VerboseMode", EnumValue(Ping::VerboseMode::VERBOSE));
     }
     ApplicationContainer apps = ping.Install(src);
-    apps.Start(Seconds(1.0));
-    apps.Stop(Seconds(110.0));
+    apps.Start(Seconds(1));
+    apps.Stop(Seconds(110));
 
     AsciiTraceHelper ascii;
     csma.EnableAsciiAll(ascii.CreateFileStream("ripng-simple-routing.tr"));

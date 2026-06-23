@@ -47,7 +47,7 @@ NS_LOG_COMPONENT_DEFINE ("LteRlcUmE2eTest");
  * TestSuite
  */
 
-LteRlcUmE2eTestSuite::LteRlcUmE2eTestSuite () : TestSuite ("lte-rlc-um-e2e", SYSTEM)
+LteRlcUmE2eTestSuite::LteRlcUmE2eTestSuite () : TestSuite ("lte-rlc-um-e2e", TestSuite::Type::SYSTEM)
 {
   // NS_LOG_INFO ("Creating LteRlcUmE2eTestSuite");
 
@@ -60,14 +60,14 @@ LteRlcUmE2eTestSuite::LteRlcUmE2eTestSuite () : TestSuite ("lte-rlc-um-e2e", SYS
         {
           std::ostringstream name;
           name << " Losses = " << losses[l] << "%. Seed = " << seeds[s];
-          TestCase::TestDuration testDuration;
+          TestCase::Duration testDuration;
           if (l == 1 && s == 0)
             {
-              testDuration = TestCase::QUICK;
+              testDuration = TestCase::Duration::QUICK;
             }
           else
             {
-              testDuration = TestCase::EXTENSIVE;
+              testDuration = TestCase::Duration::EXTENSIVE;
             }
           AddTestCase (new LteRlcUmE2eTestCase (name.str (), seeds[s], losses[l]), testDuration);
         }
