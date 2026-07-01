@@ -5,7 +5,7 @@ An open-source, full-stack ns-3 simulation framework for **5G NR Integrated Acce
 Built on top of the [ns3-mmwave](https://github.com/nyuwireless-unipd/ns3-mmwave) framework.
 
 > **Associated paper:**
-> A. Traspadini, M. Pagin, R. Ihamouine, R. Lucas, A. Noren, M. Zorzi, M. Giordani, *"End-to-End Simulation of 5G NR Integrated Access and Backhaul Networks for Remote Maritime Connectivity"*, in IEEE Transactions on Communications, doi: 10.1109/TCOMM.2026.3698864. [Link](https://ieeexplore.ieee.org/abstract/document/11543385)
+> A. Traspadini, M. Pagin, R. Ihamouine, R. Lucas, A. Noren, M. Zorzi, M. Giordani, *"End-to-End Simulation of 5G NR Integrated Access and Backhaul Networks for Remote Maritime Connectivity"*, in IEEE Transactions on Communications, vol. 74, pp. 10338–10351, Jun. 2026, doi: 10.1109/TCOMM.2026.3698864. [Link](https://ieeexplore.ieee.org/abstract/document/11543385)
 ---
 
 ## Table of Contents
@@ -136,11 +136,15 @@ mmwaveHelper->AttachToClosestIab(ueDev, iabMmWaveDev);
 
 If you use this simulator in your research, please cite:
 
+
 ```bibtex
 @article{traspadini2026iab,
   title   = {End-to-End Simulation of {5G} {NR} Integrated Access and Backhaul Networks for Remote Maritime Connectivity},
   author  = {Traspadini, Alessandro and Pagin, Matteo and Ihamouine, Rapha{\"e}l and Lucas, Rupert and Noren, Andrew and Zorzi, Michele and Giordani, Marco},
   journal = {IEEE Transactions on Communications},
-  year    = {2026}
-}
+  month   = jun,
+  year    = {2026},
+  volume  = {74},
+  pages   = {10338-10351},
+  doi     = {10.1109/TCOMM.2026.3698864}}
 ```
